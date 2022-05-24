@@ -9,15 +9,19 @@ import {useState} from 'react';
 
 
 function App() {
+  // state variable to handle viewing of bar chart
   let [barChartView, setBarChartView] = useState(false)
 
   return (
     <Container fluid>
       <Row>
+        {/* widgets component */}
       <WidgetsComponent
         barChartToggle ={setBarChartView}
       />
+      {/* map view */}
       <MapView />
+      {/* bar chart, by default hiddent */}
       <BarChart
         disp = {barChartView}
       />
