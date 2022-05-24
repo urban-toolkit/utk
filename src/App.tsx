@@ -10,8 +10,9 @@ function App() {
   return (
     <Container fluid>
       <Row>
+      <WidgetsComponent></WidgetsComponent>
         <MapView></MapView>
-        <WidgetsComponent></WidgetsComponent>
+        
       </Row>
     </Container>
   );
