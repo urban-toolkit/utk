@@ -1,7 +1,8 @@
 .drag-box {
     padding: 50px;
     background: #ccc;
-    width: 200px !important;
+    width: 25vw !important;
+    height: 35vh !important;
     cursor: move;
     position: absolute;
   }

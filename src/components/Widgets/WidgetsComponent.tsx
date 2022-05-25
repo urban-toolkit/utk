@@ -22,18 +22,19 @@ export const WidgetsComponent = ({
     heatmapToggle
 
 }: widgetProps) => {
-return(
-    <Col md={1}>
-        {/* visualization widget */}
-        <VisWidget 
-            barChartToggle = {barChartToggle}
-            scatterToggle = {scatterToggle}
-            heatmapToggle = {heatmapToggle}
-        />
-        {/* data widget */}
-        <DataWidget />      
-    </Col>
-)
+
+    return(
+        <Col md={1}>
+            {/* visualization widget */}
+            <VisWidget 
+                barChartToggle = {barChartToggle}
+                scatterToggle = {scatterToggle}
+                heatmapToggle = {heatmapToggle}
+            />
+            {/* data widget */}
+            <DataWidget />      
+        </Col>
+    )
 
 };
 
