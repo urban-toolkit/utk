@@ -8,7 +8,6 @@ import { BarChart } from './components/VisComponent/BarChart/BarChart';
 import {useState} from 'react';
 import { ScatterPlot } from './components/VisComponent/ScatterPlot/ScatterPlot';
 import { HeatMap } from './components/VisComponent/HeatMap/HeatMap';
-import { scaleLinear } from 'd3';
 
 
 function App() {
@@ -16,10 +15,6 @@ function App() {
   let [barChartView, setBarChartView] = useState(false)
   let [scatterPlotView, setScatterPlotView] = useState(false)
   let [heatmapView, setHeatmapView] = useState(false)
-
-  const scale = scaleLinear()
-  .range([0,10])
-  .domain([5,100])
 
   return (
     <Container fluid>
@@ -32,16 +27,18 @@ function App() {
       />
       {/* map view */}
       <MapView />
-      {/* bar chart, by default hiddent */}
+
+      {/* bar chart, by default hidden */}
       <BarChart
         disp = {barChartView}
-        scale = {scale}
       />
 
+      {/* scatter plot, by default hidden */}
       <ScatterPlot
         disp = {scatterPlotView}
       />
 
+      {/* heatmap, by default hidden */}
       <HeatMap
         disp = {heatmapView}
       />

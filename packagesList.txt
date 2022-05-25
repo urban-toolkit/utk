@@ -1,0 +1,5 @@
+1. react-bootstrap - https://www.npmjs.com/package/react-bootstrap
+2. react-draggable - https://www.npmjs.com/package/react-draggable
+3. d3 - https://www.npmjs.com/package/d3
+4. @types/d3 - https://www.npmjs.com/package/@types/d3
+5. react-icons - https://www.npmjs.com/package/react-icons

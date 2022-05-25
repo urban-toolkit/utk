@@ -6,9 +6,7 @@ import './MapView.css';
 export const MapView = () => {
     const canvas = useRef<HTMLCanvasElement>(null!);
     const div = useRef<HTMLDivElement>(null!);
-    // console.log(canvas.current.getContext('webgl2'))
-    console.log(canvas.current)
-    // let gl = document.querySelector(canvas.current)
+
     useEffect(()=> {
         console.log(canvas.current.clientHeight)
     }, [canvas])

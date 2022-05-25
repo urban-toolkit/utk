@@ -1,22 +1,17 @@
-import { ScaleLinear } from "d3";
 import { useRef } from "react";
 import Draggable from "react-draggable";
 import '../Dragbox.css'
 
 // decalring the types of the props
 type BarChartProps = {
-    disp: boolean,
-    scale: ScaleLinear<number, number>
+    disp: boolean
 }
 
 export const BarChart = ({
-    disp,
-    scale
+    disp
 }: BarChartProps
 ) =>{
     const nodeRef = useRef(null)
-    // console.log(scale.range)
-
     
     return(
         <Draggable nodeRef={nodeRef}>

@@ -5,7 +5,7 @@ export function createShader(gl, type, source) {
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         var info = gl.getShaderInfoLog(shader);
-        console.log('Could not compile WebGL program:' + info);
+        console.log('Could not compile WebGL program:' + info);
     }
 
     return shader;
@@ -19,7 +19,7 @@ export function createProgram(gl, vertexShader, fragmentShader) {
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         var info = gl.getProgramInfoLog(program);
-        console.log('Could not compile WebGL program:' + info);
+        console.log('Could not compile WebGL program:' + info);
     }
 
     return program;
