@@ -2,6 +2,7 @@ import { useRef } from "react";
 import Draggable from "react-draggable";
 import '../Dragbox.css'
 
+// decalring the types of the props
 type BarChartProps = {
     disp: boolean
 }
