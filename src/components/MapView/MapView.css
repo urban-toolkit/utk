@@ -4,3 +4,7 @@
     background-color:aquamarine;
     text-align: center;
 }
+canvas{
+    position: absolute;
+    /* height: 95vh; */
+}
