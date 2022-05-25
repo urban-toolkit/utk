@@ -7,10 +7,16 @@ import { FaChartBar } from "react-icons/fa";
  * view or hiding the visualization
 */
 type visWidProps = {
-    barChartToggle: React.Dispatch<React.SetStateAction<any>>;
+    barChartToggle: React.Dispatch<React.SetStateAction<any>>,
+    scatterToggle: React.Dispatch<React.SetStateAction<any>>,
+    heatmapToggle: React.Dispatch<React.SetStateAction<any>>
 }
 
-export const VisWidget = ({barChartToggle}:visWidProps) =>{
+export const VisWidget = ({
+    barChartToggle,
+    scatterToggle,
+    heatmapToggle
+}:visWidProps) =>{
     // state controlling the collapse
     const [visOpen, setVisOpen] = useState(false)
 
@@ -25,6 +31,22 @@ export const VisWidget = ({barChartToggle}:visWidProps) =>{
     const handleBarCheckBoxChange = () => {
         setBarCheckBox(!barCheckBox)
         barChartToggle(!barCheckBox)        
+
+    }
+
+    const [scatterCheckBox, setScatterCheckBox] = useState(false);
+
+    const handleScatterCheckBoxChange = () => {
+        setScatterCheckBox(!scatterCheckBox)
+        scatterToggle(!scatterCheckBox)        
+
+    }
+
+    const [heatmapCheckBox, setHeatmapCheckBox] = useState(false);
+
+    const handleHeatmapCheckBox = () => {
+        setHeatmapCheckBox(!heatmapCheckBox)
+        heatmapToggle(!heatmapCheckBox)        
 
     }
 
@@ -47,10 +69,10 @@ export const VisWidget = ({barChartToggle}:visWidProps) =>{
                             <Form.Check type="checkbox" label="Bar Chart"  onChange={handleBarCheckBoxChange}/>
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="formBasicCheckbox" id="space">
-                            <Form.Check type="checkbox" label="Scatter Plot" />
+                            <Form.Check type="checkbox" label="Scatter Plot" onChange={handleScatterCheckBoxChange}/>
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="formBasicCheckbox" id="space">
-                            <Form.Check type="checkbox" label="Heat Map" />
+                            <Form.Check type="checkbox" label="Heat Map" onChange={handleHeatmapCheckBox}/>
                         </Form.Group>
                     </Form>        
                 </Collapse>
