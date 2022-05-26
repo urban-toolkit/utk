@@ -1,10 +1,4 @@
-.mapPlaceHolderDiv{
-    border: 1px solid #000000;
-    height: 98vh;
-    background-color:aquamarine;
-    text-align: center;
-}
 canvas{
-    position: absolute;
+    /* position: absolute; */
     height: 96vh;
 }
