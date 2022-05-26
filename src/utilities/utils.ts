@@ -1,5 +1,5 @@
 
-export function createShader(gl, type, source) {
+export function createShader(gl: any, type: any, source: string) {
     var shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -11,7 +11,7 @@ export function createShader(gl, type, source) {
     return shader;
 }
 
-export function createProgram(gl, vertexShader, fragmentShader) {
+export function createProgram(gl: any, vertexShader: any, fragmentShader: any) {
     var program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
@@ -25,57 +25,40 @@ export function createProgram(gl, vertexShader, fragmentShader) {
     return program;
 }
 
-export function createTexture2D(gl, width, height, internalFormat, border, format, type, data, minFilter, magFilter, wrapS, wrapT) {
-    var texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, border, format, type, data);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+// export function createTexture2D(gl, width, height, internalFormat, border, format, type, data, minFilter, magFilter, wrapS, wrapT) {
+//     var texture = gl.createTexture();
+//     gl.bindTexture(gl.TEXTURE_2D, texture);
+//     gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, border, format, type, data);
+//     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
+//     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
+//     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
+//     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
+//     gl.bindTexture(gl.TEXTURE_2D, null);
     
-    return texture;
-}
+//     return texture;
+// }
 
-export function createFBO(gl, attachmentPoint, texture) {
-    var fbo = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, texture, 0); 
+// export function createFBO(gl, attachmentPoint, texture) {
+//     var fbo = gl.createFramebuffer();
+//     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+//     gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, texture, 0); 
 
 
-    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-        console.log("Problem creating FBO.");
-    }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+//     if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+//         console.log("Problem creating FBO.");
+//     }
+//     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    return fbo;
-}
+//     return fbo;
+// }
 
-export function isAbv(value) {
-    return value && value.buffer instanceof ArrayBuffer && value.byteLength !== undefined;
-}
+// export function isAbv(value: any) {
+//     return value && value.buffer instanceof ArrayBuffer && value.byteLength !== undefined;
+// }
 
-export function createBuffer(gl, type, data) {
+// export function createBuffer(gl: any, type: any, data: string | any[]) {
 
-    if(data.length === 0)
-        return null;
-
-    if(!isAbv(data)) {
-        console.warn('Data is not an instance of ArrayBuffer');
-        return null;
-    }
-
-    var buffer = gl.createBuffer();
-    gl.bindBuffer(type, buffer);
-    gl.bufferData(type, data, gl.STATIC_DRAW);
-
-    return buffer;
-}
-
-// export function createBuffer(gl, type, data) {
-
-//     if(data.length == 0)
+//     if(data.length === 0)
 //         return null;
 
 //     if(!isAbv(data)) {
@@ -90,35 +73,74 @@ export function createBuffer(gl, type, data) {
 //     return buffer;
 // }
 
-export function createVAO(gl, posAttribLoc, posBuffer, normAttribLoc = null, normBuffer = null, colorAttribLoc = null, colorBuffer = null) {
+// lab 3
+export function createBuffers(gl: any, triangles: any) {
+
+    var posBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangles['positions']), gl.STATIC_DRAW);
+
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangles['colors']), gl.STATIC_DRAW);
+
+    var elemBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elemBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(triangles['elements']), gl.STATIC_DRAW);
+
+    return { 'positions': posBuffer, 'colors': colorBuffer, 'elements': elemBuffer };
+}
+
+// export function createVAO(gl:any, posAttribLoc: any, posBuffer: WebGLBuffer, normAttribLoc = null, normBuffer = null, colorAttribLoc = null, colorBuffer = null) {
+
+//     var vao = gl.createVertexArray();
+
+//     gl.bindVertexArray(vao);
+
+//     if(posAttribLoc != null && posAttribLoc !== undefined) {
+//         gl.enableVertexAttribArray(posAttribLoc);
+//         var size = 3;
+//         var type = gl.FLOAT;
+//         gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+//         gl.vertexAttribPointer(posAttribLoc, size, type, false, 0, 0);
+//     }
+
+//     if(normAttribLoc != null && normAttribLoc !== undefined) {
+//         gl.enableVertexAttribArray(normAttribLoc);
+//         size = 3;
+//         type = gl.FLOAT;
+//         gl.bindBuffer(gl.ARRAY_BUFFER, normBuffer);
+//         gl.vertexAttribPointer(normAttribLoc, size, type, false, 0, 0);
+//     }
+
+//     if(colorAttribLoc != null && colorAttribLoc !== undefined) {
+//         gl.enableVertexAttribArray(colorAttribLoc);
+//         size = 4;
+//         type = gl.FLOAT;
+//         gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+//         gl.vertexAttribPointer(colorAttribLoc, size, type, false, 0, 0);
+//     }
+
+//     return vao;
+// }
+
+// lab 3
+export function createVAO(gl: any, posAttribLoc: any, colorAttribLoc:any, buffers:any) {
 
     var vao = gl.createVertexArray();
 
     gl.bindVertexArray(vao);
+    gl.enableVertexAttribArray(posAttribLoc);
+    var size = 3; // number of components per attribute
+    var type = gl.FLOAT;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers['positions']);
+    gl.vertexAttribPointer(posAttribLoc, size, type, false, 0, 0);
 
-    if(posAttribLoc != null && posAttribLoc !== undefined) {
-        gl.enableVertexAttribArray(posAttribLoc);
-        var size = 3;
-        var type = gl.FLOAT;
-        gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-        gl.vertexAttribPointer(posAttribLoc, size, type, false, 0, 0);
-    }
-
-    if(normAttribLoc != null && normAttribLoc !== undefined) {
-        gl.enableVertexAttribArray(normAttribLoc);
-        size = 3;
-        type = gl.FLOAT;
-        gl.bindBuffer(gl.ARRAY_BUFFER, normBuffer);
-        gl.vertexAttribPointer(normAttribLoc, size, type, false, 0, 0);
-    }
-
-    if(colorAttribLoc != null && colorAttribLoc !== undefined) {
-        gl.enableVertexAttribArray(colorAttribLoc);
-        size = 4;
-        type = gl.FLOAT;
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(colorAttribLoc, size, type, false, 0, 0);
-    }
+    gl.enableVertexAttribArray(colorAttribLoc);
+    size = 4;
+    type = gl.FLOAT;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers['colors']);
+    gl.vertexAttribPointer(colorAttribLoc, size, type, false, 0, 0);
 
     return vao;
 }
@@ -126,7 +148,7 @@ export function createVAO(gl, posAttribLoc, posBuffer, normAttribLoc = null, nor
 /*
     Code adapted from  https://github.com/gregtatum/mdn-model-view-projection
 */
-export function multiplyMatrices(a, b) {
+export function multiplyMatrices(a: any[], b: any[]) {
 
     // TODO - Simplify for explanation
     // currently taken from https://github.com/toji/gl-matrix/blob/master/src/gl-matrix/mat4.js#L306-L337
@@ -166,7 +188,7 @@ export function multiplyMatrices(a, b) {
     return result;
 }
 
-export function invertMatrix(matrix) {
+export function invertMatrix(matrix: any[]) {
 
     // Adapted from: https://github.com/mrdoob/three.js/blob/master/src/math/Matrix4.js
 
@@ -209,7 +231,7 @@ export function invertMatrix(matrix) {
     return result;
 }
 
-export function multiplyArrayOfMatrices(matrices) {
+export function multiplyArrayOfMatrices(matrices: string | any[]) {
 
     var inputMatrix = matrices[0];
 
@@ -220,7 +242,7 @@ export function multiplyArrayOfMatrices(matrices) {
     return inputMatrix;
 }
 
-export function rotateMatrix(a, b, c) {
+export function rotateMatrix(a: number, b: any, c: any) {
 
     var cos = Math.cos;
     var sin = Math.sin;
@@ -234,7 +256,7 @@ export function rotateMatrix(a, b, c) {
 
 }
 
-export function rotateXMatrix(a) {
+export function rotateXMatrix(a: number) {
 
     var cos = Math.cos;
     var sin = Math.sin;
@@ -247,7 +269,7 @@ export function rotateXMatrix(a) {
     ];
 }
 
-export function rotateYMatrix(a) {
+export function rotateYMatrix(a: number) {
 
     var cos = Math.cos;
     var sin = Math.sin;
@@ -260,7 +282,7 @@ export function rotateYMatrix(a) {
     ];
 }
 
-export function rotateZMatrix(a) {
+export function rotateZMatrix(a: number) {
 
     var cos = Math.cos;
     var sin = Math.sin;
@@ -273,7 +295,7 @@ export function rotateZMatrix(a) {
     ];
 }
 
-export function translateMatrix(x, y, z) {
+export function translateMatrix(x: number, y: number, z: number) {
     return [
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -282,7 +304,7 @@ export function translateMatrix(x, y, z) {
     ];
 }
 
-export function scaleMatrix(w, h, d) {
+export function scaleMatrix(w: number, h: number, d: number) {
     return [
         w, 0, 0, 0,
         0, h, 0, 0,
@@ -291,7 +313,7 @@ export function scaleMatrix(w, h, d) {
     ];
 }
 
-export function perspectiveMatrix(fieldOfViewInRadians, aspectRatio, near, far) {
+export function perspectiveMatrix(fieldOfViewInRadians: number, aspectRatio: number, near: number, far: number) {
     var f = 1.0 / Math.tan(fieldOfViewInRadians / 2);
     var rangeInv = 1 / (near - far);
 
@@ -303,7 +325,7 @@ export function perspectiveMatrix(fieldOfViewInRadians, aspectRatio, near, far) 
     ];
 }
 
-export function orthographicMatrix(left, right, bottom, top, near, far) {
+export function orthographicMatrix(left: number, right: number, bottom: number, top: number, near: number, far: number) {
 
     // Each of the parameters represents the plane of the bounding box
 
@@ -335,7 +357,7 @@ export function identityMatrix() {
 
 // From glMatrix
 const EPSILON = 0.000001;
-export function lookAt(eye, center, up) {
+export function lookAt(eye: any[], center: any[], up: any[]) {
 
     var out = identityMatrix();
     let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
@@ -420,7 +442,7 @@ export function lookAt(eye, center, up) {
 }
 
 // From glMatrix
-export function cross(a, b) {
+export function cross(a: any[], b: any[]) {
     var out = [0,0,0];
     let ax = a[0],
     ay = a[1],
@@ -438,7 +460,7 @@ export function cross(a, b) {
 }
 
 // From glMatrix
-export function normalize(a) {
+export function normalize(a: number[]) {
     var out = [0,0,0];
     let x = a[0];
     let y = a[1];
@@ -456,10 +478,87 @@ export function normalize(a) {
     return out;
 }
 
-export function add(a, b) {
+export function add(a: any[], b: any[]) {
     return [a[0]+b[0],a[1]+b[1],a[2]+b[2]];
 }
 
-export function sub(a, b) {
+export function sub(a: number[], b: number[]) {
     return [a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+}
+
+
+
+export function createCube() {
+
+    var positions = [
+        // Front face
+        -1.0, -1.0, 1.0,
+        1.0, -1.0, 1.0,
+        1.0, 1.0, 1.0,
+        -1.0, 1.0, 1.0,
+
+        // Back face
+        -1.0, -1.0, -1.0,
+        -1.0, 1.0, -1.0,
+        1.0, 1.0, -1.0,
+        1.0, -1.0, -1.0,
+
+        // Top face
+        -1.0, 1.0, -1.0,
+        -1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,
+        1.0, 1.0, -1.0,
+
+        // Bottom face
+        -1.0, -1.0, -1.0,
+        1.0, -1.0, -1.0,
+        1.0, -1.0, 1.0,
+        -1.0, -1.0, 1.0,
+
+        // Right face
+        1.0, -1.0, -1.0,
+        1.0, 1.0, -1.0,
+        1.0, 1.0, 1.0,
+        1.0, -1.0, 1.0,
+
+        // Left face
+        -1.0, -1.0, -1.0,
+        -1.0, -1.0, 1.0,
+        -1.0, 1.0, 1.0,
+        -1.0, 1.0, -1.0
+    ];
+
+    var colorsOfFaces = [
+        [0.3, 1.0, 1.0, 1.0],    // Front face: cyan
+        [1.0, 0.3, 0.3, 1.0],    // Back face: red
+        [0.3, 1.0, 0.3, 1.0],    // Top face: green
+        [0.3, 0.3, 1.0, 1.0],    // Bottom face: blue
+        [1.0, 1.0, 0.3, 1.0],    // Right face: yellow
+        [1.0, 0.3, 1.0, 1.0]     // Left face: purple
+    ];
+
+    var colors: any[] = [];
+    for (var j = 0; j < 6; j++) {
+        var polygonColor = colorsOfFaces[j];
+
+        for (var i = 0; i < 4; i++) {
+            colors = colors.concat(polygonColor);
+        }
+    }
+
+    var elements = [
+        0, 1, 2, 0, 2, 3,    // front
+        4, 5, 6, 4, 6, 7,    // back
+        8, 9, 10, 8, 10, 11,   // top
+        12, 13, 14, 12, 14, 15,   // bottom
+        16, 17, 18, 16, 18, 19,   // right
+        20, 21, 22, 20, 22, 23    // left
+    ];
+
+    return {
+        'positions': positions,
+        'colors': colors,
+        'elements': elements
+    };
+
 }
