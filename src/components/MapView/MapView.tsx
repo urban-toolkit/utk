@@ -97,6 +97,8 @@ export const MapView = () => {
 
     useEffect(()=> {
         let can = canvas.current;
+        can.width = window.innerWidth / 1.06;
+        can.height = window.innerHeight;
 
         gl = can.getContext("webgl2");
     
