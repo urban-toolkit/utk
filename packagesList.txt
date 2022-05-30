@@ -3,3 +3,5 @@
 3. d3 - https://www.npmjs.com/package/d3
 4. @types/d3 - https://www.npmjs.com/package/@types/d3
 5. react-icons - https://www.npmjs.com/package/react-icons
+6. jquery - https://www.npmjs.com/package/jquery
+7. @types/jquery - https://www.npmjs.com/package/@types/jquery

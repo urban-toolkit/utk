@@ -1,34 +1,9 @@
 import {Col} from 'react-bootstrap'
 import { useCallback, useEffect, useRef } from 'react'
 import { Environment, MapView, DataLoader } from '../../utilities/urbantkmap';
+import $ from 'jquery';
 
 import './MapView.css';
-import { vertexShaderSrc } from './vertex.glsl';
-import { fragmentShaderSrc } from './fragment.glsl';
-import { 
-    createShader, 
-    createProgram, 
-    createCube, 
-    createVAO, 
-    createBuffers, 
-    scaleMatrix, 
-    rotateXMatrix, 
-    rotateYMatrix, 
-    translateMatrix, 
-    multiplyArrayOfMatrices,
-    perspectiveMatrix,
-    invertMatrix} from '../../utilities/utils';
-
-var gl: any;
-var program: WebGLProgram;
-var buffers: any;
-var vao: WebGLVertexArrayObject;
-var modelLoc: any;
-var projectionLoc: any;
-var viewLoc: any;
-var modelMatrix: Iterable<number>;
-var projectionMatrix: Iterable<number>;
-var viewMatrix: Iterable<number>;
 
 
 class App {
@@ -51,11 +26,12 @@ export const MapViewer = () => {
 
     useEffect(()=> {
         let can = canvas.current;
+        $('#map').empty();
         let app = new App('#map');
 
         // Data fromat example
-        Environment.setEnvironment({backend: 'http://127.0.0.1:3000', dataFolder:'src/data/data_format'});
-        const url = `${Environment.backend}/${Environment.dataFolder}/park_slope_no_buildings.json`;
+        // Environment.setEnvironment({backend: 'http://127.0.0.1:3000', dataFolder:'src/data/data_format'});
+        const url = `https://raw.githubusercontent.com/urban-toolkit/urbantk-react-ts/master/src/data/data_format/park_slope_no_buildings.json?token=GHSAT0AAAAAABRXFUABFHHVPJNHH7DTDESEYUVDGYA`;
 
         console.log(url)
 
