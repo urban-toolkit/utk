@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 
 import {Container, Row} from 'react-bootstrap'
-import { MapView } from './components/MapView/MapView';
+import { MapViewer } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 import { BarChart } from './components/VisComponent/BarChart/BarChart';
 import {useState} from 'react';
@@ -26,7 +26,7 @@ function App() {
         heatmapToggle ={setHeatmapView}
       />
       {/* map view */}
-      <MapView />
+      <MapViewer />
 
       {/* bar chart, by default hidden */}
       <BarChart
