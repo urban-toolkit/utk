@@ -1,6 +1,6 @@
 import {Col} from 'react-bootstrap'
-import { useCallback, useEffect, useRef } from 'react'
-import { Environment, MapView, DataLoader } from '../../utilities/urbantkmap';
+import {useEffect, useRef } from 'react'
+import { MapView, DataLoader } from '../../utilities/urbantkmap';
 import $ from 'jquery';
 
 import './MapView.css';
@@ -31,7 +31,7 @@ export const MapViewer = () => {
 
         // Data fromat example
         // Environment.setEnvironment({backend: 'http://127.0.0.1:3000', dataFolder:'src/data/data_format'});
-        const url = `https://raw.githubusercontent.com/urban-toolkit/urbantk-react-ts/master/src/data/data_format/park_slope_no_buildings.json?token=GHSAT0AAAAAABRXFUABFHHVPJNHH7DTDESEYUVDGYA`;
+        const url = `https://gist.githubusercontent.com/nafiul-nipu/1be0e281b5e7c1415bb239297660a998/raw/78196c1143f00bf29e91e1ee542ca6308bd07267/park_slope_no_buildings.json`;
 
         console.log(url)
 
