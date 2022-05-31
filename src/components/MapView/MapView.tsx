@@ -21,11 +21,11 @@ class App {
   }
 
 export const MapViewer = () => {
-    const canvas = useRef<HTMLCanvasElement>(null!);
+    // const canvas = useRef<HTMLCanvasElement>(null!);
 
 
     useEffect(()=> {
-        let can = canvas.current;
+        // let can = canvas.current;
         $('#map').empty();
         let app = new App('#map');
 
@@ -33,10 +33,10 @@ export const MapViewer = () => {
         // Environment.setEnvironment({backend: 'http://127.0.0.1:3000', dataFolder:'src/data/data_format'});
         const url = `https://gist.githubusercontent.com/nafiul-nipu/1be0e281b5e7c1415bb239297660a998/raw/78196c1143f00bf29e91e1ee542ca6308bd07267/park_slope_no_buildings.json`;
 
-        console.log(url)
+        console.log(window.innerHeight)
 
         DataLoader.getJsonData(url).then(data => {
-            console.log(data)
+            // console.log(data)
             app.run(data);
           });
 
