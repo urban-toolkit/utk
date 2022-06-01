@@ -1,10 +1,9 @@
 import {Col} from 'react-bootstrap'
-import {useEffect, useRef } from 'react'
+import React, {useEffect, useRef } from 'react'
 import { MapView, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
-import $ from 'jquery';
+import $, { data } from 'jquery';
 
 import './MapView.css';
-
 
 class App {
     _map: MapView;
@@ -20,8 +19,14 @@ class App {
     }
   }
 
-export const MapViewer = () => {
+
+type mapViewDataProps = {
+  dataToView: any
+}
+
+export const MapViewer = ({dataToView}:mapViewDataProps) => {
     // const canvas = useRef<HTMLCanvasElement>(null!);
+    // console.log(dataToView)
 
 
     useEffect(()=> {
@@ -32,15 +37,16 @@ export const MapViewer = () => {
         // Data fromat example
         // Environment.setEnvironment({backend: 'http://127.0.0.1:3000', dataFolder:'src/data/data_format'});
         const url = `https://gist.githubusercontent.com/nafiul-nipu/1be0e281b5e7c1415bb239297660a998/raw/78196c1143f00bf29e91e1ee542ca6308bd07267/park_slope_no_buildings.json`;
+        // const url = `https://gist.githubusercontent.com/nafiul-nipu/d524f113976cc30168f854374dab7885/raw/b4a631633d182c48a75f30be05b960d6efb7f3c3/park_slope.json`
 
-        console.log(window.innerHeight)
+        // console.log(window.innerHeight)
 
         DataLoader.getJsonData(url).then(data => {
             // console.log(data)
             app.run(data);
           });
 
-    }, [])
+    }, [dataToView])
 
     return(
         <Col md={11}>

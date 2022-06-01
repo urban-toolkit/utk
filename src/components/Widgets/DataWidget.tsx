@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Button, Col, Collapse, Form, Row } from "react-bootstrap";
 import { BiData } from "react-icons/bi";
 
-export function DataWidget() {
+
+type dataWidgetProps = {
+    onCityRefChange: any
+}
+
+export function DataWidget({onCityRefChange}:dataWidgetProps) {
     const [dataOpen, setdataOpen] = useState(false)   
 
     return (<Row>
@@ -20,8 +25,20 @@ export function DataWidget() {
                     <Collapse in={dataOpen}>
                         <Form>
                             <Form.Group className="mb-3" controlId="formBasicCheckbox" id="space">
-                                <Form.Check type="radio" label="Chicago" name="city" />
-                                <Form.Check type="radio" label="New York" name="city" />
+                                <Form.Check 
+                                    type="radio" 
+                                    label="Chicago" 
+                                    name="city" 
+                                    value='Chicago'
+                                    onChange={onCityRefChange} 
+                                    defaultChecked/>
+                                <Form.Check 
+                                    type="radio" 
+                                    label="New York" 
+                                    name="city" 
+                                    value='NewYork'
+                                    onChange={onCityRefChange} 
+                                />
                             </Form.Group>
                         </Form>        
                     </Collapse>

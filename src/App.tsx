@@ -12,9 +12,16 @@ import { HeatMap } from './components/VisComponent/HeatMap/HeatMap';
 
 function App() {
   // state variable to handle viewing of bar chart
-  let [barChartView, setBarChartView] = useState(false)
-  let [scatterPlotView, setScatterPlotView] = useState(false)
-  let [heatmapView, setHeatmapView] = useState(false)
+  const [barChartView, setBarChartView] = useState(false)
+  const [scatterPlotView, setScatterPlotView] = useState(false)
+  const [heatmapView, setHeatmapView] = useState(false)
+
+  const [cityRef, setCityRef] = useState('Chicago')
+
+  const onCityChange = (event: React.ChangeEvent<HTMLInputElement>) =>{
+    setCityRef(event.target.value);
+    // console.log(event.target)
+  }
 
   return (
     <Container fluid>
@@ -24,9 +31,12 @@ function App() {
         barChartToggle ={setBarChartView}
         scatterToggle ={setScatterPlotView}
         heatmapToggle ={setHeatmapView}
+        onCityRefChange = {onCityChange}
       />
       {/* map view */}
-      <MapViewer />
+      <MapViewer 
+        dataToView = {cityRef}
+      />
 
       {/* bar chart, by default hidden */}
       <BarChart

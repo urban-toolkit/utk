@@ -7,7 +7,8 @@ import { VisWidget } from "./VisWidget";
 type widgetProps = {
     barChartToggle: React.Dispatch<React.SetStateAction<any>>,
     scatterToggle: React.Dispatch<React.SetStateAction<any>>,
-    heatmapToggle: React.Dispatch<React.SetStateAction<any>>
+    heatmapToggle: React.Dispatch<React.SetStateAction<any>>,
+    onCityRefChange: any
 }
 /**
  * 
@@ -19,7 +20,8 @@ type widgetProps = {
 export const WidgetsComponent = ({
     barChartToggle,
     scatterToggle,
-    heatmapToggle
+    heatmapToggle,
+    onCityRefChange
 
 }: widgetProps) => {
 
@@ -32,7 +34,9 @@ export const WidgetsComponent = ({
                 heatmapToggle = {heatmapToggle}
             />
             {/* data widget */}
-            <DataWidget />      
+            <DataWidget 
+                onCityRefChange = {onCityRefChange}
+            />      
         </Col>
     )
 
