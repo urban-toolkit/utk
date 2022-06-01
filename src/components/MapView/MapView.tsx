@@ -35,7 +35,8 @@ export const MapViewer = ({dataToView}:mapViewDataProps) => {
     useEffect(()=> {
         $('#map').empty();
         let app = new App('#map');
-
+        
+        // console.log(window.innerHeight)
         // Data fromat example
         // Environment.setEnvironment({backend: 'http://127.0.0.1:3000', dataFolder:'src/data/data_format'});
         const url = `https://gist.githubusercontent.com/nafiul-nipu/1be0e281b5e7c1415bb239297660a998/raw/78196c1143f00bf29e91e1ee542ca6308bd07267/park_slope_no_buildings.json`;
