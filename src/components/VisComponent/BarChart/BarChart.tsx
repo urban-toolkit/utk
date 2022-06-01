@@ -1,8 +1,9 @@
 import { useRef } from "react";
+// importing draggable to drag the div around the screen
 import Draggable from "react-draggable";
 import '../Dragbox.css'
 
-// decalring the types of the props
+// declaring the types of the props
 type BarChartProps = {
     disp: boolean
 }

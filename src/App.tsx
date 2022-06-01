@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useState} from 'react';
+// css file
 import './App.css';
 
+// bootstrap elememts
 import {Container, Row} from 'react-bootstrap'
+// componentns
 import { MapViewer } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 import { BarChart } from './components/VisComponent/BarChart/BarChart';
-import {useState} from 'react';
 import { ScatterPlot } from './components/VisComponent/ScatterPlot/ScatterPlot';
 import { HeatMap } from './components/VisComponent/HeatMap/HeatMap';
 
@@ -16,8 +18,13 @@ function App() {
   const [scatterPlotView, setScatterPlotView] = useState(false)
   const [heatmapView, setHeatmapView] = useState(false)
 
+  // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('Chicago')
 
+  /**
+   * data handler function - on radio button change save the value of the city
+   * @param event 
+   */
   const onCityChange = (event: React.ChangeEvent<HTMLInputElement>) =>{
     setCityRef(event.target.value);
     // console.log(event.target)
@@ -28,28 +35,34 @@ function App() {
       <Row>
         {/* widgets component */}
       <WidgetsComponent
+        // visualization toggle varibles 
         barChartToggle ={setBarChartView}
         scatterToggle ={setScatterPlotView}
         heatmapToggle ={setHeatmapView}
+        // city data change function
         onCityRefChange = {onCityChange}
       />
       {/* map view */}
       <MapViewer 
+      // variable contains which city data to load
         dataToView = {cityRef}
       />
 
       {/* bar chart, by default hidden */}
       <BarChart
+      // BOOLEAN - whether to show vis or not
         disp = {barChartView}
       />
 
       {/* scatter plot, by default hidden */}
       <ScatterPlot
+        // BOOLEAN - whether to show vis or not
         disp = {scatterPlotView}
       />
 
       {/* heatmap, by default hidden */}
       <HeatMap
+        // BOOLEAN - whether to show vis or not
         disp = {heatmapView}
       />
         

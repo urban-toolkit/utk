@@ -1,16 +1,21 @@
 import { useState } from "react";
+// bootstrap component
 import { Row, Col, Button, Collapse, Form } from "react-bootstrap";
+// icon
 import { FaChartBar } from "react-icons/fa";
 
-/** 
- * Component creates the VIS menu and handles
- * view or hiding the visualization
-*/
+
+// VisWidget parameter types
 type visWidProps = {
     barChartToggle: React.Dispatch<React.SetStateAction<any>>,
     scatterToggle: React.Dispatch<React.SetStateAction<any>>,
     heatmapToggle: React.Dispatch<React.SetStateAction<any>>
 }
+
+/** 
+ * Component creates the VIS menu and handles
+ * view or hiding the visualization
+*/
 
 export const VisWidget = ({
     barChartToggle,

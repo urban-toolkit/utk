@@ -1,11 +1,19 @@
 import { useState } from "react";
+// bootstrap component
 import { Button, Col, Collapse, Form, Row } from "react-bootstrap";
+// icon
 import { BiData } from "react-icons/bi";
 
-
+// DataWidget component parameters
 type dataWidgetProps = {
-    onCityRefChange: any
+    onCityRefChange: React.ChangeEventHandler<HTMLInputElement>
 }
+
+/**
+ * 
+ * @param onCityRefChange - handles which data set should be loaded in the map view
+ * @returns 
+ */
 
 export function DataWidget({onCityRefChange}:dataWidgetProps) {
     const [dataOpen, setdataOpen] = useState(false)   
