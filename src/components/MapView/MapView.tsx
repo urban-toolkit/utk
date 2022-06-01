@@ -1,6 +1,6 @@
 import {Col} from 'react-bootstrap'
 import {useEffect, useRef } from 'react'
-import { MapView, DataLoader } from '../../utilities/urbantkmap';
+import { MapView, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
 import $ from 'jquery';
 
 import './MapView.css';
