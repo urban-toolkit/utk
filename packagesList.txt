@@ -5,3 +5,18 @@
 5. react-icons - https://www.npmjs.com/package/react-icons
 6. jquery - https://www.npmjs.com/package/jquery
 7. @types/jquery - https://www.npmjs.com/package/@types/jquery
+
+
+
+
+
+# creating submodule
+git submodule add link_to_the_repository_to_be_added_as_submodule
+
+# submodule cloning
+1. clone the repository as usual
+2. run - git submodule init
+3. run - git submodule update
+
+# to fetch and update submodule
+git submodule update --remote submoduleName
