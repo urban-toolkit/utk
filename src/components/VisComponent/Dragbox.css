@@ -1,6 +1,6 @@
 /* drag box style */
 .drag-box {
-    padding: 50px;
+    /* padding: 50px; */
     background: #ccc;
     width: 25vw !important;
     height: 35vh !important;
