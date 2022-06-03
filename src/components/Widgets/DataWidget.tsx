@@ -32,7 +32,7 @@ export function DataWidget({onCityRefChange}:dataWidgetProps) {
                     }
                     <Collapse in={dataOpen}>
                         <Form>
-                            <Form.Group className="mb-3" controlId="formBasicCheckbox" id="space">
+                            <Form.Group className="mb-3" controlId="formDataCheckbox" id="space">
                                 <Form.Check 
                                     type="radio" 
                                     label="Chicago" 

@@ -70,13 +70,13 @@ export const VisWidget = ({
                 }
                 <Collapse in={visOpen}>
                     <Form>
-                        <Form.Group className="mb-3" controlId="formBasicCheckbox" id="space">
+                        <Form.Group className="mb-3" controlId="formVisCheckbox" id="space">
                             <Form.Check type="checkbox" label="Bar Chart"  onChange={handleBarCheckBoxChange}/>
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicCheckbox" id="space">
+                        <Form.Group className="mb-3" controlId="formVisCheckbox" id="space">
                             <Form.Check type="checkbox" label="Scatter Plot" onChange={handleScatterCheckBoxChange}/>
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicCheckbox" id="space">
+                        <Form.Group className="mb-3" controlId="formVisCheckbox" id="space">
                             <Form.Check type="checkbox" label="Heat Map" onChange={handleHeatmapCheckBox}/>
                         </Form.Group>
                     </Form>        
