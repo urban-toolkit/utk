@@ -7,9 +7,9 @@ import {Container, Row} from 'react-bootstrap'
 // componentns
 import { MapViewer } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
-import { BarChart } from './components/VisComponent/BarChart/BarChart';
-import { ScatterPlot } from './components/VisComponent/ScatterPlot/ScatterPlot';
-import { HeatMap } from './components/VisComponent/HeatMap/HeatMap';
+import { BarChartContainer } from './components/VisComponent/BarChart/BarChartContainer';
+import { ScatterPlotContainer } from './components/VisComponent/ScatterPlot/ScatterPlotContainer';
+import { HeatMapContainer } from './components/VisComponent/HeatMap/HeatMapContainer';
 
 
 function App() {
@@ -49,19 +49,19 @@ function App() {
       />
 
       {/* bar chart, by default hidden */}
-      <BarChart
+      <BarChartContainer
       // BOOLEAN - whether to show vis or not
         disp = {barChartView}
       />
 
       {/* scatter plot, by default hidden */}
-      <ScatterPlot
+      <ScatterPlotContainer
         // BOOLEAN - whether to show vis or not
         disp = {scatterPlotView}
       />
 
       {/* heatmap, by default hidden */}
-      <HeatMap
+      <HeatMapContainer
         // BOOLEAN - whether to show vis or not
         disp = {heatmapView}
       />
