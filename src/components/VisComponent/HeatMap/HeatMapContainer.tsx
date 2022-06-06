@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import Draggable from "react-draggable";
-import { AttributeDropdown } from "../CommonContainer/AttributeDropdown";
+import { AttributeDropdown } from "../CommonComponents/AttributeDropdown";
 import '../Dragbox.css'
 
 type HeatMapProps = {
@@ -32,13 +32,13 @@ export const HeatMapContainer = ({
     return(
         <Draggable nodeRef={nodeRef}>
             <div ref={nodeRef} className="drag-box" style={{display: disp? 'block' : 'none'}}>
-            <AttributeDropdown
-                attributes={attributes}
-                xAttribute ={xAttribute}
-                setxAttribute ={setxAttribute}
-                yAttribute ={yAttribute}
-                setyAttribute ={setyAttribute}
-            />
+                <AttributeDropdown
+                    attributes={attributes}
+                    xAttribute ={xAttribute}
+                    setxAttribute ={setxAttribute}
+                    yAttribute ={yAttribute}
+                    setyAttribute ={setyAttribute}
+                />
             </div>
       </Draggable>
     )

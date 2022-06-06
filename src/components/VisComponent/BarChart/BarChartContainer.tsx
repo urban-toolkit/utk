@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import Draggable from "react-draggable";
 
 // importing dropdown
-import { AttributeDropdown } from "../CommonContainer/AttributeDropdown";
+import { AttributeDropdown } from "../CommonComponents/AttributeDropdown";
 
 import '../Dragbox.css'
 

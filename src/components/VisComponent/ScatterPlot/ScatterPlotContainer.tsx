@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import Draggable from "react-draggable";
-import { AttributeDropdown } from "../CommonContainer/AttributeDropdown";
+import { AttributeDropdown } from "../CommonComponents/AttributeDropdown";
 import '../Dragbox.css'
 
 type ScatterPlotProps = {
