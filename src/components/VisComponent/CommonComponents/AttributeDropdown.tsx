@@ -12,12 +12,12 @@ type DropdownProps = {
 
 /**
  * 
- * @param attributes
- * @param xAttribute
- * @param setxAttribute
- * @param yAttribute
- * @param setyAttribute
- * @returns 
+ * @param attributes - list of attributes as options for dropdown
+ * @param xAttribute - current value of the X
+ * @param setxAttribute - onchange set the current attribute value of X
+ * @param yAttribute - current value of the Y
+ * @param setyAttribute - on change set the current attribute value of Y
+ * @returns Dropdown panel for X and Y axis
  */
 export const AttributeDropdown = ({
     attributes,
