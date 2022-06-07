@@ -6,6 +6,7 @@ import Draggable from "react-draggable";
 // importing dropdown
 import { AttributeDropdown } from "../CommonComponents/AttributeDropdown";
 import { AxisBottom } from "../CommonComponents/AxisBottom";
+import { AxisLeft } from "../CommonComponents/AxisLeft";
 
 import '../Dragbox.css'
 
@@ -33,11 +34,13 @@ const data = [
     {country: 'Israel', value: 1263},
 ]
 
-const margin = {top:20, right:30, bottom: 50, left:50} 
+const margin = {top:20, right:40, bottom: 50, left:80} 
+
 const scaleOffset = 10
 const labels = Object.keys(data[0])
-const xAxisLabelOffset = 40
-const xAxisClass = 'bar'
+const xAxisLabelOffset = 50
+const yAxisLabelOffset = 63
+
 
 export const BarChartContainer = ({
     disp
@@ -56,13 +59,16 @@ export const BarChartContainer = ({
         .domain(data.map((d)=> {return d.country}))
         .padding(0.5)
 
-    const ticks = xScale.domain();
+    const xTicks = xScale.domain();
 
     const yValue = (d: { value: any; }) => d.value;
 
     const yScale = scaleLinear()
         .range([innerHeight, 0])
         .domain([0, max(data, yValue)])
+
+    console.log(yScale.ticks())
+    const yTicks = yScale.ticks();
 
     const initialxAttribute = 'A'
     const [xAttribute, setxAttribute] = useState(initialxAttribute)
@@ -92,8 +98,17 @@ export const BarChartContainer = ({
                                 innerWidth={innerWidth}
                                 xAxisLabel={labels[0]}
                                 xAxisLabelOffset={xAxisLabelOffset}
-                                ticks={ticks}
-                                axisClass={xAxisClass}
+                                ticks={xTicks}
+                            />
+
+                            <AxisLeft 
+                                xScale={xScale}
+                                yScale={yScale}
+                                scaleOffset={scaleOffset}
+                                yAxisLabelOffset={yAxisLabelOffset}
+                                innerHeight={innerHeight}
+                                yAxisLabel={labels[1]}
+                                ticks={yTicks}
                             />
                         </g>
                     </svg>

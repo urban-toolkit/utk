@@ -1,15 +1,13 @@
 import React from 'react'
-import { ScaleLinear } from 'd3';
 type BottomProps = {
     xScale : any,
-    yScale : ScaleLinear<number, number>,
+    yScale : any,
     scaleOffset : number,
     innerHeight : number,
     innerWidth : number,
     xAxisLabel : any,
     xAxisLabelOffset : number,
-    ticks: any [],
-    axisClass: string
+    ticks: any []
 }
 export const AxisBottom = ({
     xScale,
@@ -19,10 +17,9 @@ export const AxisBottom = ({
     innerWidth,
     xAxisLabel,
     xAxisLabelOffset,
-    ticks,
-    axisClass
+    ticks
 }: BottomProps) => {
-    console.log(yScale.ticks())
+    // console.log(yScale.ticks())
     const [xStart, xEnd] = xScale.range();
     const [, yEnd] = yScale.range();    
 
@@ -32,7 +29,7 @@ export const AxisBottom = ({
                 <line className='axisLine' x1={xStart} x2={xEnd} y1={yEnd} y2={yEnd} />
                 <g className="ticks">
                     {ticks.map((t: any, i: any) => {
-                        console.log(t,i)
+                        // console.log(t,i)
                         const x = xScale(t);
                         return (
                         <React.Fragment key={i}>
