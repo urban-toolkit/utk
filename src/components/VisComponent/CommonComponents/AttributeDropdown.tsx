@@ -10,6 +10,15 @@ type DropdownProps = {
     setyAttribute: React.Dispatch<React.SetStateAction<any>>
 };
 
+/**
+ * 
+ * @param attributes
+ * @param xAttribute
+ * @param setxAttribute
+ * @param yAttribute
+ * @param setyAttribute
+ * @returns 
+ */
 export const AttributeDropdown = ({
     attributes,
     xAttribute,
