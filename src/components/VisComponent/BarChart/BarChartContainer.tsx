@@ -9,6 +9,7 @@ import { AxisBottom } from "../CommonComponents/AxisBottom";
 import { AxisLeft } from "../CommonComponents/AxisLeft";
 
 import '../Dragbox.css'
+import { Bar } from "./Bar";
 
 // declaring the types of the props
 type BarChartProps = {
@@ -55,9 +56,10 @@ export const BarChartContainer = ({
     const innerHeight = height - margin.top - margin.bottom
     const innerWidth = width - margin.left - margin.right
 
+    const xValue = (d: { country: any; }) => d.country
     const xScale = scaleBand()
         .range([0, innerWidth])
-        .domain(data.map((d)=> {return d.country}))
+        .domain(data.map(xValue))
         .padding(0.5)
 
     const xTicks = xScale.domain();
@@ -111,6 +113,15 @@ export const BarChartContainer = ({
                                 innerHeight={innerHeight}
                                 yAxisLabel={labels[1]}
                                 ticks={yTicks}
+                            />
+
+                            <Bar 
+                                data={data}
+                                xScale={xScale}
+                                yScale={yScale}
+                                xValue={xValue}
+                                yValue={yValue}
+                                innerHeight={innerHeight}
                             />
                         </g>
                     </svg>
