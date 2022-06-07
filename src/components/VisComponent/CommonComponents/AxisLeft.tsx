@@ -4,6 +4,7 @@ type LeftProps = {
     xScale : any,
     yScale : any,
     scaleOffset : number,
+    yScaleOffset : number,
     innerHeight : number,
     yAxisLabel : any,
     yAxisLabelOffset : number,
@@ -14,6 +15,7 @@ export const AxisLeft = ({
     xScale,
     yScale,
     scaleOffset,
+    yScaleOffset,
     yAxisLabelOffset,
     innerHeight,
     yAxisLabel,
@@ -33,10 +35,10 @@ export const AxisLeft = ({
                         <React.Fragment key={i}>
                             <line x1={xStart} x2={xStart - scaleOffset} y1={y} y2={y}/>
                             <text
-                            x={xStart - scaleOffset * 4}
-                            y={y + scaleOffset * 1.25}
+                            x={xStart - yScaleOffset}
+                            y={y + scaleOffset}
                             >
-                            {t * 100}
+                            {t}
                             </text>
                         </React.Fragment>
                         );

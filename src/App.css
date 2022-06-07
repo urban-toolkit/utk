@@ -5,7 +5,7 @@
 .ticks text{
   fill: black;
   text-anchor: middle;
-  font-size: 0.78em;
+  font-size: 0.7em;
   /* transform: rotate(-45deg); */
 }
 .axisLine{

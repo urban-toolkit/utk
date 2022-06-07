@@ -35,8 +35,8 @@ export const AxisBottom = ({
                         <React.Fragment key={i}>
                             <line x1={x} x2={x} y1={yEnd} y2={yEnd + scaleOffset}/>
                             <text
-                                x={x}
-                                y={yEnd + scaleOffset * 2.5}
+                                x={x + scaleOffset}
+                                y={yEnd + scaleOffset * 4}
                             >
                             {t}
                             </text>

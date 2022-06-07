@@ -36,10 +36,11 @@ const data = [
 
 const margin = {top:20, right:40, bottom: 50, left:80} 
 
-const scaleOffset = 10
+const scaleOffset = 5
+const yScaleOffset = 22
 const labels = Object.keys(data[0])
-const xAxisLabelOffset = 50
-const yAxisLabelOffset = 63
+const xAxisLabelOffset = 40
+const yAxisLabelOffset = 40
 
 
 export const BarChartContainer = ({
@@ -105,6 +106,7 @@ export const BarChartContainer = ({
                                 xScale={xScale}
                                 yScale={yScale}
                                 scaleOffset={scaleOffset}
+                                yScaleOffset={yScaleOffset}
                                 yAxisLabelOffset={yAxisLabelOffset}
                                 innerHeight={innerHeight}
                                 yAxisLabel={labels[1]}
