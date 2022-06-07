@@ -10,9 +10,12 @@ import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 import { BarChartContainer } from './components/VisComponent/BarChart/BarChartContainer';
 import { ScatterPlotContainer } from './components/VisComponent/ScatterPlot/ScatterPlotContainer';
 import { HeatMapContainer } from './components/VisComponent/HeatMap/HeatMapContainer';
+import { useData } from './components/VisComponent/ScatterPlot/useData';
 
 
 function App() {
+  // example iris data for scatter
+  const scatterData = useData()
   // state variable to handle viewing of bar chart
   const [barChartView, setBarChartView] = useState(false)
   const [scatterPlotView, setScatterPlotView] = useState(false)
@@ -58,6 +61,7 @@ function App() {
       <ScatterPlotContainer
         // BOOLEAN - whether to show vis or not
         disp = {scatterPlotView}
+        data={scatterData}
       />
 
       {/* heatmap, by default hidden */}

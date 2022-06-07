@@ -37,7 +37,11 @@ const data = [
     {country: 'Netherlands', value: 1167},
     {country: 'Italy', value: 660},
     {country: 'Israel', value: 1263},
-]
+];
+
+ // width and height of the whole SVG
+ const width = window.innerWidth / 3;
+ const height = window.innerHeight / 3;
 
 // defining margin of the SVG
 const margin = {top:20, right:40, bottom: 50, left:80} 
@@ -59,10 +63,6 @@ export const BarChartContainer = ({
 }: BarChartProps
 ) =>{
     const nodeRef = useRef(null)
-
-    // width and height of the whole SVG
-    const width = window.innerWidth / 3;
-    const height = window.innerHeight / 3;
 
     // inner height and width of the SVG - the main view port
     const innerHeight = height - margin.top - margin.bottom

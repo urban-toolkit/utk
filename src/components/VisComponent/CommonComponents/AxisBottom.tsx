@@ -21,11 +21,11 @@ export const AxisBottom = ({
 }: BottomProps) => {
     // console.log(yScale.ticks())
     const [xStart, xEnd] = xScale.range();
-    const [, yEnd] = yScale.range();    
+    const [yStart, yEnd] = yScale.range();    
 
     return(
         <>
-            <g transform={`translate(0, ${innerHeight})`}>
+            <g transform={`translate(0, ${yStart})`}>
                 <line className='axisLine' x1={xStart} x2={xEnd} y1={yEnd} y2={yEnd} />
                 <g className="ticks">
                     {ticks.map((t: any, i: any) => {
