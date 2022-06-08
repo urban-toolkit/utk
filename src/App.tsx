@@ -11,11 +11,43 @@ import { BarChartContainer } from './components/VisComponent/BarChart/BarChartCo
 import { ScatterPlotContainer } from './components/VisComponent/ScatterPlot/ScatterPlotContainer';
 import { HeatMapContainer } from './components/VisComponent/HeatMap/HeatMapContainer';
 import { useData } from './components/VisComponent/ScatterPlot/useData';
+import { useHeatData } from './components/VisComponent/HeatMap/heatData';
 
+// common variables for vis components
+ // width and height of the whole SVG
+ const width = window.innerWidth / 3;
+ const height = window.innerHeight / 3;
+
+// defining margin of the SVG
+const margin = {top:20, right:40, bottom: 50, left:80} 
+
+// scale offsets for nice placement
+const scaleOffset = 5
+const yScaleOffset = 22
+
+// label offsets to place the labels correctly 
+const xAxisLabelOffset = 40
+const yAxisLabelOffset = 40
+
+
+// fake data for bar chart
+const barData = [
+  {country: 'Russia', value: 6148},
+  {country: 'Germany', value: 1653},
+  {country: 'France', value: 2162},
+  {country: 'China', value: 1131},
+  {country: 'Spain', value: 814},
+  {country: 'Netherlands', value: 1167},
+  {country: 'Italy', value: 660},
+  {country: 'Israel', value: 1263},
+];
 
 function App() {
   // example iris data for scatter
   const scatterData = useData()
+  // example heatmap data 
+  const heatData = useHeatData()
+
   // state variable to handle viewing of bar chart
   const [barChartView, setBarChartView] = useState(false)
   const [scatterPlotView, setScatterPlotView] = useState(false)
@@ -55,6 +87,14 @@ function App() {
       <BarChartContainer
       // BOOLEAN - whether to show vis or not
         disp = {barChartView}
+        data={barData}
+        width={width}
+        height={height}
+        margin={margin}
+        scaleOffset={scaleOffset}
+        yScaleOffset={yScaleOffset}
+        xAxisLabelOffset={xAxisLabelOffset}
+        yAxisLabelOffset={yAxisLabelOffset}
       />
 
       {/* scatter plot, by default hidden */}
@@ -62,12 +102,27 @@ function App() {
         // BOOLEAN - whether to show vis or not
         disp = {scatterPlotView}
         data={scatterData}
+        width={width}
+        height={height}
+        margin={margin}
+        scaleOffset={scaleOffset}
+        yScaleOffset={yScaleOffset}
+        xAxisLabelOffset={xAxisLabelOffset}
+        yAxisLabelOffset={yAxisLabelOffset}
       />
 
       {/* heatmap, by default hidden */}
       <HeatMapContainer
         // BOOLEAN - whether to show vis or not
         disp = {heatmapView}
+        data = {heatData}
+        width={width}
+        height={height}
+        margin={margin}
+        scaleOffset={scaleOffset}
+        yScaleOffset={yScaleOffset}
+        xAxisLabelOffset={xAxisLabelOffset}
+        yAxisLabelOffset={yAxisLabelOffset}
       />
         
       </Row>

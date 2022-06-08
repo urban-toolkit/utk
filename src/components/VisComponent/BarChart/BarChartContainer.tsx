@@ -16,7 +16,15 @@ import { Bar } from "./Bar";
 
 // declaring the types of the props
 type BarChartProps = {
-    disp: boolean
+    disp: boolean,
+    data: any,
+    width: number,
+    height: number,
+    margin: {top: number, bottom: number, left: number, right: number},
+    scaleOffset: number,
+    yScaleOffset: number,
+    xAxisLabelOffset: number,
+    yAxisLabelOffset: number
 }
 
 // creating attributes for the dropdown - move to the app.js later if needed
@@ -27,42 +35,35 @@ const attributes = [
     {value: 'd', label: "D"},
 ]
 
-// fake data for bar chart
-const data = [
-    {country: 'Russia', value: 6148},
-    {country: 'Germany', value: 1653},
-    {country: 'France', value: 2162},
-    {country: 'China', value: 1131},
-    {country: 'Spain', value: 814},
-    {country: 'Netherlands', value: 1167},
-    {country: 'Italy', value: 660},
-    {country: 'Israel', value: 1263},
-];
-
- // width and height of the whole SVG
- const width = window.innerWidth / 3;
- const height = window.innerHeight / 3;
-
-// defining margin of the SVG
-const margin = {top:20, right:40, bottom: 50, left:80} 
-
-// scale offsets for nice placement
-const scaleOffset = 5
-const yScaleOffset = 22
-
-// labels for the axes
-const labels = Object.keys(data[0])
-
-// label offsets to place the labels correctly 
-const xAxisLabelOffset = 40
-const yAxisLabelOffset = 40
-
 
 export const BarChartContainer = ({
-    disp
+    disp,
+    data,
+    width,
+    height,
+    margin,
+    scaleOffset,
+    yScaleOffset,
+    xAxisLabelOffset,
+    yAxisLabelOffset
 }: BarChartProps
 ) =>{
     const nodeRef = useRef(null)
+
+    // dropdown - will be updated later
+    const initialxAttribute = 'A'
+    const [xAttribute, setxAttribute] = useState(initialxAttribute)
+
+    const initialyAttribute = 'D'
+    const [yAttribute, setyAttribute] = useState(initialyAttribute)
+
+    // if we dont get the data return loading
+    if(!data){
+        return <pre>Loading ...</pre>
+    }
+
+    // labels for the axes
+    const labels = Object.keys(data[0])
 
     // inner height and width of the SVG - the main view port
     const innerHeight = height - margin.top - margin.bottom
@@ -90,18 +91,11 @@ export const BarChartContainer = ({
     // scale linear for y scale
     const yScale = scaleLinear()
         .range([innerHeight, 0])
-        .domain([0, max(data, yValue)])
+        .domain([0, max(data, yValue) as any])
 
     // console.log(yScale.ticks())
     // ticks for the y axis
     const yTicks = yScale.ticks();
-
-    // dropdown - will be updated later
-    const initialxAttribute = 'A'
-    const [xAttribute, setxAttribute] = useState(initialxAttribute)
-
-    const initialyAttribute = 'D'
-    const [yAttribute, setyAttribute] = useState(initialyAttribute)
     
     return(
         <Draggable nodeRef={nodeRef}>

@@ -10,7 +10,14 @@ import { Scatter } from "./Scatter";
 
 type ScatterPlotProps = {
     disp: boolean,
-    data:any
+    data: any,
+    width: number,
+    height: number,
+    margin: {top: number, bottom: number, left: number, right: number},
+    scaleOffset: number,
+    yScaleOffset: number,
+    xAxisLabelOffset: number,
+    yAxisLabelOffset: number
 }
 
 const attributes = [
@@ -30,27 +37,21 @@ const getLbael = (value: any) => {
     }
   }
 
- // width and height of the whole SVG
- const width = window.innerWidth / 3;
- const height = window.innerHeight / 3;
 
-// defining margin of the SVG
-const margin = {top:20, right:40, bottom: 50, left:80} 
-
-// scale offsets for nice placement
-const scaleOffset = 5
-const yScaleOffset = 22
-
-// label offsets to place the labels correctly 
-const xAxisLabelOffset = 40
-const yAxisLabelOffset = 40
 
 // radius of the circles
 const radius = 5
 
 export const ScatterPlotContainer = ({
     disp,
-    data
+    data,
+    width,
+    height,
+    margin,
+    scaleOffset,
+    yScaleOffset,
+    xAxisLabelOffset,
+    yAxisLabelOffset
 }: ScatterPlotProps
 ) =>{
     const nodeRef = useRef(null)
@@ -110,7 +111,7 @@ export const ScatterPlotContainer = ({
                       .domain(data.map(colorValue))
                       .range(["#E6842A", "#137B80", "#8E6C8A"])
 
-    // console.log(xScale(0.1), yScale(0.2))
+    console.log(colorScale.domain())
     
     return(
         <Draggable 
