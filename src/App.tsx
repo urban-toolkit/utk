@@ -1,4 +1,8 @@
 import React, {useEffect, useState} from 'react';
+// useEffect hooks lets you perform side effects in function component
+// useState is a Hook that lets you add React state to function components
+// https://reactjs.org/docs/hooks-state.html
+
 // css file
 import './App.css';
 
@@ -14,9 +18,9 @@ import { useData } from './components/VisComponent/ScatterPlot/useData';
 import { useHeatData } from './components/VisComponent/HeatMap/heatData';
 
 // common variables for vis components
- // width and height of the whole SVG
- const width = window.innerWidth / 3;
- const height = window.innerHeight / 3;
+ // width and height of the whole SVG 
+//  are calculated using useWindowResize function
+// at the end of this file
 
 // defining margin of the SVG
 const margin = {top:20, right:40, bottom: 50, left:80} 
