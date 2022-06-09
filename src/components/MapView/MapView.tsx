@@ -39,8 +39,8 @@ export const MapViewer = ({dataToView}:mapViewDataProps) => {
         // console.log(window.innerHeight)
         // Data fromat example
         // Environment.setEnvironment({backend: 'http://127.0.0.1:3000', dataFolder:'src/data/data_format'});
-        const url = `https://gist.githubusercontent.com/nafiul-nipu/1be0e281b5e7c1415bb239297660a998/raw/78196c1143f00bf29e91e1ee542ca6308bd07267/park_slope_no_buildings.json`;
-        // const url = `https://gist.githubusercontent.com/nafiul-nipu/d524f113976cc30168f854374dab7885/raw/b4a631633d182c48a75f30be05b960d6efb7f3c3/park_slope.json`
+        // const url = `https://gist.githubusercontent.com/nafiul-nipu/1be0e281b5e7c1415bb239297660a998/raw/78196c1143f00bf29e91e1ee542ca6308bd07267/park_slope_no_buildings.json`;
+        const url = `https://raw.githubusercontent.com/urban-toolkit/urbantk-react-ts/master/src/data/refs_format/index.json?token=GHSAT0AAAAAABRXFUABYWOXMFJGESNLVWXQYVCKMQA`
 
         DataLoader.getJsonData(url).then(data => {
             app.run(data);
