@@ -1,5 +1,5 @@
 {
   "cid": "region-id",
-  "layers": ["surface", "water"],
+  "layers": ["surface", "coastline", "water", "parks"],
   "camera": "camera"
 }
