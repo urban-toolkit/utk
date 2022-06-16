@@ -22,3 +22,8 @@ git submodule add link_to_the_repository_to_be_added_as_submodule
 
 # to fetch and update submodule
 git submodule update --remote submoduleName
+
+
+#multiple entry points 
+https://stackoverflow.com/questions/55308657/create-react-app-v2-multiple-entry-points
+https://medium.com/swlh/how-to-add-multiple-entry-points-to-your-react-app-ea8bc015d410
