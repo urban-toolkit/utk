@@ -27,10 +27,11 @@ class App {
 
 // MapViewer parameter types
 type mapViewDataProps = {
-  dataToView: any
+  dataToView: any,
+  divWidth: number
 }
 
-export const MapViewer = ({dataToView}:mapViewDataProps) => {
+export const MapViewer = ({dataToView, divWidth}:mapViewDataProps) => {
 
     useEffect(()=> {
         $('#map').empty();
@@ -50,7 +51,7 @@ export const MapViewer = ({dataToView}:mapViewDataProps) => {
     }, [dataToView])
 
     return(
-        <Col md={11}>
+        <Col md={divWidth}>
             <div id='map'></div>
             {/* <canvas className='mapCanvas' ref={canvas} style={{border:"1px solid #000000"}}></canvas> */}
         </Col>

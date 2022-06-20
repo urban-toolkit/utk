@@ -87,6 +87,7 @@ function App() {
       <MapViewer 
       // variable contains which city data to load
         dataToView = {cityRef}
+        divWidth = {11}
       />
 
       {/* bar chart, by default hidden */}
