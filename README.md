@@ -4,7 +4,7 @@
 
 `git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
 
-2. Copy remote brancd (v1.0 - most recent till now) to a local branch
+2. Copy remote branch (v1.0 - most recent till now) to a local branch
 
    - go to urbantk-react-ts/src/urbantk-map/
    - copy remote v1.0 branch to a local git branch
