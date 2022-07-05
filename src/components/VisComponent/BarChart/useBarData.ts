@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from 'axios'
-import { csv } from "d3";
 
 export const useBarData = () =>{
     const [data, setData] = useState(null)
