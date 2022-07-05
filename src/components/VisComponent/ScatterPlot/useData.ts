@@ -8,14 +8,18 @@ export const useData = () =>{
    
     useEffect(() =>{
       // //  loadding the data
-      const row = d => {
+      csv(csvUrl, (d: any) => {
+
         d.sepal_length= +d.sepal_length;
         d.sepal_width= +d.sepal_width;
         d.petal_length = +d.petal_length;
         d.petal_width = +d.petal_width;
+
         return d
-      }
-      csv(csvUrl, row).then(setData);
+      }).then((result: any) => {
+        setData(result)
+      });
+
     }, []);
   
     return data

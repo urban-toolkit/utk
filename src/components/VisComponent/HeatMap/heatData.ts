@@ -8,11 +8,19 @@ export const useHeatData = () =>{
    
     useEffect(() =>{
       // //  loadding the data
-      const row = d => {
-        d.value= +d.value
+      // const row = (d: { value: number; }) => {
+      //   d.value= +d.value
+      //   return d
+        
+      // }
+      csv(csvUrl, (d: any) => {
+        d.value = +d.value
         return d
-      }
-      csv(csvUrl, row).then(setData);
+      }).then((result : any ) => {
+        setData(result)
+      });
+      
+      // csv(csvUrl, row).then(setData);
     }, []);
   
     return data

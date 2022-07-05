@@ -16,6 +16,7 @@ import { ScatterPlotContainer } from './components/VisComponent/ScatterPlot/Scat
 import { HeatMapContainer } from './components/VisComponent/HeatMap/HeatMapContainer';
 import { useData } from './components/VisComponent/ScatterPlot/useData';
 import { useHeatData } from './components/VisComponent/HeatMap/heatData';
+import { useBarData } from './components/VisComponent/BarChart/useBarData';
 
 // common variables for vis components
  // width and height of the whole SVG 
@@ -35,20 +36,23 @@ const yAxisLabelOffset = 40
 
 
 // fake data for bar chart
-const barData = [
-  {country: 'Russia', value: 6148},
-  {country: 'Germany', value: 1653},
-  {country: 'France', value: 2162},
-  {country: 'China', value: 1131},
-  {country: 'Spain', value: 814},
-  {country: 'Netherlands', value: 1167},
-  {country: 'Italy', value: 660},
-  {country: 'Israel', value: 1263},
-];
+// const barData = [
+//   {country: 'Russia', value: 6148},
+//   {country: 'Germany', value: 1653},
+//   {country: 'France', value: 2162},
+//   {country: 'China', value: 1131},
+//   {country: 'Spain', value: 814},
+//   {country: 'Netherlands', value: 1167},
+//   {country: 'Italy', value: 660},
+//   {country: 'Israel', value: 1263},
+// ];
 
 function App() {
   // size to maintain responsiveness
   const size = useWindowResize();
+  //example bar data for barchart
+  const barData = useBarData()
+
   // example iris data for scatter
   const scatterData = useData()
   // example heatmap data 
@@ -167,3 +171,4 @@ function useWindowResize(){
 }
 
 export default App;
+
