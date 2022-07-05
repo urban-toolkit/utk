@@ -1,27 +1,28 @@
 import { useState, useEffect } from "react";
-import { csv } from "d3";
+import axios from 'axios'
 
-const csvUrl = "https://gist.githubusercontent.com/nafiul-nipu/f8f0ec8b3a01388e27eeb3f7154913ab/raw/aaa389c00cb509f5c41a1d668e411cdeb226490a/heatmap_data.csv"
 
 export const useHeatData = () =>{
-    const [data, setData] = useState(null)
+  const [data, setData] = useState(null)
    
-    useEffect(() =>{
-      // //  loadding the data
-      // const row = (d: { value: number; }) => {
-      //   d.value= +d.value
-      //   return d
-        
-      // }
-      csv(csvUrl, (d: any) => {
-        d.value = +d.value
-        return d
-      }).then((result : any ) => {
-        setData(result)
-      });
-      
-      // csv(csvUrl, row).then(setData);
-    }, []);
-  
-    return data
+  useEffect(() =>{
+    // //  loadding the data
+    // const row = (d: { value: number; }) => {
+    // Make a request for a user with a given ID
+      axios.get('http://localhost:3000/data/heatdata.json')
+      .then(function (response: any) {
+          // handle success
+          console.log(response);
+
+          response.data.map((d:any) => d.value = +d.value)
+          setData(response.data)
+      })
+      .catch(function (error: any) {
+          // handle error
+          console.log(error);
+      })
+  }, []);
+
+  return data
   }
+  
