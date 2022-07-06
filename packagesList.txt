@@ -7,6 +7,7 @@
 7. @types/jquery - https://www.npmjs.com/package/@types/jquery
 8. react-dropdown - https://www.npmjs.com/package/react-dropdown
 9. @types/d3-scale - https://www.npmjs.com/package/@types/d3-scale
+10. axios - https://www.npmjs.com/package/axios
 
 
 
