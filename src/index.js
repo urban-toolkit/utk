@@ -1,8 +1,8 @@
 import JupyterReact from 'jupyter-react-js';
 import components from './components';
-// import requirejs from 'requirejs'
 
 function load_ipython_extension () {
+  // eslint-disable-next-line no-undef
   requirejs([
     "base/js/namespace",
     "base/js/events",
