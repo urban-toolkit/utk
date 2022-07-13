@@ -7,7 +7,7 @@ module.exports = {
     "bundle.js": glob.sync("build/app/static/?(js|css)/main.*.?(js|css)").map(f => path.resolve(__dirname, f)),
   },
   output: {
-    filename: "build/static/js/bundle.min.js",
+    filename: "build/bundle.min.js",
     // filename: "../../example/static/index.js",
   },
   module: {
