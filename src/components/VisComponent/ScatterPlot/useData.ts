@@ -10,6 +10,7 @@ export const useData = () =>{
       // const row = (d: { value: number; }) => {
       // Make a request for a user with a given ID
         axios.get('http://localhost:3000/data/scatterdata.json')
+        // axios.get('http://localhost:5501/data/scatterdata.json')
         .then(function (response: any) {
             // handle success
             console.log(response);
