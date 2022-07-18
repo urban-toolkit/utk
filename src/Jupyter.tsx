@@ -14,9 +14,7 @@ import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 import { BarChartContainer } from './components/VisComponent/BarChart/BarChartContainer';
 import { ScatterPlotContainer } from './components/VisComponent/ScatterPlot/ScatterPlotContainer';
 import { HeatMapContainer } from './components/VisComponent/HeatMap/HeatMapContainer';
-import { useData } from './components/VisComponent/ScatterPlot/useData';
-import { useHeatData } from './components/VisComponent/HeatMap/heatData';
-import { useBarData } from './components/VisComponent/BarChart/useBarData';
+
 
 // common variables for vis components
 // width and height of the whole SVG 
@@ -47,16 +45,16 @@ const yAxisLabelOffset = 40
 //   {country: 'Israel', value: 1263},
 // ];
 
-function App() {
+function Jupyter(data: { bar: any; scatter: any; heat: any; }) {
   // size to maintain responsiveness
   const size = useWindowResize();
   //example bar data for barchart
-  const barData = useBarData()
+  const barData = data.bar;
 
   // example iris data for scatter
-  const scatterData = useData()
+  const scatterData = data.scatter;
   // example heatmap data 
-  const heatData = useHeatData()
+  const heatData = data.heat;
 
   // state variable to handle viewing of bar chart
   const [barChartView, setBarChartView] = useState(false)
@@ -170,5 +168,5 @@ function useWindowResize(){
   return windowSize;
 }
 
-export default App;
+export default Jupyter;
 
