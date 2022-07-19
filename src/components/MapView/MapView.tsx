@@ -5,7 +5,7 @@ import React, {useEffect, useRef } from 'react'
 // urbantkmap.js
 import {Environment, MapView as WebMap, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
 
-// for jupyter
+// for jupyter python
 import {MapView as JupyterMap} from '../../utilities/urbantkmap.iife.js';
 // jquery
 import $ from 'jquery';
@@ -40,12 +40,17 @@ export const MapViewer = ({dataToView, divWidth, data}:mapViewDataProps) => {
     useEffect(()=> {
         $('#map').empty();
 
-        if(dataToView === 'none'){
+        // this line checks whether we are rendering the map
+        // in browser or in jupyter notebook
+        if(dataToView === 'none'){ //render map to jupyter notebook
 
+        // get the div
           var el = document.getElementById('map')!;
 
+          // create new instance of Mapview from urbanktk.iife.js - jupyter
           let map = new JupyterMap(el, false);
 
+          // render the map in jupyter
           map.initMapView(data);
 
           map.addLayer(data);

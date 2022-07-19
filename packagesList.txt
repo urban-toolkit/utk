@@ -28,3 +28,34 @@ git submodule update --remote submoduleName
 #multiple entry points 
 https://stackoverflow.com/questions/55308657/create-react-app-v2-multiple-entry-points
 https://medium.com/swlh/how-to-add-multiple-entry-points-to-your-react-app-ea8bc015d410
+
+
+
+#jupyter bundle creation
+
+1. get the urbantkmap.iife.js from urbantk repository as this is used
+previously in jupyter notebook
+2. remove var urbantkmap = (function (exports)){ //possible line 2
+3. remove last line
+4. remove all exports. lines
+5. finally remove "return exports"
+6. add at the end "export {MapView}
+7. MapView Component Added necessary code - see comments
+8. index.tsx = entry point for jupyter notebook
+9. Jupyter.tsx = App.tsx for jupyter notebook
+10 to create the bundle for jupyter in "paths.js" file change 
+    appIndexJs: isApp ? resolveModule(resolveApp, 'src/indexWEB') : resolveModule(resolveApp, 'src/indexVR'),
+    to
+    appIndexJs: isApp ? resolveModule(resolveApp, 'src/index') : resolveModule(resolveApp, 'src/indexVR'),
+
+11. in terminal run "npm run build"
+    it will create a single bundle file in /dist/bundle folder - "bundle.min.js"
+    this bundle can be used to render our project in jupyter notebook
+
+12. to create the bundle for web, in "paths.js" file change appIndexJs to below line 
+    appIndexJs: isApp ? resolveModule(resolveApp, 'src/indexWEB') : resolveModule(resolveApp, 'src/indexVR'),
+
+13. in terminal run "npm run build"
+    it will create a single bundle file in dist/bundle folder that can be used with basic html file
+    make sure to run the server in port 3000
+    make sure to add the data folder with data
