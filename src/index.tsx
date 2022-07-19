@@ -22,7 +22,7 @@ declare global{
 //   </React.StrictMode>
 // );
 window.JupyterReact = {
-  init: (selector: string, myData: { bar: any; scatter: any; heat: any; }) => {
+  init: (selector: string, myData: { bar: any; scatter: any; heat: any; city: any }) => {
     selector = selector.substring(1);
     const renderComponent = (<Jupyter {...myData} />)
 

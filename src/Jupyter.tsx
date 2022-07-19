@@ -45,7 +45,7 @@ const yAxisLabelOffset = 40
 //   {country: 'Israel', value: 1263},
 // ];
 
-function Jupyter(data: { bar: any; scatter: any; heat: any; }) {
+function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   // size to maintain responsiveness
   const size = useWindowResize();
   //example bar data for barchart
@@ -62,7 +62,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; }) {
   const [heatmapView, setHeatmapView] = useState(false)
 
   // data handler - by default load chicago data
-  const [cityRef, setCityRef] = useState('Chicago')
+  const [cityRef, setCityRef] = useState('none')
 
   /**
    * data handler function - on radio button change save the value of the city
@@ -90,6 +90,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; }) {
       // variable contains which city data to load
         dataToView = {cityRef}
         divWidth = {11}
+        data = {data.city}
       />
 
       {/* bar chart, by default hidden */}

@@ -47,6 +47,13 @@ export function DataWidget({onCityRefChange}:dataWidgetProps) {
                                     value='NewYork'
                                     onChange={onCityRefChange} 
                                 />
+                                {/* <Form.Check 
+                                    type="radio" 
+                                    label="None" 
+                                    name="city" 
+                                    value='none'
+                                    onChange={onCityRefChange} 
+                                /> */}
                             </Form.Group>
                         </Form>        
                     </Collapse>
