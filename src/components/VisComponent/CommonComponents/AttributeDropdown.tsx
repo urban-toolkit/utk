@@ -27,7 +27,7 @@ export const AttributeDropdown = ({
     setyAttribute
 }: DropdownProps) =>{
     return(
-        <div className='menu-container'>
+        <div className='menu-container-dragbox'>
                     <span className='dropdown-label'>X</span>
                     <ReactDropdown
                         options={attributes}

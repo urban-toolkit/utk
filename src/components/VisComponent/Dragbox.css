@@ -30,7 +30,7 @@
     max-height: 400px;
   }
   
-  .menu-container{
+  .menu-container-dragbox{
     display: flex;
     justify-content: center;
     align-items: center;
