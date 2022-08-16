@@ -61,7 +61,7 @@ module.exports = {
   appBuild: isApp ? resolveApp('build/app') : resolveApp('build/vr'),
   appPublic: isApp ? resolveApp('public/app') : resolveApp('public/vr'),
   appHtml: isApp ? resolveApp('public/app/index.html') : resolveApp('public/vr/index.html'),
-  appIndexJs: isApp ? resolveModule(resolveApp, 'src/index') : resolveModule(resolveApp, 'src/indexVR'),
+  appIndexJs: isApp ? resolveModule(resolveApp, 'src/indexWEB') : resolveModule(resolveApp, 'src/indexVR'),
 
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
