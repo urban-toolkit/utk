@@ -24,6 +24,7 @@ const VR = () => {
         // variable contains which city data to load
           dataToView = {cityRef}
           divWidth = {12}
+          frontEndMode = {'vr'}
         />
       </Container>
     );
