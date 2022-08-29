@@ -21,3 +21,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+#data
+/public/vr/data/data_format
+/public/vr/data/new_sandro
+/public/vr/data/paper
