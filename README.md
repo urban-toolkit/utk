@@ -17,3 +17,7 @@
    - run `npm install`
    - to see web version `npm run start-web`
    - to see the VR version `npm run start-vr`
+
+## About this branch (caveIntegration)
+
+The purpose of this is branch is to run the urbantk-react in the Cave using the [CAVE2D-Display-Test](https://github.com/FarahKamleh/CAVE2-Display-Test/tree/main)

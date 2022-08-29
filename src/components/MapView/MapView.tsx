@@ -12,6 +12,9 @@ import $ from 'jquery';
 // mapview css
 import './MapView.css';
 
+// enables sending images to cave
+import '../../caveSupport/canvaToFile'
+
 // Mapview Application Class
 class App {
     _map: WebMap;
