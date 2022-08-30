@@ -13,7 +13,7 @@ import $ from 'jquery';
 import './MapView.css';
 
 // enables sending images to cave
-import '../../caveSupport/canvaToFile'
+import {initialize} from '../../caveSupport/canvaToFile';
 
 // Mapview Application Class
 class App {
@@ -27,6 +27,8 @@ class App {
       this._map.initMapView(data).then(() => {
         this._map.render();
       });
+
+      initialize();
     }
   }
 

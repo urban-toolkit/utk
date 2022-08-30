@@ -27,6 +27,9 @@ const clientInt = new WebSocket('ws://localhost:80'); // can only use ports 80, 
 // zooming scale
 let scale = 1;
 
+// for naming frames
+var counterFrames = 0;
+
 // for zooming into the glcanvas element
 const el = window.document.querySelector("#map canvas");
 
@@ -154,62 +157,63 @@ const saveBlob = (function() {
 
         // specifies the link's destination
         a.href = url;
+
+        // a.download = `image-${counterFrames}.png`;
+
+        // counterFrames++;
+
+        // a.click();
+
     };
 }());
 
-function sendFrames() {
+function sendFrames(time, glcanvas, reader) {
 
-    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    setTimeout(function(){
 
+        // create a blob object representing the image contained in the canvas
+        glcanvas.toBlob((blob) => {
+
+            // call saveBlob and specify the name of the downloaded png
+            // saveBlob(blob, `screencapture-${glcanvas.width}x${glcanvas.height}.png`);
+
+            // read the contents of the blob when reader is ready
+            if(reader.readyState == 2 || reader.readyState == 0){
+                reader.readAsArrayBuffer(blob);
+            }
+
+        }, 'image/png');
+
+        // ensure client is connected before sending buffer; prevents the need to reload browser
+        if (client.readyState == 1) {
+            
+            // send array buffer to NodeJS server
+            client.send(buffer);
+        }
+
+        // requestAnimationFrame(sendFrames);
+
+        sendFrames(time, glcanvas, reader);
+
+    }, time);
+
+}
+
+export function initialize(){
+
+    let time = 1000; //60fps
+    
     // assign canvas element
-    var glcanvas = window.document.querySelector("#map canvas");
+    let glcanvas = window.document.querySelector("canvas");
 
     // create file reader to read the contents of the blob
-    var reader = new FileReader();
+    let reader = new FileReader();
 
-    // create a blob object representing the image contained in the canvas
-    glcanvas.toBlob((blob) => {
-
-        // call saveBlob and specify the name of the downloaded png
-        saveBlob(blob, `screencapture-${glcanvas.width}x${glcanvas.height}.png`);
-
-        // read the contents of the blob
-        reader.readAsArrayBuffer(blob);
-
-        // fired when the contents of the blob have been read successfully
-        reader.onloadend = function () {
-
-            // store result in array buffer
-            buffer = reader.result;
-        }
-    });
-
-    // ensure client is connected before sending buffer; prevents the need to reload browser
-    if (client.readyState == 1) {
-
-        // send array buffer to NodeJS server
-        client.send(buffer);
+    // fired when the contents of the blob have been read successfully
+    reader.onloadend = function () {
+        // store result in array buffer
+        buffer = reader.result;
     }
 
-    requestAnimationFrame(sendFrames);
-
+    sendFrames(time, glcanvas, reader);
 }
-
-function initialize() {
-
-    var canvas = window.document.querySelector("#map canvas");
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-
-    gl = canvas.getContext("webgl2");
-
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
-
-    // no animation is being really made but frames are being sent (usually 60fps)
-    window.requestAnimationFrame(sendFrames);
-
-}
-
-
-window.onload = initialize;
