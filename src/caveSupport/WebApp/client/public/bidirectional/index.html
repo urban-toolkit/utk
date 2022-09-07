@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="icon" href="../images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <title>Bidirectional Sample</title>
+</head>
+
+<body>
+  <div id="container">
+    <h1>Bidirectional Sample</h1>
+
+    <div id="warning" hidden=true></div>
+
+    <div id="select">
+      <label for="videoSource">Video source: </label><select id="videoSource"></select>
+      <label for="audioSource">Audio source: </label><select id="audioSource"></select>
+    </div>
+
+    <div id="resolutionSelect">
+      <label for="videoResolution">Video resolution: </label><select id="videoResolution"></select>
+    </div>
+    <div id="resolutionInput">
+      <label for="cameraWidth">Camera width:</label><input id="cameraWidth" type="number" min="0" max="4096" disabled>
+      <label for="cameraHeight">Camera height:</label><input id="cameraHeight" type="number" min="0" max="4096"
+        disabled>
+    </div>
+
+    <div id="buttons">
+      <button type="button" id="startVideoButton">Start Video</button>
+      <button type="button" id="setUpButton" disabled>Set Up</button>
+      <button type="button" id="hangUpButton" disabled>Hang Up</button>
+    </div>
+
+    <div id="preview">
+      <div id="local">
+        <h2>Local</h2>
+        <video id="localVideo" playsinline autoplay muted=true></video>
+        <div id="localVideoStats"></div>
+      </div>
+      <div id="remote">
+        <h2>Remote</h2>
+        <video id="remoteVideo" playsinline autoplay></video>
+        <div id="remoteVideoStats"></div>
+      </div>
+    </div>
+
+    <div class="box">
+      <span>Connection ID:</span>
+      <textarea id="textForConnectionId"></textarea>
+    </div>
+    <div class="box">
+      <span>Codec preferences:</span>
+      <select id="codecPreferences" disabled>
+        <option selected value="">Default</option>
+      </select>
+    </div>
+
+    <p>For more information about <code>Bidirectional</code> sample, see <a
+        href="https://docs.unity3d.com/Packages/com.unity.renderstreaming@3.1/manual/sample-bidirectional.html">Bidirectional
+        sample</a> document page.</p>
+
+    <div id="message"></div>
+
+    <section>
+      <a href="https://github.com/Unity-Technologies/UnityRenderStreaming/tree/develop/WebApp/public/bidirectional"
+        title="View source for this page on GitHub" id="viewSource">View source on GitHub</a>
+    </section>
+  </div>
+</body>
+
+<script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://unpkg.com/event-target@latest/min.js"></script>
+<script src="https://unpkg.com/resize-observer-polyfill@1.5.0/dist/ResizeObserver.global.js"></script>
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver"></script>
+<script type="module" src="js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+# References
+# https://github.com/MicrosoftDocs/visualstudio-docs/blob/master/docs/ide/editorconfig-code-style-settings-reference.md#example-editorconfig-file
+
+###############################
+# Core EditorConfig Options   #
+###############################
+
+root = true
+
+# All files
+[*]
+indent_style = space
+
+# Code files
+[*.{ts,js,json,html}]
+end_of_line = lf
+indent_size = 2
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true

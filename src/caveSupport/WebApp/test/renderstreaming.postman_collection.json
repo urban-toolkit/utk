@@ -1,0 +1,1121 @@
+{
+	"info": {
+		"_postman_id": "81f69f19-4db2-4baa-8210-c4a72f326a47",
+		"name": "renderstreaming",
+		"description": "# Introduction\nWhat does your API do?\n\n# Overview\nThings that the developers should know about\n\n# Authentication\nWhat is the preferred way of using the API?\n\n# Error Codes\nWhat errors and status codes can a user expect?\n\n# Rate limit\nIs there a limit to the number of requests an user can send?",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "837833"
+	},
+	"item": [
+		{
+			"name": "Create Session1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    var jsonData = pm.response.json();",
+							"    pm.response.to.have.jsonBody(\"sessionId\");",
+							"});",
+							"pm.environment.set(\"session_Id\", pm.response.json().sessionId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Session2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    var jsonData = pm.response.json();",
+							"    pm.response.to.have.jsonBody(\"sessionId\");",
+							"});",
+							"pm.environment.set(\"session_Id2\", pm.response.json().sessionId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Connection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    var jsonData = pm.response.json();",
+							"    pm.response.to.have.jsonBody(\"connectionId\");",
+							"    pm.response.to.have.jsonBody(\"polite\");",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.polite).to.be.true;",
+							"});",
+							"pm.environment.set(\"connection_id\", JSON.stringify(pm.response.json().connectionId));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Session-Id",
+						"value": "{{session_Id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"connectionId\": \"b808d31f-e22b-4ee8-85fb-4c4b587f8065\"\r\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling/connection",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"connection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Offer from Session1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Session-Id",
+						"value": "{{session_Id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\t\n\t\"connectionId\": {{connection_id}},\n    \"sdp\" : {{sdp}}\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling/offer",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"offer"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "offer",
+							"host": [
+								"offer"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Post Answer from Session2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id2}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"connectionId\": {{connection_id}},\n\t\"sdp\" : {{sdp}}\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling/answer",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"answer"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "offer",
+							"host": [
+								"offer"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Post Candidate from Session1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"connectionId\": {{connection_id}},\n\t\"candidate\" : {{candidate}}\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling/candidate",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"candidate"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "icecandidate",
+							"host": [
+								"icecandidate"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "Text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Get Top index.html",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Connection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"connections\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.connections.length).to.be.above(0);",
+							"    var connection = jsonData.connections[0];",
+							"    pm.expect(connection.connectionId).to.be.not.null;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/connection",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"connection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Offer to Session1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"offers\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.offers.length).to.be.equal(0);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/offer",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"offer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Offer to Session2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"offers\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.offers.length).to.be.above(0);",
+							"    var offer = jsonData.offers[0];",
+							"    pm.expect(offer.connectionId).to.be.not.null;",
+							"    pm.expect(offer.sdp).to.be.not.null;",
+							"    pm.expect(offer.polite).to.be.not.null;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id2}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/offer",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"offer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Offer to Session1 fromtime={{datetime}}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"offers\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.offers.length).to.be.equal(0);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// datetime in the future",
+							"let datetime = Date.now() + 30;",
+							"pm.environment.set(\"datetime\", datetime);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/offer?fromtime={{datetime}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"offer"
+					],
+					"query": [
+						{
+							"key": "fromtime",
+							"value": "{{datetime}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Answer to Session1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"answers\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.answers.length).to.be.above(0);",
+							"    var answer = jsonData.answers[0];",
+							"    pm.expect(answer.connectionId).to.be.not.null;",
+							"    pm.expect(answer.sdp).to.be.not.null;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/answer",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"answer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Answer to Session2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"answers\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.answers.length).to.be.equal(0);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id2}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/answer",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"answer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Answer to Session1 fromtime={{datetime}}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"answers\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.answers.length).to.be.equal(0);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// datetime in the future",
+							"let datetime = Date.now() + 30;",
+							"pm.environment.set(\"datetime\", datetime);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/answer?fromtime={{datetime}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"answer"
+					],
+					"query": [
+						{
+							"key": "fromtime",
+							"value": "{{datetime}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Candidate to Session2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"candidates\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.candidates.length).to.be.above(0);",
+							"    pm.expect(jsonData.candidates[0].connectionId).to.not.equal(null);",
+							"    pm.expect(jsonData.candidates[0].candidates).to.not.equal(null);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"value": "{{session_Id2}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/candidate",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"candidate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Candidate to Session1 fromtime={{datetime}}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"candidates\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.candidates.length).to.be.equal(0);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// datetime in the future",
+							"let datetime = Date.now() + 30;",
+							"pm.environment.set(\"datetime\", datetime);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling/candidate?fromtime={{datetime}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"candidate"
+					],
+					"query": [
+						{
+							"key": "fromtime",
+							"value": "{{datetime}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All fromtime={{datetime}}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.response.to.have.jsonBody(\"messages\");",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData.messages.length).to.be.above(0);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// datetime in the future",
+							"let datetime = Date.now() + 30;",
+							"pm.environment.set(\"datetime\", datetime);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}/signaling?fromtime={{datetime}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling"
+					],
+					"query": [
+						{
+							"key": "fromtime",
+							"value": "{{datetime}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Config",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"The response has a valid JSON body\", function () {",
+							"    pm.response.to.be.json;",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.response.to.have.jsonBody(\"useWebSocket\");",
+							"    pm.response.to.have.jsonBody(\"startupMode\");",
+							"    pm.response.to.have.jsonBody(\"logging\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/config",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"config"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Connection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\t\n\t\"connectionId\": {{connection_id}}\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling/connection",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling",
+						"connection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Session1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Session2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Session-Id",
+						"type": "text",
+						"value": "{{session_Id2}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/signaling",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"signaling"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "session_Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "sdp",
+			"value": "\"v=0\\r\\no=- 7060022371716902156 2 IN IP4 127.0.0.1\\r\\ns=-\\r\\nt=0 0\\r\\na=group:BUNDLE 0\\r\\na=msid-semantic: WMS 3fd630e8-9285-4f82-adbc-a7e31c334740\\r\\nm=audio 9 UDP\\/TLS\\/RTP\\/SAVPF 111 103 104 9 0 8 110 112 113 126\\r\\nc=IN IP4 0.0.0.0\\r\\na=rtcp:9 IN IP4 0.0.0.0\\r\\na=ice-ufrag:yOxE\\r\\na=ice-pwd:Ekoek1dl79NlWZS2dfmrW7Cr\\r\\na=ice-options:trickle\\r\\na=fingerprint:sha-256 02:F8:39:CE:EF:A7:77:B4:8D:56:8A:A1:C8:14:0C:1D:00:DF:99:14:ED:CE:05:4B:94:F9:EE:36:EE:4F:82:61\\r\\na=setup:actpass\\r\\na=mid:0\\r\\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\\r\\na=extmap:2 http:\\/\\/www.ietf.org\\/id\\/draft-holmer-rmcat-transport-wide-cc-extensions-01\\r\\na=extmap:3 urn:ietf:params:rtp-hdrext:sdes:mid\\r\\na=extmap:4 urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id\\r\\na=extmap:5 urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id\\r\\na=sendonly\\r\\na=msid:3fd630e8-9285-4f82-adbc-a7e31c334740 a573e4b8-b844-4ab9-b5b2-62c5bea85e9e\\r\\na=rtcp-mux\\r\\na=rtpmap:111 opus\\/48000\\/2\\r\\na=rtcp-fb:111 transport-cc\\r\\na=fmtp:111 minptime=10;useinbandfec=1\\r\\na=rtpmap:103 ISAC\\/16000\\r\\na=rtpmap:104 ISAC\\/32000\\r\\na=rtpmap:9 G722\\/8000\\r\\na=rtpmap:0 PCMU\\/8000\\r\\na=rtpmap:8 PCMA\\/8000\\r\\na=rtpmap:110 telephone-event\\/48000\\r\\na=rtpmap:112 telephone-event\\/32000\\r\\na=rtpmap:113 telephone-event\\/16000\\r\\na=rtpmap:126 telephone-event\\/8000\\r\\na=ssrc:2852212123 cname:GybrBKZh3U5xSqQq\\r\\na=ssrc:2852212123 msid:3fd630e8-9285-4f82-adbc-a7e31c334740 a573e4b8-b844-4ab9-b5b2-62c5bea85e9e\\r\\na=ssrc:2852212123 mslabel:3fd630e8-9285-4f82-adbc-a7e31c334740\\r\\na=ssrc:2852212123 label:a573e4b8-b844-4ab9-b5b2-62c5bea85e9e\\r\\n\"",
+			"type": "string"
+		},
+		{
+			"key": "candidate",
+			"value": "\"\"",
+			"type": "string"
+		},
+		{
+			"key": "connection_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

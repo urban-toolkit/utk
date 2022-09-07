@@ -12,9 +12,6 @@ import $ from 'jquery';
 // mapview css
 import './MapView.css';
 
-// enables sending images to cave
-import {initialize} from '../../caveSupport/canvaToFile';
-
 // Mapview Application Class
 class App {
     _map: WebMap;
@@ -27,8 +24,7 @@ class App {
       this._map.initMapView(data).then(() => {
         this._map.render();
       });
-
-      initialize();
+      
     }
   }
 
@@ -94,6 +90,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
     return(
         <Col md={divWidth}>
             <div id='map'></div>
+            <video playsInline autoPlay muted></video> 
             {/* <canvas className='mapCanvas' ref={canvas} style={{border:"1px solid #000000"}}></canvas> */}
         </Col>
     )
