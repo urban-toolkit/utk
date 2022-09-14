@@ -1,8 +1,8 @@
 import { SendVideo } from "./sendvideo.js";
-import { getServerConfig } from "../../js/config.js";
-import { createDisplayStringArray } from "../../js/stats.js";
-
-export function main(){
+// import { getServerConfig } from "../../js/config.js";
+import { getServerConfig } from "./config.js";
+// import { createDisplayStringArray } from "../../js/stats.js";
+import { createDisplayStringArray } from "./stats.js";
 
   const streamSizeList =
   [
@@ -18,17 +18,18 @@ export function main(){
     { width: 2160, height: 3840 },
   ];
 
-// canvas configuration
-var c = document.getElementById("localCanvas");
-var ctx = c.getContext("2d");
-// Create gradient
-var grd = ctx.createLinearGradient(0,0,200,0);
-grd.addColorStop(0,"red");
-grd.addColorStop(1,"white");
-// Fill with gradient
-ctx.fillStyle = grd;
+// // canvas configuration
+// var c = document.getElementById("localCanvas");
+// var ctx = c.getContext("2d");
+// // Create gradient
+// var grd = ctx.createLinearGradient(0,0,200,0);
+// grd.addColorStop(0,"red");
+// grd.addColorStop(1,"white");
+// // Fill with gradient
+// ctx.fillStyle = grd;
 
-const localCanvas = document.getElementById('localCanvas');
+// const localCanvas = document.getElementById('localCanvas');
+const localCanvas = document.querySelector('canvas');
 const textForConnectionId = document.getElementById('textForConnectionId');
 textForConnectionId.value = getRandom(); // connection id
 
@@ -68,7 +69,8 @@ window.addEventListener('beforeunload', async () => {
 setupConfig();
 
 async function setupConfig() {
-  const res = await getServerConfig();
+  // const res = await getServerConfig(); // calls localhost/config (dont know how to set that up)
+  const res = {"useWebSocket":true,"startupMode":"private","logging":"dev"};// hard coded version
   useWebSocket = res.useWebSocket;
   showWarningIfNeeded(res.startupMode);
 }
@@ -196,4 +198,3 @@ function clearStatsMessage() {
 
 
 
-}

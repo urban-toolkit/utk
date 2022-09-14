@@ -90,7 +90,6 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
     return(
         <Col md={divWidth}>
             <div id='map'></div>
-            <video playsInline autoPlay muted></video> 
             {/* <canvas className='mapCanvas' ref={canvas} style={{border:"1px solid #000000"}}></canvas> */}
         </Col>
     )

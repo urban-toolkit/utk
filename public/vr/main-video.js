@@ -2,9 +2,9 @@ import { SendVideo } from "./sendvideo.js";
 import { getServerConfig } from "../../js/config.js";
 import { createDisplayStringArray } from "../../js/stats.js";
 
-export function main(){
-
-  const streamSizeList =
+const defaultStreamWidth = 1280;
+const defaultStreamHeight = 720;
+const streamSizeList =
   [
     { width: 640, height: 360 },
     { width: 1280, height: 720 },
@@ -18,25 +18,38 @@ export function main(){
     { width: 2160, height: 3840 },
   ];
 
-// canvas configuration
-var c = document.getElementById("localCanvas");
-var ctx = c.getContext("2d");
-// Create gradient
-var grd = ctx.createLinearGradient(0,0,200,0);
-grd.addColorStop(0,"red");
-grd.addColorStop(1,"white");
-// Fill with gradient
-ctx.fillStyle = grd;
+// // canvas configuration (added)
+// var c = document.getElementById("localCanvas");
+// var ctx = c.getContext("2d");
+// // Create gradient
+// var grd = ctx.createLinearGradient(0,0,200,0);
+// grd.addColorStop(0,"red");
+// grd.addColorStop(1,"white");
+// // Fill with gradient
+// ctx.fillStyle = grd;
+// // ctx.fillRect(10,10,150,80);
 
-const localCanvas = document.getElementById('localCanvas');
+const localVideo = document.getElementById('localVideo');
+const localCanvas = document.getElementById('localCanvas'); // added
+// const remoteVideo = document.getElementById('remoteVideo');
+// const localVideoStatsDiv = document.getElementById('localVideoStats');
+// const remoteVideoStatsDiv = document.getElementById('remoteVideoStats');
 const textForConnectionId = document.getElementById('textForConnectionId');
-textForConnectionId.value = getRandom(); // connection id
+textForConnectionId.value = getRandom();
+// const videoSelect = document.querySelector('select#videoSource');
+var cameraId; // added
+// const audioSelect = document.querySelector('select#audioSource');
+// const videoResolutionSelect = document.querySelector('select#videoResolution');
+// const cameraWidthInput = document.querySelector('input#cameraWidth');
+// const cameraHeightInput = document.querySelector('input#cameraHeight');
 
 const codecPreferences = document.getElementById('codecPreferences');
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
   'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
 const messageDiv = document.getElementById('message');
 messageDiv.style.display = 'none';
+
+// let useCustomResolution = false;
 
 setUpInputSelect();
 showCodecSelect();
@@ -82,10 +95,29 @@ function showWarningIfNeeded(startupMode) {
 }
 
 async function startVideo() {
+  // videoSelect.disabled = true;
+  // audioSelect.disabled = true;
+  // videoResolutionSelect.disabled = true;
+  // cameraWidthInput.disabled = true;
+  // cameraHeightInput.disabled = true;
   startButton.disabled = true;
   setupButton.disabled = false;
 
-  await sendVideo.startVideo(localCanvas);
+  let width = 0;
+  let height = 0;
+  // if (useCustomResolution) {
+    // width = cameraWidthInput.value ? cameraWidthInput.value : defaultStreamWidth;
+    // height = cameraHeightInput.value ? cameraHeightInput.value : defaultStreamHeight;
+  // } else {
+    // const size = streamSizeList[videoResolutionSelect.value];
+    const size = streamSizeList[1]; // hard coded to 1280 x 720
+    width = size.width;
+    height = size.height;
+  // }
+
+  // await sendVideo.startVideo(localVideo, cameraId, audioSelect.value, width, height);
+  // await sendVideo.startVideo(localVideo, localCanvas);
+  await sendVideo.startVideo(localVideo, cameraId, width, height);
 }
 
 async function setUp() {
@@ -106,6 +138,7 @@ async function setUp() {
   }
   codecPreferences.disabled = true;
 
+  // await sendVideo.setupConnection(remoteVideo, connectionId, useWebSocket, selectedCodecs);
   await sendVideo.setupConnection(connectionId, useWebSocket, selectedCodecs);
   showStatsMessage();
 }
@@ -135,9 +168,38 @@ async function setUpInputSelect() {
   for (let i = 0; i !== deviceInfos.length; ++i) {
     const deviceInfo = deviceInfos[i];
     if (deviceInfo.kind === 'videoinput') {
+      // const option = document.createElement('option');
       cameraId = deviceInfo.deviceId;
-    } 
+      // option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+      // videoSelect.appendChild(option);
+    } // else if (deviceInfo.kind === 'audioinput') {
+    //   const option = document.createElement('option');
+    //   option.value = deviceInfo.deviceId;
+    //   option.text = deviceInfo.label || `mic ${audioSelect.length + 1}`;
+    //   audioSelect.appendChild(option);
+    // }
   }
+
+  // for (let i = 0; i < streamSizeList.length; i++) {
+  //   const streamSize = streamSizeList[i];
+  //   const option = document.createElement('option');
+  //   option.value = i;
+  //   option.text = `${streamSize.width} x ${streamSize.height}`;
+  //   videoResolutionSelect.appendChild(option);
+  // }
+
+  // const option = document.createElement('option');
+  // option.value = streamSizeList.length;
+  // option.text = 'Custom';
+  // videoResolutionSelect.appendChild(option);
+  // videoResolutionSelect.value = 1; // default select index (1280 x 720)
+
+  // videoResolutionSelect.addEventListener('change', (event) => {
+  //   const isCustom = event.target.value >= streamSizeList.length;
+  //   cameraWidthInput.disabled = !isCustom;
+  //   cameraHeightInput.disabled = !isCustom;
+  //   useCustomResolution = isCustom;
+  // });
 }
 
 function showCodecSelect() {
@@ -165,6 +227,12 @@ let intervalId;
 
 function showStatsMessage() {
   intervalId = setInterval(async () => {
+    // if (localVideo.videoWidth) {
+    //   localVideoStatsDiv.innerHTML = `<strong>Sending resolution:</strong> ${localVideo.videoWidth} x ${localVideo.videoHeight} px`;
+    // }
+    // if (remoteVideo.videoWidth) {
+    //   remoteVideoStatsDiv.innerHTML = `<strong>Receiving resolution:</strong> ${remoteVideo.videoWidth} x ${remoteVideo.videoHeight} px`;
+    // }
 
     if (sendVideo == null || connectionId == null) {
       return;
@@ -190,10 +258,8 @@ function clearStatsMessage() {
   }
   lastStats = null;
   intervalId = null;
+  // localVideoStatsDiv.innerHTML = '';
+  // remoteVideoStatsDiv.innerHTML = '';
   messageDiv.style.display = 'none';
   messageDiv.innerHTML = '';
-}
-
-
-
 }
