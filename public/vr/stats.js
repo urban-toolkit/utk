@@ -8,6 +8,7 @@ export function createDisplayStringArray(report, lastReport) {
   let array = new Array();
 
   report.forEach(stat => {
+
     if (stat.type === 'inbound-rtp') {
       array.push(`${stat.kind} receiving stream stats`);
 

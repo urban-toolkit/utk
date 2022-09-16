@@ -12,6 +12,9 @@ import $ from 'jquery';
 // mapview css
 import './MapView.css';
 
+// enables sending images to cave
+import {initialize} from '../../caveSupport/canvaToFile.js';
+
 // Mapview Application Class
 class App {
     _map: WebMap;
@@ -22,9 +25,13 @@ class App {
   
     run(data:any) {
       this._map.initMapView(data).then(() => {
+        let _this = this;
         this._map.render();
+        setInterval(function() { _this._map.render(); }, 25); 
       });
       
+      initialize();
+
     }
   }
 

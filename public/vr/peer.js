@@ -98,7 +98,6 @@ export default class Peer extends EventTarget {
     if (this.connectionId != connectionId) {
       return null;
     }
-
     return this.pc.addTrack(track);
   }
 

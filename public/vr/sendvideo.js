@@ -4,6 +4,7 @@ import { Signaling, WebSocketSignaling } from "./signaling.js";
 import Peer from "./peer.js";
 // import * as Logger from "../../js/logger.js";
 import * as Logger from "./logger.js";
+// import { runInThisContext } from "vm";
 
 export class SendVideo {
   constructor() {
@@ -15,12 +16,13 @@ export class SendVideo {
 
   async startVideo(localCanvas) {
       this.localCanvas = localCanvas;
-      this.localStream = this.localCanvas.captureStream(60); 
+      console.log(localCanvas);
+      this.localStream = this.localCanvas.captureStream(25); 
       // let localVideo = document.querySelector('video');
       // localVideo.srcObject = this.localStream;
-      let ctx = this.localCanvas.getContext("webgl2");  
-      console.log(ctx);
-      console.log(this.localStream.getTracks());
+      // let ctx = this.localCanvas.getContext("webgl2");  
+      // console.log(ctx);
+      // console.log(this.localStream.getTracks()[0].muted);
       // let ctx = this.localCanvas.getContext("2d");  
       // setInterval(function() { ctx.fillRect(10,10,150,80); }, 25); 
   }
@@ -39,6 +41,7 @@ export class SendVideo {
       const data = e.detail;
       _this.prepareNewPeerConnection(data.connectionId, data.polite);
       _this.addTracks(data.connectionId);
+      
     });
 
     this.signaling.addEventListener('disconnect', async (e) => {
@@ -50,6 +53,7 @@ export class SendVideo {
 
     this.signaling.addEventListener('offer', async (e) => {
       const offer = e.detail;
+      // offer.sdp += `b=AS:512\r\n`; //added
       if (_this.pc == null) {
         _this.prepareNewPeerConnection(offer.connectionId, offer.polite);
         _this.addTracks(offer.connectionId);
@@ -97,6 +101,7 @@ export class SendVideo {
 
     // Create peerConnection with proxy server and set up handlers
     this.pc = new Peer(connectionId, polite, this.preferedCodecs);
+
     this.pc.addEventListener('disconnect', () => {
       _this.ondisconnect(`Receive disconnect message from peer.`);
     });
@@ -117,10 +122,15 @@ export class SendVideo {
   addTracks(connectionId) {
     const _this = this;
     const tracks = _this.localStream.getTracks();
+    let sender;
     for (const track of tracks) {
-      console.log(track);
-      _this.pc.addTrack(connectionId, track);
+      sender = _this.pc.addTrack(connectionId, track);
     }
+    
+    const params = sender.getParameters();
+    console.log(params);
+    // params.encodings[0].maxBitrate = 300;
+    // sender.setParameters(params);
   }
 
   async getStats(connectionId) {
