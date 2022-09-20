@@ -25,12 +25,11 @@ class App {
   
     run(data:any) {
       this._map.initMapView(data).then(() => {
-        let _this = this;
         this._map.render();
-        setInterval(function() { _this._map.render(); }, 25); 
+        // setInterval(function() { _this._map.render(); }, 25); 
       });
       
-      initialize();
+      initialize(this._map);
 
     }
   }
