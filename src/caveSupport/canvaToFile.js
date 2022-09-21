@@ -11,123 +11,147 @@ var parsed;
 // use text decoder to get string from array buffer
 var decoder = new TextDecoder("utf-8");
 
-// create websocket connection with built-in javascript client for images
-const client = new WebSocket('ws://localhost:8080'); // can only use ports 80, 8080, and 443 (SSL)
-
-// create another websocket connection with built-in javascript client for interactions
-const clientInt = new WebSocket('ws://localhost:80'); // can only use ports 80, 8080, and 443 (SSL)
-
 // measuring frame rate
 let blobsRead = 0;
-let startTime = new Date();
+let startTime = new Date(); 
 
 // canvas element
 var glcanvas;
 
 var map;
 
-// when the "interaction message" has been received...
-clientInt.addEventListener('message', function (event) {
+var client;
 
-    // create file reader to read the contents of the array buffer
-    var readerInt = new FileReader();
+var lastServerComunnication = 0;
 
-    // read the contents of the interaction data (blob) as an array buffer
-    readerInt.readAsArrayBuffer(event.data);
+// // when the "interaction message" has been received...
+// clientInt.addEventListener('message', function (event) {
 
-    // fired when the contents of the blob have been read successfully
-    readerInt.onloadend = function () {
+//     // create file reader to read the contents of the array buffer
+//     var readerInt = new FileReader();
 
-        // store result in a variable
-        stringBuff = readerInt.result;
+//     // read the contents of the interaction data (blob) as an array buffer
+//     readerInt.readAsArrayBuffer(event.data);
 
-        // parse received "string" using spaces as separators
-        parsed = (decoder.decode(stringBuff)).split(" ");
+//     // fired when the contents of the blob have been read successfully
+//     readerInt.onloadend = function () {
 
-        //-------------------------------------------------------------------------------------------------------
+//         // store result in a variable
+//         stringBuff = readerInt.result;
 
-        // if the wheel has been scrolled...
-        if (parsed[0] == "zoom") {
+//         // parse received "string" using spaces as separators
+//         parsed = (decoder.decode(stringBuff)).split(" ");
 
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-            map._mouse.mouseWheelCustom(0, 0, -1 * parsed[1] * 150);
+//         //-------------------------------------------------------------------------------------------------------
 
-            // let event = new WheelEvent("wheel");
-            // event.offsetX = 0; // TODO get mouse position from unity
-            // event.offsetY = 0; // TODO get mouse position from unity
-            // event.deltaY = -1 * parsed[1] * 150;
-            // glcanvas.dispatchEvent(event);
-        }
+//         // if the wheel has been scrolled...
+//         if (parsed[0] == "zoom") {
 
-        // FIXME: if the analog stick of the CAVE2 wand has been moved...; will replace above
-        if (parsed[0] == "analog") {
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//             map._mouse.mouseWheelCustom(0, 0, -1 * parsed[1] * 150);
 
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-            map._mouse.mouseWheelCustom(0, 0, -1 * parsed[1] * 150);
+//             // let event = new WheelEvent("wheel");
+//             // event.offsetX = 0; // TODO get mouse position from unity
+//             // event.offsetY = 0; // TODO get mouse position from unity
+//             // event.deltaY = -1 * parsed[1] * 150;
+//             // glcanvas.dispatchEvent(event);
+//         }
 
-            // // update the scale using the received delta y variable converted to a float
-            // scale += parseFloat(parsed[1]) * 0.1;
+//         // FIXME: if the analog stick of the CAVE2 wand has been moved...; will replace above
+//         if (parsed[0] == "analog") {
 
-            // // restrict the scale
-            // scale = Math.min(Math.max(.125, scale), 4);
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//             map._mouse.mouseWheelCustom(0, 0, -1 * parsed[1] * 150);
 
-            // // apply the scale transformation
-            // el.style.transform = `scale(${scale})`;
-        }
+//             // // update the scale using the received delta y variable converted to a float
+//             // scale += parseFloat(parsed[1]) * 0.1;
 
-        //-------------------------------------------------------------------------------------------------------
+//             // // restrict the scale
+//             // scale = Math.min(Math.max(.125, scale), 4);
 
-        // if the left mouse button is pressed down...
-        if ((parsed[0] == "mouse") && (parsed[1] == "down")) {
+//             // // apply the scale transformation
+//             // el.style.transform = `scale(${scale})`;
+//         }
+
+//         //-------------------------------------------------------------------------------------------------------
+
+//         // if the left mouse button is pressed down...
+//         if ((parsed[0] == "mouse") && (parsed[1] == "down")) {
         
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-        }
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//         }
 
-        // FIXME: if the L1 button is pressed down...; will replace above
-        if ((parsed[0] == "L1") && (parsed[1] == "down")){
+//         // FIXME: if the L1 button is pressed down...; will replace above
+//         if ((parsed[0] == "L1") && (parsed[1] == "down")){
 
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-        }
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//         }
 
-        //-------------------------------------------------------------------------------------------------------
+//         //-------------------------------------------------------------------------------------------------------
 
-        // if the mouse is moving...
-        if ((parsed[0] == "mouse") && (parsed[1] == "move")) {
+//         // if the mouse is moving...
+//         if ((parsed[0] == "mouse") && (parsed[1] == "move")) {
 
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-        }
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//         }
 
-        // FIXME: if the wand is moving while L1 is pressed down...; will replace above
-        if ((parsed[0] == "L1") && (parsed[1] == "move")){
+//         // FIXME: if the wand is moving while L1 is pressed down...; will replace above
+//         if ((parsed[0] == "L1") && (parsed[1] == "move")){
 
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-        }
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//         }
 
-        //-------------------------------------------------------------------------------------------------------
+//         //-------------------------------------------------------------------------------------------------------
 
-        // if the left mouse button is released...
-        if ((parsed[0] == "mouse") && (parsed[1] == "up")) {
+//         // if the left mouse button is released...
+//         if ((parsed[0] == "mouse") && (parsed[1] == "up")) {
         
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-        }
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//         }
 
-        // FIXME: if the L1 button is released...; will replace above
-        if ((parsed[0] == "L1") && (parsed[1] == "up")) {
+//         // FIXME: if the L1 button is released...; will replace above
+//         if ((parsed[0] == "L1") && (parsed[1] == "up")) {
             
-            // print received message to the console
-            console.log('interaction message received: %s', decoder.decode(stringBuff));
-        }
+//             // print received message to the console
+//             console.log('interaction message received: %s', decoder.decode(stringBuff));
+//         }
 
-        //-------------------------------------------------------------------------------------------------------
-    }   
-});
+//         //-------------------------------------------------------------------------------------------------------
+//     }   
+// });
+
+function establishConnection(){
+    // create websocket connection with built-in javascript client for images
+    client = new WebSocket('ws://localhost:8080'); // can only use ports 80, 8080, and 443 (SSL)
+
+    client.onerror =  function(event){
+        setTimeout(function() {
+            establishConnection();
+        }, 3000); // try to reconnect after 3 seconds
+    };
+
+    client.onopen = function() {
+        client.addEventListener('message', function(event) {
+            console.log(event.data);
+            if(event.data == "true"){
+                lastServerComunnication = new Date();
+            }
+        });
+    };
+
+    client.onclose = function() {
+        setTimeout(function() {
+            establishConnection();
+        }, 3000); // try to reconnect after 3 seconds
+    }
+}
 
 // EDIT: saveBlob
 const saveBlob = (function() {
@@ -163,10 +187,9 @@ const saveBlob = (function() {
 function sendFrames(time, glcanvas) {
 
     setTimeout(function(){
-    // setInterval(function(){
 
         // create file reader to read the contents of the blob
-        var reader = new FileReader();
+        // var reader = new FileReader();
 
         // create a blob object representing the image contained in the canvas
         glcanvas.toBlob((blob) => {
@@ -205,9 +228,13 @@ function sendFrames(time, glcanvas) {
 
         }, 'image/png');
 
-        // sendFrames(time, glcanvas, reader);
-
     }, time);
+
+    // if we are more than 120 seconds without hearing from unity close the browser
+    var timeElapsed = (new Date() - lastServerComunnication)/1000;
+    if(timeElapsed > 120){
+        close();
+    }
 
 }
 
@@ -220,9 +247,9 @@ export async function initialize(objectMap){
     // assign canvas element
     let glcanvas = window.document.querySelector("canvas");
 
-    // glcanvas.style.display = "none";
+    window.close();
+
+    establishConnection();
 
     sendFrames(time, glcanvas);
-
-
 }
