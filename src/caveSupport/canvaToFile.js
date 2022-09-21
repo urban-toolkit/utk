@@ -22,7 +22,7 @@ var map;
 
 var client;
 
-var lastServerComunnication = 0;
+var lastServerComunnication = new Date();
 
 // // when the "interaction message" has been received...
 // clientInt.addEventListener('message', function (event) {
@@ -233,7 +233,7 @@ function sendFrames(time, glcanvas) {
     // if we are more than 120 seconds without hearing from unity close the browser
     var timeElapsed = (new Date() - lastServerComunnication)/1000;
     if(timeElapsed > 120){
-        close();
+        window.close();
     }
 
 }
@@ -246,8 +246,6 @@ export async function initialize(objectMap){
     
     // assign canvas element
     let glcanvas = window.document.querySelector("canvas");
-
-    window.close();
 
     establishConnection();
 
