@@ -249,5 +249,6 @@ export async function initialize(objectMap){
 
     establishConnection();
 
+
     sendFrames(time, glcanvas);
 }

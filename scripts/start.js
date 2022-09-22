@@ -5,7 +5,7 @@ process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 
 // activates webpack debug mode
-process.env.DEBUG = 'express:*';
+// process.env.DEBUG = 'express:*';
 
 const isApp = process.env.REACT_APP_ENTRY === 'app';
 
