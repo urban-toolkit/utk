@@ -127,19 +127,18 @@ var lastServerComunnication = new Date();
 //     }   
 // });
 
-function establishConnection(){
+function establishConnection(host, port = '8080'){
     // create websocket connection with built-in javascript client for images
-    client = new WebSocket('ws://localhost:8080'); // can only use ports 80, 8080, and 443 (SSL)
+    client = new WebSocket('ws://'+host+':'+port); // can only use ports 80, 8080, and 443 (SSL)
 
     client.onerror =  function(event){
-        setTimeout(function() {
-            establishConnection();
+        setTimeout(function(host) {
+            establishConnection(host, port);
         }, 3000); // try to reconnect after 3 seconds
     };
 
     client.onopen = function() {
         client.addEventListener('message', function(event) {
-            console.log(event.data);
             if(event.data == "true"){
                 lastServerComunnication = new Date();
             }
@@ -148,7 +147,7 @@ function establishConnection(){
 
     client.onclose = function() {
         setTimeout(function() {
-            establishConnection();
+            establishConnection(host, port);
         }, 3000); // try to reconnect after 3 seconds
     }
 }
@@ -232,13 +231,17 @@ function sendFrames(time, glcanvas) {
 
     // if we are more than 120 seconds without hearing from unity close the browser
     var timeElapsed = (new Date() - lastServerComunnication)/1000;
-    if(timeElapsed > 120){
+    if(timeElapsed > 20){
         window.close();
     }
 
 }
 
 export async function initialize(objectMap){
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const port = urlParams.get('port')
 
     map = objectMap;
 
@@ -247,7 +250,7 @@ export async function initialize(objectMap){
     // assign canvas element
     let glcanvas = window.document.querySelector("canvas");
 
-    establishConnection();
+    establishConnection('localhost', port);
 
     sendFrames(time, glcanvas);
 }
