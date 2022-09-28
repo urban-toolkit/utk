@@ -21,6 +21,10 @@ var glcanvas;
 var map;
 
 var client;
+var clientOrder;
+var previousSlice = 1;
+
+var initializedAllMapsLayers = false;
 
 var lastServerComunnication = new Date();
 
@@ -132,7 +136,7 @@ function establishConnection(host, port = '8080'){
     client = new WebSocket('ws://'+host+':'+port); // can only use ports 80, 8080, and 443 (SSL)
 
     client.onerror =  function(event){
-        setTimeout(function(host) {
+        setTimeout(function() {
             establishConnection(host, port);
         }, 3000); // try to reconnect after 3 seconds
     };
@@ -150,6 +154,29 @@ function establishConnection(host, port = '8080'){
             establishConnection(host, port);
         }, 3000); // try to reconnect after 3 seconds
     }
+}
+
+function establishConnectionOrderServer(objectMap){
+    // client = new WebSocket('ws://10.0.0.199:4000');
+    clientOrder = new WebSocket('ws://localhost:4000');
+
+    // clientOrder.onerror =  function(event){
+    //     setTimeout(function() {
+    //         establishConnectionOrderServer(objectMap);
+    //     }, 3000); // try to reconnect after 3 seconds
+    // };
+    
+    clientOrder.onopen = function() {
+        clientOrder.addEventListener('message', function(event) {
+            if(event.data){
+                var tranlateValue = 0.367 * (parseInt(event.data)-previousSlice); // Hard coded value for a aproximate 1366 pixels camera translation
+                previousSlice = parseInt(event.data);
+                console.log(tranlateValue);
+                objectMap._camera.translate(tranlateValue, 0); 
+                objectMap.render();
+            }
+        });
+    };
 }
 
 // EDIT: saveBlob
@@ -239,18 +266,32 @@ function sendFrames(time, glcanvas) {
 
 export async function initialize(objectMap){
 
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const port = urlParams.get('port')
+    if(initializedAllMapsLayers){ // initMapView has two rendering phases (yield). We want to initialize after the last phase. TODO: more robust solution
 
-    map = objectMap;
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const port = urlParams.get('port')
 
-    let time = 1000/60; //60fps
-    
-    // assign canvas element
-    let glcanvas = window.document.querySelector("canvas");
+        let time = 1000/60; //60fps
+        
+        // assign canvas element
+        let glcanvas = window.document.querySelector("canvas");
 
-    establishConnection('localhost', port);
+        if(port){
+            establishConnection('localhost', port);
+        }else{
+            establishConnection('localhost', '8080');
+        }
 
-    sendFrames(time, glcanvas);
+        establishConnectionOrderServer(objectMap);
+        
+        // objectMap._camera.translate(0.38, 0); // Hard coded value for a aproximate 1366 pixels camera translation
+        // objectMap.render();
+
+        sendFrames(time, glcanvas);
+    }
+
+    initializedAllMapsLayers = true;
+
+
 }
