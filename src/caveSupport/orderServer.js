@@ -8,6 +8,21 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import { WebSocketServer } from 'ws';
+import process from 'node:process';
+
+/*process.on('beforeExit', (code) => {
+  console.trace()
+  console.log(
+	chalk.red(`Process beforeExit event with code: ${code}`)
+  );
+});
+
+process.on('exit', (code) => {
+	console.trace()
+	console.log(
+		chalk.red(`Process exit event with code: ${code}`)
+	);
+});*/
 
 var clients = [];
 
@@ -43,7 +58,7 @@ const askQuestions = () => {
 const checkNodes = () => {
   setTimeout(() => {
 
-    if(clients.length == 19){
+    if(clients.length == 19 && clients[clients.length-1][1] != ''){
       console.log(
         chalk.blue(`All nodes connected!`)
       );
@@ -59,7 +74,7 @@ const checkNodes = () => {
 
           // is part of the node
           if(elemIp == nodeIpAddress){
-            nodeInstances.append(elem);
+            nodeInstances.push(elem);
           }
 
         });
@@ -81,7 +96,7 @@ const checkNodes = () => {
 
         // calculate the slice of the map each unity instance must receive based on their node ip and process id
         nodeInstances.forEach((elem, index) => {
-          slice = (((node-1)*3)+index)+1;
+          let slice = (((node-1)*3)+index)+1;
           elem[0].send(slice);
         });
 
@@ -103,7 +118,6 @@ const run = async () => {
     console.log(
       chalk.green("Waiting for all nodes to connect...")
     );
-
   });
 
   wss.on('connection', (ws)=>{
@@ -116,12 +130,12 @@ const run = async () => {
     ws.on('message', (data)=>{
       clients.forEach((elem) => {
         if(ws === elem[0]){
-          elem[1] = data;
+          elem[1] = data.toString();
         }
       });
-      console.log(
+      /*console.log(
         chalk.green(`${data} received. Clients: ${clients}`)
-      );
+      );*/
     });
   });
 
@@ -131,7 +145,6 @@ const run = async () => {
   init();
 
   while(true){
-
     // ask questions
     const answers = await askQuestions();
     const { NODE, SLICE } = answers;
