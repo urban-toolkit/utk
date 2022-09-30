@@ -156,7 +156,7 @@ function establishConnection(host, port = '8080'){
     }
 }
 
-function establishConnectionOrderServer(objectMap){
+function establishConnectionOrderServer(objectMap, nodeIp, port){
     // client = new WebSocket('ws://10.0.0.199:4000');
     clientOrder = new WebSocket('ws://localhost:4000');
 
@@ -167,6 +167,8 @@ function establishConnectionOrderServer(objectMap){
     // };
     
     clientOrder.onopen = function() {
+        clientOrder.send(nodeIp+"/"+port);
+
         clientOrder.addEventListener('message', function(event) {
             if(event.data){
                 var tranlateValue = 0.367 * (parseInt(event.data)-previousSlice); // Hard coded value for a aproximate 1366 pixels camera translation
@@ -270,10 +272,11 @@ export async function initialize(objectMap){
 
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        const port = urlParams.get('port')
+        const port = urlParams.get('port');
+        const nodeIp = urlParams.get('nodeIp');
 
         let time = 1000/60; //60fps
-        
+
         // assign canvas element
         let glcanvas = window.document.querySelector("canvas");
 
@@ -283,7 +286,7 @@ export async function initialize(objectMap){
             establishConnection('localhost', '8080');
         }
 
-        establishConnectionOrderServer(objectMap);
+        establishConnectionOrderServer(objectMap, nodeIp, port);
         
         // objectMap._camera.translate(0.38, 0); // Hard coded value for a aproximate 1366 pixels camera translation
         // objectMap.render();
