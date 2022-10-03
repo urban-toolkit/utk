@@ -19,8 +19,6 @@
    - to see the VR version `npm run start:vr`
    - to see the CAVE2 version `npm run start:cave`
 
-## Cave Support
-
 ### Configuration
 
 All important configuration parameters are situated in src/params.js
