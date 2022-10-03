@@ -44,7 +44,7 @@ const askQuestions = () => {
 const checkNodes = () => {
   setTimeout(() => {
 
-    if(clients.length == 19){
+    if(clients.length == 19 && clients[clients.length-1][1] != ''){
       console.log(
         chalk.blue(`All nodes connected!`)
       );
@@ -61,7 +61,7 @@ const checkNodes = () => {
 
           // Is part of the node
           if(elemIp == nodeIpAddress){
-            nodeInstances.append(elem);
+            nodeInstances.push(elem);
           }
 
         });
@@ -83,7 +83,7 @@ const checkNodes = () => {
 
         // Calculate the slice of the map each Unity instance must receive based on their Node IP and Window ID
         nodeInstances.forEach((elem, index) => {
-          slice = (((node-1)*3)+index)+1;
+          let slice = (((node-1)*3)+index)+1;
           elem[0].send(slice);
         });
 
@@ -103,7 +103,6 @@ const run = async () => {
     console.log(
       chalk.green("Waiting for all nodes to connect...")
     );
-
   });
 
   wss.on('connection', (ws)=>{
@@ -117,12 +116,12 @@ const run = async () => {
       // Associate incoming ID information with right client connection
       clients.forEach((elem) => {
         if(ws === elem[0]){
-          elem[1] = data;
+          elem[1] = data.toString();
         }
       });
-      console.log(
+      /*console.log(
         chalk.green(`${data} received. Clients: ${clients}`)
-      );
+      );*/
     });
   });
 
