@@ -1,13 +1,13 @@
 /*
-
-Node.js server that receives all ids from unity and let user tell which portion of the CAVE2 should exhibit which portion of the map
-
+  Node.js server that receives IDs and IPs from unity and decide which portion of the CAVE2 should exhibit which portion of the map.
+  Also let user manually control it on the fly.
 */
 
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import { WebSocketServer } from 'ws';
+import {paramsSendToUnity} from '../../params.js';
 
 var clients = [];
 
@@ -23,11 +23,12 @@ const init = () => {
   );
 };
 
+// Gives the ability to manually control the slice distribution
 const askQuestions = () => {
   const questions = [
     {
-      type: "input",
       name: "NODE",
+      type: "input",
       message: "Pick a node (1-19):"
     },
     {
@@ -39,7 +40,7 @@ const askQuestions = () => {
   return inquirer.prompt(questions);
 };
 
-//check if all nodes connected and send all apropriate slices if they are
+// Check if all nodes connected and send all apropriate slices if they are
 const checkNodes = () => {
   setTimeout(() => {
 
@@ -47,31 +48,32 @@ const checkNodes = () => {
       console.log(
         chalk.blue(`All nodes connected!`)
       );
-      // change let node = 1 (to exclude master node)
+
+      // let node = 1 (to exclude master node). There are 6 nodes in total in the CAVE2 (excluding backwall)
       for(let node = 1; node < 7; node++){
-        let nodeInstances = [];
+        let nodeInstances = []; // Store connections to the Unity instances in specific node
 
         let lastDigit = 200 + node;
-        let nodeIpAddress = "10.0.0."+lastDigit;
+        let nodeIpAddress = "10.0.0."+lastDigit; // The IP addresses of the nodes in the CAVE2 follow a crescent order
         
         clients.forEach((elem) => {
           let elemIp = elem[1].split("/")[0];
 
-          // is part of the node
+          // Is part of the node
           if(elemIp == nodeIpAddress){
             nodeInstances.append(elem);
           }
 
         });
 
-        // order the array based on port number
+        // Order the array based on ID number
         nodeInstances.sort((a,b) => {
-          let aPort = a[1].split('/')[1];
-          let bPort = b[1].split('/')[1];
+          let aID = a[1].split('/')[1];
+          let bID = b[1].split('/')[1];
 
-          if(aPort > aPort){
+          if(aID > aID){
             return 1;
-          }else if(aPort < bPort){
+          }else if(aID < bID){
             return -1;
           }else{
             return 0;
@@ -79,7 +81,7 @@ const checkNodes = () => {
 
         });
 
-        // calculate the slice of the map each unity instance must receive based on their node ip and process id
+        // Calculate the slice of the map each Unity instance must receive based on their Node IP and Window ID
         nodeInstances.forEach((elem, index) => {
           slice = (((node-1)*3)+index)+1;
           elem[0].send(slice);
@@ -94,11 +96,9 @@ const checkNodes = () => {
 
 const run = async () => {
 
-  // wait for all connections and build array with it
-  // create the websocket server with port 8080
-  const wss = new WebSocketServer({port: 4000}, ()=>{
+  const wss = new WebSocketServer({port: paramsSendToUnity.orderServerPort}, ()=>{
     console.log(
-      chalk.green("Initializing server at 4000")
+      chalk.green("Initializing server at "+paramsSendToUnity.orderServerPort)
     );
     console.log(
       chalk.green("Waiting for all nodes to connect...")
@@ -114,6 +114,7 @@ const run = async () => {
     );
 
     ws.on('message', (data)=>{
+      // Associate incoming ID information with right client connection
       clients.forEach((elem) => {
         if(ws === elem[0]){
           elem[1] = data;
@@ -127,12 +128,12 @@ const run = async () => {
 
   checkNodes();
 
-  // show script introduction
+  // Show script introduction
   init();
 
   while(true){
 
-    // ask questions
+    // Ask questions
     const answers = await askQuestions();
     const { NODE, SLICE } = answers;
   
@@ -140,6 +141,7 @@ const run = async () => {
       chalk.white.bgGreen.bold(`Changing ${NODE} to slice ${SLICE}...`)
     );
 
+    // Send choosen slice number to Unity instance
     clients[parseInt(NODE)-1][0].send(SLICE);
 
   }

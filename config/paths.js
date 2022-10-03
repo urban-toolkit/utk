@@ -1,7 +1,8 @@
 'use strict';
 
 const envPublicUrl = process.env.PUBLIC_URL;
-const isApp = process.env.REACT_APP_ENTRY === 'app';
+// In which stage is the application running? (Web, CAVE2, Jupyter or VR)
+const stage = process.env.REACT_APP_ENTRY;
 
 const path = require('path');
 const fs = require('fs');
@@ -53,15 +54,27 @@ const resolveModule = (resolveFn, filePath) => {
   return resolveFn(`${filePath}.js`);
 };
 
+const appBuildOptions = {
+  "app": resolveApp('build/app'),
+  "vr": resolveApp('build/vr'),
+  "cave": resolveApp('build/cave')
+}
+
+const appIndexJsOptions = {
+  "app": resolveModule(resolveApp, 'src/indexWEB'),
+  "vr": resolveModule(resolveApp, 'src/indexVR'),
+  "cave": resolveModule(resolveApp, 'src/indexVR')
+}
+
 // config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp('.env'),
   appPath: resolveApp('.'),
 
-  appBuild: isApp ? resolveApp('build/app') : resolveApp('build/vr'),
-  appPublic: isApp ? resolveApp('public/app') : resolveApp('public/vr'),
-  appHtml: isApp ? resolveApp('public/app/index.html') : resolveApp('public/vr/index.html'),
-  appIndexJs: isApp ? resolveModule(resolveApp, 'src/indexWEB') : resolveModule(resolveApp, 'src/indexVR'),
+  appBuild: appBuildOptions[stage],
+  appPublic: resolveApp('public/'),
+  appHtml: resolveApp('public/index.html'),
+  appIndexJs: appIndexJsOptions[stage],
 
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
