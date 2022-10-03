@@ -47,4 +47,6 @@ Web runs on the 3000 port. VR and CAVE2 runs in the 3001 port.
 
 ### About the data
 
-The data used in the stages is served through the public folder.
+The data used in the stages is served through the public folder.  
+
+If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js

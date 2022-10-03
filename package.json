@@ -80,8 +80,8 @@
     "build:web": "cross-env REACT_APP_ENTRY=app node scripts/build.js",
     "start:vr": "cross-env REACT_APP_ENTRY=vr node scripts/start.js",
     "build:vr": "cross-env REACT_APP_ENTRY=vr node scripts/build.js",
-    "start:cave": "cross-env REACT_APP_ENTRY=cave node scripts/start.js",
-    "start:cave:local": "cross-env REACT_APP_ENTRY=cave node scripts/start.js",
+    "start:cave": "cross-env ENVIRONMENT_IP=10.0.0.199 REACT_APP_ENTRY=cave node scripts/start.js",
+    "start:cave:local": "cross-env ENVIRONMENT_IP=localhost REACT_APP_ENTRY=cave node scripts/start.js",
     "build": "npm run build-web && npm run build:bundle",
     "build:bundle": "webpack --config webpack.config.js",
     "test": "node scripts/test.js"
