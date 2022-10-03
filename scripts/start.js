@@ -4,6 +4,9 @@
 process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 
+// activates webpack debug mode
+// process.env.DEBUG = 'express:*';
+
 const isApp = process.env.REACT_APP_ENTRY === 'app';
 
 // Makes the script crash on unhandled rejections instead of silently

@@ -15,5 +15,38 @@
 3. Frontend configuration
    - go back to urbantk-react-ts folder
    - run `npm install`
-   - to see web version `npm run start-web`
-   - to see the VR version `npm run start-vr`
+   - to see web version `npm run start:web`
+   - to see the VR version `npm run start:vr`
+   - to see the CAVE2 version `npm run start:cave`
+
+## About this branch (caveIntegration)
+
+The purpose of this is branch is to run the urbantk-react in the Cave using the [CAVE2D-Display-Test](https://github.com/FarahKamleh/CAVE2-Display-Test/tree/main)
+
+## Cave Support
+
+### Configuration
+
+All important configuration parameters are situated in src/params.js
+
+### Info
+
+Web runs on the 3000 port. VR and CAVE2 runs in the 3001 port.
+
+### Available start options
+
+- "start:web": "cross-env REACT_APP_ENTRY=app node scripts/start.js",
+- "build:web": "cross-env REACT_APP_ENTRY=app node scripts/build.js",
+- "start:vr": "cross-env REACT_APP_ENTRY=vr node scripts/start.js",
+- "build:vr": "cross-env REACT_APP_ENTRY=vr node scripts/build.js",
+- "start:cave": "cross-env REACT_APP_ENTRY=cave node scripts/start.js",
+- "start:cave:local": "cross-env REACT_APP_ENTRY=cave node scripts/start.js",
+- "build": "npm run build-web && npm run build:bundle",
+- "build:bundle": "webpack --config webpack.config.js",
+- "test": "node scripts/test.js"
+
+### About the data
+
+The data used in the stages is served through the public folder.  
+
+If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js
