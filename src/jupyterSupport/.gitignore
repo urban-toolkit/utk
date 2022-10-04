@@ -1,3 +1,5 @@
 __pycache__
 osm_pbf_files
 data
+buildings_nyc.pkl.zip
+buildings.pkl.zip

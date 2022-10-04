@@ -1,10 +1,12 @@
 import os
 import json
 import asyncio
+from types import SimpleNamespace
 
-from ipykernel.comm import Comm
+from ipykernel.comm import Comm, CommManager
 
-import map 
+# import urbantk.map.map as map
+# import urbantk.io.osm as osm
 
 class UrbanComponent:
     """
@@ -29,12 +31,12 @@ class UrbanComponent:
             self.bbox = bbox
         
 
-    # def add_layers(self, layers):
-    #     loaded = osm.get_osm(self.bbox, layers, False)
-    #     data = {}
-    #     data['data'] = loaded
-    #     comm = Comm(target_name=self.cid+'_addLayers', data={})
-    #     comm.send(loaded[0])
+    def add_layers(self, layers):
+        loaded = osm.get_osm(self.bbox, layers, False)
+        data = {}
+        data['data'] = loaded
+        comm = Comm(target_name=self.cid+'_addLayers', data={})
+        comm.send(loaded[0])
 
     def remove_layers(self):
         pass
@@ -63,21 +65,36 @@ class UrbanComponent:
         data['style'] = self.style
         
         filepath = os.path.dirname(os.path.realpath(__file__))
-        with open(filepath+'/data/bardata.json', 'r') as f:
+        with open(filepath+'/map/data/bardata.json', 'r') as f:
             barData = json.load(f)
 
-        with open(filepath+'/data/scatterdata.json', 'r') as f:
+        with open(filepath+'/map/data/scatterdata.json', 'r') as f:
             scatterData = json.load(f)
             
-        with open(filepath+'/data/heatData.json', 'r') as f:
+        with open(filepath+'/map/data/heatData.json', 'r') as f:
             heatData = json.load(f)
             
         visData = {'bar': barData, 'scatter':scatterData, "heat": heatData, "city" : data}
         
         comm = Comm(target_name=self.cid+'_initMapView', data={})
         comm.send(visData)
+        # comm.send(data)
 
     def view(self, width = '100%', height = '800px'):
         asyncio.ensure_future(self.task())
         return map.get_html(self.cid, width, height)
         
+        # print('here')
+        # await print('here 10')
+        # return '10'
+        # print('here 2')
+        # try:
+        #     return get_html(self.cid, self.layers, self.camera, self.style, width, height)
+        # finally:
+        #     data = {}
+        #     data['layers'] = self.layers
+        #     data['camera'] = self.camera
+        #     data['style'] = self.style
+        #     comm = Comm(target_name=self.cid, data={})
+        #     comm.send(data)
+                
