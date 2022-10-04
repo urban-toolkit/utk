@@ -16,7 +16,8 @@ import vedo
 from shapely import affinity
 from shapely.ops import split, snap, unary_union, polygonize, linemerge
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, Point, MultiPoint, box, polygon
-from pyproj import Transformer
+from pyproj import Transformer, Proj, transform
+import json
 
 class OSM:
     
@@ -596,7 +597,6 @@ class Mesh:
             ids.append(iids)
             colors.append(cols)
 
-        
         df = pd.DataFrame({
             'building_id': pd.Series(building_ids),
             'coordinates': pd.Series(coordinates),
@@ -634,22 +634,53 @@ class Mesh:
             
         return coords_all, indices_all, ids_all, colors_all
     
-    # this JSON follows the urbantk-map layer format specification
+    # this JSON (represented as a python dict) follows the urbantk-map layer format specification
     def gdf_to_json(gdf, layer_id = "buildings-layer", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
         gdf_raw_json = pd.DataFrame.to_json(gdf)
+        gdf_raw_dict = json.loads(gdf_raw_json) # Transforming JSON string into python dictionary
+
+        gdf_new = {}
 
         # config parameters
-        gdf_raw_json.id = layer_id
-        gdf_raw_json.type = layer_type
-        gdf_raw_json.renderStyle = renderStyle
-        gdf_raw_json.styleKey = styleKey
-        gdf_raw_json.visible = visible
-        gdf_raw_json.selectable = selectable
-        gdf_raw_json.skip = skip
+        gdf_new["id"] = layer_id
+        gdf_new["type"] = layer_type
+        gdf_new["renderStyle"] = renderStyle
+        gdf_new["styleKey"] = styleKey
+        gdf_new["visible"] = visible
+        gdf_new["selectable"] = selectable
+        gdf_new["skip"] = skip
+        # height?
 
-        # data
-        gdf_raw_json.data = [{}]
+        flattened_coordinates = []
+        flattened_indices = []
+        flattened_normals = []
 
+        inProj = Proj(init='epsg:3395')
+        outProj = Proj(init='epsg:4326')
+
+        for key in gdf_raw_dict["coordinates"]:
+            for sublist in gdf_raw_dict["coordinates"][str(key)]:
+                x2,y2 = transform(inProj,outProj,sublist[0],sublist[1])
+                flattened_coordinates += [y2,x2,sublist[2]]
+                
+        # flattened_coordinates += [item for sublist in gdf_raw_dict["coordinates"][str(key)] for item in sublist]
+
+        for key in gdf_raw_dict["indices"]:
+            flattened_indices += [item for sublist in gdf_raw_dict["indices"][str(key)] for item in sublist]
+
+        _, _, _, _, normals = Mesh.get_coordinates(gdf, compute_normals=True) # Calculating normals
+
+        flattened_normals += [float(item) for sublist in normals for item in sublist]
+
+        gdf_new["data"] = [{
+            "geometry": {
+                "coordinates": flattened_coordinates,
+                "indices": flattened_indices,
+                "normals": flattened_normals
+            }
+        }]
+
+        return gdf_new
 
     def view(gdf):
 
