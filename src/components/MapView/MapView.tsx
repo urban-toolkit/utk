@@ -79,7 +79,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
           }
           // Environment.setEnvironment({backend: 'http://localhost:'+port+'/', dataFolder:'data/refs_format'});
           // Environment.setEnvironment({backend: 'http://http://131.193.183.139/:'+port+'/', dataFolder:'data/layers_new'});
-          Environment.setEnvironment({backend: 'http://localhost:'+port+'/', dataFolder:'data/layers_new'});
+          Environment.setEnvironment({backend: 'http://localhost:'+port+'/', dataFolder:'data/example_mesh_nyc'});
 
 
           // Environment.setEnvironment({backend: 'http://localhost:5501/', dataFolder:'data/refs_format'});

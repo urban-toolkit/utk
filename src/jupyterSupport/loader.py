@@ -1152,12 +1152,24 @@ class Mesh:
             'colors': pd.Series(colors)
         })
 
-        print(df)
-
         df = df.set_index('building_id', drop=False)
         df = df.sort_index()
+
+        df['coordinates'] = df['coordinates'].apply(lambda elem: MultiPoint(elem))
+
+        # Creating temporary gdf to use to_crs function and get coordinates in lat/lng
+        temp_gdf = gpd.GeoDataFrame(df, geometry='coordinates')
+        temp_gdf = temp_gdf.set_crs('epsg:3395')
+        temp_gdf = temp_gdf.to_crs('epsg:4326')
+
+        # Converting back to a Dataframe
+        df = pd.DataFrame(temp_gdf)
         
+        # Converting MultiPoint object back to plain array
+        df['coordinates'] = df['coordinates'].apply(lambda elem: [[p.y, p.x, p.z] for p in elem])
+
         return df
+
     
     def get_coordinates(gdf, compute_normals=False):
         coordinates = gdf['coordinates'].values
@@ -1204,27 +1216,9 @@ class Mesh:
         flattened_indices = []
         flattened_normals = []
 
-        inProj = Proj(init='epsg:3395')
-        outProj = Proj(init='epsg:4326')
-
-        # x_array = []
-        # y_array = []
-        # z_array = []
-
         for key in gdf_raw_dict["coordinates"]:
-            for sublist in gdf_raw_dict["coordinates"][str(key)]:
-                # x_array.append(sublist[0])
-                # y_array.append(sublist[1])
-                # z_array.append(sublist[2])
-                x2,y2 = transform(inProj,outProj,sublist[0],sublist[1])
-                flattened_coordinates += [y2,x2,sublist[2]]
+            flattened_coordinates += [item for sublist in gdf_raw_dict["coordinates"][str(key)] for item in sublist]
 
-        # x2_array, y2_array = transform(inProj,outProj,x_array,y_array)
-        
-        # print(x2_array, y2_array)
-
-        # return 1
-                
         for key in gdf_raw_dict["indices"]:
             flattened_indices += [item for sublist in gdf_raw_dict["indices"][str(key)] for item in sublist]
 
