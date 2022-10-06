@@ -1155,18 +1155,18 @@ class Mesh:
         df = df.set_index('building_id', drop=False)
         df = df.sort_index()
 
-        df['coordinates'] = df['coordinates'].apply(lambda elem: MultiPoint(elem))
+        # df['coordinates'] = df['coordinates'].apply(lambda elem: MultiPoint(elem))
 
-        # Creating temporary gdf to use to_crs function and get coordinates in lat/lng
-        temp_gdf = gpd.GeoDataFrame(df, geometry='coordinates')
-        temp_gdf = temp_gdf.set_crs('epsg:3395')
-        temp_gdf = temp_gdf.to_crs('epsg:4326')
+        # # Creating temporary gdf to use to_crs function and get coordinates in lat/lng
+        # temp_gdf = gpd.GeoDataFrame(df, geometry='coordinates')
+        # temp_gdf = temp_gdf.set_crs('epsg:3395')
+        # temp_gdf = temp_gdf.to_crs('epsg:4326')
 
-        # Converting back to a Dataframe
-        df = pd.DataFrame(temp_gdf)
+        # # Converting back to a Dataframe
+        # df = pd.DataFrame(temp_gdf)
         
-        # Converting MultiPoint object back to plain array
-        df['coordinates'] = df['coordinates'].apply(lambda elem: [[p.y, p.x, p.z] for p in elem])
+        # # Converting MultiPoint object back to plain array
+        # df['coordinates'] = df['coordinates'].apply(lambda elem: [[p.y, p.x, p.z] for p in elem])
 
         return df
 
@@ -1197,36 +1197,38 @@ class Mesh:
     
     # this JSON (represented as a python dict) follows the urbantk-map layer format specification
     def gdf_to_json(gdf, layer_id = "buildings-layer", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
-        gdf_raw_json = pd.DataFrame.to_json(gdf)
-        gdf_raw_dict = json.loads(gdf_raw_json) # Transforming JSON string into python dictionary
+        gdf_raw_json = pd.DataFrame.to_json(gdf) # Dataframe to JSON
+        gdf_raw_dict = json.loads(gdf_raw_json) # JSON to Python dictionary
 
-        gdf_new = {}
+        json_new = {}
 
         # config parameters
-        gdf_new["id"] = layer_id
-        gdf_new["type"] = layer_type
-        gdf_new["renderStyle"] = renderStyle
-        gdf_new["styleKey"] = styleKey
-        gdf_new["visible"] = visible
-        gdf_new["selectable"] = selectable
-        gdf_new["skip"] = skip
+        json_new["id"] = layer_id
+        json_new["type"] = layer_type
+        json_new["renderStyle"] = renderStyle
+        json_new["styleKey"] = styleKey
+        json_new["visible"] = visible
+        json_new["selectable"] = selectable
+        json_new["skip"] = skip
         # height?
 
         flattened_coordinates = []
         flattened_indices = []
         flattened_normals = []
 
-        for key in gdf_raw_dict["coordinates"]:
-            flattened_coordinates += [item for sublist in gdf_raw_dict["coordinates"][str(key)] for item in sublist]
+        # for key in gdf_raw_dict["coordinates"]:
+        #     flattened_coordinates += [item for sublist in gdf_raw_dict["coordinates"][str(key)] for item in sublist]
 
-        for key in gdf_raw_dict["indices"]:
-            flattened_indices += [item for sublist in gdf_raw_dict["indices"][str(key)] for item in sublist]
+        # for key in gdf_raw_dict["indices"]:
+        #     flattened_indices += [int(item) for sublist in gdf_raw_dict["indices"][str(key)] for item in sublist]
 
-        _, _, _, _, normals = Mesh.get_coordinates(gdf, compute_normals=True) # Calculating normals
+        coords_all, indices_all, ids_all, colors_all, normals = Mesh.get_coordinates(gdf, compute_normals=True) # Calculating normals
 
+        flattened_coordinates += [item for sublist in coords_all for item in sublist]
+        flattened_indices += [int(item) for sublist in indices_all for item in sublist]
         flattened_normals += [float(item) for sublist in normals for item in sublist]
 
-        gdf_new["data"] = [{
+        json_new["data"] = [{
             "geometry": {
                 "coordinates": flattened_coordinates,
                 "indices": flattened_indices,
@@ -1234,7 +1236,7 @@ class Mesh:
             }
         }]
 
-        return gdf_new
+        return json_new
 
     def view(gdf):
 

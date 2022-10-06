@@ -80,7 +80,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
           // Environment.setEnvironment({backend: 'http://localhost:'+port+'/', dataFolder:'data/refs_format'});
           // Environment.setEnvironment({backend: 'http://http://131.193.183.139/:'+port+'/', dataFolder:'data/layers_new'});
           Environment.setEnvironment({backend: 'http://localhost:'+port+'/', dataFolder:'data/example_mesh_nyc'});
-
+          // Environment.setEnvironment({backend: 'http://localhost:'+port+'/', dataFolder:'data/layers_new'});
 
           // Environment.setEnvironment({backend: 'http://localhost:5501/', dataFolder:'data/refs_format'});
           // const url = `https://gist.githubusercontent.com/nafiul-nipu/1be0e281b5e7c1415bb239297660a998/raw/78196c1143f00bf29e91e1ee542ca6308bd07267/park_slope_no_buildings.json`;
