@@ -1,4 +1,0 @@
-geopandas
-jupyter
-pip
-tqdm

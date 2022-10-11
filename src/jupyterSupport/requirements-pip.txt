@@ -1,3 +1,0 @@
-osmium
-plotoptix
-overpass
