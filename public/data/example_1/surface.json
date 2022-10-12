@@ -1,0 +1,54 @@
+{
+    "id": "surface",
+    "height": 0,
+    "type": "TRIANGLES_3D_LAYER",
+    "renderStyle": [
+        "SMOOTH_COLOR"
+    ],
+    "styleKey": "water",
+    "visible": true,
+    "selectable": false,
+    "skip": false,
+    "data": [
+        {
+            "geometry": {
+                "coordinates": [
+                    -23,
+                    -43.15,
+                    0,
+                    -22.81,
+                    -43.15,
+                    0,
+                    -23,
+                    -42.96,
+                    0,
+                    -22.81,
+                    -42.96,
+                    0
+                ],
+                "indices": [
+                    0,
+                    1,
+                    3,
+                    3,
+                    2,
+                    0
+                ],
+                "normals": [
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    1
+                ]
+            }
+        }
+    ]
+}
