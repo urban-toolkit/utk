@@ -26,3 +26,4 @@ yarn-error.log*
 /public/vr/data/data_format
 /public/vr/data/new_sandro
 /public/vr/data/paper
+/public/vr/data/example_mesh_nyc

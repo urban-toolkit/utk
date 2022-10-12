@@ -1,0 +1,13 @@
+geopandas
+pandas
+numpy
+jupyter
+pip
+tqdm
+shapely
+ipykernel
+vedo
+mapbox_earcut
+pysolar
+timezonefinder
+
