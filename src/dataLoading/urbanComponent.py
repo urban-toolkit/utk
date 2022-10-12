@@ -80,21 +80,21 @@ class UrbanComponent:
         comm.send(visData)
         # comm.send(data)
 
-    def view(self, width = '100%', height = '800px'):
-        asyncio.ensure_future(self.task())
-        return map.get_html(self.cid, width, height)
+    # def view(self, width = '100%', height = '800px'):
+    #     asyncio.ensure_future(self.task())
+    #     return map.get_html(self.cid, width, height)
         
-        # print('here')
-        # await print('here 10')
-        # return '10'
-        # print('here 2')
-        # try:
-        #     return get_html(self.cid, self.layers, self.camera, self.style, width, height)
-        # finally:
-        #     data = {}
-        #     data['layers'] = self.layers
-        #     data['camera'] = self.camera
-        #     data['style'] = self.style
-        #     comm = Comm(target_name=self.cid, data={})
-        #     comm.send(data)
+    #     # print('here')
+    #     # await print('here 10')
+    #     # return '10'
+    #     # print('here 2')
+    #     # try:
+    #     #     return get_html(self.cid, self.layers, self.camera, self.style, width, height)
+    #     # finally:
+    #     #     data = {}
+    #     #     data['layers'] = self.layers
+    #     #     data['camera'] = self.camera
+    #     #     data['style'] = self.style
+    #     #     comm = Comm(target_name=self.cid, data={})
+    #     #     comm.send(data)
                 

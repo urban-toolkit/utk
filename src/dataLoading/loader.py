@@ -21,9 +21,10 @@ import json
 
 # from urbantk
 import utils
-import overpass
+# import overpass
 import cache
 import errors
+import urbanComponent
 from shapely.validation import explain_validity
 
 class OSM:
@@ -578,7 +579,6 @@ class OSM:
             if layer == 'buildings':
                 continue
             query = OSM.build_osm_query(bbox, 'geom', [layer])
-            # print(query)
             response = cache._load_osm_from_cache(query)
             if not response:
                 response = api.get(query, build=False)
@@ -622,10 +622,10 @@ class OSM:
     # Load all layers into urban component (allways loads surface layer)
     def load_from_bbox(bbox, layers=['buildings','roads','coastline', 'water', 'parks']):
         cam = utils.get_camera(bbox)
-        loaded = get_osm(bbox, layers)
-        # component = urbancomponent.UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
+        loaded = OSM.get_osm(bbox, layers)
+        component = urbanComponent.UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
 
-        # return component
+        return component
     
     class RelationHandler(osmium.SimpleHandler):
         def __init__(self):
@@ -1201,9 +1201,8 @@ class Mesh:
         return coords_all, indices_all, ids_all, colors_all
     
     # this JSON (represented as a python dict) follows the urbantk-map layer format specification
-    def gdf_to_json(gdf, layer_id = "buildings-layer", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
+    def gdf_to_json(gdf, layer_id = "buildings-layer", layer_type = 'TRIANGLES_3D_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
         gdf_raw_json = pd.DataFrame.to_json(gdf) # Dataframe to JSON
-        gdf_raw_dict = json.loads(gdf_raw_json) # JSON to Python dictionary
 
         json_new = {}
 
@@ -1215,17 +1214,10 @@ class Mesh:
         json_new["visible"] = visible
         json_new["selectable"] = selectable
         json_new["skip"] = skip
-        # height?
 
         flattened_coordinates = []
         flattened_indices = []
         flattened_normals = []
-
-        # for key in gdf_raw_dict["coordinates"]:
-        #     flattened_coordinates += [item for sublist in gdf_raw_dict["coordinates"][str(key)] for item in sublist]
-
-        # for key in gdf_raw_dict["indices"]:
-        #     flattened_indices += [int(item) for sublist in gdf_raw_dict["indices"][str(key)] for item in sublist]
 
         coords_all, indices_all, ids_all, colors_all, normals = Mesh.get_coordinates(gdf, compute_normals=True) # Calculating normals
 
