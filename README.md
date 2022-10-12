@@ -21,26 +21,47 @@
 
 ### Configuration
 
-All important configuration parameters are situated in src/params.js
+All important configuration parameters are situated in src/params.js.  
 
 ### Info
 
-Web runs on the 3000 port. VR and CAVE2 runs in the 3001 port.
+Web runs on the 3000 port. VR and CAVE2 runs in the 3001 port.  
 
 ### Available start options
 
-- "start:web": "cross-env REACT_APP_ENTRY=app node scripts/start.js",
-- "build:web": "cross-env REACT_APP_ENTRY=app node scripts/build.js",
-- "start:vr": "cross-env REACT_APP_ENTRY=vr node scripts/start.js",
-- "build:vr": "cross-env REACT_APP_ENTRY=vr node scripts/build.js",
-- "start:cave": "cross-env REACT_APP_ENTRY=cave node scripts/start.js",
-- "start:cave:local": "cross-env REACT_APP_ENTRY=cave node scripts/start.js",
-- "build": "npm run build-web && npm run build:bundle",
-- "build:bundle": "webpack --config webpack.config.js",
-- "test": "node scripts/test.js"
+- "start:web": Starts the web version
+- "build:web": Builds the bundle for web version (broken)
+- "start:vr": Starts the VR version
+- "build:vr": Builds the bundle for the VR version (broken)
+- "start:cave": Starts the CAVE2 version
+- "start:cave:local": Starts the CAVE2 version locally (for testing purposes) (not implemented)
+- "build": Build web version and bundle (broken)
+- "build:bundle": Build webpack bundle
+- "test": Run tests (not implemented)
 
 ### About the data
 
 The data used in the stages is served through the public folder.  
 
-If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js
+If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js  
+
+Obs: Currently it is only possible to load public/data/example_mesh_nyc, because it is the only example that uses the projection 3395 instead of lat/lng.
+
+### To load project into the CAVE2
+
+### TODO
+
+- Merge build loading with the other layers (change projection to 3395)
+- Discretize floor for shadow calculation
+- Scale shadow calculation for the whole city
+- Give support to fixed resolution in urbantk-map (for CAVE2)
+- Initialize all dependent servers with `npm run start:cave`
+- Finalize the start:vr:local (for local testing purposes)
+- Fix build of urbantk-react
+- Fix dependency issues with urbantk-react
+- Fix coastline mesh loading (dataLoading)
+- Merge ShadowRayTracing with urbantk-react (dataLoading)
+- Unify all project dependencies
+- Change repository name, delete all other branches except master, delete all other repositories except `urbantk-map` and `urbantk-react`
+- Add CAVE2 Unity side as a sub-module
+- Clean code

@@ -21,7 +21,7 @@ import json
 
 # from urbantk
 import utils
-# import overpass
+import overpass
 import cache
 import errors
 import urbanComponent
