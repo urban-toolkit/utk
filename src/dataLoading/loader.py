@@ -1201,7 +1201,7 @@ class Mesh:
         return coords_all, indices_all, ids_all, colors_all
     
     # this JSON (represented as a python dict) follows the urbantk-map layer format specification
-    def gdf_to_json(gdf, layer_id = "buildings-layer", layer_type = 'TRIANGLES_3D_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
+    def gdf_to_json(gdf, layer_id = "buildings-layer", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
         gdf_raw_json = pd.DataFrame.to_json(gdf) # Dataframe to JSON
 
         json_new = {}

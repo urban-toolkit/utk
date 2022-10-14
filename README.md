@@ -54,6 +54,7 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Merge build loading with the other layers (change projection to 3395)
 - Discretize floor for shadow calculation
 - Scale shadow calculation for the whole city
+- Accumulate shadow over time
 - Give support to fixed resolution in urbantk-map (for CAVE2)
 - Initialize all dependent servers with `npm run start:cave`
 - Finalize the start:vr:local (for local testing purposes)
@@ -65,3 +66,4 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Change repository name, delete all other branches except master, delete all other repositories except `urbantk-map` and `urbantk-react`
 - Add CAVE2 Unity side as a sub-module
 - Clean code
+- Clean big files of repo
