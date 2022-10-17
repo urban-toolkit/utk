@@ -67,3 +67,5 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Add CAVE2 Unity side as a sub-module
 - Clean code
 - Clean big files of repo
+- Make shaders pretty [link](https://www.kpf.com/about/innovation)
+- Accumulate the shadows with the sunlight
