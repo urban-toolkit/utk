@@ -52,9 +52,9 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 ### TODO
 
 - Merge build loading with the other layers (change projection to 3395)
-- Discretize floor for shadow calculation
-- Scale shadow calculation for the whole city
+
 - Accumulate shadow over time
+
 - Give support to fixed resolution in urbantk-map (for CAVE2)
 - Initialize all dependent servers with `npm run start:cave`
 - Finalize the start:vr:local (for local testing purposes)
@@ -68,4 +68,3 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Clean code
 - Clean big files of repo
 - Make shaders pretty [link](https://www.kpf.com/about/innovation)
-- Accumulate the shadows with the sunlight

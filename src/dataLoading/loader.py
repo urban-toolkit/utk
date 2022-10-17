@@ -1129,6 +1129,7 @@ class Mesh:
 
         return coords, indices, ids, colors
     
+    # create_mesh for buildings
     def create_mesh(gdf, size):
         
         gdf = gdf.to_crs('epsg:3395')   
