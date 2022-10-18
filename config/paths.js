@@ -54,6 +54,7 @@ const resolveModule = (resolveFn, filePath) => {
   return resolveFn(`${filePath}.js`);
 };
 
+
 const appBuildOptions = {
   "app": resolveApp('build/app'),
   "vr": resolveApp('build/vr'),
@@ -63,7 +64,8 @@ const appBuildOptions = {
 const appIndexJsOptions = {
   "app": resolveModule(resolveApp, 'src/indexWEB'),
   "vr": resolveModule(resolveApp, 'src/indexVR'),
-  "cave": resolveModule(resolveApp, 'src/indexVR')
+  "cave": resolveModule(resolveApp, 'src/indexVR'),
+  "jupyter": resolveModule(resolveApp, 'src/index')
 }
 
 // config after eject: we're in ./config/

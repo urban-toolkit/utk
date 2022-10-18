@@ -33,6 +33,7 @@ https://medium.com/swlh/how-to-add-multiple-entry-points-to-your-react-app-ea8bc
 
 #jupyter bundle creation
 
+
 1. get the urbantkmap.iife.js from urbantk repository as this is used
 previously in jupyter notebook
 2. remove var urbantkmap = (function (exports)){ //possible line 2
@@ -43,6 +44,7 @@ previously in jupyter notebook
 7. MapView Component Added necessary code - see comments
 8. index.tsx = entry point for jupyter notebook
 9. Jupyter.tsx = App.tsx for jupyter notebook
+
 10 to create the bundle for jupyter in "paths.js" file change 
     appIndexJs: isApp ? resolveModule(resolveApp, 'src/indexWEB') : resolveModule(resolveApp, 'src/indexVR'),
     to

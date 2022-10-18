@@ -587,7 +587,7 @@ class OSM:
 
         result = []
         ttype = ''
-        style = ''
+        styleKey = ''
         for layer in layers:
             if layer == 'surface':
                 continue
@@ -597,24 +597,24 @@ class OSM:
             # if layer == 'buildings':
             #     geometry = _create_building_mesh(overpass_responses[layer], bbox)
             #     ttype = 'triangle3D'
-            #     style = 'buildings'
+            #     styleKey = 'buildings'
             if layer == 'roads':
                 geometry = OSM.create_roads_polyline(overpass_responses[layer], bbox)
-                ttype = 'line'
-                style = 'roads'
+                ttype = 'TRIANGLES_3D_LAYER'
+                styleKey = 'roads'
             elif layer == 'coastline':
                 geometry = OSM.create_coastline_mesh(overpass_responses[layer], bbox)
-                ttype = 'triangle'
-                style = 'water'
+                ttype = 'TRIANGLES_3D_LAYER'
+                styleKey = 'water'
             else:
                 geometry = OSM.create_mesh_other_layers(overpass_responses[layer], bbox)
-                ttype = 'triangle'
-                style = layer
-            result.append({'id': layer, 'style': style, 'type': ttype, 'data': geometry})
+                ttype = 'TRIANGLES_2D_LAYER'
+                styleKey = layer
+            result.append({'id': layer, 'type': ttype, 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': styleKey, 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
         
         if load_surface:
             geometry = OSM._create_surface_mesh(bbox)
-            result.insert(0,{'id': 'surface', 'style': 'surface', 'type': 'triangle', 'data': geometry})
+            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
 
         return result
 
@@ -1203,7 +1203,6 @@ class Mesh:
     
     # this JSON (represented as a python dict) follows the urbantk-map layer format specification
     def gdf_to_json(gdf, layer_id = "buildings-layer", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
-        gdf_raw_json = pd.DataFrame.to_json(gdf) # Dataframe to JSON
 
         json_new = {}
 

@@ -1,3 +1,4 @@
+from operator import index
 import os
 import json
 import asyncio
@@ -41,13 +42,51 @@ class UrbanComponent:
     def remove_layers(self):
         pass
 
-    def to_file(self, filepath):
-        if not os.path.exists(os.path.dirname(filepath)):
-            os.makedirs(os.path.dirname(filepath))
-        outjson = {'cid': self.cid, 'style': self.style, 'layers': self.layers, 'camera': self.camera, 'bbox': self.bbox}
-        outjson_str = str(json.dumps(outjson))
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(outjson_str)
+    def to_file(self, filepath, separateFiles=False):
+        '''
+            If separateFiles is true. filepath must be an existing directory.
+            If running with separateFiles = True, this are the resulting files:
+            index.json
+            building -> buildings.json
+            camera -> camera.json
+            coastline -> coastline.json
+            water -> water.json
+            surface -> surface.json
+            parks -> parks.json
+            roads -> roads.json
+            routes -> routes.json
+        '''
+
+        if(separateFiles):
+            if(os.path.isdir(filepath)):
+                index_json = {'cid': self.cid, 'layers': [], 'camera': 'camera'}
+
+                for layer in self.layers:
+                    index_json['layers'].append(layer['id'])
+
+                    layer_json_str = str(json.dumps(layer, indent=4))
+                    with open(os.path.join(filepath,layer['id']+'.json'), "w", encoding="utf-8") as f:
+                        f.write(layer_json_str)
+
+                camera_json_str = str(json.dumps(self.camera, indent=4))
+                with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
+                    f.write(camera_json_str)
+
+                index_json_str = str(json.dumps(index_json, indent=4))
+                with open(os.path.join(filepath,"index.json"), "w", encoding="utf-8") as f:
+                    f.write(index_json_str)
+
+            else:
+                raise Exception("separateFiles is true but filepath does not point to an existing directory")
+
+        else:
+            if not os.path.exists(os.path.dirname(filepath)):
+                os.makedirs(os.path.dirname(filepath))
+
+            outjson = {'cid': self.cid, 'style': self.style, 'layers': self.layers, 'camera': self.camera, 'bbox': self.bbox}
+            outjson_str = str(json.dumps(outjson))
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(outjson_str)
 
     def from_file(self, filepath):
         with open(filepath, "r", encoding="utf-8") as f:

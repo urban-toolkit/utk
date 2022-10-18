@@ -5,8 +5,8 @@ import numpy as np
 import lineclipping
 
 def get_camera(bbox):
-    center = [(bbox[0]+bbox[2])/2.0,(bbox[1]+bbox[3])/2.0]
-    return {'coordinates': [center], 'zoom': -4}
+    center = [(bbox[0]+bbox[2])/2.0,(bbox[1]+bbox[3])/2.0, 1]
+    return {'coordinates': [center]}
 
 def intersect_bbox(bb1, bb2):
     if point_within_bbox([bb1[0],bb1[1]],bb2) or point_within_bbox([bb1[2],bb1[3]],bb2)\
