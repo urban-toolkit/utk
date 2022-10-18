@@ -5,7 +5,7 @@ from IPython.display import HTML
 def get_html(map_id, width, height):
     filepath = os.path.dirname(os.path.realpath(__file__))
     # urbanmaptk = open(filepath+'/ts/dist/urbantkmap.iife.js',mode='r').read()
-    urbanmaptk = open(filepath+'../../dist/build/bundle.min.js',mode='r').read() # load urbantk-react bundle
+    urbanmaptk = open(filepath+'../../../dist/build/bundle.min.js',mode='r').read() # load urbantk-react bundle
 
     width = str(width)
     height = str(height)
