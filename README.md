@@ -53,18 +53,27 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 
 - Merge build loading with the other layers (change projection to 3395)
 
-- Accumulate shadow over time
-
 - Give support to fixed resolution in urbantk-map (for CAVE2)
 - Initialize all dependent servers with `npm run start:cave`
 - Finalize the start:vr:local (for local testing purposes)
-- Fix build of urbantk-react
 - Fix dependency issues with urbantk-react
 - Fix coastline mesh loading (dataLoading)
 - Merge ShadowRayTracing with urbantk-react (dataLoading)
-- Unify all project dependencies
+- Unify node dependancies
 - Change repository name, delete all other branches except master, delete all other repositories except `urbantk-map` and `urbantk-react`
 - Add CAVE2 Unity side as a sub-module
 - Clean code
 - Clean big files of repo
 - Make shaders pretty [link](https://www.kpf.com/about/innovation)
+- Dont try to connect to unity or order server when the web server is executed
+- Prevent the need of starting web server 
+- Make the data be loaded from UrbanComponnent communication with Jupyter not from what I choose in MapView
+
+- Because of a package used in urban-tk some rules from typescript were disabled (in order to build urbantk-react). The best solution is to enable them again and use the source code of the library as a sub-module. They were disabled by inserting comments in the file.Disabled rules:
+   - @typescript-eslint/no-empty-function
+      - /* eslint-disable @typescript-eslint/no-empty-function */
+   - no-cond-assign
+      - /* eslint-disable no-cond-assign */
+   - require-yield
+      - /* eslint-disable require-yield */
+

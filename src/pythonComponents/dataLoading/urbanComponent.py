@@ -104,13 +104,13 @@ class UrbanComponent:
         data['style'] = self.style
         
         filepath = os.path.dirname(os.path.realpath(__file__))
-        with open(filepath+'/map/data/bardata.json', 'r') as f:
+        with open('../../../public/data/bardata.json', 'r') as f:
             barData = json.load(f)
 
-        with open(filepath+'/map/data/scatterdata.json', 'r') as f:
+        with open('../../../public/data/scatterdata.json', 'r') as f:
             scatterData = json.load(f)
             
-        with open(filepath+'/map/data/heatData.json', 'r') as f:
+        with open('../../../public/data/heatData.json', 'r') as f:
             heatData = json.load(f)
             
         visData = {'bar': barData, 'scatter':scatterData, "heat": heatData, "city" : data}

@@ -1,0 +1,36 @@
+{
+    "id": "surface",
+    "type": "TRIANGLES_2D_LAYER",
+    "renderStyle": [
+        "SMOOTH_COLOR"
+    ],
+    "styleKey": "surface",
+    "visible": true,
+    "selectable": false,
+    "skip": false,
+    "data": [
+        {
+            "type": "surface",
+            "geometry": {
+                "coordinates": [
+                    40.728641,
+                    -74.00028,
+                    40.732836,
+                    -74.00028,
+                    40.732836,
+                    -73.994486,
+                    40.728641,
+                    -73.994486
+                ],
+                "indices": [
+                    0,
+                    1,
+                    3,
+                    3,
+                    1,
+                    2
+                ]
+            }
+        }
+    ]
+}

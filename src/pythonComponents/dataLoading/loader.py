@@ -532,6 +532,8 @@ class OSM:
             if(abs(dev) > 0.001):
                 raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
             
+            nodes = utils.convertProjections("4326", "3395", nodes)
+
             mesh.append({'type': 'type', 'geometry': {'coordinates': nodes, 'indices': indices}})
             # print(indices)
         
@@ -614,7 +616,7 @@ class OSM:
         
         if load_surface:
             geometry = OSM._create_surface_mesh(bbox)
-            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
+            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_2D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
 
         return result
 
