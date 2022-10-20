@@ -1,7 +1,9 @@
 {
     "cid": "map",
     "layers": [
-        "parks"
+        "surface",
+        "parks",
+        "water"
     ],
     "camera": "camera"
 }

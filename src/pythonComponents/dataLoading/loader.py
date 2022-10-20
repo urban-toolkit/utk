@@ -1,3 +1,4 @@
+from lib2to3.pytree import convert
 from operator import truediv
 import pandas as pd
 import geopandas as gpd
@@ -14,7 +15,7 @@ from tqdm.notebook import trange, tqdm
 import vedo
 
 from shapely import affinity
-from shapely.ops import split, snap, unary_union, polygonize, linemerge
+from shapely.ops import split, snap, unary_union, polygonize, linemerge, transform
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, Point, MultiPoint, box, polygon
 from pyproj import Transformer, Proj, transform
 import json
@@ -231,6 +232,11 @@ class OSM:
                 coords_duplicated.append(p1[1])
 
             types = ['primary']
+
+            coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
+
+            coords_duplicated = utils.from2dTo3d(coords_duplicated)
+
             mesh.append({'type': 'roads', 'geometry': {'coordinates': coords_duplicated, 'types': types}})
 
         return mesh
@@ -246,6 +252,7 @@ class OSM:
             linestring = LineString(way['geometry'])
             lines.append(linestring)
         multiline = MultiLineString(lines)
+
         merged_lines = linemerge(multiline)
 
         sides = { \
@@ -268,6 +275,10 @@ class OSM:
         exits_byline = {}
         lines = []
         innerlines = []
+
+        if merged_lines.geom_type == 'LineString':
+            merged_lines = [merged_lines]
+
         for line in merged_lines:
             way = {'geometry': list(line.coords), 'bbox': line.bounds}
             # ignore holes for now
@@ -419,7 +430,7 @@ class OSM:
         return mesh
 
     # from urbantk
-    def create_mesh_other_layers(osm_elements, bbox):
+    def create_mesh_other_layers(osm_elements, bbox, convert2dto3d=False):
         ways = []
         # handle multiways first
         for mid in osm_elements['multiways']:
@@ -518,21 +529,31 @@ class OSM:
                 rings.append(len(nodes))
                 
             nodes = np.array(nodes)
-            indices = earcut.triangulate_float64(nodes, rings)
+
+            cc_nodes = np.flip(nodes, axis=0) # inverting nodes to produce counter-clock wise indices
+
+            indices = earcut.triangulate_float64(cc_nodes, rings)
 
             # empty triangulation
             if(len(indices) == 0 or (len(indices) % 3) > 0):
                 raise errors.InvalidPolygon('Invalid triangulation')
 
             # bad triangulation
-            nodes = nodes.flatten().tolist()
+            cc_nodes = cc_nodes.flatten().tolist()
             indices = indices.tolist()
-            dev = utils.deviation(nodes, rings, 2, indices)
+            dev = utils.deviation(cc_nodes, rings, 2, indices)
             # print(dev)
             if(abs(dev) > 0.001):
                 raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
             
+            nodes = nodes.flatten().tolist()
+
             nodes = utils.convertProjections("4326", "3395", nodes)
+
+            if convert2dto3d:
+                nodes = utils.from2dTo3d(nodes)
+
+            # indices = [elem-1 for elem in indices] # making indices start with 0 not 1
 
             mesh.append({'type': 'type', 'geometry': {'coordinates': nodes, 'indices': indices}})
             # print(indices)
@@ -543,9 +564,201 @@ class OSM:
     def _create_surface_mesh(bbox):
 
         nodes = [bbox[0],bbox[1], bbox[2],bbox[1], bbox[2],bbox[3], bbox[0],bbox[3]]
-        indices = [0, 1, 3, 3, 1, 2]
+
+        nodes = utils.convertProjections("4326", "3395", nodes)
+
+        nodes = utils.from2dTo3d(nodes)
+
+        indices = [0, 3, 2, 2, 1, 0]
 
         return [{'type': 'surface', 'geometry': {'coordinates': nodes, 'indices': indices}}]
+
+
+    def _create_building_mesh(osm_elements, bbox):
+
+        ways = []
+        # handle multiways first
+        for mid in osm_elements['multiways']:
+            multiways = osm_elements['multiways'][mid]
+            # https://wiki.openstreetmap.org/wiki/Relation:multipolygon
+            for way in multiways:
+                outernodes = []
+                prevnodes = []
+                inserted = False
+                for outer in way['outer']:
+                    curnodes = outer['geometry']
+                    if curnodes[0][0]==curnodes[-1][0] and curnodes[0][1]==curnodes[-1][1]: # closed
+                        ways.append({'inner': [], 'outer': curnodes, 'type': 'type'})
+                        inserted = True
+                    else:
+                        if (len(prevnodes) == 0) or (prevnodes[-1][0]==curnodes[0][0] and prevnodes[-1][1]==curnodes[0][1]):
+                            outernodes.extend(curnodes)
+                        else:
+                            outernodes.extend(curnodes[::-1])
+                        prevnodes = curnodes
+                # print(outernodes)
+                if inserted == False:
+                    ways.append({'inner': [], 'outer': outernodes, 'tags': way['tags'], 'type': 'type'})
+                
+                innernodes = []
+                prevnodes = []
+                inserted = False
+                lastouter = len(ways)-1
+                for inner in way['inner']:
+                    curnodes = inner['geometry']
+                    if curnodes[0][0]==curnodes[-1][0] and curnodes[0][1]==curnodes[-1][1]: # closed
+                        ways[lastouter]['inner'].append(curnodes)
+                        inserted = True
+                    else:
+                        if (len(prevnodes) == 0) or (prevnodes[-1][0]==curnodes[0][0] and prevnodes[-1][1]==curnodes[0][1]):
+                            innernodes.append(curnodes)
+                        else:
+                            innernodes.extend(curnodes[::-1])
+                        prevnodes = curnodes
+                if inserted == False:
+                    ways[lastouter]['inner'] = innernodes
+
+        # single ways
+        for wid in osm_elements['ways']:
+            way = osm_elements['ways'][wid]
+            nodes = way['geometry']
+            ways.append({'outer': nodes, 'inner': [], 'tags': way['tags'],'type': 'type'})
+
+        # to shapely
+        polygons = []
+        for way in ways:
+            if len(way['outer']) > 2:
+                poly = Polygon(way['outer'],way['inner'])
+                poly = poly.buffer(0)
+            else:
+                print('small poly')
+                continue
+            if not poly.is_valid:
+                print(explain_validity(poly))
+                # for coord in way['outer']:
+                    # print('%f,%f'%(coord[0],coord[1]))
+                print('poly not valid')
+                return
+            if poly.overlaps(box(bbox[0],bbox[1],bbox[2],bbox[3])):
+                continue
+            if poly.geom_type == 'Polygon':
+                exterior = list(poly.exterior.coords)
+                interiors = []
+                for interior in poly.interiors:
+                    interiors.append(list(interior.coords))
+                polygons.append({'geom': [exterior, interiors], 'tags': way['tags']})
+            elif poly.geom_type == 'MultiPolygon':
+                for p in poly:
+                    exterior = list(p.exterior.coords)
+                    interiors = []
+                    for interior in p.interiors:
+                        interiors.append(list(interior.coords))
+                    polygons.append({'geom': [exterior, interiors], 'tags': way['tags']})
+
+
+        # https://wiki.openstreetmap.org/wiki/Simple_3D_buildings#Other_roof_tags
+        def _feet_to_meters(s):
+            r = re.compile('^(?!$|.*\'[^\x22]+$)(?:([0-9]+)\')?(?:([0-9]+)\x22?)?$')
+            m = r.findall(s)[0]
+            if len(m[0]) > 0 and len(m[1]) > 0:
+                m = float(m[0]) + float(m[1]) / 12.0
+            elif len(m[0]) > 0:
+                m = float(m[0])
+            return m * 0.3048
+        LEVEL_HEIGHT = 3.4
+        def _get_height(tags):
+            if 'height' in tags:
+                # already accounts for roof
+                if '\'' in tags['height'] or '\"' in tags['height']:
+                    return _feet_to_meters(tags['height'])
+                r = re.compile(r"[-+]?\d*\.\d+|\d+")
+                return float(r.findall(tags['height'])[0])
+            if 'levels' in tags:
+                roof_height = 0
+                if 'roof_height' in tags:
+                    if '\'' in tags['roof_height'] or '\"' in tags['roof_height']:
+                        roof_height = _feet_to_meters(tags['roof_height'])
+                    else:
+                        r = re.compile(r"[-+]?\d*\.\d+|\d+")
+                        roof_height = float(r.findall(tags['roof_height'])[0])
+
+                # does not account for roof height
+                height = float(tags['levels']) * LEVEL_HEIGHT
+                if 'roof_levels' in tags and roof_height == 0:
+                    height += float(tags['roof_levels']) * LEVEL_HEIGHT
+                return height
+            return 7.0
+
+        def _get_min_height(tags):
+            if 'min_height' in tags:
+                return float(tags['min_height'])
+            if 'min_level' in tags:
+                return float(tags['min_level']) * LEVEL_HEIGHT
+            return 0.0
+
+        # flip x and y coordinates
+        def _invert(elem):
+            return [(coord[1], coord[0]) for coord in elem]
+
+        print(polygons[0])
+
+        tags = []
+        geometry = []
+        min_heights = []
+        heights = []
+        for building_info in polygons:
+
+            tags.append(building_info['tags'])
+            min_heights.append(_get_min_height(building_info['tags']))
+            heights.append(_get_height(building_info['tags']))
+
+            shapely_polygons = [Polygon(_invert(elem)) for elem in building_info['geom']]
+            geometry.append(MultiPolygon(shapely_polygons))
+
+        df = pd.DataFrame(data={'tags': tags, 'geometry': geometry, 'min_height': min_heights, 'height': heights})
+
+        # # generate buildings
+        # mesh = []
+        # for poly in polygons:
+        #     min_height = _get_min_height(poly['tags'])
+        #     height = _get_height(poly['tags'])
+
+        #     # roof
+        #     coordinates, indices = _get_roof('flat', height, poly['geom'])
+
+        #     # wall
+        #     nodes = poly['geom'][0] # exterior
+        #     for i in range(0,len(nodes)-1):
+        #         n0 = nodes[i]
+        #         n1 = nodes[i+1]
+
+        #         v0 = [n0[0],n0[1],min_height]
+        #         v1 = [n1[0],n1[1],min_height]
+        #         v2 = [n0[0],n0[1],height]
+        #         v3 = [n1[0],n1[1],height]
+
+        #         i0 = len(coordinates)/3
+        #         coordinates.extend(v0)
+        #         coordinates.extend(v1)
+        #         coordinates.extend(v2)
+        #         coordinates.extend(v3)
+
+        #         # t0
+        #         indices.append(i0)
+        #         indices.append(i0+1)
+        #         indices.append(i0+2)
+
+        #         # t1
+        #         indices.append(i0+1)
+        #         indices.append(i0+3)
+        #         indices.append(i0+2)
+
+        #     # merge 
+        #     mesh.append({'type': 'type', 'geometry': {'coordinates': coordinates, 'indices': indices}})
+        
+        # return mesh
+        return
+
 
     # from urbantk
     def get_osm(bounding_box, layers=['buildings','roads','coastline', 'water', 'parks'], load_surface = True):
@@ -578,8 +791,6 @@ class OSM:
         for layer in layers:
             if layer == 'surface':
                 continue
-            if layer == 'buildings':
-                continue
             query = OSM.build_osm_query(bbox, 'geom', [layer])
             response = cache._load_osm_from_cache(query)
             if not response:
@@ -594,6 +805,7 @@ class OSM:
             if layer == 'surface':
                 continue
             if layer == 'buildings':
+                geometry = OSM._create_building_mesh(overpass_responses[layer], bbox)
                 continue
             # TODO The building mesh has to be generated by Fabio's code
             # if layer == 'buildings':
@@ -607,22 +819,23 @@ class OSM:
             elif layer == 'coastline':
                 geometry = OSM.create_coastline_mesh(overpass_responses[layer], bbox)
                 ttype = 'TRIANGLES_3D_LAYER'
-                styleKey = 'water'
+                styleKey = 'land'
             else:
-                geometry = OSM.create_mesh_other_layers(overpass_responses[layer], bbox)
-                ttype = 'TRIANGLES_2D_LAYER'
+                geometry = OSM.create_mesh_other_layers(overpass_responses[layer], bbox, convert2dto3d=True)
+                ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = layer
             result.append({'id': layer, 'type': ttype, 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': styleKey, 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
         
         if load_surface:
             geometry = OSM._create_surface_mesh(bbox)
-            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_2D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
+            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
 
         return result
 
     # from urbantk
     # Load all layers into urban component (allways loads surface layer)
-    def load_from_bbox(bbox, layers=['buildings','roads','coastline', 'water', 'parks']):
+    def load_from_bbox(bbox, layers=['building','roads','coastline', 'water', 'parks']):
+        
         cam = utils.get_camera(bbox)
         loaded = OSM.get_osm(bbox, layers)
         component = urbanComponent.UrbanComponent(layers = loaded, bbox = bbox, camera = cam)

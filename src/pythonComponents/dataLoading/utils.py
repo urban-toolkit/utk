@@ -7,8 +7,51 @@ from shapely.geometry import Point
 
 import lineclipping
 
+def convertProjections(inProj, outProj, geometry, dim2=True):
+    '''
+        Convert projections from inProj to outPorj. Both values can be anything accepted by pyproj.CRS.from_user_input(), such as an authority string (eg “EPSG:4326”) or a WKT string.
+        The functions converts the geometries into a geodataframe to make the conversion faster using geopandas.
+
+        * @param {string} inProj The current projection of the geometry
+        * @param {string} outProj The desired out projection for the geometry
+        * @param {bool} Indicates if the geometry is represented by 2D points or 3D points
+        * @returns {List} Returns a list with all geometries transformed
+    '''
+
+    # transform the flat array into a list of Points
+    grouped_geometry = []
+
+    index = 0
+    offset = 1 if dim2 else 2
+    while(index < len(geometry)-offset):
+        if dim2:
+            grouped_geometry.append(Point(geometry[index+1], geometry[index])) # must be long/lat
+        else:
+            grouped_geometry.append(Point(geometry[index+1], geometry[index], geometry[index+2])) # must be long/lat
+
+        index += 2 if dim2 else 3
+
+    df = pd.DataFrame(grouped_geometry)
+
+    gdf = gpd.GeoDataFrame(df, geometry=0, crs=inProj)
+
+    gdf = gdf.to_crs(outProj)   
+
+    translatedGeometry = []
+
+    for elem in gdf[0]:
+        translatedGeometry.append(elem.x)
+        translatedGeometry.append(elem.y)
+        if not dim2:
+            translatedGeometry.append(elem.z)
+
+    return translatedGeometry
+
 def get_camera(bbox):
-    center = [(bbox[0]+bbox[2])/2.0,(bbox[1]+bbox[3])/2.0, 1]
+    center = [(bbox[0]+bbox[2])/2.0,(bbox[1]+bbox[3])/2.0]
+    center = convertProjections("4326", "3395", center)
+    center.append(1) # zoom level
+
     return {'coordinates': [center]}
 
 def intersect_bbox(bb1, bb2):
@@ -77,42 +120,17 @@ def deviation(data, holeIndices, dim, triangles):
 
     return abs((trianglesArea - polygonArea) / polygonArea)
 
-def convertProjections(inProj, outProj, geometry, dim2=True):
+def from2dTo3d(nodes):
     '''
-        Convert projections from inProj to outPorj. Both values can be anything accepted by pyproj.CRS.from_user_input(), such as an authority string (eg “EPSG:4326”) or a WKT string.
-        The functions converts the geometries into a geodataframe to make the conversion faster using geopandas.
-
-        * @param {string} inProj The current projection of the geometry
-        * @param {string} outProj The desired out projection for the geometry
-        * @param {bool} Indicates if the geometry is represented by 2D points or 3D points
-        * @returns {List} Returns a list with all geometries transformed
+        Inserts 0 in the z position
     '''
-
-    # transform the flat array into a list of Points
-    grouped_geometry = []
+    new_3d_node = []
 
     index = 0
-    offset = 1 if dim2 else 2
-    while(index < len(geometry)-offset):
-        if dim2:
-            grouped_geometry.append(Point(geometry[index], geometry[index+1]))
-        else:
-            grouped_geometry.append(Point(geometry[index], geometry[index+1], geometry[index+2]))
+    while(index < len(nodes)-1):
+        new_3d_node.append(nodes[index])
+        new_3d_node.append(nodes[index+1])
+        new_3d_node.append(0)
+        index += 2
 
-        index += 2 if dim2 else 3
-
-    df = pd.DataFrame(grouped_geometry)
-
-    gdf = gpd.GeoDataFrame(df, geometry=0, crs=inProj)
-
-    gdf = gdf.to_crs('epsg:3395')   
-
-    translatedGeometry = []
-
-    for elem in gdf[0]:
-        translatedGeometry.append(elem.x)
-        translatedGeometry.append(elem.y)
-        if not dim2:
-            translatedGeometry.append(elem.z)
-
-    return translatedGeometry
+    return new_3d_node
