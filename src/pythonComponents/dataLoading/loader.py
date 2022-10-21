@@ -573,7 +573,7 @@ class OSM:
 
         return [{'type': 'surface', 'geometry': {'coordinates': nodes, 'indices': indices}}]
 
-
+    # from urbantk
     def _create_building_mesh(osm_elements, bbox):
 
         ways = []
@@ -864,7 +864,21 @@ class OSM:
         
         if load_surface:
             geometry = OSM._create_surface_mesh(bbox)
-            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
+            flat_coordinates = geometry[0]['geometry']['coordinates']
+            grouped_coordinates = np.reshape(np.array(flat_coordinates), (int(len(flat_coordinates)/3), -1))
+
+            coordinates, indices, ids, normals = Mesh.discretize_surface_mesh(grouped_coordinates, 5)
+
+            data_array = [{
+                'geometry': {
+                    'coordinates': [float(elem) for sublist in coordinates for elem in sublist],
+                    'indices': [int(elem) for sublist in indices for elem in sublist],
+                    'ids': [int(elem) for elem in ids],
+                    'normals': [float(elem) for sublist in normals for elem in sublist]
+                }
+            }]
+
+            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': data_array})
 
         return result
 
@@ -1120,6 +1134,18 @@ class Mesh:
             points = joined_points
 
         return merged_segments #, list(MultiPoint([lines.interpolate(distance) for distance in distances]))
+
+
+    def discretize_surface_mesh(coords, size=-1):
+        poly = Polygon(coords[:,:2])
+
+        coordinates, indices, ids, _ = Mesh.get_roof(poly, None, 0, size)
+
+        vmesh = vedo.Mesh([coordinates, indices])
+        normals = vmesh.normals(cells=False)
+
+        return coordinates, indices, ids, normals
+
 
     def extrude(segments, min_height, height, size):
 
@@ -1466,23 +1492,28 @@ class Mesh:
         json_new["selectable"] = selectable
         json_new["skip"] = skip
 
-        flattened_coordinates = []
-        flattened_indices = []
-        flattened_normals = []
+        json_new["data"] = []
 
-        coords_all, indices_all, ids_all, colors_all, normals = Mesh.get_coordinates(gdf, compute_normals=True) # Calculating normals
+        for index in range(0, len(gdf)):
 
-        flattened_coordinates += [item for sublist in coords_all for item in sublist]
-        flattened_indices += [int(item) for sublist in indices_all for item in sublist]
-        flattened_normals += [float(item) for sublist in normals for item in sublist]
+            flattened_coordinates = []
+            flattened_indices = []
+            flattened_normals = []
 
-        json_new["data"] = [{
-            "geometry": {
-                "coordinates": flattened_coordinates,
-                "indices": flattened_indices,
-                "normals": flattened_normals
-            }
-        }]
+            coords_all, indices_all, ids_all, _, normals = Mesh.get_coordinates(gdf.iloc[[index]], compute_normals=True) # Calculating normals
+
+            flattened_coordinates += [item for sublist in coords_all for item in sublist]
+            flattened_indices += [int(item) for sublist in indices_all for item in sublist]
+            flattened_normals += [float(item) for sublist in normals for item in sublist]
+
+            json_new["data"].append({
+                "geometry": {
+                    "coordinates": flattened_coordinates,
+                    "indices": flattened_indices,
+                    "normals": flattened_normals,
+                    "ids": [int(elem) for elem in ids_all]
+                }
+            })
 
         return json_new
 
