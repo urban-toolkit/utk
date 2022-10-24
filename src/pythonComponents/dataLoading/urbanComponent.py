@@ -64,10 +64,6 @@ class UrbanComponent:
                 for layer in self.layers:
                     index_json['layers'].append(layer['id'])
 
-                    f = open("demofile2.txt", "a")
-                    f.write(str(layer))
-                    f.close()
-
                     layer_json_str = str(json.dumps(layer, indent=4))
                     with open(os.path.join(filepath,layer['id']+'.json'), "w", encoding="utf-8") as f:
                         f.write(layer_json_str)
