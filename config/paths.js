@@ -57,6 +57,7 @@ const resolveModule = (resolveFn, filePath) => {
 
 const appBuildOptions = {
   "app": resolveApp('build/app'),
+  "jupyter": resolveApp('build/app'),
   "vr": resolveApp('build/vr'),
   "cave": resolveApp('build/cave')
 }

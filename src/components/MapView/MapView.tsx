@@ -55,15 +55,18 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
         if(dataToView === 'none'){ //render map to jupyter notebook
 
           // get the div
-          var el = document.getElementById('map')!;
+          // var el = document.getElementById('map')!;
 
           // create new instance of Mapview from urbanktk.iife.js - jupyter
-          let map = new JupyterMap(el, false);
+          // let map = new JupyterMap(el, false);
+
+          let app = new App('#map');
+          app.run(data);
 
           // render the map in jupyter
-          map.initMapView(data);
+          // map.initMapView(data);
 
-          map.addLayer(data);
+          // map.addLayer(data);
 
         }else{
 

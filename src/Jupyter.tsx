@@ -87,8 +87,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
       />
       {/* map view */}
       <MapViewer 
-      // variable contains which city data to load
-        dataToView = {cityRef}
+        dataToView = {'none'}
         divWidth = {11}
         data = {data.city}
       />

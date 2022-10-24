@@ -1,5 +1,7 @@
 # Getting Started with this project
 
+1. Install dependencies (TODO)
+
 1. Clone the repository, initialize submodule and pull submodule
 
 `git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
@@ -67,6 +69,7 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Dont try to connect to unity or order server when the web server is executed
 - Prevent the need of starting web server 
 - Make the data be loaded from UrbanComponnent communication with Jupyter not from what I choose in MapView
+- Fix appBuildingOptions in config/path.js
 
 - Because of a package used in urban-tk some rules from typescript were disabled (in order to build urbantk-react). The best solution is to enable them again and use the source code of the library as a sub-module. They were disabled by inserting comments in the file.Disabled rules:
    - @typescript-eslint/no-empty-function
@@ -76,3 +79,63 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
    - require-yield
       - /* eslint-disable require-yield */
 
+### Package List
+
+1. react-bootstrap - https://www.npmjs.com/package/react-bootstrap
+2. react-draggable - https://www.npmjs.com/package/react-draggable
+3. d3 - https://www.npmjs.com/package/d3
+4. @types/d3 - https://www.npmjs.com/package/@types/d3
+5. react-icons - https://www.npmjs.com/package/react-icons
+6. jquery - https://www.npmjs.com/package/jquery
+7. @types/jquery - https://www.npmjs.com/package/@types/jquery
+8. react-dropdown - https://www.npmjs.com/package/react-dropdown
+9. @types/d3-scale - https://www.npmjs.com/package/@types/d3-scale
+10. axios - https://www.npmjs.com/package/axios
+
+## creating submodule
+git submodule add link_to_the_repository_to_be_added_as_submodule
+
+### submodule cloning
+1. clone the repository as usual
+2. run - git submodule init
+3. run - git submodule update
+
+### to fetch and update submodule
+git submodule update --remote submoduleName
+
+
+### multiple entry points 
+https://stackoverflow.com/questions/55308657/create-react-app-v2-multiple-entry-points
+https://medium.com/swlh/how-to-add-multiple-entry-points-to-your-react-app-ea8bc015d410
+
+## jupyter bundle creation
+
+<!-- 1. get the urbantkmap.iife.js from urbantk repository as this is used
+previously in jupyter notebook
+2. remove var urbantkmap = (function (exports)){ //possible line 2
+3. remove last line
+4. remove all exports. lines
+5. finally remove "return exports"
+6. add at the end "export {MapView}
+7. MapView Component Added necessary code - see comments
+8. index.tsx = entry point for jupyter notebook
+9. Jupyter.tsx = App.tsx for jupyter notebook -->
+
+1. Go to src/urbantk-map/ts
+2. run `npm run build`
+3. Paste in the header of src/urbantk-map/ts/dist/urbantkmap.js:  
+   /* eslint-disable @typescript-eslint/no-empty-function */  
+   /* eslint-disable no-cond-assign */  
+   /* eslint-disable require-yield */  
+3. In terminal urbantk-react/ run `npm run build:bundle:jupyter`
+    it will create a single bundle file in /dist/bundle folder - "bundle.min.js"
+    this bundle can be used to render our project in jupyter notebook
+4. Go to src/pythonComponents/jupyterSupport run `jupyter notebook`
+5. Run the notebook that will open on the web browser
+
+<!-- ========================== -->
+
+2. in terminal run "npm run build:bundle:web"
+    it will create a single bundle file in dist/bundle folder that can be used with basic html file
+    make sure to run the server in port 3000
+    make sure to add the data folder with data
