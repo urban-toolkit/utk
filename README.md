@@ -58,7 +58,6 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Finalize the start:vr:local (for local testing purposes)
 - Fix dependency issues with urbantk-react
 - Fix coastline mesh loading (dataLoading)
-- Merge ShadowRayTracing with urbantk-react (dataLoading)
 - Unify node dependancies
 - Change repository name, delete all other branches except master, delete all other repositories except `urbantk-map` and `urbantk-react`
 - Add CAVE2 Unity side as a sub-module

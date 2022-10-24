@@ -165,6 +165,8 @@ class OSM:
 
         if layer_type == 'buildings':
             filters['way'].extend(['["building"]'])
+            filters['way'].extend(['["building:part"]'])
+            filters['way'].extend(['["type"="building"]'])
             # filters['way'].extend(['["building:levels"]'])
             # filters['way'].extend(['["building:min_level"]'])
             # filters['way'].extend(['["building:height"]'])
@@ -806,7 +808,7 @@ class OSM:
 
         :param bbox: bouding box coordinates
         :type bouding_box: list
-        :param layers: layer types, defaults to ['building','road','coastline', 'water', 'parks']
+        :param layers: layer types, defaults to ['buildings','roads','coastline', 'water', 'parks']
         :type layers: list, optional
         :return: osm json result
         :rtype: string
