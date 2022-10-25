@@ -53,8 +53,6 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 
 ### TODO
 
-- Merge build loading with the other layers (change projection to 3395)
-
 - Give support to fixed resolution in urbantk-map (for CAVE2)
 - Initialize all dependent servers with `npm run start:cave`
 - Finalize the start:vr:local (for local testing purposes)
@@ -68,8 +66,9 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Make shaders pretty [link](https://www.kpf.com/about/innovation)
 - Dont try to connect to unity or order server when the web server is executed
 - Prevent the need of starting web server 
-- Make the data be loaded from UrbanComponnent communication with Jupyter not from what I choose in MapView
 - Fix appBuildingOptions in config/path.js
+- Fix error messages in jupyter and fix jupyter after execution (it breaks)
+- Fix the indices of all non building layers
 
 - Because of a package used in urban-tk some rules from typescript were disabled (in order to build urbantk-react). The best solution is to enable them again and use the source code of the library as a sub-module. They were disabled by inserting comments in the file.Disabled rules:
    - @typescript-eslint/no-empty-function
@@ -110,17 +109,6 @@ https://medium.com/swlh/how-to-add-multiple-entry-points-to-your-react-app-ea8bc
 
 ## jupyter bundle creation
 
-<!-- 1. get the urbantkmap.iife.js from urbantk repository as this is used
-previously in jupyter notebook
-2. remove var urbantkmap = (function (exports)){ //possible line 2
-3. remove last line
-4. remove all exports. lines
-5. finally remove "return exports"
-6. add at the end "export {MapView}
-7. MapView Component Added necessary code - see comments
-8. index.tsx = entry point for jupyter notebook
-9. Jupyter.tsx = App.tsx for jupyter notebook -->
-
 1. Go to src/urbantk-map/ts
 2. run `npm run build`
 3. Paste in the header of src/urbantk-map/ts/dist/urbantkmap.js:  
@@ -133,9 +121,9 @@ previously in jupyter notebook
 4. Go to src/pythonComponents/jupyterSupport run `jupyter notebook`
 5. Run the notebook that will open on the web browser
 
-<!-- ========================== -->
+## web bundle creation
 
-2. in terminal run "npm run build:bundle:web"
+1. in terminal run "npm run build:bundle:web"
     it will create a single bundle file in dist/bundle folder that can be used with basic html file
     make sure to run the server in port 3000
     make sure to add the data folder with data

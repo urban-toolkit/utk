@@ -10,12 +10,14 @@ import time
 import math
 import mapbox_earcut as earcut
 
+import matplotlib.pyplot as plt
+
 from tqdm.notebook import trange, tqdm
 
 import vedo
 
 from shapely import affinity
-from shapely.ops import split, snap, unary_union, polygonize, linemerge, transform
+from shapely.ops import split, snap, unary_union, polygonize, linemerge, transform, triangulate
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, Point, MultiPoint, box, polygon
 from pyproj import Transformer, Proj, transform
 import json
@@ -284,7 +286,7 @@ class OSM:
         for line in merged_lines:
             way = {'geometry': list(line.coords), 'bbox': line.bounds}
             # ignore holes for now
-            if way['geometry'][0] == way['geometry'][-1]:
+            if way['geometry'][0] == way['geometry'][-1]: # if the way is closed
                 innerlines.append(way['geometry'])
             elif utils.intersect_bbox(bbox,way['bbox']) or utils.intersect_bbox(way['bbox'],bbox):
                 curline = []
@@ -381,13 +383,16 @@ class OSM:
             # get next closest enter to the right of exit, else get corner
             if len(enters_byside[exit_side]) > 0:
                 nextt = next_enter(exit_side,exit_coord)
-                next_line(nextt,firstlineid,line)
+                if(nextt != -1): # if there is a next line
+                    next_line(nextt,firstlineid,line)
             else:
                 nextcoord = next_corner(exit_side)
                 nextside = next_side(exit_side)
                 nextt = next_enter(nextside,nextcoord)
-                line.append(nextcoord)
-                next_line(nextt,firstlineid,line)
+                if(nextt != -1): # if there is a next line
+                    line.append(nextcoord) # dont know if this is on the right place
+                    next_line(nextt,firstlineid,line)
+
 
         # stitch
         polygons = []
@@ -396,6 +401,15 @@ class OSM:
             next_line(lineid,lineid,line)
             polygons.append({'outer': line, 'inner': innerlines, 'type': 'type'})
             break
+
+        # p = gpd.GeoSeries(LineString(polygons[0]['outer']))
+        # ax = p.plot()
+
+        # for elem in polygons[0]['inner']:
+        #     p = gpd.GeoSeries(LineString(elem))
+        #     p.plot(ax=ax)
+
+        # plt.show()
 
         # triangulate
         mesh = []
@@ -408,12 +422,25 @@ class OSM:
             rings.append(len(nodes))
 
             # inner
-            for inner in poly['inner']:
-                nodes.extend(inner)
-                rings.append(len(nodes))
-                
+            # for inner in poly['inner']:
+            #     nodes.extend(inner)
+            #     rings.append(len(nodes))
+            
             nodes = np.array(nodes)
-            indices = earcut.triangulate_float64(nodes, rings)
+
+            cc_nodes = np.flip(nodes, axis=0) # inverting nodes to produce counter-clock wise indices
+
+            # indices = earcut.triangulate_float64(nodes, rings)
+            indices = earcut.triangulate_float64(cc_nodes, rings)
+
+            # indices = np.reshape(indices, (-1, 3))
+
+            # vmesh = vedo.Mesh([nodes, indices])
+
+            # vplt = vedo.Plotter()
+            # vplt += vmesh.clone()
+            # vplt.show(viewup='z', zoom=1.3)
+
 
             # empty triangulation
             if(len(indices) == 0 or (len(indices) % 3) > 0):
@@ -424,9 +451,12 @@ class OSM:
             indices = indices.tolist()
             dev = utils.deviation(nodes, rings, 2, indices)
             # print(dev)
-            if(abs(dev) > 0.001):
-                raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
-            
+            # if(abs(dev) > 0.001):
+            #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
+
+            nodes = utils.convertProjections("4326", "3395", nodes)
+            nodes = utils.from2dTo3d(nodes)
+
             mesh.append({'type': poly['type'], 'geometry': {'coordinates': nodes, 'indices': indices}})
 
         return mesh
@@ -833,6 +863,7 @@ class OSM:
             if layer == 'surface':
                 continue
             query = OSM.build_osm_query(bbox, 'geom', [layer])
+            print(query)
             response = cache._load_osm_from_cache(query)
             if not response:
                 response = api.get(query, build=False)
@@ -889,7 +920,7 @@ class OSM:
     def load_from_bbox(bbox, layers=['building','roads','coastline', 'water', 'parks']):
         
         cam = utils.get_camera(bbox)
-        loaded = OSM.get_osm(bbox, layers)
+        loaded = OSM.get_osm(bbox, layers, load_surface=False)
         component = urbanComponent.UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
 
         return component
