@@ -863,7 +863,6 @@ class OSM:
             if layer == 'surface':
                 continue
             query = OSM.build_osm_query(bbox, 'geom', [layer])
-            print(query)
             response = cache._load_osm_from_cache(query)
             if not response:
                 response = api.get(query, build=False)
@@ -920,7 +919,7 @@ class OSM:
     def load_from_bbox(bbox, layers=['building','roads','coastline', 'water', 'parks']):
         
         cam = utils.get_camera(bbox)
-        loaded = OSM.get_osm(bbox, layers, load_surface=False)
+        loaded = OSM.get_osm(bbox, layers)
         component = urbanComponent.UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
 
         return component

@@ -69,6 +69,7 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Fix appBuildingOptions in config/path.js
 - Fix error messages in jupyter and fix jupyter after execution (it breaks)
 - Fix the indices of all non building layers
+Integrate shadow calculation into jupyter workflow
 
 - Because of a package used in urban-tk some rules from typescript were disabled (in order to build urbantk-react). The best solution is to enable them again and use the source code of the library as a sub-module. They were disabled by inserting comments in the file.Disabled rules:
    - @typescript-eslint/no-empty-function
