@@ -69,7 +69,14 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Fix appBuildingOptions in config/path.js
 - Fix error messages in jupyter and fix jupyter after execution (it breaks)
 - Fix the indices of all non building layers
-Integrate shadow calculation into jupyter workflow
+- Integrate shadow calculation into jupyter workflow
+- Write user commands on the documentation
+- Be able to move the picked portion
+- Be able to wheel the picked portion to increase the plot
+- Semantic query (I want to see these floors...)
+- View impact: sun, body of water, landmark and parks
+- Fix bugs regarding the orientation of the texture in the surface (I am not accounting for rotated planes).
+- Improve d3Expec class. urbantk-map should not need to know what happens in the front end (create abstract class that is implemented in the front-end).
 
 - Because of a package used in urban-tk some rules from typescript were disabled (in order to build urbantk-react). The best solution is to enable them again and use the source code of the library as a sub-module. They were disabled by inserting comments in the file.Disabled rules:
    - @typescript-eslint/no-empty-function
