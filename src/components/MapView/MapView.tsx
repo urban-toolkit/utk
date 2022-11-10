@@ -90,11 +90,11 @@ class D3App {
       link.href = href;
       link.click();
     }
-
-    await this._d3Expec.run(data);
     
     // TODO: given that the svg is populated, create blob object from SVG
     let svgElement: any = document.querySelector(this._svgSelector);
+
+    await this._d3Expec.run(data);
 
     let {width, height} = svgElement.getBBox(); 
     
@@ -115,8 +115,6 @@ class D3App {
     // loading image to html image element
     let image = new Image();
     image.addEventListener('load', function() {
-      console.log("Image loaded");
-
       let canvas = document.createElement('canvas');
       
       canvas.width = width;
@@ -133,7 +131,6 @@ class D3App {
       urlCreator.revokeObjectURL(blobURL);
 
       lockFlag.set();
-      console.log("set the flag");
 
     });
 
@@ -148,10 +145,6 @@ class D3App {
     }
     
     await checkFlag();
-
-    console.log("after flag")
-
-    // await new Promise(r => setTimeout(r, 5000));
 
     return image;
 
@@ -225,6 +218,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
             <div id='map'></div>
         </Col>
         <div id='svg_div'>
+          {/* <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}> */}
           <svg id='svg_element' xmlns="http://www.w3.org/2000/svg">
           </svg>
         </div>
