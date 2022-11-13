@@ -1,3 +1,12 @@
-canvas{
+#mapCanvas {
     height: 98vh;
 } 
+
+#texCanvas {
+    position: absolute;
+    display: none;
+    top: 30px;
+    right: 54px;
+    z-index: 2;
+    border: 2px solid black;
+}
