@@ -66,15 +66,11 @@ class LockFlag {
 class D3App {
 
   _d3Expec: D3Expec;
-  // _images: {htmlObject: HTMLImageElement, width: number, height: number}[] = []; // array storing information of all images created so far TODO: should the images be saved locally and erased after?
   _svgSelector: string;
-  // _mergingCanvas: HTMLCanvasElement; // canvas where the images are going to be merged
 
   constructor(svg: any){
     this._d3Expec = new D3Expec(svg);
     this._svgSelector = svg;
-    // this._mergingCanvas = document.createElement('canvas'); 
-
   }
 
   /**
@@ -90,8 +86,6 @@ class D3App {
     let image = await this.getImageSvg();
 
     return image;
-
-
   }
 
   /**
@@ -140,6 +134,51 @@ class D3App {
 
   }
 
+  
+  /**
+   * Create all the canvas used for the linked views
+   * @param images list of images used in the abstraction surfaces
+   */
+  public generateCanvasTex(mapDiv: HTMLElement, images: HTMLImageElement[]){
+    // let canvasTexDiv: any = document.querySelector(this._texCanvasSelector);
+
+    // console.log(this._texCanvasSelector);
+
+    // canvasTexDiv.textContent = ""; // remove tex canvas elements
+    
+    // TODO: remove all .texCanvas elements from mapDiv
+
+    // remove old tex canvas elements
+    const elementsToRemove = document.getElementsByClassName("texCanvas");
+    while(elementsToRemove.length > 0){
+      if(elementsToRemove[0].parentNode){
+        elementsToRemove[0].parentNode.removeChild(elementsToRemove[0]);
+      }
+    }
+
+    images.forEach((image, imageIndex) => {
+      let texCanvas = document.createElement("canvas");
+
+      texCanvas.className = "texCanvas";
+      texCanvas.width = 300;
+      texCanvas.height = 300;
+      texCanvas.style.top = (10+((20*imageIndex)+(texCanvas.width*imageIndex)))+"px";
+      texCanvas.style.right = "54px";
+
+      let context = texCanvas.getContext("2d");
+
+      if(context){
+        context.fillStyle = "white";
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(image, 0, 0, context.canvas.width, context.canvas.height);
+      }
+
+      mapDiv.appendChild(texCanvas);
+
+    });
+
+  }
+
   /**
    * Attach image to texture canvas
    * @param canvasContext 2D canvas context
@@ -154,12 +193,15 @@ class D3App {
   }
 
   /**
-   * Hides and clear texture canvas
-   * @param canvasContext 2D canvas context
+   * Remove texCanvas elements
    */
-  public hideTexCanvas(canvasContext: CanvasRenderingContext2D){
-    canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
-    canvasContext.canvas.style.display = "none";
+  public clearTexCanvas(){
+    const elementsToRemove = document.getElementsByClassName("texCanvas");
+    while(elementsToRemove.length > 0){
+      if(elementsToRemove[0].parentNode){
+        elementsToRemove[0].parentNode.removeChild(elementsToRemove[0]);
+      }
+    }
   }
 
 }
@@ -224,7 +266,8 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
     return(
       <React.Fragment>
         <Col md={divWidth}>
-            <div id='map'></div>
+            <div id='map'>
+            </div>
         </Col>
         <div id='svg_div'>
           <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>

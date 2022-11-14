@@ -2,11 +2,10 @@
     height: 98vh;
 } 
 
-#texCanvas {
+.texCanvas {
     position: absolute;
-    display: none;
-    top: 30px;
-    right: 54px;
+    /* top: 30px;
+    right: 54px; */
     z-index: 2;
     border: 2px solid black;
 }
