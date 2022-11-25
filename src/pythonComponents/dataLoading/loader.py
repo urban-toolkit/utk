@@ -892,7 +892,7 @@ class OSM:
                 geometry = OSM.create_mesh_other_layers(overpass_responses[layer], bbox, convert2dto3d=True)
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = layer
-            result.append({'id': layer, 'type': ttype, 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': styleKey, 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
+            result.append({'id': layer, 'type': ttype, 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': styleKey, 'visible': True, 'selectable': True, 'skip': False, 'data': geometry})
         
         if load_surface:
             geometry = OSM._create_surface_mesh(bbox)
@@ -1389,6 +1389,7 @@ class Mesh:
 
     def get_building_mesh(building, size = -1):
         merged_building = Mesh.merge_building_mesh(building)
+
         boundaries = list(merged_building.geometry)
 
         coords = np.empty((0,3))
@@ -1396,10 +1397,31 @@ class Mesh:
         ids = np.empty((0))
         colors = np.empty((0,3))
 
+        # oriented_envelope = np.empty((0,3))
+        # sectionHeight = np.empty((0,1))
+        # sectionMinHeight = np.empty((0,1))
+        orientedEnvelope = []
+        sectionFootprint = []
+        sectionHeight = []
+        sectionMinHeight = []
+
         for i in range(0, len(boundaries)):
             geom = boundaries[i].geoms
             height = merged_building.iloc[i].height
             min_height = merged_building.iloc[i].min_height
+
+            sectionHeight.append(height)
+            sectionMinHeight.append(min_height)
+
+            orientedEnvelope.append([])
+            sectionFootprint.append([])
+
+            for index, coordinate in enumerate(geom[0].minimum_rotated_rectangle.exterior.coords): # TODO: check if only one geometry in stored in geom
+                if(index != (len(geom[0].minimum_rotated_rectangle.exterior.coords) - 1)):
+                    orientedEnvelope[len(orientedEnvelope)-1] += list(coordinate)
+
+            for coordinate in geom[0].exterior.coords:
+                sectionFootprint[len(sectionFootprint)-1] += list(coordinate)
 
             # roof
             bottom_poly = boundaries[i]
@@ -1436,7 +1458,7 @@ class Mesh:
         coords = coords.reshape(-1, 3)
         indices = indices.reshape(-1, 3)
 
-        return coords, indices, ids, colors
+        return coords, indices, ids, colors, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint
     
     # create_mesh for buildings
     def create_mesh(gdf, size):
@@ -1448,23 +1470,35 @@ class Mesh:
         indices = []
         ids = []
         colors = []
+        heights = []
+        minHeights = []
+        envelopes = []
+        footprints = []
         unique_buildings = gdf.index.unique()
         for i in trange(len(unique_buildings)):
             building_id = unique_buildings[i]
             building = gdf.loc[[building_id]]
-            coord, ind, iids, cols = Mesh.get_building_mesh(building, size)
+            coord, ind, iids, cols, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint = Mesh.get_building_mesh(building, size)
             building_ids.append(building_id)
             coordinates.append(coord)
             indices.append(ind)
             ids.append(iids)
             colors.append(cols)
+            heights.append(sectionHeight)
+            minHeights.append(sectionMinHeight)
+            envelopes.append(orientedEnvelope)
+            footprints.append(sectionFootprint)
 
         df = pd.DataFrame({
             'building_id': pd.Series(building_ids),
             'coordinates': pd.Series(coordinates),
             'indices': pd.Series(indices),
             'ids': pd.Series(ids),
-            'colors': pd.Series(colors)
+            'colors': pd.Series(colors),
+            'heights': pd.Series(heights),
+            'minHeights': pd.Series(minHeights),
+            'orientedEnvelope': pd.Series(envelopes),
+            'sectionFootprint': pd.Series(footprints)
         })
 
         df = df.set_index('building_id', drop=False)
@@ -1543,7 +1577,11 @@ class Mesh:
                     "coordinates": flattened_coordinates,
                     "indices": flattened_indices,
                     "normals": flattened_normals,
-                    "ids": [int(elem) for elem in ids_all]
+                    "ids": [int(elem) for elem in ids_all],
+                    "heights": gdf.iloc[[index]]["heights"].tolist()[0],
+                    "minHeights": gdf.iloc[[index]]["minHeights"].tolist()[0],
+                    "orientedEnvelope": gdf.iloc[[index]]["orientedEnvelope"].tolist()[0],
+                    "sectionFootprint": gdf.iloc[[index]]["sectionFootprint"].tolist()[0]
                 }
             })
 

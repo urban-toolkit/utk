@@ -10,22 +10,25 @@ export class D3Expec {
         this._svgSelector = svgSelector;
     }
 
-    async run(data: any[]){
+    async run(data: any[], plotWidth: number, plotHeight: number){
 
         this._svg = d3.select(this._svgSelector);
 
         // clear svg
         this._svg.html("");
 
-        await this.runD3Code(data);
+        await this.runD3Code(data, plotWidth, plotHeight);
 
     }
 
-    async runD3Code(data: any[]){
+    async runD3Code(data: any[], plotWidth: number, plotHeight: number){
+
         // set the dimensions and margins of the graph
-        var margin = {top: 30, right: 30, bottom: 70, left: 60},
-        width = 460 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+        var margin = {top: 0, right: 0, bottom: 0, left: 0},
+            width = plotWidth,
+            height = plotHeight;
+        // width = 460 - margin.left - margin.right,
+        // height = 400 - margin.top - margin.bottom;
 
         // append the svg object to the body of the page
         var svg = this._svg
@@ -35,18 +38,15 @@ export class D3Expec {
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
 
-
         // X axis
         var x = d3.scaleBand()
             .range([ 0, width ])
             .domain(data.map(function(d) { return d.name; }))
             .padding(0.2);
-            svg.append("g")
-                .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .attr("transform", "translate(-10,0)rotate(-45)")
-                .style("text-anchor", "end");
+
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x).tickValues([]));
 
         // Add Y axis
         var y = d3.scaleLinear()
@@ -54,6 +54,13 @@ export class D3Expec {
             .range([ height, 0]);
             svg.append("g")
                 .call(d3.axisLeft(y));
+        
+        svg.selectAll(".tick line")
+            // .call(yAxis)
+            .attr("x2", width + 6)
+            .style("opacity", 0.5);
+
+        var colorScale = d3.scaleSequential(d3.interpolateReds);
 
         // Bars
         svg.selectAll("mybar")
@@ -63,7 +70,7 @@ export class D3Expec {
                 .attr("y", function(d: any) { return y(d.shadowAvg); })
                 .attr("width", x.bandwidth())
                 .attr("height", function(d: any) { return height - y(d.shadowAvg); })
-                .attr("fill", "#69b3a2");
+                .attr("fill", function(d: any){ return colorScale(d.shadowAvg) });
     }
 
 }

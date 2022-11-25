@@ -29,3 +29,6 @@ yarn-error.log*
 /public/vr/data/example_mesh_nyc
 /public/data/one_building
 public/data/two_buildings
+public/data/south_manhattan
+public/data/smaller_south_manhattan
+public/data/test_new_one_building
