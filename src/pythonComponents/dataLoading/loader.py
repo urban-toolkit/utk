@@ -1171,7 +1171,7 @@ class Mesh:
     def discretize_surface_mesh(coords, size=-1):
         poly = Polygon(coords[:,:2])
 
-        coordinates, indices, ids, _ = Mesh.get_roof(poly, None, 0, size)
+        coordinates, indices, ids, _, _ = Mesh.get_roof(poly, None, 0, size)
 
         vmesh = vedo.Mesh([coordinates, indices])
         normals = vmesh.normals(cells=False)
@@ -1180,6 +1180,14 @@ class Mesh:
 
 
     def extrude(segments, min_height, height, size):
+
+        def computeAngle(vec1, vec2):
+            unit_vector_1 = vec1 / np.linalg.norm(vec1)
+            unit_vector_2 = vec2 / np.linalg.norm(vec2)
+            dot_product = np.dot(unit_vector_1, unit_vector_2)
+            angle = np.arccos(round(dot_product, 4)) * 180.0 / math.pi #degrees)
+
+            return angle
 
         length = height-min_height
         
@@ -1197,12 +1205,94 @@ class Mesh:
         indices = []
         ids = []
         colors = []
+        corner = [] # one value for each coordinate
+        footPrintPoints = [] # stores all footprint points that form the segments
+        cornersIndex = [] # stores the index of the corners in the polygon. Two indices define a facade.
+        uvPerPoint = [] # stores the uv value for each point in the segments 
         cid = -1
-        for seg in segments:
+
+        for index, seg in enumerate(segments):
+            
+            points = list(zip(*seg.coords.xy))
+
+            footPrintPoints += points
+
+            for i in range(0, len(points)-1):
+
+                p0 = points[i]
+                p1 = points[i+1]
+
+                p1IsCorner = False
+
+                # there are at least three points in the segment
+                if(len(points) >= i+3):
+                    p2 = points[i+2]
+
+                    vec1 = [p0[0] - p1[0], p0[1] - p1[1]]
+                    vec2 = [p2[0] - p1[0], p2[1] - p1[1]]
+
+                    angleVec = computeAngle(vec1, vec2)
+
+                    if(180 - angleVec >= 20): # a 20 degrees difference is considered a corner
+                        p1IsCorner = True
+
+                else:
+                    nextSegmentPoints = []
+
+                    if(index <= len(segments)-2): # if it is not the last segment
+                        nextSegmentPoints = list(zip(*segments[index+1].coords.xy))
+                    else: # if it is the last segment the first segment is used (circular)
+                        nextSegmentPoints = list(zip(*segments[0].coords.xy))
+
+                    p2 = nextSegmentPoints[1]
+
+                    vec1 = [p0[0] - p1[0], p0[1] - p1[1]]
+                    vec2 = [p2[0] - p1[0], p2[1] - p1[1]]
+
+                    angleVec = computeAngle(vec1, vec2)
+                    
+                    if(180 - angleVec >= 20): # a 20 degrees difference is considered a corner
+                        p1IsCorner = True
+                
+                if(p1IsCorner):
+                    cornersIndex.append(index+i+1)
+
+        def getUV(anchor1, anchor2, p):
+            if(p[0] == anchor2[0] and p[1] == anchor2[1]):
+                return 1
+            elif(p[0] == anchor1[0] and p[1] == anchor1[1]):
+                return 0
+            elif(anchor1[0] == anchor2[0] and anchor1[1] == anchor2[1]):
+                return 1
+
+            distanceAnchor1 = math.sqrt(math.pow(p[0] - anchor1[0], 2) + math.pow(p[1] - anchor1[1], 2))
+            dTotal = math.sqrt(math.pow(anchor2[0] - anchor1[0], 2) + math.pow(anchor2[1] - anchor1[1], 2))
+
+            return distanceAnchor1/dTotal
+
+        lastCorner = 0
+        for index, point in enumerate(footPrintPoints):
+            if(index in cornersIndex):
+                lastCorner = index
+
+            nextCorner = len(cornersIndex)-1
+
+            for i in range(index, len(footPrintPoints)): # look for the next corner
+                if(i in cornersIndex):
+                    nextCorner = i
+                    break
+
+            uv = getUV(footPrintPoints[lastCorner], footPrintPoints[nextCorner], point)
+
+            uvPerPoint.append(uv)
+
+        for index, seg in enumerate(segments):
+            
+            points = list(zip(*seg.coords.xy))
+
             for distance in distances:
                 if distance + min_height >= height:
                     continue
-                points = list(zip(*seg.coords.xy))
                 color = np.random.rand(3,)
                 cid+=1
                 for i in range(0, len(points)-1):
@@ -1220,6 +1310,11 @@ class Mesh:
                     coordinates.extend(v1)
                     coordinates.extend(v2)
                     coordinates.extend(v3)
+
+                    corner.append(uvPerPoint[index+i])
+                    corner.append(uvPerPoint[index+i+1])
+                    corner.append(uvPerPoint[index+i])
+                    corner.append(uvPerPoint[index+i+1])
 
                     # t0
                     indices.append(i0)
@@ -1241,7 +1336,8 @@ class Mesh:
         indices = np.array(indices).reshape(-1, 3)
         colors = np.array(colors).reshape(-1, 3)
         ids = np.array(ids)
-        return coordinates, indices, ids, colors
+        corner = np.array(corner)
+        return coordinates, indices, ids, colors, corner
 
 
     def azimuth(mrr):
@@ -1282,6 +1378,7 @@ class Mesh:
         indices = []
         ids = []
         colors = []
+        corners = []
 
         cid = -1
         count = 0
@@ -1310,6 +1407,7 @@ class Mesh:
             intersection = gpd.overlay(gpd.GeoDataFrame({'geometry': gpd.GeoSeries(poly)}), gpd.GeoDataFrame({'geometry': gpd.GeoSeries(cells)}),how='intersection',keep_geom_type=True)
             cells = intersection.rotate(-rot, origin=(0,0)).values
 
+            # plt.plot(*seg.coords.xy)
             
             for cell in cells:
                 ccell = []
@@ -1334,6 +1432,11 @@ class Mesh:
                         coordinates.append(points[i])
                         coordinates.append(points[i+1])
                         coordinates.append(height)
+
+                        if(points[i] == xmin or points[i] == xmax or points[i+1] == ymin or points[i+1] == ymax): # testing if they are on the borders of the roof
+                            corners.append(1)
+                        else:
+                            corners.append(0)
                         
                     count = int(len(coordinates)/3)
                     
@@ -1345,8 +1448,9 @@ class Mesh:
         indices = np.array(indices).reshape(-1, 3)
         colors = np.array(colors).reshape(-1, 3)
         ids = np.array(ids)
+        corners = np.array(corners)
 
-        return coordinates, indices, ids, colors
+        return coordinates, indices, ids, colors, corners
 
     def merge_building_mesh(building):
         
@@ -1396,10 +1500,8 @@ class Mesh:
         indices = np.empty((0,3))
         ids = np.empty((0))
         colors = np.empty((0,3))
+        corners = np.empty((0))
 
-        # oriented_envelope = np.empty((0,3))
-        # sectionHeight = np.empty((0,1))
-        # sectionMinHeight = np.empty((0,1))
         orientedEnvelope = []
         sectionFootprint = []
         sectionHeight = []
@@ -1416,7 +1518,7 @@ class Mesh:
             orientedEnvelope.append([])
             sectionFootprint.append([])
 
-            for index, coordinate in enumerate(geom[0].minimum_rotated_rectangle.exterior.coords): # TODO: check if only one geometry in stored in geom
+            for index, coordinate in enumerate(geom[0].minimum_rotated_rectangle.exterior.coords): # TODO: check if only one geometry is stored in geom
                 if(index != (len(geom[0].minimum_rotated_rectangle.exterior.coords) - 1)):
                     orientedEnvelope[len(orientedEnvelope)-1] += list(coordinate)
 
@@ -1429,7 +1531,7 @@ class Mesh:
                 top_poly = boundaries[i+1]
             else:
                 top_poly = None
-            coordinates_roof, indices_roof, ids_roof, colors_roof = Mesh.get_roof(bottom_poly, top_poly, height, size)
+            coordinates_roof, indices_roof, ids_roof, colors_roof, corners_roof = Mesh.get_roof(bottom_poly, top_poly, height, size)
             coordinates_roof = coordinates_roof.reshape(-1, 3)
             indices_roof = indices_roof.reshape(-1, 3)
             indices_roof = indices_roof + coords.shape[0]
@@ -1437,7 +1539,7 @@ class Mesh:
 
             # walls
             segments = Mesh.split_poly(geom, size)
-            coordinates_walls, indices_walls, ids_walls, colors_walls = Mesh.extrude(segments, min_height, height, size)
+            coordinates_walls, indices_walls, ids_walls, colors_walls, corners_walls = Mesh.extrude(segments, min_height, height, size)
             indices_walls = indices_walls + coordinates_roof.shape[0] + coords.shape[0]
             ids_walls = ids_walls + ids_roof.shape[0] + ids.shape[0]
             # indices_walls = indices_walls + coords.shape[0]
@@ -1450,6 +1552,7 @@ class Mesh:
             indices = np.concatenate((indices, indices_roof, indices_walls))
             ids = np.concatenate((ids, ids_roof, ids_walls))
             colors = np.concatenate((colors, colors_roof, colors_walls))
+            corners = np.concatenate((corners, corners_roof, corners_walls))
             # coords = np.concatenate((coords, coordinates_roof))
             # indices = np.concatenate((indices, indices_roof))
             # ids = np.concatenate((ids, ids_roof))
@@ -1458,7 +1561,7 @@ class Mesh:
         coords = coords.reshape(-1, 3)
         indices = indices.reshape(-1, 3)
 
-        return coords, indices, ids, colors, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint
+        return coords, indices, ids, colors, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, corners
     
     # create_mesh for buildings
     def create_mesh(gdf, size):
@@ -1474,11 +1577,12 @@ class Mesh:
         minHeights = []
         envelopes = []
         footprints = []
+        allCorners = []
         unique_buildings = gdf.index.unique()
         for i in trange(len(unique_buildings)):
             building_id = unique_buildings[i]
             building = gdf.loc[[building_id]]
-            coord, ind, iids, cols, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint = Mesh.get_building_mesh(building, size)
+            coord, ind, iids, cols, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, corners = Mesh.get_building_mesh(building, size)
             building_ids.append(building_id)
             coordinates.append(coord)
             indices.append(ind)
@@ -1488,6 +1592,7 @@ class Mesh:
             minHeights.append(sectionMinHeight)
             envelopes.append(orientedEnvelope)
             footprints.append(sectionFootprint)
+            allCorners.append(corners)
 
         df = pd.DataFrame({
             'building_id': pd.Series(building_ids),
@@ -1498,7 +1603,8 @@ class Mesh:
             'heights': pd.Series(heights),
             'minHeights': pd.Series(minHeights),
             'orientedEnvelope': pd.Series(envelopes),
-            'sectionFootprint': pd.Series(footprints)
+            'sectionFootprint': pd.Series(footprints),
+            'corners': pd.Series(allCorners)
         })
 
         df = df.set_index('building_id', drop=False)
@@ -1581,7 +1687,8 @@ class Mesh:
                     "heights": gdf.iloc[[index]]["heights"].tolist()[0],
                     "minHeights": gdf.iloc[[index]]["minHeights"].tolist()[0],
                     "orientedEnvelope": gdf.iloc[[index]]["orientedEnvelope"].tolist()[0],
-                    "sectionFootprint": gdf.iloc[[index]]["sectionFootprint"].tolist()[0]
+                    "sectionFootprint": gdf.iloc[[index]]["sectionFootprint"].tolist()[0],
+                    "corners": gdf.iloc[[index]]["corners"].tolist()[0].tolist()
                 }
             })
 
