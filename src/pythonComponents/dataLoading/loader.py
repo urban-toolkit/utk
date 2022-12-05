@@ -1207,14 +1207,6 @@ class Mesh:
 
     def extrude(segments, min_height, height, size, isCorner):
 
-        def computeAngle(vec1, vec2):
-            unit_vector_1 = vec1 / np.linalg.norm(vec1)
-            unit_vector_2 = vec2 / np.linalg.norm(vec2)
-            dot_product = np.dot(unit_vector_1, unit_vector_2)
-            angle = np.arccos(round(dot_product, 4)) * 180.0 / math.pi #degrees)
-
-            return angle
-
         length = height-min_height
         
         if size == -1:
@@ -1262,33 +1254,29 @@ class Mesh:
 
             readSegPoints += len(segPoints)
 
-        coordsToPlot = []
+        # coordsToPlot = []
 
-        for index, coord in enumerate(footPrintPoints):
-            if isCorner[index]:
-                coordsToPlot.append(coord)
+        # for index, coord in enumerate(footPrintPoints):
+        #     if isCorner[index]:
+        #         coordsToPlot.append(coord)
 
-        unzippedCoords = [[i for i, j in coordsToPlot],
-                          [j for i, j in coordsToPlot]]
+        # unzippedCoords = [[i for i, j in coordsToPlot],
+        #                   [j for i, j in coordsToPlot]]
  
-        print(len(unzippedCoords))
+        # print(len(unzippedCoords))
 
-        # plt.plot(unzippedCoords[0], unzippedCoords[1])
+        # plt.scatter(unzippedCoords[0], unzippedCoords[1])
+        # plt.scatter(unzippedCoords[0][0], unzippedCoords[1][0])
+        # plt.scatter(unzippedCoords[0][1], unzippedCoords[1][1])
+        # plt.show()
 
-        plt.scatter(unzippedCoords[0], unzippedCoords[1])
-        plt.scatter(unzippedCoords[0][0], unzippedCoords[1][0])
-        plt.scatter(unzippedCoords[0][1], unzippedCoords[1][1])
-        plt.show()
+        # unzippedCoordsAll = [[i for i, j in footPrintPoints],
+        #                      [j for i, j in footPrintPoints]]
 
-        unzippedCoordsAll = [[i for i, j in footPrintPoints],
-                             [j for i, j in footPrintPoints]]
-
-        plt.scatter(unzippedCoordsAll[0], unzippedCoordsAll[1])
-        plt.scatter(unzippedCoordsAll[0][0], unzippedCoordsAll[1][0])
-        plt.scatter(unzippedCoordsAll[0][9], unzippedCoordsAll[1][9])
-        plt.show()
-
-        # plt.plot(*lines.coords.xy)
+        # plt.scatter(unzippedCoordsAll[0], unzippedCoordsAll[1])
+        # plt.scatter(unzippedCoordsAll[0][0], unzippedCoordsAll[1][0])
+        # plt.scatter(unzippedCoordsAll[0][9], unzippedCoordsAll[1][9])
+        # plt.show()
 
         flatDuplicatedPoints = [item for sublist in duplicatedPoints for item in sublist]
 
@@ -1296,26 +1284,32 @@ class Mesh:
         wallsWidth = np.empty(len(flatDuplicatedPoints)) # stores the width of all walls determined by two corners
 
         def distance(listPoints, point1, point2):
+            if(point1 == point2):
+                return 0
+            
             accDistance = 0
-            for i in range(point1, point2):
-                accDistance += math.sqrt(math.pow(listPoints[i+1][0] - listPoints[i][0], 2) + math.pow(listPoints[i+1][1] - listPoints[i][1], 2))
+            
+            if(point1 < point2):
+                for i in range(point1, point2):
+                    accDistance += math.sqrt(math.pow(listPoints[i+1][0] - listPoints[i][0], 2) + math.pow(listPoints[i+1][1] - listPoints[i][1], 2))
+            else:
+                # calculate distance of all points after point1
+                for i in range(point1, len(listPoints)-1):
+                    accDistance += math.sqrt(math.pow(listPoints[i+1][0] - listPoints[i][0], 2) + math.pow(listPoints[i+1][1] - listPoints[i][1], 2))
+
+                # calculate distance of all points before point2
+                for i in range(0, point2):
+                    accDistance += math.sqrt(math.pow(listPoints[i+1][0] - listPoints[i][0], 2) + math.pow(listPoints[i+1][1] - listPoints[i][1], 2))
 
             return accDistance
 
-        def getUV(listPoints, anchor1, anchor2, p, refSize):
+        def getUV(listPoints, anchor1, p):
 
-            # distanceAnchor1 = math.sqrt(math.pow(listPoints[p][0] - listPoints[anchor1][0], 2) + math.pow(listPoints[p][1] - listPoints[anchor1][1], 2))
-            distanceAnchor1 = distance(anchor1, p)
+            distanceAnchor1 = distance(listPoints, anchor1, p)
             
-            dTotal = math.sqrt(math.pow(listPoints[anchor2][0] - listPoints[anchor1][0], 2) + math.pow(listPoints[anchor2][1] - listPoints[anchor1][1], 2))
-
             return distanceAnchor1
 
-            percentage = distanceAnchor1/dTotal
-
-            return (refSize/dTotal)*percentage
-
-        cornersPairs = [] # store tuples containing pairs of corners that have 0 and 1
+        cornersPairs = [] # store tuples containing pairs of corners that define a wall
         cornerIndex = 0
         firstCorner = -1
         for index, value in enumerate(duplicatedIsCorner): # len(duplicatedIsCorner) == len(flatDuplicatedPoints)
@@ -1353,26 +1347,26 @@ class Mesh:
         for pair in cornersPairs:
             if(pair[1] > pair[0]): # it is a pair in the middle of the sequence
                 for indexPoint in range(pair[0]+1, pair[1]):
-                    uv = getUV(flatDuplicatedPoints, pair[0], pair[1], indexPoint, 5)
+                    uv = getUV(flatDuplicatedPoints, pair[0], indexPoint)
                     uvPerPoint[indexPoint] = uv
             elif (pair[1] < pair[0]): # it is a pair in the end of the sequence
                 # calculate uv for every point greater than the last corner
                 for indexPoint in range(pair[0]+1, len(flatDuplicatedPoints)):
-                    uv = getUV(flatDuplicatedPoints, pair[0], pair[1], indexPoint, 5)
+                    uv = getUV(flatDuplicatedPoints, pair[0], indexPoint)
                     uvPerPoint[indexPoint] = uv
 
                 # calculate uv for every point smaller than the first corner
                 for indexPoint in range(0, pair[1]):
-                    uv = getUV(flatDuplicatedPoints, pair[0], pair[1], indexPoint, 5)
+                    uv = getUV(flatDuplicatedPoints, pair[0], indexPoint)
                     uvPerPoint[indexPoint] = uv
 
             uvPerPoint[pair[0]] = 0
             uvPerPoint[pair[1]] = distance(flatDuplicatedPoints, pair[0], pair[1])
 
-        plt.scatter(unzippedCoordsAll[0], unzippedCoordsAll[1])
-        plt.scatter(unzippedCoordsAll[0][0], unzippedCoordsAll[1][0])
-        plt.scatter(unzippedCoordsAll[0][9], unzippedCoordsAll[1][9])
-        plt.show()
+        # plt.scatter(unzippedCoordsAll[0], unzippedCoordsAll[1])
+        # plt.scatter(unzippedCoordsAll[0][0], unzippedCoordsAll[1][0])
+        # plt.scatter(unzippedCoordsAll[0][9], unzippedCoordsAll[1][9])
+        # plt.show()
 
         alreadySeen = 0
         # for index, seg in enumerate(segments):
