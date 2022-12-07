@@ -1364,10 +1364,15 @@ class Mesh:
                     coordinates.extend(v2)
                     coordinates.extend(v3)
 
-                    corner.append([uvPerPoint[alreadySeen+i], v0[2]-min_height])
-                    corner.append([uvPerPoint[alreadySeen+i+1], v1[2]-min_height])
-                    corner.append([uvPerPoint[alreadySeen+i], v2[2]-min_height])
-                    corner.append([uvPerPoint[alreadySeen+i+1], v3[2]-min_height])
+                    # corner.append([uvPerPoint[alreadySeen+i], v0[2]-min_height])
+                    # corner.append([uvPerPoint[alreadySeen+i+1], v1[2]-min_height])
+                    # corner.append([uvPerPoint[alreadySeen+i], v2[2]-min_height])
+                    # corner.append([uvPerPoint[alreadySeen+i+1], v3[2]-min_height])
+
+                    corner.append(uvPerPoint[alreadySeen+i])
+                    corner.append(uvPerPoint[alreadySeen+i+1])
+                    corner.append(uvPerPoint[alreadySeen+i])
+                    corner.append(uvPerPoint[alreadySeen+i+1])
 
                     width.append(wallsWidth[alreadySeen+i])
                     width.append(wallsWidth[alreadySeen+i+1])
@@ -1519,7 +1524,8 @@ class Mesh:
                         coordinates.append(points[i+1])
                         coordinates.append(height)
 
-                        uv.append([-1.0, -1.0])
+                        # uv.append([-1.0, -1.0])
+                        uv.append(-1.0)
                         roofWidth.append(-1.0)
                         roofHeights.append(-1.0)
 
@@ -1532,6 +1538,7 @@ class Mesh:
         indices = np.array(indices).reshape(-1, 3)
         colors = np.array(colors).reshape(-1, 3)
         ids = np.array(ids)
+        # uv = np.array(uv).reshape(-1, 2)
         uv = np.array(uv)
         roofWidth = np.array(roofWidth)
         roofHeights = np.array(roofHeights)
@@ -1586,7 +1593,8 @@ class Mesh:
         indices = np.empty((0,3))
         ids = np.empty((0))
         colors = np.empty((0,3))
-        uv = np.empty((0,2))
+        # uv = np.empty((0,2))
+        uv = np.empty((0))
         width = np.empty((0))
         heights = np.empty((0))
 
@@ -1650,8 +1658,9 @@ class Mesh:
             colors = np.concatenate((colors, colors_roof, colors_walls))
 
             uv = np.concatenate((uv, uv_roof, uv_walls))
-            
+
             width = np.concatenate((width, roof_width, walls_width))
+
             heights = np.concatenate((heights, roof_heights, walls_heights))
 
             # coords = np.concatenate((coords, coordinates_roof))
@@ -1796,8 +1805,8 @@ class Mesh:
                     "orientedEnvelope": gdf.iloc[[index]]["orientedEnvelope"].tolist()[0],
                     "sectionFootprint": gdf.iloc[[index]]["sectionFootprint"].tolist()[0],
                     "uv": gdf.iloc[[index]]["uv"].tolist()[0].tolist(),
-                    "width": gdf.iloc[[index]]["width"].tolist()[0].tolist(),
-                    "surfaceHeight": gdf.iloc[[index]]["surfaceHeight"].tolist()[0].tolist(),
+                    "width": gdf.iloc[[index]]["width"].tolist()[0].tolist()
+                    # "surfaceHeight": gdf.iloc[[index]]["surfaceHeight"].tolist()[0].tolist()
                 }
             })
 

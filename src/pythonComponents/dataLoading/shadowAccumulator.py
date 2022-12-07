@@ -32,20 +32,23 @@ class ShadowAccumulator:
     '''
 
     filespaths = []
-    start = None
-    end = None
+    # start = None
+    # end = None
+    intervals = [] # list of lists containing different time intervals
     season = ''
 
     coords = np.array([])
     indices = np.array([])
     ids = np.array([])
     normals = np.array([])
-    ids_per_structure = [] # the ids are local per structure. They have to globalized latter
+    ids_per_structure = [] # the ids are local per structure. They have to be globalized later
     coords_per_file = [] # stores the number of coordinates per file to write the shadow data back to the correct files
     coords_before_transformation = []
     per_face_avg_accum = []
 
-    def __init__(self, filespaths, start, end, season):
+    # def __init__(self, filespaths, start, end, season):
+    def __init__(self, filespaths, intervals, season):
+
         '''
             All meshes must be 3D
 
@@ -54,9 +57,17 @@ class ShadowAccumulator:
             * @param {string} end Timestamp of the end of the accumulation. Format: "%m/%d/%Y %H:%M". Example: "03/20/2015 11:01"
             * @param {string} season The name of the season. Can be: 'spring', 'summer', 'atumn' and 'winter'
         '''
+
+
+        for interval in intervals:
+            start = datetime.strptime(interval[0], "%m/%d/%Y %H:%M")
+            end = datetime.strptime(interval[1], "%m/%d/%Y %H:%M")
+
+            self.intervals.append([start, end])
+
         self.filespaths = filespaths
-        self.start = datetime.strptime(start, "%m/%d/%Y %H:%M")
-        self.end = datetime.strptime(end, "%m/%d/%Y %H:%M")
+        # self.start = datetime.strptime(start, "%m/%d/%Y %H:%M")
+        # self.end = datetime.strptime(end, "%m/%d/%Y %H:%M")
         self.season = season
 
     def computeVector(self, alt, azm):
@@ -184,7 +195,7 @@ class ShadowAccumulator:
 
             accumulation[:,0] = accumulation[:,0]+dist
 
-        rt.close()
+        # rt.close()
 
         return accumulation
 
@@ -246,7 +257,7 @@ class ShadowAccumulator:
 
         return np.array(avg_accumulation_per_coordinates)
 
-    def writeShadowData(self, accumulation):
+    def writeShadowData(self, accumulation, functionIndex):
         '''
             Writes the shadow data back to the mesh files passed to the constructor
 
@@ -271,7 +282,7 @@ class ShadowAccumulator:
 
             for index_geometry, geometry_count in enumerate(geometries_count):
 
-                mesh_json["data"][index_geometry]["geometry"]["function"] = function_values[:geometry_count] 
+                mesh_json["data"][index_geometry]["geometry"]["function"+str(functionIndex)] = function_values[:geometry_count] 
 
                 function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
 
@@ -285,11 +296,14 @@ class ShadowAccumulator:
 
         self.loadFiles()
 
-        accum = self.accumulate(self.start, self.end, 0, 0, self.coords, self.indices, self.normals, 15)
-        self.per_face_avg_accum = self.per_face_avg(accum, self.indices, self.ids, self.ids_per_structure) # accumulation per triangle
-        avg_accumulation_per_coordinates = self.per_coordinates_avg(self.per_face_avg_accum, self.coords, self.indices) # accumulation per vertice
+        for index, interval in enumerate(self.intervals):
+            print(index)
+            print(interval)
+            accum = self.accumulate(interval[0], interval[1], 0, 0, self.coords, self.indices, self.normals, 15)
+            self.per_face_avg_accum = self.per_face_avg(accum, self.indices, self.ids, self.ids_per_structure) # accumulation per triangle
+            avg_accumulation_per_coordinates = self.per_coordinates_avg(self.per_face_avg_accum, self.coords, self.indices) # accumulation per vertice
 
-        self.writeShadowData(avg_accumulation_per_coordinates)
+            self.writeShadowData(avg_accumulation_per_coordinates, index)
 
     def loadFiles(self):
 
