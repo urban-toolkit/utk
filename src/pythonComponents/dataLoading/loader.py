@@ -1412,7 +1412,6 @@ class Mesh:
 
         return coordinates, indices, ids, colors, corner, width, heights
 
-
     def azimuth(mrr):
 
         def _azimuth(point1, point2):
@@ -1597,6 +1596,7 @@ class Mesh:
         uv = np.empty((0))
         width = np.empty((0))
         heights = np.empty((0))
+        pointsPerSection = []
 
         orientedEnvelope = []
         sectionFootprint = []
@@ -1637,6 +1637,7 @@ class Mesh:
 
             coordinates_roof, indices_roof, ids_roof, colors_roof, uv_roof, roof_width, roof_heights = Mesh.get_roof(bottom_poly, top_poly, height, size)
             coordinates_roof = coordinates_roof.reshape(-1, 3)
+
             indices_roof = indices_roof.reshape(-1, 3)
             indices_roof = indices_roof + coords.shape[0]
             ids_roof = ids_roof + ids.shape[0]
@@ -1663,6 +1664,8 @@ class Mesh:
 
             heights = np.concatenate((heights, roof_heights, walls_heights))
 
+            pointsPerSection.append(len(coordinates_roof)+len(coordinates_walls))
+
             # coords = np.concatenate((coords, coordinates_roof))
             # indices = np.concatenate((indices, indices_roof))
             # ids = np.concatenate((ids, ids_roof))
@@ -1671,7 +1674,9 @@ class Mesh:
         coords = coords.reshape(-1, 3)
         indices = indices.reshape(-1, 3)
 
-        return coords, indices, ids, colors, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, uv, width, heights
+        pointsPerSection = np.array(pointsPerSection)
+
+        return coords, indices, ids, colors, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, uv, width, heights, pointsPerSection
     
     # create_mesh for buildings
     def create_mesh(gdf, size):
@@ -1690,11 +1695,12 @@ class Mesh:
         allCorners = []
         allWidth = []
         surfaceHeights = []
+        pointsPerSection = []
         unique_buildings = gdf.index.unique()
         for i in trange(len(unique_buildings)):
             building_id = unique_buildings[i]
             building = gdf.loc[[building_id]]
-            coord, ind, iids, cols, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, corners, width, surfaceHeight = Mesh.get_building_mesh(building, size)
+            coord, ind, iids, cols, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, corners, width, surfaceHeight, pointsSection = Mesh.get_building_mesh(building, size)
             building_ids.append(building_id)
             coordinates.append(coord)
             indices.append(ind)
@@ -1707,6 +1713,7 @@ class Mesh:
             allCorners.append(corners)
             allWidth.append(width)
             surfaceHeights.append(surfaceHeight)
+            pointsPerSection.append(pointsSection)
 
         df = pd.DataFrame({
             'building_id': pd.Series(building_ids),
@@ -1720,7 +1727,8 @@ class Mesh:
             'sectionFootprint': pd.Series(footprints),
             'uv': pd.Series(allCorners),
             'width': pd.Series(allWidth),
-            'surfaceHeight': pd.Series(surfaceHeights)
+            'surfaceHeight': pd.Series(surfaceHeights),
+            'pointsPerSection': pd.Series(pointsPerSection)
         })
 
         df = df.set_index('building_id', drop=False)
@@ -1805,7 +1813,8 @@ class Mesh:
                     "orientedEnvelope": gdf.iloc[[index]]["orientedEnvelope"].tolist()[0],
                     "sectionFootprint": gdf.iloc[[index]]["sectionFootprint"].tolist()[0],
                     "uv": gdf.iloc[[index]]["uv"].tolist()[0].tolist(),
-                    "width": gdf.iloc[[index]]["width"].tolist()[0].tolist()
+                    "width": gdf.iloc[[index]]["width"].tolist()[0].tolist(),
+                    "pointsPerSection": gdf.iloc[[index]]["pointsPerSection"].tolist()[0].tolist()
                     # "surfaceHeight": gdf.iloc[[index]]["surfaceHeight"].tolist()[0].tolist()
                 }
             })
