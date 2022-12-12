@@ -1117,7 +1117,7 @@ class Mesh:
         epsilon = 1e-8
         for poly in boundaries:
             lines = poly.exterior
-            # plt.plot(*lines.coords.xy)
+
             length = lines.length
             size = min(size, length)
             num_cells = ((length - length%size)/size) # equal sized cells
@@ -1132,7 +1132,6 @@ class Mesh:
             for j in range(0, len(points)-1):
                 segment = LineString([points[j], points[j+1]])
                 joined_points.append(points[j])
-                # isCorner.append(True)
                 corners.append(points[j])
 
                 aux = []
@@ -1140,13 +1139,11 @@ class Mesh:
                     pt = interpolated_points[k]
                     if pt.distance(points[j]) > epsilon and pt.distance(points[j+1]) and pt.buffer(epsilon).intersects(segment):
                         joined_points.append(pt)
-                        # isCorner.append(False)
                     else:
                         aux.append(pt)
                 interpolated_points = aux 
 
             joined_points.append(points[-1])
-            # isCorner.append(True)
             corners.append(points[-1])
 
             cur_length = 0
@@ -1157,7 +1154,6 @@ class Mesh:
 
                 cur_multiline.append(segment)
                 cur_length += segment.length
-    #             print(segment.length)
 
                 if (cur_length >= size-1e-5):
                     cur_length = 0
