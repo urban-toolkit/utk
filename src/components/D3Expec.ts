@@ -43,7 +43,7 @@ export class D3Expec {
         dimensions.boundedRadius = dimensions.radius - ((dimensions.margin.left + dimensions.margin.right) / 2)
 
         // mocking data
-        let dataIn = "[-1, -1, -1, -1, -1, -1, -1, -1, 2, 10, 8, 2, 1, 0.4, 1]"; // 2 bins, 1 timesteps
+        let dataIn = "[-1, -1, -1, -1, -1, -1, -1, -1, 2, 0,"+Math.PI+","+2*Math.PI+", 1, 0.4, 1]"; // 2 bins, 1 timesteps
 
         // format input data
         let data_arr = JSON.parse(dataIn); 
