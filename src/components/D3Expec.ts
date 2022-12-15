@@ -10,7 +10,7 @@ export class D3Expec {
         this._svgSelector = svgSelector;
     }
 
-    async run(data: any[], plotWidth: number, plotHeight: number){
+    async run(data: string, plotWidth: number, plotHeight: number){
 
         this._svg = d3.select(this._svgSelector);
 
@@ -21,17 +21,17 @@ export class D3Expec {
 
     }
 
-    async runD3Code(data: any[], plotWidth: number, plotHeight: number){
+    async runD3Code(dataIn: string, plotWidth: number, plotHeight: number){
 
         let dimensions = {
             width: plotWidth,
             height: plotHeight,
             radius: plotWidth / 2,
             margin: {
-                top:    10,
-                right:  20,
-                bottom: 20,
-                left:   20,
+                top:    0, // 10
+                right:  0, // 20
+                bottom: 0, // 10
+                left:   0, // 20
             },
             boundedWidth: -1,
             boundedHeight: -1,
@@ -42,16 +42,13 @@ export class D3Expec {
         dimensions.boundedHeight = dimensions.height - dimensions.margin.top - dimensions.margin.bottom
         dimensions.boundedRadius = dimensions.radius - ((dimensions.margin.left + dimensions.margin.right) / 2)
 
-        // mocking data
-        let dataIn = "[-1, -1, -1, -1, -1, -1, -1, -1, 2, 0,"+Math.PI+","+2*Math.PI+", 1, 0.4, 1]"; // 2 bins, 1 timesteps
-
         // format input data
         let data_arr = JSON.parse(dataIn); 
 
         const nb_bins = data_arr[8];
         const nb_timesteps = data_arr[9+nb_bins+1];
 
-        let data2 = [...Array.from(Array(nb_bins).keys())].map(b => {      
+        let data = [...Array.from(Array(nb_bins).keys())].map(b => {      
 
             let d: any = { binID : b };
             d["startAngle"] =  data_arr[9+b];
@@ -82,9 +79,12 @@ export class D3Expec {
         // const colorScale         = (d:any) => d3.interpolateOranges(d); 
         const colorScale2        = (d:any) => {
 
-            let COLOR1 = '#FEE6CE';
-            let COLOR2 = '#FDAE6B';
-            let COLOR3 = '#E6550D';
+            // let COLOR1 = '#FEE6CE';
+            let COLOR1 = '#fff5f0';
+            // let COLOR2 = '#FDAE6B';
+            let COLOR2 = '#f9694c';
+            // let COLOR3 = '#E6550D';
+            let COLOR3 = '#67000d';
             const remap     = (minval:any, maxval:any, val:any) => { val = Math.max(minval, val); val=Math.min(val, maxval);  return ( val - minval ) / ( maxval - minval ); }
             const lerpColor = (a:any, b:any, amount:any) => {
     
@@ -108,19 +108,22 @@ export class D3Expec {
         };
 
         const wrapper = this._svg
-                        .attr("width", dimensions.width)
-                        .attr("height", dimensions.height);
+                        .attr("width", plotWidth)
+                        .attr("height", plotHeight);
 
         const bounds = wrapper.append("g")
             .attr("id", "bounds")
-            .style("transform", `translate(${dimensions.margin.left + dimensions.boundedRadius}px, 
-                                            ${dimensions.margin.top + dimensions.boundedRadius}px)`)
+            .style("transform", `translate(${plotWidth/2}px, 
+                ${plotHeight/2}px)`)
+            // .style("transform", `translate(${dimensions.margin.left + dimensions.boundedRadius}px, 
+            //                                 ${dimensions.margin.top + dimensions.boundedRadius + (plotHeight/2 - dimensions.radius)}px)`)
+
 
         // 4. Draw each of the bins
         let bins = bounds.append("g")
             .attr("id", "bins")
             .selectAll("path")
-            .data(data2)
+            .data(data)
             .enter();
 
         bins.each(function(this: any, d: any, b: any){
@@ -167,62 +170,6 @@ export class D3Expec {
         //                 .attr("class", "grid-circle-line")
         //                 .attr("r", r)
         // ))
-
-
-
-
-
-
-        // // old d3 code
-        // // set the dimensions and margins of the graph
-        // var margin = {top: 0, right: 0, bottom: 0, left: 0},
-        // width = plotWidth,
-        // height = plotHeight;
-        // // width = 460 - margin.left - margin.right,
-        // // height = 400 - margin.top - margin.bottom;
-
-        // // append the svg object to the body of the page
-        // var svg = this._svg
-        //     .attr("width", width + margin.left + margin.right)
-        //     .attr("height", height + margin.top + margin.bottom)
-        //     .append("g")
-        //     .attr("transform",
-        //         "translate(" + margin.left + "," + margin.top + ")");
-
-        // // X axis
-        // var x = d3.scaleBand()
-        //     .range([ 0, width ])
-        //     .domain(data.map(function(d) { return d.name; }))
-        //     .padding(0.2);
-
-        // svg.append("g")
-        //     .attr("transform", "translate(0," + height + ")")
-        //     .call(d3.axisBottom(x).tickValues([]));
-
-        // // Add Y axis
-        // var y = d3.scaleLinear()
-        //     .domain([0,1])
-        //     .range([ height, 0]);
-        //     svg.append("g")
-        //         .call(d3.axisLeft(y));
-        
-        // svg.selectAll(".tick line")
-        //     // .call(yAxis)
-        //     .attr("x2", width + 6)
-        //     .style("opacity", 0.5);
-
-        // var colorScale = d3.scaleSequential(d3.interpolateReds);
-
-        // // Bars
-        // svg.selectAll("mybar")
-        //     .data(data)
-        //     .join("rect")
-        //         .attr("x", function(d: any) { return x(d.name); })
-        //         .attr("y", function(d: any) { return y(d.shadowAvg); })
-        //         .attr("width", x.bandwidth())
-        //         .attr("height", function(d: any) { return height - y(d.shadowAvg); })
-        //         .attr("fill", function(d: any){ return colorScale(d.shadowAvg) });
-
 
     }
 

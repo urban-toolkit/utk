@@ -282,7 +282,11 @@ class ShadowAccumulator:
 
             for index_geometry, geometry_count in enumerate(geometries_count):
 
-                mesh_json["data"][index_geometry]["geometry"]["function"+str(functionIndex)] = function_values[:geometry_count] 
+                # mesh_json["data"][index_geometry]["geometry"]["function"+str(functionIndex)] = function_values[:geometry_count] 
+                if not "function" in mesh_json["data"][index_geometry]["geometry"]:
+                    mesh_json["data"][index_geometry]["geometry"]["function"] = []
+                
+                mesh_json["data"][index_geometry]["geometry"]["function"].append(function_values[:geometry_count])
 
                 function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
 

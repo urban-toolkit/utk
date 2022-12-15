@@ -75,11 +75,11 @@ class D3App {
 
   /**
    * 
-   * @param {any[]} data Data to be plotted 
+   * @param {string} data Data to be plotted 
    * @param {number} imageId Each image create has a unique identifier defined by the user. If a identifier is reused the image is replaced. The identifier
    * @returns return a filepath of an image that has all the previously created images combined. The order of the images is defined by the imageId. 
    */
-  async run(data: any[], width: number, height: number){
+  async run(data: string, width: number, height: number){
 
     await this._d3Expec.run(data, width, height);
 
