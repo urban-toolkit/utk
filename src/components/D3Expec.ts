@@ -26,7 +26,7 @@ export class D3Expec {
         let dimensions = {
             width: plotWidth,
             height: plotHeight,
-            radius: plotWidth / 2,
+            radius: -1,
             margin: {
                 top:    0, // 10
                 right:  0, // 20
@@ -36,6 +36,12 @@ export class D3Expec {
             boundedWidth: -1,
             boundedHeight: -1,
             boundedRadius: -1
+        }
+
+        if(plotWidth < plotHeight){
+            dimensions.radius = plotWidth/2;
+        }else{
+            dimensions.radius = plotHeight/2;
         }
 
         dimensions.boundedWidth  = dimensions.width - dimensions.margin.left - dimensions.margin.right
