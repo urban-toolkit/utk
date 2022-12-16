@@ -79,9 +79,9 @@ class D3App {
    * @param {number} imageId Each image create has a unique identifier defined by the user. If a identifier is reused the image is replaced. The identifier
    * @returns return a filepath of an image that has all the previously created images combined. The order of the images is defined by the imageId. 
    */
-  async run(data: string, width: number, height: number){
+  async run(data: string, width: number, height: number, plotType: number){
 
-    await this._d3Expec.run(data, width, height);
+    await this._d3Expec.run(data, width, height, plotType);
 
     let image = await this.getImageSvg();
 
@@ -140,11 +140,6 @@ class D3App {
    * @param images list of images used in the abstraction surfaces
    */
   public generateCanvasTex(mapDiv: HTMLElement, images: HTMLImageElement[]){
-    // let canvasTexDiv: any = document.querySelector(this._texCanvasSelector);
-
-    // console.log(this._texCanvasSelector);
-
-    // canvasTexDiv.textContent = ""; // remove tex canvas elements
     
     // TODO: remove all .texCanvas elements from mapDiv
 
