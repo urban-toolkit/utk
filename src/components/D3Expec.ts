@@ -21,6 +21,8 @@ export class D3Expec {
             await this.runD3Code0(data, plotWidth, plotHeight);
         }else if(plotType == 1){
             await this.runD3Code1(data, plotWidth, plotHeight);
+        }else if(plotType == 2){
+            await this.runD3Code2(data, plotWidth, plotHeight);
         }
 
     }
@@ -235,5 +237,120 @@ export class D3Expec {
                 .attr("fill", function(d: any){ return colorScale(d.shadowAvg) });
 
     }
+
+    async runD3Code2(data: string, plotWidth: number, plotHeight: number){
+
+        function dot(v1: number[], v2: number[]) {
+            if(v1.length != v2.length){
+                throw new Error("v1 and v2 have different number of dimensions");
+            }
+        
+            let result = 0;
+        
+            for(let i = 0; i < v1.length; i++){
+                result += v1[i]*v2[i];
+            }
+        
+            return result;
+        }
+
+        function normalize(a: number[]) {
+
+            let out = [];
+        
+            let len = 0;
+        
+            for(let i = 0; i < a.length; i++){
+                len += a[i]*a[i];
+            }
+        
+            if(len > 0){
+                len = 1 / Math.sqrt(len);
+            }
+        
+            for(let i = 0; i < a.length; i++){
+                out.push(a[i] * len);
+            }
+        
+            return out;
+        
+        }
+
+        function angle(v1: number[], v2: number[]) {
+
+            if(v1[0] == 0 && v1[1] == 0)
+                return 0;
+
+            if(v2[0] == 0 && v2[1] == 0)
+                return 0;
+
+            let unit_1 = normalize(v1);
+            let unit_2 = normalize(v2);
+        
+            let dot_product = dot(unit_1, unit_2);
+        
+            let angle_vectors = Math.acos(dot_product) * 180.0 / Math.PI;
+        
+            return angle_vectors;
+        }
+
+        let data_arr = JSON.parse(data); 
+        
+        var svg = this._svg
+            .attr("width", plotWidth)
+            .attr("height", plotHeight)
+            .append("g");
+
+        let centerPlanePixel = [plotWidth/2, plotHeight/2];
+
+        data_arr.pointData.forEach((elem: any) => {
+
+            let normal = [elem.normal[0]*-1, elem.normal[1]*-1];
+
+            // let normal = normalize([centerPlanePixel[0]-elem.pixelCoord[0], centerPlanePixel[1]-elem.pixelCoord[1]]);
+
+            // Shifting the rectangle considering the normal
+            elem.pixelCoord[0] += normal[0]*25;
+            elem.pixelCoord[1] += normal[1]*25;
+
+            let yVector = [0, 1];
+            
+            let rotation = angle(normal, yVector);
+            
+            if(normal[0] > 0){
+                rotation *= -1; // counter clock wise
+            }
+
+            elem.rotation = rotation;
+
+        });
+
+        let rect_color = d3.scaleSequential().domain([0,1]).interpolator(d3.interpolateReds);
+        let scaleHeight = d3.scaleLinear().domain([0,1]).range([5, 50]);
+
+        svg.selectAll("circle")
+            .data(data_arr.pointData)
+            .join("circle")
+                .attr("cx", function(d: any){ return d.pixelCoord[0]})
+                .attr("cy", function(d: any){ return d.pixelCoord[1]})
+                .attr("r", 10)
+                .attr("stroke", "black")
+                .attr("stroke-width", 2)
+                .attr("fill", function(d: any){ return rect_color(d.functions[0]) });
+
+        // svg.selectAll("rect")
+        //     .data(data_arr.pointData)
+        //     .join("rect")
+        //         .attr("x", function(d: any){ return d.pixelCoord[0] - 7.5})
+        //         .attr("y", function(d: any){ return d.pixelCoord[1]})
+        //         .attr("width", 15)
+        //         .attr("height", function(d: any){ return scaleHeight(d.functions[0]) })
+        //         .attr("stroke", "black")
+        //         .attr("stroke-width", 2)
+        //         .attr("fill", function(d: any){ return rect_color(d.functions[0]) })
+        //         .attr("transform", function(d: any){return "rotate("+d.rotation+","+(d.pixelCoord[0])+","+d.pixelCoord[1]+")"});
+
+    }
+
 
 }
