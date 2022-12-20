@@ -1,12 +1,14 @@
 # Getting Started with this project
 
-1. Install dependencies (TODO)
+1. Virtual environment
 
-1. Clone the repository, initialize submodule and pull submodule
+- The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
+
+2. Clone the repository, initialize submodule and pull submodule
 
 `git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
 
-2. Install Dependencies and Build urbantk-map
+3. Backend configuration 
 
    - go to urbantk-react-ts/src/urbantk-map/
    - git checkout main
@@ -15,7 +17,7 @@
    - run `npm install`
    - run `npm run build`
 
-3. Frontend configuration
+4. Frontend configuration
    - go back to urbantk-react-ts folder
    - run `npm install`
    - to see web version `npm run start:web`
