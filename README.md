@@ -12,7 +12,7 @@
 - `conda activate urbantk`
 - `conda install -c conda-forge nodejs`
 - `conda install -c anaconda pip`
-- go to urbantk-reac-ts
+- go to urbantk-react-ts
 - run `pip install -r requirements_pip.txt` (python scripts requirements)
 - run `conda install -c conda-forge --file requirements_anaconda.txt` (python scripts requirments)
 
