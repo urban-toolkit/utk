@@ -8,7 +8,10 @@
 
 2. Install Dependencies and Build urbantk-map
 
-   - go to urbantk-react-ts/src/urbantk-map/ts
+   - go to urbantk-react-ts/src/urbantk-map/
+   - git checkout main
+   - git pull origin main
+   - cd ts
    - run `npm install`
    - run `npm run build`
 
