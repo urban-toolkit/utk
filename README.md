@@ -23,7 +23,7 @@
 
 4. Frontend configuration
    - go back to urbantk-react-ts folder
-   - run `npm install`
+   - run `npm install --force`
    - to see web version `npm run start:web`
    - to see the VR version `npm run start:vr`
    - to see the CAVE2 version `npm run start:cave`
