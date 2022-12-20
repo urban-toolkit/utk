@@ -3,6 +3,9 @@
 1. Virtual environment
 
 - The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
+- After installing anaconda run:
+- `conda create --name urbantk`
+- `conda activate urbantk`
 
 2. Clone the repository, initialize submodule and pull submodule
 
