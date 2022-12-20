@@ -1,16 +1,20 @@
 # Getting Started with this project
 
-1. Virtual environment
+1. Clone the repository, initialize submodule and pull submodule
+
+`git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
+
+2. Virtual environment
 
 - The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
 - After installing anaconda run:
 - `conda create --name urbantk`
 - `conda activate urbantk`
 - `conda install -c conda-forge nodejs`
-
-2. Clone the repository, initialize submodule and pull submodule
-
-`git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
+- `conda install -c anaconda pip`
+- go to urbantk-reac-ts
+- run `pip install -r requirements_pip.txt` (python scripts requirements)
+- run `conda install -c conda-forge --file requirements_anaconda.txt` (python scripts requirments)
 
 3. Backend configuration 
 
