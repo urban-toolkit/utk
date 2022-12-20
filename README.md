@@ -6,11 +6,9 @@
 
 `git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
 
-2. Copy remote branch (v1.0 - most recent till now) to a local branch
+2. Install Dependencies and Build urbantk-map
 
-   - go to urbantk-react-ts/src/urbantk-map/
-   - copy remote v1.0 branch to a local git branch
-   - got to ts folder
+   - go to urbantk-react-ts/src/urbantk-map/ts
    - run `npm install`
    - run `npm run build`
 
