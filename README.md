@@ -6,6 +6,7 @@
 - After installing anaconda run:
 - `conda create --name urbantk`
 - `conda activate urbantk`
+- `conda install -c conda-forge nodejs`
 
 2. Clone the repository, initialize submodule and pull submodule
 
