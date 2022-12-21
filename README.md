@@ -3,8 +3,10 @@
 1. Clone the repository, initialize submodule and pull submodule
 
 `git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
+ 
+2. Virtual environment  
 
-2. Virtual environment
+Tested Python version '3.10.6'  
 
 - The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
 - After installing anaconda run:
