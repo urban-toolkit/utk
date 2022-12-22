@@ -31,6 +31,22 @@ Tested Python version '3.10.6'
    - to see the VR version `npm run start:vr`
    - to see the CAVE2 version `npm run start:cave`
 
+5. Cuda Installation (for shadow ray tracing)
+
+   - a CUDA-enabled GPU with compute capability 5.0 (Maxwell) to latest (Ampere);
+       - NVIDIA driver >= r515;
+   - Python 3 64-bit
+   - Windows:
+       - Framework .NET >= 4.8 (present in all modern Windows)
+   - Linux:
+       - Mono Common Language Runtime >= 6.6
+       - pythonnet
+       - FFmpeg >= 4.1
+
+- https://developer.nvidia.com/cuda-downloads
+
+
+
 ### Configuration
 
 All important configuration parameters are situated in src/params.js.  
