@@ -121,7 +121,8 @@ export class D3Expec {
 
         const wrapper = this._svg
                         .attr("width", plotWidth)
-                        .attr("height", plotHeight);
+                        .attr("height", plotHeight)
+                        .style("background-color", "white");
 
         const bounds = wrapper.append("g")
             .attr("id", "bounds")
@@ -198,6 +199,7 @@ export class D3Expec {
         var svg = this._svg
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
+            .style("background-color", "white")
             .append("g")
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
@@ -299,6 +301,8 @@ export class D3Expec {
         var svg = this._svg
             .attr("width", plotWidth)
             .attr("height", plotHeight)
+            // .style("background-color", "white")
+            .style("background-color", "black")
             .append("g");
 
         let centerPlanePixel = [plotWidth/2, plotHeight/2];
@@ -334,8 +338,8 @@ export class D3Expec {
                 .attr("cx", function(d: any){ return d.pixelCoord[0]})
                 .attr("cy", function(d: any){ return d.pixelCoord[1]})
                 .attr("r", 10)
-                .attr("stroke", "black")
-                .attr("stroke-width", 2)
+                .attr("stroke", "white")
+                .attr("stroke-width", 4)
                 .attr("fill", function(d: any){ return rect_color(d.functions[0]) });
 
         // svg.selectAll("rect")
@@ -345,10 +349,22 @@ export class D3Expec {
         //         .attr("y", function(d: any){ return d.pixelCoord[1]})
         //         .attr("width", 15)
         //         .attr("height", function(d: any){ return scaleHeight(d.functions[0]) })
-        //         .attr("stroke", "black")
-        //         .attr("stroke-width", 2)
+        //         .attr("stroke", "white")
+        //         .attr("stroke-width", 4)
         //         .attr("fill", function(d: any){ return rect_color(d.functions[0]) })
         //         .attr("transform", function(d: any){return "rotate("+d.rotation+","+(d.pixelCoord[0])+","+d.pixelCoord[1]+")"});
+
+        // svg.selectAll("polygon")
+        //     .data([data_arr.pointData])
+        //     .join("polygon")
+        //         .attr("points", function(d: any){
+        //             return d.map(function(d: any){
+        //                 return [d.pixelCoord[0], d.pixelCoord[1]].join(",");
+        //             }).join(" ");
+        //         })
+        //         .attr("stroke", "black")
+        //         .attr("stroke-width", 2);
+
 
     }
 
