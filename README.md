@@ -10,13 +10,10 @@ Tested Python version '3.10.6'
 
 - The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
 - After installing anaconda run:
-- `conda create --name urbantk`
+- `conda create -n urbantk -c conda-forge --file conda-package-list.txt`
 - `conda activate urbantk`
-- `conda install -c conda-forge nodejs`
-- `conda install -c anaconda pip`
 - go to urbantk-react-ts
 - run `pip install -r requirements_pip.txt` (python scripts requirements)
-- run `conda install -c conda-forge --file requirements_anaconda.txt` (python scripts requirments)
 
 3. Backend configuration 
 
@@ -33,6 +30,22 @@ Tested Python version '3.10.6'
    - to see web version `npm run start:web`
    - to see the VR version `npm run start:vr`
    - to see the CAVE2 version `npm run start:cave`
+
+5. Cuda Installation (for shadow ray tracing)
+
+   - a CUDA-enabled GPU with compute capability 5.0 (Maxwell) to latest (Ampere);
+       - NVIDIA driver >= r515;
+   - Python 3 64-bit
+   - Windows:
+       - Framework .NET >= 4.8 (present in all modern Windows)
+   - Linux:
+       - Mono Common Language Runtime >= 6.6
+       - pythonnet
+       - FFmpeg >= 4.1
+
+- https://developer.nvidia.com/cuda-downloads
+
+
 
 ### Configuration
 
