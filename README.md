@@ -1,22 +1,35 @@
 # Getting Started with this project
 
-1. Install dependencies (TODO)
-
 1. Clone the repository, initialize submodule and pull submodule
 
 `git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
+ 
+2. Virtual environment  
 
-2. Copy remote branch (v1.0 - most recent till now) to a local branch
+Tested Python version '3.10.6'  
+
+- The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
+- After installing anaconda run:
+- `conda create --name urbantk`
+- `conda activate urbantk`
+- `conda install -c conda-forge nodejs`
+- `conda install -c anaconda pip`
+- go to urbantk-react-ts
+- run `pip install -r requirements_pip.txt` (python scripts requirements)
+- run `conda install -c conda-forge --file requirements_anaconda.txt` (python scripts requirments)
+
+3. Backend configuration 
 
    - go to urbantk-react-ts/src/urbantk-map/
-   - copy remote v1.0 branch to a local git branch
-   - got to ts folder
+   - git checkout main
+   - git pull origin main
+   - cd ts
    - run `npm install`
    - run `npm run build`
 
-3. Frontend configuration
+4. Frontend configuration
    - go back to urbantk-react-ts folder
-   - run `npm install`
+   - run `npm install --force`
    - to see web version `npm run start:web`
    - to see the VR version `npm run start:vr`
    - to see the CAVE2 version `npm run start:cave`
