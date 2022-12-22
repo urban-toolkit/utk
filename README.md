@@ -10,7 +10,7 @@ Tested Python version '3.10.6'
 
 - The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
 - After installing anaconda run:
-- `conda create --name urbantk`
+- `conda create -n urbantk --file conda-package-list.txt`
 - `conda activate urbantk`
 - `conda install -c conda-forge nodejs`
 - `conda install -c anaconda pip`
