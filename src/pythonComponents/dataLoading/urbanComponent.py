@@ -9,8 +9,6 @@ from ipykernel.comm import Comm, CommManager
 import map
 # import urbantk.io.osm as osm
 
-import bson
-
 class UrbanComponent:
     """
     Basic Urban Toolkit component
@@ -67,11 +65,8 @@ class UrbanComponent:
                     index_json['layers'].append(layer['id'])
 
                     layer_json_str = str(json.dumps(layer, indent=4))
-                    # binary_dump = bson.dumps(layer)
-                    # with open(os.path.join(filepath,layer['id']+'.bson'), "wb") as f:
                     with open(os.path.join(filepath,layer['id']+'.json'), "w") as f:
                         f.write(layer_json_str)
-                        # f.write(binary_dump)
 
                 camera_json_str = str(json.dumps(self.camera, indent=4))
                 with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
