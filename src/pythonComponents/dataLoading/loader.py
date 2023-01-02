@@ -259,6 +259,9 @@ class OSM:
 
         merged_lines = linemerge(multiline)
 
+        # x,y = merged_lines.coords.xy
+        # plt.plot(x,y)
+
         sides = { \
             'left': LineString([(bbox[0],bbox[1]),(bbox[2],bbox[1])]), \
             'right': LineString([(bbox[0],bbox[3]),(bbox[2],bbox[3])]), \
@@ -422,16 +425,18 @@ class OSM:
             rings.append(len(nodes))
 
             # inner
-            # for inner in poly['inner']:
-            #     nodes.extend(inner)
-            #     rings.append(len(nodes))
+            for inner in poly['inner']:
+                nodes.extend(inner)
+                rings.append(len(nodes))
             
             nodes = np.array(nodes)
 
-            cc_nodes = np.flip(nodes, axis=0) # inverting nodes to produce counter-clock wise indices
+            # cc_nodes = np.flip(nodes, axis=0) # inverting nodes to produce counter-clock wise indices
 
-            # indices = earcut.triangulate_float64(nodes, rings)
-            indices = earcut.triangulate_float64(cc_nodes, rings)
+            indices = earcut.triangulate_float64(nodes, rings)
+            # indices = earcut.triangulate_float64(cc_nodes, rings)
+
+            indices = np.flip(indices, axis=0)
 
             # indices = np.reshape(indices, (-1, 3))
 
@@ -441,7 +446,6 @@ class OSM:
             # vplt += vmesh.clone()
             # vplt.show(viewup='z', zoom=1.3)
 
-
             # empty triangulation
             if(len(indices) == 0 or (len(indices) % 3) > 0):
                 raise errors.InvalidPolygon('Invalid triangulation')
@@ -450,7 +454,6 @@ class OSM:
             nodes = nodes.flatten().tolist()
             indices = indices.tolist()
             dev = utils.deviation(nodes, rings, 2, indices)
-            # print(dev)
             # if(abs(dev) > 0.001):
             #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
 
@@ -562,24 +565,22 @@ class OSM:
                 
             nodes = np.array(nodes)
 
-            cc_nodes = np.flip(nodes, axis=0) # inverting nodes to produce counter-clock wise indices
+            indices = earcut.triangulate_float64(nodes, rings)
 
-            indices = earcut.triangulate_float64(cc_nodes, rings)
+            indices = np.flip(indices, axis=0)
 
             # empty triangulation
             if(len(indices) == 0 or (len(indices) % 3) > 0):
                 raise errors.InvalidPolygon('Invalid triangulation')
 
             # bad triangulation
-            cc_nodes = cc_nodes.flatten().tolist()
+            nodes = nodes.flatten().tolist()
             indices = indices.tolist()
-            dev = utils.deviation(cc_nodes, rings, 2, indices)
+            dev = utils.deviation(nodes, rings, 2, indices)
             # print(dev)
             if(abs(dev) > 0.001):
                 raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
             
-            nodes = nodes.flatten().tolist()
-
             nodes = utils.convertProjections("4326", "3395", nodes)
 
             if convert2dto3d:
