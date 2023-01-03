@@ -120,9 +120,9 @@ def deviation(data, holeIndices, dim, triangles):
 
     return abs((trianglesArea - polygonArea) / polygonArea)
 
-def from2dTo3d(nodes):
+def from2dTo3d(nodes, z_offset=0):
     '''
-        Inserts 0 in the z position
+        Inserts a z position (z_offset can be applied)
     '''
     new_3d_node = []
 
@@ -130,7 +130,7 @@ def from2dTo3d(nodes):
     while(index < len(nodes)-1):
         new_3d_node.append(nodes[index])
         new_3d_node.append(nodes[index+1])
-        new_3d_node.append(0)
+        new_3d_node.append(0 + z_offset)
         index += 2
 
     return new_3d_node

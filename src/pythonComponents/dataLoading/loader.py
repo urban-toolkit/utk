@@ -135,7 +135,7 @@ class OSM:
         filters['rel'] = []
 
         if layer_type == 'water':
-            natural_types = ['water', 'wetland']
+            natural_types = ['water', 'wetland', 'bay', 'strait', 'spring']
             water_types = ['pond', 'reservoir', 'lagoon', 'stream_pool', 'lake', 'pool', 'canal', 'river']
             # natural_types = ['water']
             
@@ -239,7 +239,7 @@ class OSM:
 
             coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
 
-            coords_duplicated = utils.from2dTo3d(coords_duplicated)
+            coords_duplicated = utils.from2dTo3d(coords_duplicated, 1.5)
 
             mesh.append({'type': 'roads', 'geometry': {'coordinates': coords_duplicated, 'types': types}})
 
@@ -396,7 +396,6 @@ class OSM:
                     line.append(nextcoord) # dont know if this is on the right place
                     next_line(nextt,firstlineid,line)
 
-
         # stitch
         polygons = []
         for lineid in enters_byline:
@@ -458,7 +457,7 @@ class OSM:
             #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
 
             nodes = utils.convertProjections("4326", "3395", nodes)
-            nodes = utils.from2dTo3d(nodes)
+            nodes = utils.from2dTo3d(nodes, 1)
 
             mesh.append({'type': poly['type'], 'geometry': {'coordinates': nodes, 'indices': indices}})
 
@@ -466,10 +465,12 @@ class OSM:
 
     # from urbantk
     def create_mesh_other_layers(osm_elements, bbox, convert2dto3d=False):
+
         ways = []
         # handle multiways first
         for mid in osm_elements['multiways']:
             multiways = osm_elements['multiways'][mid]
+
             # https://wiki.openstreetmap.org/wiki/Relation:multipolygon
             for way in multiways:
                 outernodes = []
@@ -514,7 +515,6 @@ class OSM:
             nodes = way['geometry']
             ways.append({'outer': nodes, 'inner': [], 'type': 'type'})
 
-
         # to shapely
         polygons = []
         for way in ways:
@@ -547,10 +547,20 @@ class OSM:
                         interiors.append(list(interior.coords))
                     polygons.append([exterior, interiors])
 
+        # p = gpd.GeoSeries(LineString(polygons[0][0]))
+        # ax = p.plot()
+
+        # for index, elem in enumerate(polygons):
+        #     if index != 0:
+        #         p = gpd.GeoSeries(LineString(elem[0]))
+        #         p.plot(ax=ax)
+
+        # plt.show()
 
         # triangulate
         mesh = []
         for poly in polygons:
+
             nodes = []
             rings = []
 
@@ -584,7 +594,7 @@ class OSM:
             nodes = utils.convertProjections("4326", "3395", nodes)
 
             if convert2dto3d:
-                nodes = utils.from2dTo3d(nodes)
+                nodes = utils.from2dTo3d(nodes, 2)
 
             # indices = [elem-1 for elem in indices] # making indices start with 0 not 1
 
@@ -866,6 +876,7 @@ class OSM:
             query = OSM.build_osm_query(bbox, 'geom', [layer])
             response = cache._load_osm_from_cache(query)
             if not response:
+                time.sleep(1) # avoiding Overpass 429 Too Many Requests
                 response = api.get(query, build=False)
                 cache._save_osm_to_cache(query,response)
             overpass_responses[layer] = OSM.parse_osm(response)
@@ -883,7 +894,7 @@ class OSM:
                 continue
             if layer == 'roads':
                 geometry = OSM.create_roads_polyline(overpass_responses[layer], bbox)
-                ttype = 'TRIANGLES_3D_LAYER'
+                ttype = 'LINES_3D_LAYER'
                 styleKey = 'roads'
             elif layer == 'coastline':
                 geometry = OSM.create_coastline_mesh(overpass_responses[layer], bbox)
