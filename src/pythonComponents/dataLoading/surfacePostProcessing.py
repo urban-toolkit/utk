@@ -18,16 +18,16 @@ def postProcessSurface(dir, interval0, interval1, offset):
 
         for element in surface_content['data']:
             element['geometry']['discardFuncInterval'] = interval0
-            for index in range(0,int(len(element['geometry']['coordinates'])/3)):
-                element['geometry']['coordinates'][index*3+2] += -1
+            # for index in range(0,int(len(element['geometry']['coordinates'])/3)):
+            #     element['geometry']['coordinates'][index*3+2] += -1
 
         with open(os.path.join(dir,'surface.json'), 'w') as f:
             json.dump(surface_content, f, indent=4)
 
         for element in surface_content['data']:
             element['geometry']['discardFuncInterval'] = interval1
-            for index in range(0,int(len(element['geometry']['coordinates'])/3)):
-                element['geometry']['coordinates'][index*3+2] += offset
+            # for index in range(0,int(len(element['geometry']['coordinates'])/3)):
+            #     element['geometry']['coordinates'][index*3+2] += offset
 
         with open(os.path.join(dir,'surface1.json'), 'w') as f:
             json.dump(surface_content, f, indent=4)
@@ -39,7 +39,7 @@ def postProcessSurface(dir, interval0, interval1, offset):
         indexFile = open(os.path.join(dir,'index.json'), mode='r')
         index_content = json.loads(indexFile.read())
         index_content["layers"].remove("surface")
-        index_content["layers"].append("surface0")
+        index_content["layers"] = ["surface0"] + index_content["layers"]
         index_content["layers"].append("surface1")
 
         indexFile.close()

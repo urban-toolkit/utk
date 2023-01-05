@@ -239,7 +239,8 @@ class OSM:
 
             coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
 
-            coords_duplicated = utils.from2dTo3d(coords_duplicated, 0.6)
+            # coords_duplicated = utils.from2dTo3d(coords_duplicated, 0.6)
+            coords_duplicated = utils.from2dTo3d(coords_duplicated)
 
             mesh.append({'type': 'roads', 'geometry': {'coordinates': coords_duplicated, 'types': types}})
 
@@ -457,7 +458,8 @@ class OSM:
             #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
 
             nodes = utils.convertProjections("4326", "3395", nodes)
-            nodes = utils.from2dTo3d(nodes, 0.4)
+            # nodes = utils.from2dTo3d(nodes, 0.4)
+            nodes = utils.from2dTo3d(nodes)
 
             mesh.append({'type': poly['type'], 'geometry': {'coordinates': nodes, 'indices': indices}})
 
@@ -594,7 +596,8 @@ class OSM:
             nodes = utils.convertProjections("4326", "3395", nodes)
 
             if convert2dto3d:
-                nodes = utils.from2dTo3d(nodes, 0.2)
+                # nodes = utils.from2dTo3d(nodes, 0.2)
+                nodes = utils.from2dTo3d(nodes)
 
             # indices = [elem-1 for elem in indices] # making indices start with 0 not 1
 
