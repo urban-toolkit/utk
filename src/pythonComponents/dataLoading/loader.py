@@ -239,7 +239,7 @@ class OSM:
 
             coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
 
-            coords_duplicated = utils.from2dTo3d(coords_duplicated, 1.5)
+            coords_duplicated = utils.from2dTo3d(coords_duplicated, 0.6)
 
             mesh.append({'type': 'roads', 'geometry': {'coordinates': coords_duplicated, 'types': types}})
 
@@ -457,7 +457,7 @@ class OSM:
             #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
 
             nodes = utils.convertProjections("4326", "3395", nodes)
-            nodes = utils.from2dTo3d(nodes, 1)
+            nodes = utils.from2dTo3d(nodes, 0.4)
 
             mesh.append({'type': poly['type'], 'geometry': {'coordinates': nodes, 'indices': indices}})
 
@@ -594,7 +594,7 @@ class OSM:
             nodes = utils.convertProjections("4326", "3395", nodes)
 
             if convert2dto3d:
-                nodes = utils.from2dTo3d(nodes, 2)
+                nodes = utils.from2dTo3d(nodes, 0.2)
 
             # indices = [elem-1 for elem in indices] # making indices start with 0 not 1
 
@@ -904,7 +904,7 @@ class OSM:
                 geometry = OSM.create_mesh_other_layers(overpass_responses[layer], bbox, convert2dto3d=True)
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = layer
-            result.append({'id': layer, 'type': ttype, 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': styleKey, 'visible': True, 'selectable': True, 'skip': False, 'data': geometry})
+            result.append({'id': layer, 'type': ttype, 'renderStyle': ['FLAT_COLOR'], 'styleKey': styleKey, 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
         
         if load_surface:
             geometry = OSM._create_surface_mesh(bbox)
@@ -922,7 +922,7 @@ class OSM:
                 }
             }]
 
-            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['SMOOTH_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': data_array})
+            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['FLAT_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': data_array})
 
         return result
 
@@ -1783,7 +1783,7 @@ class Mesh:
         return coords_all, indices_all, ids_all, colors_all
     
     # this JSON (represented as a python dict) follows the urbantk-map layer format specification
-    def gdf_to_json(gdf, layer_id = "buildings", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = False, skip = False):
+    def gdf_to_json(gdf, layer_id = "buildings", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = True, skip = False):
 
         json_new = {}
 
