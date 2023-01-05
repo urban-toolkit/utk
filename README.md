@@ -55,6 +55,8 @@ All important configuration parameters are situated in src/params.js.
 
 Web runs on the 3000 port. VR and CAVE2 runs in the 3001 port.  
 
+When specifying the layers buildings has allways to be the last one.
+
 ### Available start options
 
 - "start:web": Starts the web version
