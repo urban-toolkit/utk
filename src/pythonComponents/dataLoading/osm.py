@@ -9,12 +9,12 @@ import re
 import time
 import cache
 import urbanComponent
+import vedo
 
-from tqdm.notebook import trange
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box
 from shapely.ops import linemerge
 from shapely.validation import explain_validity
-from mesh import Mesh
+from buildings import Buildings
 
 class OSM:
 
@@ -78,25 +78,25 @@ class OSM:
             if layer == 'surface':
                 continue
             if layer == 'buildings':
-                geometry = OSM.create_building_mesh(overpass_responses[layer], bbox)
+                geometry = OSM.osm_to_building_mesh(overpass_responses[layer], bbox)
                 ttype = 'BUILDINGS_LAYER'
                 styleKey = 'building'
                 renderStyle = ['SMOOTH_COLOR']
                 selectable = True
             elif layer == 'roads':
-                geometry = OSM.create_roads_polyline(overpass_responses[layer], bbox)
+                geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bbox)
                 ttype = 'LINES_3D_LAYER'
                 styleKey = 'roads'
                 renderStyle = ['FLAT_COLOR']
                 selectable = False
             elif layer == 'coastline':
-                geometry = OSM.create_coastline_mesh(overpass_responses[layer], bbox)
+                geometry = OSM.osm_to_coastline_mesh(overpass_responses[layer], bbox)
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = 'land'
                 renderStyle = ['FLAT_COLOR']
                 selectable = False
             else:
-                geometry = OSM.create_mesh_other_layers(overpass_responses[layer], bbox, convert2dto3d=True)
+                geometry = OSM.osm_to_generic_mesh(overpass_responses[layer], bbox, convert2dto3d=True)
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = layer
                 renderStyle = ['FLAT_COLOR']
@@ -110,7 +110,7 @@ class OSM:
 
         return result
 
-    def create_roads_polyline(osm_elements, bbox):
+    def osm_to_roads_polyline(osm_elements, bbox):
         '''
             Creates the roads polyline based on the OSM elements
 
@@ -151,7 +151,7 @@ class OSM:
 
         return mesh
 
-    def create_coastline_mesh(osm_elements, bbox):
+    def osm_to_coastline_mesh(osm_elements, bbox):
         '''
             Creates the coastline mesh based on the OSM elements
 
@@ -352,44 +352,7 @@ class OSM:
 
         return mesh
 
-    def create_surface_mesh(bbox):
-        '''
-            Creates the surface mesh that covers the bounding box
-
-            Args:
-                bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]. Used to define the limits of the layer
-
-            Returns:
-                mesh (object): A json object describing the geometry of the layer
-        '''
-
-        nodes = [bbox[0],bbox[1], bbox[2],bbox[1], bbox[2],bbox[3], bbox[0],bbox[3]]
-
-        nodes = utils.convertProjections("4326", "3395", nodes)
-
-        nodes = utils.from2dTo3d(nodes)
-
-        indices = [0, 3, 2, 2, 1, 0]
-
-        geometry = [{'type': 'surface', 'geometry': {'coordinates': nodes, 'indices': indices}}]
-
-        flat_coordinates = geometry[0]['geometry']['coordinates']
-        grouped_coordinates = np.reshape(np.array(flat_coordinates), (int(len(flat_coordinates)/3), -1))
-
-        coordinates, indices, ids, normals = Mesh.discretize_surface_mesh(grouped_coordinates, 5)
-
-        mesh = [{
-            'geometry': {
-                'coordinates': [float(elem) for sublist in coordinates for elem in sublist],
-                'indices': [int(elem) for sublist in indices for elem in sublist],
-                'ids': [int(elem) for elem in ids],
-                'normals': [float(elem) for sublist in normals for elem in sublist]
-            }
-        }]
-
-        return mesh
-
-    def create_building_mesh(osm_elements, bbox):
+    def osm_to_building_mesh(osm_elements, bbox):
         '''
             Creates the building mesh based on the OSM elements
 
@@ -569,15 +532,15 @@ class OSM:
         gdf = gdf.set_index('building_id', drop=False)
         gdf = gdf.sort_index()
 
-        gdf_merged_buildings = OSM.merge_buildings(gdf)
+        gdf_merged_buildings = Buildings.merge_overlapping_buildings(gdf)
 
-        df_mesh = Mesh.create_mesh(gdf_merged_buildings, 5) #gdf, size
+        df_mesh = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
 
-        json_mesh = Mesh.df_to_json(df_mesh) # prepares the layer   
+        json_mesh = Buildings.df_to_json(df_mesh) # prepares the layer   
 
         return json_mesh['data']
 
-    def create_mesh_other_layers(osm_elements, bbox, convert2dto3d=False):
+    def osm_to_generic_mesh(osm_elements, bbox, convert2dto3d=False):
         '''
             Used to load all generic layers that do not have specific functions to handle
 
@@ -711,35 +674,6 @@ class OSM:
         
         return mesh
 
-    def merge_buildings(gdf):
-        '''
-            Groups the blocks that compose one building in the OSM elements
-
-            Args:
-                gdf (GeoDataFrame): A GeoDataFrame with the atributes 'building_id', 'geometry', 'min_height', 'height', 'tags' describing each block that composes one building
-
-            Returns:
-                result (GeoDataFrame): A GeoDataFrame with the same atributes but with the geometry of the blocks merged
-
-        '''
-
-        gdf = gdf.to_crs('epsg:3395')   
-
-        # merge buildings that overlap
-        unique_buildings = gdf.index.unique()
-        for i in trange(len(unique_buildings)):
-            building_id = unique_buildings[i]
-            buildings = gdf[gdf['building_id']==building_id]
-            if(len(buildings) > 0):
-                contained = gdf.sindex.query(buildings.geometry.unary_union, predicate='intersects')
-                iid = gdf.iloc[contained]['building_id'].values[0]
-                gdf.iloc[contained, gdf.columns.get_loc('building_id')] = iid
-        gdf = gdf.set_index('building_id', drop=False)
-        gdf = gdf.sort_index()
-
-        gdf = gdf.to_crs('epsg:4326')
-        return gdf
-
     def parse_osm(osm_json):
         '''
             Parses the OSM data into ways and multiways
@@ -784,25 +718,18 @@ class OSM:
 
     def build_osm_query(bouding_box, output_type, layers=['parks', 'water', 'roads','building']):
         '''
-            Create an osm query from layer types
+            Create an OSM query from layer types
 
             Args:
                 bouding_box (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]
-                output_type (string): Type of output ()
+                output_type (string): Type of output (i.e. geom)
+                layers (string[]): List of strings containing the names of the layers that will be included in the OSM query. Possible values: ('coastline', 'parks', 'water', 'roads','building')
+                    (default is ['parks', 'water', 'roads','building'])
+
+            Returns:
+                query (string): A string representing the OSM query
 
         '''
-        
-        
-        """
-        Create an osm query from layer types
-
-        :param bounding_box: bounding box coordinates
-        :type layer_type: list
-        :param layers: layer types, defaults to ['building','roads','coastline', 'water', 'parks']
-        :type layer_type: list, optional
-        :return: osm query
-        :rtype: string
-        """
 
         bbox = ','.join(format(coord,".8f") for coord in bouding_box)
         query = '[out:json];('
@@ -820,14 +747,16 @@ class OSM:
         return query
 
     def get_osm_filter(layer_type):
-        """
-        Create an osm filter based on urban-toolkit layer types (building, road, coastline, water, parks)
 
-        :param layer_type: 'building', 'road', 'coastline', 'water', 'parks'
-        :type layer_type: string
-        :return: osm filters
-        :rtype: list
-        """
+        '''
+            Create an osm filter based on urban-toolkit layer types (building, road, coastline, water, parks)
+
+            Args:
+                layer_type (string): Name of the layer to generate filters for. Possible values: 'building', 'road', 'coastline', 'water', 'parks'
+
+            Returns:
+                result (object): An object containing all the filters for way, rel
+        '''
 
         filters = {}
         filters['way'] = []
@@ -885,5 +814,50 @@ class OSM:
 
         return filters
 
+    def discretize_surface_mesh(coords, size=-1):
+        poly = Polygon(coords[:,:2])
 
+        coordinates, indices, ids, _, _, _, _ = Buildings.get_roof(poly, None, 0, size)
+
+        vmesh = vedo.Mesh([coordinates, indices])
+        normals = vmesh.normals(cells=False)
+
+        return coordinates, indices, ids, normals
+
+    def create_surface_mesh(bbox):
+        '''
+            Creates the surface mesh that covers the bounding box
+
+            Args:
+                bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]. Used to define the limits of the layer
+
+            Returns:
+                mesh (object): A json object describing the geometry of the layer
+        '''
+
+        nodes = [bbox[0],bbox[1], bbox[2],bbox[1], bbox[2],bbox[3], bbox[0],bbox[3]]
+
+        nodes = utils.convertProjections("4326", "3395", nodes)
+
+        nodes = utils.from2dTo3d(nodes)
+
+        indices = [0, 3, 2, 2, 1, 0]
+
+        geometry = [{'type': 'surface', 'geometry': {'coordinates': nodes, 'indices': indices}}]
+
+        flat_coordinates = geometry[0]['geometry']['coordinates']
+        grouped_coordinates = np.reshape(np.array(flat_coordinates), (int(len(flat_coordinates)/3), -1))
+
+        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 5)
+
+        mesh = [{
+            'geometry': {
+                'coordinates': [float(elem) for sublist in coordinates for elem in sublist],
+                'indices': [int(elem) for sublist in indices for elem in sublist],
+                'ids': [int(elem) for elem in ids],
+                'normals': [float(elem) for sublist in normals for elem in sublist]
+            }
+        }]
+
+        return mesh
 

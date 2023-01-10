@@ -1,4 +1,3 @@
-from mesh import *
 import pysolar
 import threading
 import pytz
@@ -7,22 +6,11 @@ import timezonefinder
 import math
 import vedo
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from plotoptix import NpOptiX, utils
-from plotoptix.materials import m_flat
+from plotoptix import NpOptiX
 from plotoptix.geometry import PinnedBuffer
-from plotoptix.enums import RtResult
 
 from datetime import datetime
 from datetime import timedelta
-from datetime import tzinfo
-
-import matplotlib.pyplot as plt
-
-from pyproj import Proj, transform
-
-from shapely.geometry import Polygon
 
 import json
 

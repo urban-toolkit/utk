@@ -8,9 +8,9 @@ import vedo
 from tqdm.notebook import trange
 from shapely import affinity
 from shapely.ops import linemerge
-from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, Point, MultiPoint, box, polygon
+from shapely.geometry import MultiPolygon, MultiLineString, LineString, Point, MultiPoint, box, polygon
 
-class Mesh:
+class Buildings:
                 
     def split_poly(poly, size):
         merged_segments = []
@@ -96,17 +96,6 @@ class Mesh:
             points = joined_points
 
         return merged_segments, isCorner #, list(MultiPoint([lines.interpolate(distance) for distance in distances]))
-
-
-    def discretize_surface_mesh(coords, size=-1):
-        poly = Polygon(coords[:,:2])
-
-        coordinates, indices, ids, _, _, _, _ = Mesh.get_roof(poly, None, 0, size)
-
-        vmesh = vedo.Mesh([coordinates, indices])
-        normals = vmesh.normals(cells=False)
-
-        return coordinates, indices, ids, normals
 
     def extrude(segments, min_height, height, size, isCorner):
 
@@ -361,7 +350,7 @@ class Mesh:
         count = 0
         for poly in polys:        
             mrr = poly.minimum_rotated_rectangle
-            rot = Mesh.azimuth(mrr.exterior)
+            rot = Buildings.azimuth(mrr.exterior)
             poly = affinity.rotate(poly, rot, (0,0))
 
             line = LineString(poly.exterior.coords)
@@ -447,8 +436,11 @@ class Mesh:
 
         return coordinates, indices, ids, colors, uv, roofWidth, roofHeights
 
-    def merge_building_mesh(building):
-        
+    def merge_building_blocks(building):
+        '''
+            Groups the blocks that compose one building in the OSM elements
+        '''
+
         building = building.to_crs('epsg:3395')
         min_heights = building.min_height.values
         heights = building.height.values
@@ -486,8 +478,8 @@ class Mesh:
 
         return merged_building
 
-    def get_building_mesh(building, size = -1):
-        merged_building = Mesh.merge_building_mesh(building)
+    def create_building_mesh(building, size = -1):
+        merged_building = Buildings.merge_building_blocks(building)
 
         boundaries = list(merged_building.geometry)
 
@@ -495,7 +487,6 @@ class Mesh:
         indices = np.empty((0,3))
         ids = np.empty((0))
         colors = np.empty((0,3))
-        # uv = np.empty((0,2))
         uv = np.empty((0))
         width = np.empty((0))
         heights = np.empty((0))
@@ -505,13 +496,6 @@ class Mesh:
         sectionFootprint = []
         sectionHeight = []
         sectionMinHeight = []
-
-        # for b in boundaries[0]:
-        #     print(b)
-        #     plt.plot(*b.exterior.xy)
-
-        # print(boundaries[0])
-        # print(boundaries[1])
 
         for i in range(0, len(boundaries)):
             geom = boundaries[i].geoms
@@ -538,7 +522,7 @@ class Mesh:
             else:
                 top_poly = None
 
-            coordinates_roof, indices_roof, ids_roof, colors_roof, uv_roof, roof_width, roof_heights = Mesh.get_roof(bottom_poly, top_poly, height, size)
+            coordinates_roof, indices_roof, ids_roof, colors_roof, uv_roof, roof_width, roof_heights = Buildings.get_roof(bottom_poly, top_poly, height, size)
             coordinates_roof = coordinates_roof.reshape(-1, 3)
 
             indices_roof = indices_roof.reshape(-1, 3)
@@ -546,12 +530,10 @@ class Mesh:
             ids_roof = ids_roof + ids.shape[0]
 
             # walls
-            segments, isCorner = Mesh.split_poly(geom, size)
-            coordinates_walls, indices_walls, ids_walls, colors_walls, uv_walls, walls_width, walls_heights = Mesh.extrude(segments, min_height, height, size, isCorner)
+            segments, isCorner = Buildings.split_poly(geom, size)
+            coordinates_walls, indices_walls, ids_walls, colors_walls, uv_walls, walls_width, walls_heights = Buildings.extrude(segments, min_height, height, size, isCorner)
             indices_walls = indices_walls + coordinates_roof.shape[0] + coords.shape[0]
             ids_walls = ids_walls + ids_roof.shape[0] + ids.shape[0]
-            # indices_walls = indices_walls + coords.shape[0]
-            # ids_walls = ids_walls + ids.shape[0]
 
             coordinates_walls = coordinates_walls.reshape(-1, 3)
             indices_walls = indices_walls.reshape(-1, 3)
@@ -569,11 +551,6 @@ class Mesh:
 
             pointsPerSection.append(len(coordinates_roof)+len(coordinates_walls))
 
-            # coords = np.concatenate((coords, coordinates_roof))
-            # indices = np.concatenate((indices, indices_roof))
-            # ids = np.concatenate((ids, ids_roof))
-            # colors = np.concatenate((colors, colors_roof))
-
         coords = coords.reshape(-1, 3)
         indices = indices.reshape(-1, 3)
 
@@ -581,8 +558,7 @@ class Mesh:
 
         return coords, indices, ids, colors, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, uv, width, heights, pointsPerSection
     
-    # create_mesh for buildings
-    def create_mesh(gdf, size):
+    def generate_building_layer(gdf, size):
         
         gdf = gdf.to_crs('epsg:3395')   
         
@@ -603,7 +579,7 @@ class Mesh:
         for i in trange(len(unique_buildings)):
             building_id = unique_buildings[i]
             building = gdf.loc[[building_id]]
-            coord, ind, iids, cols, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, corners, width, surfaceHeight, pointsSection = Mesh.get_building_mesh(building, size)
+            coord, ind, iids, cols, sectionHeight, sectionMinHeight, orientedEnvelope, sectionFootprint, corners, width, surfaceHeight, pointsSection = Buildings.create_building_mesh(building, size)
             building_ids.append(building_id)
             coordinates.append(coord)
             indices.append(ind)
@@ -637,22 +613,8 @@ class Mesh:
         df = df.set_index('building_id', drop=False)
         df = df.sort_index()
 
-        # df['coordinates'] = df['coordinates'].apply(lambda elem: MultiPoint(elem))
-
-        # # Creating temporary gdf to use to_crs function and get coordinates in lat/lng
-        # temp_gdf = gpd.GeoDataFrame(df, geometry='coordinates')
-        # temp_gdf = temp_gdf.set_crs('epsg:3395')
-        # temp_gdf = temp_gdf.to_crs('epsg:4326')
-
-        # # Converting back to a Dataframe
-        # df = pd.DataFrame(temp_gdf)
-        
-        # # Converting MultiPoint object back to plain array
-        # df['coordinates'] = df['coordinates'].apply(lambda elem: [[p.y, p.x, p.z] for p in elem])
-
         return df
 
-    
     def get_coordinates(gdf, compute_normals=False):
         coordinates = gdf['coordinates'].values
         indices = gdf['indices'].values
@@ -677,7 +639,6 @@ class Mesh:
         
         return coords_all, indices_all, ids_all, colors_all
     
-    # this JSON (represented as a python dict) follows the urbantk-map layer format specification
     def df_to_json(df, layer_id = "buildings", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = True, skip = False):
 
         json_new = {}
@@ -699,7 +660,7 @@ class Mesh:
             flattened_indices = []
             flattened_normals = []
 
-            coords_all, indices_all, ids_all, _, normals = Mesh.get_coordinates(df.iloc[[index]], compute_normals=True) # Calculating normals
+            coords_all, indices_all, ids_all, _, normals = Buildings.get_coordinates(df.iloc[[index]], compute_normals=True) # Calculating normals
 
             flattened_coordinates += [item for sublist in coords_all for item in sublist]
             flattened_indices += [int(item) for sublist in indices_all for item in sublist]
@@ -723,18 +684,30 @@ class Mesh:
 
         return json_new
 
-    def view(gdf):
+    def merge_overlapping_buildings(gdf):
+        '''
+            Groups the buildings that overlap
 
-        coords_all, indices_all, ids_all, colors_all = Mesh.get_coordinates(gdf)
-        vertices = coords_all - np.mean(coords_all, axis=0)
-        vmesh = vedo.Mesh([vertices, indices_all])
-        vmesh.cellIndividualColors(colors_all*255)
-        vmesh.backFaceCulling(True)
-        vmesh.lineWidth(1.5)
-        
-        plt = vedo.Plotter()
-#         radius = vmesh.diagonalSize()/5
-#         plt.addAmbientOcclusion(radius)
-        plt += vmesh.clone()
-        return plt.show(viewup='z', zoom=1.3)
-    
+            Args:
+                gdf (GeoDataFrame): A GeoDataFrame with the atributes 'building_id', 'geometry', 'min_height', 'height', 'tags' describing each block that composes one building
+
+            Returns:
+                result (GeoDataFrame): A GeoDataFrame with the same atributes but with the overlaping buildings merged
+        '''
+
+        gdf = gdf.to_crs('epsg:3395')   
+
+        # merge buildings that overlap
+        unique_buildings = gdf.index.unique()
+        for i in trange(len(unique_buildings)):
+            building_id = unique_buildings[i]
+            buildings = gdf[gdf['building_id']==building_id]
+            if(len(buildings) > 0):
+                contained = gdf.sindex.query(buildings.geometry.unary_union, predicate='intersects')
+                iid = gdf.iloc[contained]['building_id'].values[0]
+                gdf.iloc[contained, gdf.columns.get_loc('building_id')] = iid
+        gdf = gdf.set_index('building_id', drop=False)
+        gdf = gdf.sort_index()
+
+        gdf = gdf.to_crs('epsg:4326')
+        return gdf
