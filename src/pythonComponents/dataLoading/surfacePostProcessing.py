@@ -15,7 +15,7 @@ def postProcessSurface(dir, interval0, interval1):
         
         surface_content = json.loads(surface0.read())
 
-        surface_content["renderStyle"] = "SMOOTH_COLOR_MAP"
+        surface_content["renderStyle"] = ["SMOOTH_COLOR_MAP"]
 
         for element in surface_content['data']:
             element['geometry']['discardFuncInterval'] = interval0
@@ -27,6 +27,8 @@ def postProcessSurface(dir, interval0, interval1):
 
         for element in surface_content['data']:
             element['geometry']['discardFuncInterval'] = interval1
+            element['geometry']['varyOpByFunc'] = 1
+
             # for index in range(0,int(len(element['geometry']['coordinates'])/3)):
             #     element['geometry']['coordinates'][index*3+2] += offset
 
@@ -55,9 +57,6 @@ def postProcessSurface(dir, interval0, interval1):
 
         if not surface1_added:
             aux_layers.append("surface1")
-
-        # index_content["layers"] = ["surface0"] + index_content["layers"]
-        # index_content["layers"].append("surface1")
 
         index_content["layers"] = aux_layers
 
