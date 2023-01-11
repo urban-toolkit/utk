@@ -10,11 +10,133 @@ import time
 import cache
 import urbanComponent
 import vedo
+import osmium as o
+import subprocess
 
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box
 from shapely.ops import linemerge
 from shapely.validation import explain_validity
 from buildings import Buildings
+
+class OSMHandler(o.SimpleHandler):
+    def __init__(self, filters):
+        o.SimpleHandler.__init__(self)
+        self.ways_elements = {'elements':[]}
+        self.relation_elements = {'elements':[]}
+        self.ways_position = {}
+        self.relations_position = {}
+        self.nodes = []
+        self.ways = []
+        self.relations = []
+        self.filters = filters
+    
+    def node(self, n):
+        pass
+
+    def way(self, w):
+        tags = {}
+        pass_filters = False
+        disqualified = False
+
+        for tag in w.tags:
+            tags[tag.k] = tag.v
+
+            if('way' in self.filters and tag.k in self.filters['way'] and (tag.v in self.filters['way'][tag.k] or -1 in self.filters['way'][tag.k])):
+                pass_filters = True
+
+            if('way' in self.filters and 'disqualifiers' in self.filters['way'] and tag.k in self.filters['way']['disqualifiers'] and (tag.v in self.filters['way']['disqualifiers'][tag.k] or -1 in self.filters['way']['disqualifiers'][tag.k])): # -1 includes all
+                disqualified = True
+
+        if(pass_filters and not disqualified):
+
+            nodes_ids = []
+            geometry = []
+            bounds = {
+                'minlat': None,
+                'minlon': None,
+                'maxlat': None, 
+                'maxlon': None
+            }
+
+            for elem in w.nodes:
+                nodes_ids.append(elem.ref)
+
+                geometry.append({
+                    'lat': elem.lat,
+                    'lon': elem.lon
+                })
+
+                if(bounds['minlat'] == None):
+                    bounds['minlat'] = elem.lat
+                elif(elem.lat < bounds['minlat']):
+                        bounds['minlat'] = elem.lat
+
+                if(bounds['minlon'] == None):
+                    bounds['minlon'] = elem.lon
+                elif(elem.lon < bounds['minlon']):
+                        bounds['minlon'] = elem.lon
+
+                if(bounds['maxlat'] == None):
+                    bounds['maxlat'] = elem.lat
+                elif(elem.lat > bounds['maxlat']):
+                        bounds['maxlat'] = elem.lat
+
+                if(bounds['maxlon'] == None):
+                    bounds['maxlon'] = elem.lon
+                elif(elem.lon > bounds['maxlon']):
+                        bounds['maxlon'] = elem.lon
+
+            self.ways_elements['elements'].append({
+                'type': 'way',
+                'id': w.id,
+                'bounds': bounds,
+                'nodes': nodes_ids,
+                'geometry': geometry,
+                'tags': tags
+            })
+
+            self.ways_position[w.id] = len(self.ways_elements['elements'])-1
+
+    def relation(self, r):
+        tags = {}
+        pass_filters = False
+        disqualified = False
+
+        for tag in r.tags:
+            tags[tag.k] = tag.v
+
+            if('rel' in self.filters and tag.k in self.filters['rel'] and (tag.v in self.filters['rel'][tag.k] or -1 in self.filters['rel'][tag.k])): # -1 includes all
+                pass_filters = True
+
+            if('rel' in self.filters and 'disqualifiers' in self.filters['rel'] and tag.k in self.filters['rel']['disqualifiers'] and (tag.v in self.filters['rel']['disqualifiers'][tag.k] or -1 in self.filters['rel']['disqualifiers'][tag.k])): # -1 includes all
+                disqualified = True
+
+        if(pass_filters and not disqualified):
+
+            members = []
+
+            for member in r.members:
+                type = member.type
+
+                if type == 'w':
+                    type = 'way'
+
+                members.append({
+                    'id': member.ref,
+                    'type': type,
+                    'role': member.role,
+                    'geometry': []
+                })
+
+            self.relation_elements['elements'].append({
+                'type': 'relation',
+                'id': r.id,
+                'members': members,
+                'bounds': None,
+                'tags': tags
+            })
+
+            self.relations_position[r.id] = len(self.relation_elements['elements'])-1
 
 class OSM:
 
@@ -35,12 +157,33 @@ class OSM:
         '''
         
         cam = utils.get_camera(bbox)
-        loaded = OSM.get_osm(bbox, layers)
+        
+        loaded = None
+
+        if(pbf_filepath != None):
+            aux = '%f,%f,%f,%f'%(bbox[1],bbox[0],bbox[3],bbox[2])
+
+            split_file = pbf_filepath.split('/')
+
+            output_file = ''
+
+            for index, section in enumerate(split_file):
+                if(index == len(split_file)-1):
+                    output_file += 'filtered_'+section
+                else:
+                    output_file += section+'/'
+
+            proc = subprocess.call(['wsl', 'osmium', 'extract', '-b', aux, '-o', output_file, '--overwrite', pbf_filepath], shell=True) # TODO: make it not depend on the OS
+
+            loaded = OSM.get_osm(bbox, layers, False, output_file)
+        else:
+            loaded = OSM.get_osm(bbox, layers)
+
         component = urbanComponent.UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
 
         return component
 
-    def get_osm(bounding_box, layers=['parks','water','roads','buildings'], load_surface = True):
+    def get_osm(bounding_box, layers=['parks','water','roads','buildings'], load_surface = True, pbf_filepath=None):
 
         '''
             Request data to OSM API using overpass and builds meshes for each loaded data from the result
@@ -51,6 +194,8 @@ class OSM:
                     (default is ['parks', 'water', 'roads','buildings'])
                 load_surface (boolean): Indicates if the surface should be loaded
                     (default is True)
+                filepath (string): Location of the pbf file to load. This argument is optional. If provided the data will be loaded from the pbf instead of the OSM API
+                    (default is None)
 
             Returns:
                 result (list[object]): A list of python objects representing the layers in json format
@@ -63,14 +208,28 @@ class OSM:
         for layer in layers:
             if layer == 'surface':
                 continue
-            query = OSM.build_osm_query(bbox, 'geom', [layer])
-            response = cache._load_osm_from_cache(query)
-            print(response)
-            if not response:
-                time.sleep(1) # avoiding Overpass 429 Too Many Requests
-                response = api.get(query, build=False)
-                cache._save_osm_to_cache(query,response)
-            overpass_responses[layer] = OSM.parse_osm(response)
+            
+            if(pbf_filepath == None):
+                query = OSM.build_osm_query(bbox, 'geom', [layer])
+                response = cache._load_osm_from_cache(query)
+                if not response:
+                    time.sleep(1) # avoiding Overpass 429 Too Many Requests
+                    response = api.get(query, build=False)
+                    cache._save_osm_to_cache(query,response)
+                overpass_responses[layer] = OSM.parse_osm(response)
+            else:
+                osmhandler = OSMHandler(OSM.get_osmium_filters(layer))
+
+                osmhandler.apply_file(pbf_filepath, locations=True)
+
+                ways_elements = osmhandler.ways_elements
+                relation_elements = osmhandler.relation_elements
+                ways_position = osmhandler.ways_position
+                relations_position = osmhandler.relations_position
+
+                OSM.fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position)
+
+                overpass_responses[layer] = OSM.parse_osm({'elements': ways_elements['elements'] + relation_elements['elements']})
 
         result = []
         ttype = ''
@@ -737,7 +896,7 @@ class OSM:
         bbox = ','.join(format(coord,".8f") for coord in bouding_box)
         query = '[out:json];('
         for layer in layers:
-            filters = OSM.get_osm_filter(layer)
+            filters = OSM.get_overpass_filters(layer)
             for ffilter in filters['way']:
                 query += 'way%s(%s);'%(ffilter,bbox)
             for ffilter in filters['rel']:
@@ -749,7 +908,7 @@ class OSM:
 
         return query
 
-    def get_osm_filter(layer_type):
+    def get_overpass_filters(layer_type):
 
         '''
             Create an osm filter based on urban-toolkit layer types (building, road, coastline, water, parks)
@@ -816,6 +975,106 @@ class OSM:
             # filters['rel'].extend(['["roof:shape"]'])
 
         return filters
+
+    def get_osmium_filters(layer_type):
+        
+        '''
+            Create OSM filters for osmium based on urban-toolkit layer types (building, road, coastline, water, parks)
+
+            Args:
+                layer_type (string): Name of the layer to generate filters for. Possible values: 'building', 'road', 'coastline', 'water', 'parks'
+
+            Returns:
+                result (object): An object containing all the filters for way, rel
+        '''
+
+        filters = {}
+        filters['way'] = {'disqualifiers': {}}
+        filters['rel'] = {'disqualifiers': {}}
+
+        if layer_type == 'water':
+            natural_types = ['water', 'wetland', 'bay', 'strait', 'spring']
+            water_types = ['pond', 'reservoir', 'lagoon', 'stream_pool', 'lake', 'pool', 'canal', 'river']
+
+            filters['way']['natural'] = natural_types
+            filters['rel']['natural'] = natural_types
+
+            filters['way']['water'] = water_types
+            filters['rel']['water'] = water_types
+
+        if layer_type == 'parks':
+            natural_types = ['wood', 'grass']
+            land_use_types = ['wood', 'grass', 'forest', 'orchad', 'village_green', 'vineyard', 'cemetery', 'meadow', 'village_green']
+            leisure_types = ['dog_park', 'park', 'playground', 'recreation_ground']
+
+            filters['way']['natural'] = natural_types
+            filters['rel']['natural'] = natural_types
+
+            filters['way']['landuse'] = land_use_types
+            filters['rel']['landuse'] = land_use_types
+
+            filters['way']['leisure'] = leisure_types
+            filters['rel']['leisure'] = leisure_types
+
+        if layer_type == 'roads':
+
+            filters['way']['highway'] = [-1] # including all highways
+
+            filters['way']['disqualifiers']['area'] = ['yes']
+            filters['way']['disqualifiers']['highway'] = ['cycleway', 'footway', 'proposed', 'construction', 'abandoned', 'platform', 'raceway'] # excluding certain types of highway
+
+        if layer_type == 'coastline':
+            filters['way']['natural'] = ['coastline']
+
+        if layer_type == 'buildings':
+            filters['way']['building'] = [-1]
+            filters['way']['building:part'] = [-1]
+            filters['way']['type'] = ['building']
+
+        return filters
+
+    def fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position):
+
+        def get_bounds(geometry):
+            bounds = {
+                'minlat': None,
+                'minlon': None,
+                'maxlat': None, 
+                'maxlon': None
+            }
+
+            for elem in geometry:
+
+                if(bounds['minlat'] == None):
+                    bounds['minlat'] = elem['lat']
+                elif(elem['lat'] < bounds['minlat']):
+                        bounds['minlat'] = elem['lat']
+
+                if(bounds['minlon'] == None):
+                    bounds['minlon'] = elem['lon']
+                elif(elem['lon'] < bounds['minlon']):
+                        bounds['minlon'] = elem['lon']
+
+                if(bounds['maxlat'] == None):
+                    bounds['maxlat'] = elem['lat']
+                elif(elem['lat'] > bounds['maxlat']):
+                        bounds['maxlat'] = elem['lat']
+
+                if(bounds['maxlon'] == None):
+                    bounds['maxlon'] = elem['lon']
+                elif(elem['lon'] > bounds['maxlon']):
+                        bounds['maxlon'] = elem['lon']
+            
+
+        for relation_id in relations_position:
+            relation = relation_elements['elements'][relations_position[relation_id]]
+
+            for member in relation['members']:
+                if(member['type'] == 'way' and member['id'] in ways_position): # TODO: verify why some ways that compose certain relations do not appear in the ways array
+                    way = ways_elements['elements'][ways_position[member['id']]]
+
+                    relation['bounds'] = get_bounds(way['geometry'])
+                    relation['geometry'] = way['geometry'].copy()
 
     def discretize_surface_mesh(coords, size=-1):
         poly = Polygon(coords[:,:2])

@@ -14,6 +14,7 @@ Tested Python version '3.10.6'
 - `conda activate urbantk`
 - go to urbantk-react-ts
 - run `pip install -r requirements_pip.txt` (python scripts requirements)
+- To load data from pbf it is necessary to be in a windows environment and activate wsl. In the wsl cmd run `apt get install osmium-tool`
 
 3. Backend configuration 
 
