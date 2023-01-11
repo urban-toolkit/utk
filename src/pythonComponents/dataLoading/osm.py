@@ -18,7 +18,7 @@ from buildings import Buildings
 
 class OSM:
 
-    def load_from_bbox(bbox, layers=['parks','water','roads','buildings']):
+    def load_from_bbox(bbox, layers=['parks','water','roads','buildings'], pbf_filepath=None):
         '''
             Load layers inside bounding box to memory storing them into the UrbanComponent
 
@@ -26,6 +26,8 @@ class OSM:
                 bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]
                 layers (string[]): Name of the layers that will be loaded. Possible values: parks, water, costline, roads, buildings. If buildings are used it must be the last layer to ensure correct rendering.
                     (default is ['parks', 'water', 'roads','buildings'])
+                filepath (string): Location of the pbf file to load. This argument is optional. If provided the data will be loaded from the pbf instead of the OSM API
+                    (default is None)
 
             Returns:
                 component (UrbanComponent): Allows the manipulation of the loaded data
@@ -63,6 +65,7 @@ class OSM:
                 continue
             query = OSM.build_osm_query(bbox, 'geom', [layer])
             response = cache._load_osm_from_cache(query)
+            print(response)
             if not response:
                 time.sleep(1) # avoiding Overpass 429 Too Many Requests
                 response = api.get(query, build=False)
