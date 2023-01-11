@@ -1,10 +1,8 @@
-from operator import index
 import os
 import json
 import asyncio
-from types import SimpleNamespace
 
-from ipykernel.comm import Comm, CommManager
+from ipykernel.comm import Comm
 
 import map
 # import urbantk.io.osm as osm
@@ -32,15 +30,15 @@ class UrbanComponent:
             self.bbox = bbox
         
 
-    def add_layers(self, layers):
-        loaded = osm.get_osm(self.bbox, layers, False)
-        data = {}
-        data['data'] = loaded
-        comm = Comm(target_name=self.cid+'_addLayers', data={})
-        comm.send(loaded[0])
+    # def add_layers(self, layers):
+    #     loaded = osm.get_osm(self.bbox, layers, False)
+    #     data = {}
+    #     data['data'] = loaded
+    #     comm = Comm(target_name=self.cid+'_addLayers', data={})
+    #     comm.send(loaded[0])
 
-    def remove_layers(self):
-        pass
+    # def remove_layers(self):
+    #     pass
 
     def to_file(self, filepath, separateFiles=False):
         '''

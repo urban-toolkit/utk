@@ -8,13 +8,13 @@ import errors
 import re
 import time
 import cache
-import urbanComponent
 import vedo
 
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box
 from shapely.ops import linemerge
 from shapely.validation import explain_validity
 from buildings import Buildings
+from urbanComponent import UrbanComponent
 
 class OSM:
 
@@ -34,7 +34,7 @@ class OSM:
         
         cam = utils.get_camera(bbox)
         loaded = OSM.get_osm(bbox, layers)
-        component = urbanComponent.UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
+        component = UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
 
         return component
 
