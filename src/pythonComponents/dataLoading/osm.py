@@ -19,24 +19,84 @@ from shapely.validation import explain_validity
 from buildings import Buildings
 from urbanComponent import UrbanComponent
 
-class OSMHandler(o.SimpleHandler):
+class RelationHandler(o.SimpleHandler):
     def __init__(self, filters):
         o.SimpleHandler.__init__(self)
-        self.ways_elements = {'elements':[]}
         self.relation_elements = {'elements':[]}
+        self.relations_position = {}
+        self.relation_ways_ids = [] # all ids of ways that are part of relations
+        self.filters = filters
+
+    def node(self, n):
+        pass
+
+    def way(self, w):
+        pass
+
+    def relation(self, r):
+
+        tags = {}
+        pass_filters = False
+        disqualified = False
+
+        for tag in r.tags:
+            tags[tag.k] = tag.v
+
+            if('rel' in self.filters and tag.k in self.filters['rel'] and (tag.v in self.filters['rel'][tag.k] or -1 in self.filters['rel'][tag.k])): # -1 includes all
+                pass_filters = True
+
+            if('rel' in self.filters and 'disqualifiers' in self.filters['rel'] and tag.k in self.filters['rel']['disqualifiers'] and (tag.v in self.filters['rel']['disqualifiers'][tag.k] or -1 in self.filters['rel']['disqualifiers'][tag.k])): # -1 includes all
+                disqualified = True
+
+        if(pass_filters and not disqualified):
+
+            members = []
+
+            for member in r.members:
+
+                type = member.type
+
+                if type == 'w':
+                    type = 'way'
+
+                self.relation_ways_ids.append(member.ref)
+
+                members.append({
+                    'id': member.ref,
+                    'type': type,
+                    'role': member.role,
+                    'geometry': []
+                })
+
+            self.relation_elements['elements'].append({
+                'type': 'relation',
+                'id': r.id,
+                'members': members,
+                'bounds': None,
+                'tags': tags
+            })
+
+            self.relations_position[r.id] = len(self.relation_elements['elements'])-1
+
+    def area(self, a):
+        pass
+
+class OSMHandler(o.SimpleHandler):
+    def __init__(self, filters, relation_ways_ids):
+        o.SimpleHandler.__init__(self)
+        self.relation_ways_ids = relation_ways_ids
+
+        self.ways_elements = {'elements':[]}
+        self.ways_elements_of_relations = {'elements':[]}
         self.areas = {}
         self.ways_position = {}
-        self.relations_position = {}
-        self.nodes = []
-        self.ways = []
-        self.relations = []
         self.filters = filters
-        self.wkbfab = o.geom.WKBFactory()
     
     def node(self, n):
         pass
 
     def way(self, w):
+
         tags = {}
         pass_filters = False
         disqualified = False
@@ -50,7 +110,7 @@ class OSMHandler(o.SimpleHandler):
             if('way' in self.filters and 'disqualifiers' in self.filters['way'] and tag.k in self.filters['way']['disqualifiers'] and (tag.v in self.filters['way']['disqualifiers'][tag.k] or -1 in self.filters['way']['disqualifiers'][tag.k])): # -1 includes all
                 disqualified = True
 
-        if(pass_filters and not disqualified):
+        if((pass_filters and not disqualified) or w.id in self.relation_ways_ids):
 
             nodes_ids = []
             geometry = []
@@ -89,133 +149,35 @@ class OSMHandler(o.SimpleHandler):
                 elif(elem.lon > bounds['maxlon']):
                         bounds['maxlon'] = elem.lon
 
-            self.ways_elements['elements'].append({
-                'type': 'way',
-                'id': w.id,
-                'bounds': bounds,
-                'nodes': nodes_ids,
-                'geometry': geometry,
-                'tags': tags
-            })
+            if(w.id in self.relation_ways_ids):
 
-            self.ways_position[w.id] = len(self.ways_elements['elements'])-1
+                self.ways_elements_of_relations['elements'].append({
+                    'type': 'way',
+                    'id': w.id,
+                    'bounds': bounds,
+                    'nodes': nodes_ids,
+                    'geometry': geometry,
+                    'tags': tags
+                })
+            
+                self.ways_position[w.id] = len(self.ways_elements_of_relations['elements'])-1
+            
+            else:
+                self.ways_elements['elements'].append({
+                    'type': 'way',
+                    'id': w.id,
+                    'bounds': bounds,
+                    'nodes': nodes_ids,
+                    'geometry': geometry,
+                    'tags': tags
+                })
+
 
     def relation(self, r):
         pass
 
-        # tags = {}
-        # pass_filters = False
-        # disqualified = False
-
-        # for tag in r.tags:
-        #     tags[tag.k] = tag.v
-
-        #     if('rel' in self.filters and tag.k in self.filters['rel'] and (tag.v in self.filters['rel'][tag.k] or -1 in self.filters['rel'][tag.k])): # -1 includes all
-        #         pass_filters = True
-
-        #     if('rel' in self.filters and 'disqualifiers' in self.filters['rel'] and tag.k in self.filters['rel']['disqualifiers'] and (tag.v in self.filters['rel']['disqualifiers'][tag.k] or -1 in self.filters['rel']['disqualifiers'][tag.k])): # -1 includes all
-        #         disqualified = True
-
-        # if(pass_filters and not disqualified):
-
-        #     members = []
-
-        #     for member in r.members:
-
-        #         type = member.type
-
-        #         if type == 'w':
-        #             type = 'way'
-
-        #         members.append({
-        #             'id': member.ref,
-        #             'type': type,
-        #             'role': member.role,
-        #             'geometry': []
-        #         })
-
-        #     self.relation_elements['elements'].append({
-        #         'type': 'relation',
-        #         'id': r.id,
-        #         'members': members,
-        #         'bounds': None,
-        #         'tags': tags
-        #     })
-
-        #     self.relations_position[r.id] = len(self.relation_elements['elements'])-1
-
     def area(self, a):
-        tags = {}
-        pass_filters = False
-        disqualified = False
-
-        for tag in a.tags:
-            tags[tag.k] = tag.v
-
-            if('rel' in self.filters and tag.k in self.filters['rel'] and (tag.v in self.filters['rel'][tag.k] or -1 in self.filters['rel'][tag.k])): # -1 includes all
-                pass_filters = True
-
-            if('rel' in self.filters and 'disqualifiers' in self.filters['rel'] and tag.k in self.filters['rel']['disqualifiers'] and (tag.v in self.filters['rel']['disqualifiers'][tag.k] or -1 in self.filters['rel']['disqualifiers'][tag.k])): # -1 includes all
-                disqualified = True
-
-        if(pass_filters and not disqualified and not a.from_way()):
-
-            poly = self.wkbfab.create_multipolygon(a)
-            wkb_data = bytes.fromhex(poly)
-            poly = loads(wkb_data)
-
-            outers = []
-            inners = []
-
-            for outer in a.outer_rings():
-                
-                for inner in a.inner_rings(outer): # TODO finalize code
-                    print(inner)
-
-                geometry = [(coords.location.lat,coords.location.lon) for coords in outer]
-
-                bounds = {
-                    'minlat': None,
-                    'minlon': None,
-                    'maxlat': None, 
-                    'maxlon': None
-                }
-
-                for coord in geometry:
-
-                    if(bounds['minlat'] == None):
-                        bounds['minlat'] = coord[0]
-                    elif(coord[0] < bounds['minlat']):
-                            bounds['minlat'] = coord[0]
-
-                    if(bounds['minlon'] == None):
-                        bounds['minlon'] = coord[1]
-                    elif(coord[1] < bounds['minlon']):
-                            bounds['minlon'] = coord[1]
-
-                    if(bounds['maxlat'] == None):
-                        bounds['maxlat'] = coord[0]
-                    elif(coord[0] > bounds['maxlat']):
-                            bounds['maxlat'] = coord[0]
-
-                    if(bounds['maxlon'] == None):
-                        bounds['maxlon'] = coord[1]
-                    elif(coord[1] > bounds['maxlon']):
-                            bounds['maxlon'] = coord[1]
-
-                outers.append({
-                    'geometry': geometry,
-                    'bbox': [bounds['minlat'],bounds['minlon'],bounds['maxlat'],bounds['maxlon']],
-                    'tags': tags
-                })
-
-            orig_id = int(a.orig_id())
-
-            self.areas[orig_id] = {
-                'tags': tags,
-                'outer': outers,
-                'inner': inners
-            }
+        pass
 
 class OSM:
 
@@ -297,23 +259,26 @@ class OSM:
                     cache._save_osm_to_cache(query,response)
                 overpass_responses[layer] = OSM.parse_osm(response)
             else:
-                osmhandler = OSMHandler(OSM.get_osmium_filters(layer))
+                relation_handler = RelationHandler(OSM.get_osmium_filters(layer))
+
+                relation_handler.apply_file(pbf_filepath, locations=True)
+
+                relation_elements = relation_handler.relation_elements
+                relations_position = relation_handler.relations_position
+                relation_ways_ids = relation_handler.relation_ways_ids
+
+                osmhandler = OSMHandler(OSM.get_osmium_filters(layer), relation_ways_ids)
 
                 osmhandler.apply_file(pbf_filepath, locations=True)
 
-                ways_elements = osmhandler.ways_elements
-                relation_elements = osmhandler.relation_elements
                 ways_position = osmhandler.ways_position
-                relations_position = osmhandler.relations_position
+                ways_elements = osmhandler.ways_elements
+                ways_elements_of_relations = osmhandler.ways_elements_of_relations
                 areas = osmhandler.areas
 
-                # OSM.fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position, areas)
+                complete_relation_elements = OSM.fill_relation_geom_osmium(ways_elements_of_relations, relation_elements, ways_position, relations_position, areas)
 
-                overpass_responses[layer] = OSM.format_osmium(ways_elements, areas)
-
-                print(overpass_responses[layer])
-
-                # overpass_responses[layer] = OSM.parse_osm({'elements': ways_elements['elements'] + relation_elements['elements']})
+                overpass_responses[layer] = OSM.parse_osm({'elements': ways_elements['elements'] + complete_relation_elements['elements']})
 
         result = []
         ttype = ''
@@ -803,6 +768,7 @@ class OSM:
         ways = []
         # handle multiways first
         for mid in osm_elements['multiways']:
+
             multiways = osm_elements['multiways'][mid]
 
             # https://wiki.openstreetmap.org/wiki/Relation:multipolygon
@@ -1138,7 +1104,35 @@ class OSM:
 
     def fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position, areas):
 
-        def get_bounds(geometry):
+        def update_bounds(way_bounds, bounds):
+
+            if(bounds['minlat'] == None):
+                bounds['minlat'] = way_bounds['minlat']
+            elif(way_bounds['minlat'] < bounds['minlat']):
+                    bounds['minlat'] = way_bounds['minlat']
+
+            if(bounds['minlon'] == None):
+                bounds['minlon'] = way_bounds['minlon']
+            elif(way_bounds['minlon'] < bounds['minlon']):
+                    bounds['minlon'] = way_bounds['minlon']
+
+            if(bounds['maxlat'] == None):
+                bounds['maxlat'] = way_bounds['maxlat']
+            elif(way_bounds['maxlat'] > bounds['maxlat']):
+                    bounds['maxlat'] = way_bounds['maxlat']
+
+            if(bounds['maxlon'] == None):
+                bounds['maxlon'] = way_bounds['maxlon']
+            elif(way_bounds['maxlon'] > bounds['maxlon']):
+                    bounds['maxlon'] = way_bounds['maxlon']
+            
+            return bounds
+
+        relations = {'elements': []}
+
+        for relation_id in relations_position:
+            relation = relation_elements['elements'][relations_position[relation_id]]
+
             bounds = {
                 'minlat': None,
                 'minlon': None,
@@ -1146,41 +1140,28 @@ class OSM:
                 'maxlon': None
             }
 
-            for elem in geometry:
-
-                if(bounds['minlat'] == None):
-                    bounds['minlat'] = elem['lat']
-                elif(elem['lat'] < bounds['minlat']):
-                        bounds['minlat'] = elem['lat']
-
-                if(bounds['minlon'] == None):
-                    bounds['minlon'] = elem['lon']
-                elif(elem['lon'] < bounds['minlon']):
-                        bounds['minlon'] = elem['lon']
-
-                if(bounds['maxlat'] == None):
-                    bounds['maxlat'] = elem['lat']
-                elif(elem['lat'] > bounds['maxlat']):
-                        bounds['maxlat'] = elem['lat']
-
-                if(bounds['maxlon'] == None):
-                    bounds['maxlon'] = elem['lon']
-                elif(elem['lon'] > bounds['maxlon']):
-                        bounds['maxlon'] = elem['lon']
-            
-
-        for relation_id in relations_position:
-            relation = relation_elements['elements'][relations_position[relation_id]]
+            filtered_members = [] # only keeping the members that were included in the bbox
 
             for member in relation['members']:
-                # if(member['type'] == 'way' and member['id'] in ways_position): # TODO: verify why some ways that compose certain relations do not appear in the ways array
-                if(member['type'] == 'way' and relation['id'] in areas):
-                    print("match")
 
+                if(member['type'] == 'way' and member['id'] in ways_position): # TODO: verify why some ways that compose certain relations do not appear in the ways array
+                # if(member['type'] == 'way' and relation['id'] in areas):
                     way = ways_elements['elements'][ways_position[member['id']]]
 
-                    relation['bounds'] = get_bounds(way['geometry'])
-                    relation['geometry'] = way['geometry'].copy()
+                    update_bounds(way['bounds'], bounds)
+
+                    member['geometry'] = way['geometry'].copy()
+
+                if(len(member['geometry']) > 0):
+                    filtered_members.append(member)
+
+            relation['members'] = filtered_members
+            relation['bounds'] = bounds
+
+            relations['elements'].append(relation)
+
+        return relations
+
 
     def discretize_surface_mesh(coords, size=-1):
         poly = Polygon(coords[:,:2])
