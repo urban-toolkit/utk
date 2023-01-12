@@ -5,9 +5,11 @@ export class D3Expec {
     
     _svgSelector: any;
     _svg: any;
+    _meshes: any[];
 
     constructor(svgSelector: any){
         this._svgSelector = svgSelector;
+        this._meshes = [];
     }
 
     async run(data: any, plotWidth: number, plotHeight: number, plotType: number){
@@ -25,6 +27,19 @@ export class D3Expec {
             await this.runD3Code2(data, plotWidth, plotHeight);
         }
 
+    }
+
+    async setMeshReferences(meshesObjects: any[]){
+        this._meshes = meshesObjects;
+
+        console.log(meshesObjects);
+    }
+
+    /**
+     * When there is a change in the mesh update the screen charts that depend on the mesh
+     */
+    async updateScreenCharts(){
+        throw new Error('Not implemented yet.');
     }
 
     async runD3Code0(dataIn: string, plotWidth: number, plotHeight: number){
@@ -367,6 +382,12 @@ export class D3Expec {
 
 
     }
+
+    // runD3Code3(){
+        
+    //     ds
+
+    // }
 
 
 }

@@ -199,6 +199,11 @@ class D3App {
     }
   }
 
+  public setMeshReferences(meshesObjects: any[]){
+    this._d3Expec.setMeshReferences(meshesObjects);
+    // this._d3Expec.updateScreenCharts();
+  }
+
 }
 
 // MapViewer parameter types

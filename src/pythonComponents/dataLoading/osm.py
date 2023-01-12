@@ -670,7 +670,7 @@ class OSM:
                     return _feet_to_meters(tags['height'])
                 r = re.compile(r"[-+]?\d*\.\d+|\d+")
                 return float(r.findall(tags['height'])[0])
-            if 'levels' in tags:
+            if 'levels' in tags or 'building:levels' in tags:
                 roof_height = 0
                 if 'roof_height' in tags:
                     if '\'' in tags['roof_height'] or '\"' in tags['roof_height']:
@@ -679,8 +679,16 @@ class OSM:
                         r = re.compile(r"[-+]?\d*\.\d+|\d+")
                         roof_height = float(r.findall(tags['roof_height'])[0])
 
+                level_tag = ''
+
                 # does not account for roof height
-                height = float(tags['levels']) * LEVEL_HEIGHT
+                if 'levels' in tags:
+                    level_tag = 'levels'
+                elif 'building:levels' in tags:
+                    level_tag = 'building:levels'
+
+                height = float(tags[level_tag]) * LEVEL_HEIGHT
+
                 if 'roof_levels' in tags and roof_height == 0:
                     height += float(tags['roof_levels']) * LEVEL_HEIGHT
                 return height
@@ -1029,19 +1037,20 @@ class OSM:
             filters['way'].extend(['["building"]'])
             filters['way'].extend(['["building:part"]'])
             filters['way'].extend(['["type"="building"]'])
-            # filters['way'].extend(['["building:levels"]'])
-            # filters['way'].extend(['["building:min_level"]'])
-            # filters['way'].extend(['["building:height"]'])
-            # filters['way'].extend(['["roof:levels"]'])
-            # filters['way'].extend(['["roof:height"]'])
-            # filters['way'].extend(['["roof:shape"]'])
-            # filters['rel'].extend(['["building"]'])
-            # filters['rel'].extend(['["building:levels"]'])
-            # filters['rel'].extend(['["building:min_level"]'])
-            # filters['rel'].extend(['["building:height"]'])
-            # filters['rel'].extend(['["roof:levels"]'])
-            # filters['rel'].extend(['["roof:height"]'])
-            # filters['rel'].extend(['["roof:shape"]'])
+
+            filters['way'].extend(['["building:levels"]'])
+            filters['way'].extend(['["building:min_level"]'])
+            filters['way'].extend(['["building:height"]'])
+            filters['way'].extend(['["roof:levels"]'])
+            filters['way'].extend(['["roof:height"]'])
+            filters['way'].extend(['["roof:shape"]'])
+            filters['rel'].extend(['["building"]'])
+            filters['rel'].extend(['["building:levels"]'])
+            filters['rel'].extend(['["building:min_level"]'])
+            filters['rel'].extend(['["building:height"]'])
+            filters['rel'].extend(['["roof:levels"]'])
+            filters['rel'].extend(['["roof:height"]'])
+            filters['rel'].extend(['["roof:shape"]'])
 
         return filters
 
