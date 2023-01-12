@@ -623,6 +623,8 @@ class OSM:
             nodes = way['geometry']
             ways.append({'outer': nodes, 'inner': [], 'tags': way['tags'],'type': 'type'})
 
+        print(ways)
+
         # to shapely
         polygons = []
         for way in ways:
@@ -1038,19 +1040,19 @@ class OSM:
             filters['way'].extend(['["building:part"]'])
             filters['way'].extend(['["type"="building"]'])
 
-            filters['way'].extend(['["building:levels"]'])
-            filters['way'].extend(['["building:min_level"]'])
-            filters['way'].extend(['["building:height"]'])
-            filters['way'].extend(['["roof:levels"]'])
-            filters['way'].extend(['["roof:height"]'])
-            filters['way'].extend(['["roof:shape"]'])
-            filters['rel'].extend(['["building"]'])
-            filters['rel'].extend(['["building:levels"]'])
-            filters['rel'].extend(['["building:min_level"]'])
-            filters['rel'].extend(['["building:height"]'])
-            filters['rel'].extend(['["roof:levels"]'])
-            filters['rel'].extend(['["roof:height"]'])
-            filters['rel'].extend(['["roof:shape"]'])
+            # filters['way'].extend(['["building:levels"]'])
+            # filters['way'].extend(['["building:min_level"]'])
+            # filters['way'].extend(['["building:height"]'])
+            # filters['way'].extend(['["roof:levels"]'])
+            # filters['way'].extend(['["roof:height"]'])
+            # filters['way'].extend(['["roof:shape"]'])
+            # filters['rel'].extend(['["building"]'])
+            # filters['rel'].extend(['["building:levels"]'])
+            # filters['rel'].extend(['["building:min_level"]'])
+            # filters['rel'].extend(['["building:height"]'])
+            # filters['rel'].extend(['["roof:levels"]'])
+            # filters['rel'].extend(['["roof:height"]'])
+            # filters['rel'].extend(['["roof:shape"]'])
 
         return filters
 

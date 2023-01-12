@@ -31,15 +31,15 @@ export class D3Expec {
 
     async setMeshReferences(meshesObjects: any[]){
         this._meshes = meshesObjects;
-
-        console.log(meshesObjects);
+        this.updateScreenCharts();
     }
 
     /**
      * When there is a change in the mesh update the screen charts that depend on the mesh
      */
     async updateScreenCharts(){
-        throw new Error('Not implemented yet.');
+        // update the chart code in the front end
+
     }
 
     async runD3Code0(dataIn: string, plotWidth: number, plotHeight: number){
