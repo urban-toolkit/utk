@@ -14,6 +14,7 @@ import subprocess
 
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box
 from shapely.ops import linemerge
+from shapely.wkb import loads
 from shapely.validation import explain_validity
 from buildings import Buildings
 from urbanComponent import UrbanComponent
@@ -23,12 +24,14 @@ class OSMHandler(o.SimpleHandler):
         o.SimpleHandler.__init__(self)
         self.ways_elements = {'elements':[]}
         self.relation_elements = {'elements':[]}
+        self.areas = {}
         self.ways_position = {}
         self.relations_position = {}
         self.nodes = []
         self.ways = []
         self.relations = []
         self.filters = filters
+        self.wkbfab = o.geom.WKBFactory()
     
     def node(self, n):
         pass
@@ -98,11 +101,55 @@ class OSMHandler(o.SimpleHandler):
             self.ways_position[w.id] = len(self.ways_elements['elements'])-1
 
     def relation(self, r):
+        pass
+
+        # tags = {}
+        # pass_filters = False
+        # disqualified = False
+
+        # for tag in r.tags:
+        #     tags[tag.k] = tag.v
+
+        #     if('rel' in self.filters and tag.k in self.filters['rel'] and (tag.v in self.filters['rel'][tag.k] or -1 in self.filters['rel'][tag.k])): # -1 includes all
+        #         pass_filters = True
+
+        #     if('rel' in self.filters and 'disqualifiers' in self.filters['rel'] and tag.k in self.filters['rel']['disqualifiers'] and (tag.v in self.filters['rel']['disqualifiers'][tag.k] or -1 in self.filters['rel']['disqualifiers'][tag.k])): # -1 includes all
+        #         disqualified = True
+
+        # if(pass_filters and not disqualified):
+
+        #     members = []
+
+        #     for member in r.members:
+
+        #         type = member.type
+
+        #         if type == 'w':
+        #             type = 'way'
+
+        #         members.append({
+        #             'id': member.ref,
+        #             'type': type,
+        #             'role': member.role,
+        #             'geometry': []
+        #         })
+
+        #     self.relation_elements['elements'].append({
+        #         'type': 'relation',
+        #         'id': r.id,
+        #         'members': members,
+        #         'bounds': None,
+        #         'tags': tags
+        #     })
+
+        #     self.relations_position[r.id] = len(self.relation_elements['elements'])-1
+
+    def area(self, a):
         tags = {}
         pass_filters = False
         disqualified = False
 
-        for tag in r.tags:
+        for tag in a.tags:
             tags[tag.k] = tag.v
 
             if('rel' in self.filters and tag.k in self.filters['rel'] and (tag.v in self.filters['rel'][tag.k] or -1 in self.filters['rel'][tag.k])): # -1 includes all
@@ -111,32 +158,64 @@ class OSMHandler(o.SimpleHandler):
             if('rel' in self.filters and 'disqualifiers' in self.filters['rel'] and tag.k in self.filters['rel']['disqualifiers'] and (tag.v in self.filters['rel']['disqualifiers'][tag.k] or -1 in self.filters['rel']['disqualifiers'][tag.k])): # -1 includes all
                 disqualified = True
 
-        if(pass_filters and not disqualified):
+        if(pass_filters and not disqualified and not a.from_way()):
 
-            members = []
+            poly = self.wkbfab.create_multipolygon(a)
+            wkb_data = bytes.fromhex(poly)
+            poly = loads(wkb_data)
 
-            for member in r.members:
-                type = member.type
+            outers = []
+            inners = []
 
-                if type == 'w':
-                    type = 'way'
+            for outer in a.outer_rings():
+                
+                for inner in a.inner_rings(outer): # TODO finalize code
+                    print(inner)
 
-                members.append({
-                    'id': member.ref,
-                    'type': type,
-                    'role': member.role,
-                    'geometry': []
+                geometry = [(coords.location.lat,coords.location.lon) for coords in outer]
+
+                bounds = {
+                    'minlat': None,
+                    'minlon': None,
+                    'maxlat': None, 
+                    'maxlon': None
+                }
+
+                for coord in geometry:
+
+                    if(bounds['minlat'] == None):
+                        bounds['minlat'] = coord[0]
+                    elif(coord[0] < bounds['minlat']):
+                            bounds['minlat'] = coord[0]
+
+                    if(bounds['minlon'] == None):
+                        bounds['minlon'] = coord[1]
+                    elif(coord[1] < bounds['minlon']):
+                            bounds['minlon'] = coord[1]
+
+                    if(bounds['maxlat'] == None):
+                        bounds['maxlat'] = coord[0]
+                    elif(coord[0] > bounds['maxlat']):
+                            bounds['maxlat'] = coord[0]
+
+                    if(bounds['maxlon'] == None):
+                        bounds['maxlon'] = coord[1]
+                    elif(coord[1] > bounds['maxlon']):
+                            bounds['maxlon'] = coord[1]
+
+                outers.append({
+                    'geometry': geometry,
+                    'bbox': [bounds['minlat'],bounds['minlon'],bounds['maxlat'],bounds['maxlon']],
+                    'tags': tags
                 })
 
-            self.relation_elements['elements'].append({
-                'type': 'relation',
-                'id': r.id,
-                'members': members,
-                'bounds': None,
-                'tags': tags
-            })
+            orig_id = int(a.orig_id())
 
-            self.relations_position[r.id] = len(self.relation_elements['elements'])-1
+            self.areas[orig_id] = {
+                'tags': tags,
+                'outer': outers,
+                'inner': inners
+            }
 
 class OSM:
 
@@ -175,7 +254,7 @@ class OSM:
 
             proc = subprocess.call(['wsl', 'osmium', 'extract', '-b', aux, '-o', output_file, '--overwrite', pbf_filepath], shell=True) # TODO: make it not depend on the OS
 
-            loaded = OSM.get_osm(bbox, layers, False, output_file)
+            loaded = OSM.get_osm(bbox, layers, True, output_file)
         else:
             loaded = OSM.get_osm(bbox, layers)
 
@@ -226,10 +305,15 @@ class OSM:
                 relation_elements = osmhandler.relation_elements
                 ways_position = osmhandler.ways_position
                 relations_position = osmhandler.relations_position
+                areas = osmhandler.areas
 
-                OSM.fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position)
+                # OSM.fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position, areas)
 
-                overpass_responses[layer] = OSM.parse_osm({'elements': ways_elements['elements'] + relation_elements['elements']})
+                overpass_responses[layer] = OSM.format_osmium(ways_elements, areas)
+
+                print(overpass_responses[layer])
+
+                # overpass_responses[layer] = OSM.parse_osm({'elements': ways_elements['elements'] + relation_elements['elements']})
 
         result = []
         ttype = ''
@@ -874,9 +958,28 @@ class OSM:
                             bbox = [el['bounds']['minlat'],el['bounds']['minlon'],el['bounds']['maxlat'],el['bounds']['maxlon']]
                             geom = [(x['lat'],x['lon']) for x in ell['geometry'] if x != None]
                             multiways[el['id']][last]['inner'].append({'geometry': geom, 'bbox': bbox, 'tags': el['tags']})
+    
+        return {'ways': ways, 'multiways': multiways}
 
+    def format_osmium(ways_elements, areas):
+        ways = {}
+        multiways = {}
+
+        for el in ways_elements['elements']:
+            if el['type']=='way':
+                bbox = [el['bounds']['minlat'],el['bounds']['minlon'],el['bounds']['maxlat'],el['bounds']['maxlon']]
+                geom = [(x['lat'],x['lon']) for x in el['geometry'] if x != None]
+                ways[el['id']] = {'geometry': geom, 'bbox': bbox, 'tags': el['tags']}
+
+        for area_id in areas:
+
+            multiways[area_id] = [{
+                'outer': areas[area_id]['outer'],
+                'inner': areas[area_id]['inner']
+            }]
 
         return {'ways': ways, 'multiways': multiways}
+        
 
     def build_osm_query(bouding_box, output_type, layers=['parks', 'water', 'roads','building']):
         '''
@@ -1033,7 +1136,7 @@ class OSM:
 
         return filters
 
-    def fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position):
+    def fill_relation_geom_osmium(ways_elements, relation_elements, ways_position, relations_position, areas):
 
         def get_bounds(geometry):
             bounds = {
@@ -1070,7 +1173,10 @@ class OSM:
             relation = relation_elements['elements'][relations_position[relation_id]]
 
             for member in relation['members']:
-                if(member['type'] == 'way' and member['id'] in ways_position): # TODO: verify why some ways that compose certain relations do not appear in the ways array
+                # if(member['type'] == 'way' and member['id'] in ways_position): # TODO: verify why some ways that compose certain relations do not appear in the ways array
+                if(member['type'] == 'way' and relation['id'] in areas):
+                    print("match")
+
                     way = ways_elements['elements'][ways_position[member['id']]]
 
                     relation['bounds'] = get_bounds(way['geometry'])
