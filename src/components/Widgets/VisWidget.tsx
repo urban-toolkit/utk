@@ -7,9 +7,7 @@ import { FaChartBar } from "react-icons/fa";
 
 // VisWidget parameter types
 type visWidProps = {
-    barChartToggle: React.Dispatch<React.SetStateAction<any>>,
-    scatterToggle: React.Dispatch<React.SetStateAction<any>>,
-    heatmapToggle: React.Dispatch<React.SetStateAction<any>>
+    genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>
 }
 
 /** 
@@ -18,9 +16,7 @@ type visWidProps = {
 */
 
 export const VisWidget = ({
-    barChartToggle,
-    scatterToggle,
-    heatmapToggle
+    genericScreenPlotToggle
 }:visWidProps) =>{
     // state controlling the collapse
     const [visOpen, setVisOpen] = useState(false)
@@ -31,30 +27,13 @@ export const VisWidget = ({
      * if not hide the visualization
      */
 
-    const [barCheckBox, setBarCheckBox] = useState(false);
+    const [genericScreenPlotCheckBox, setGenericScreenPlotCheckBox] = useState(false);
 
-    const handleBarCheckBoxChange = () => {
-        setBarCheckBox(!barCheckBox)
-        barChartToggle(!barCheckBox)        
-
-    }
-
-    const [scatterCheckBox, setScatterCheckBox] = useState(false);
-
-    const handleScatterCheckBoxChange = () => {
-        setScatterCheckBox(!scatterCheckBox)
-        scatterToggle(!scatterCheckBox)        
+    const handleGenericScreenPlotCheckBoxChange = () => {
+        setGenericScreenPlotCheckBox(!genericScreenPlotCheckBox)
+        genericScreenPlotToggle(!genericScreenPlotCheckBox)        
 
     }
-
-    const [heatmapCheckBox, setHeatmapCheckBox] = useState(false);
-
-    const handleHeatmapCheckBox = () => {
-        setHeatmapCheckBox(!heatmapCheckBox)
-        heatmapToggle(!heatmapCheckBox)        
-
-    }
-
 
     return (<Row>
             <Col>
@@ -71,13 +50,7 @@ export const VisWidget = ({
                 <Collapse in={visOpen}>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBarVisCheckbox" id="space">
-                            <Form.Check type="checkbox" label="Bar Chart"  onChange={handleBarCheckBoxChange}/>
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formScatterVisCheckbox" id="space">
-                            <Form.Check type="checkbox" label="Scatter Plot" onChange={handleScatterCheckBoxChange}/>
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formHeatmapVisCheckbox" id="space">
-                            <Form.Check type="checkbox" label="Heat Map" onChange={handleHeatmapCheckBox}/>
+                            <Form.Check type="checkbox" label="Generic Plot"  onChange={handleGenericScreenPlotCheckBoxChange}/>
                         </Form.Group>
                     </Form>        
                 </Collapse>

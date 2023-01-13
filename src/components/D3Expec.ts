@@ -1,15 +1,19 @@
 import * as d3 from "d3";
 
+import {Layer} from '../urbantk-map/ts/dist/urbantkmap';
+
 // Represents the D3 specification
 export class D3Expec {
     
     _svgSelector: any;
     _svg: any;
-    _meshes: any[];
+    _svgSurfacePlot: any;
+    _layers: Layer[];
 
-    constructor(svgSelector: any){
+    constructor(svgSelector: any, screenPlotSvgId: any){
+        this._svgSurfacePlot = d3.select(screenPlotSvgId);
         this._svgSelector = svgSelector;
-        this._meshes = [];
+        this._layers = [];
     }
 
     async run(data: any, plotWidth: number, plotHeight: number, plotType: number){
@@ -29,17 +33,16 @@ export class D3Expec {
 
     }
 
-    async setMeshReferences(meshesObjects: any[]){
-        this._meshes = meshesObjects;
-
-        console.log(meshesObjects);
+    async setLayerReferences(layersObjects: Layer[]){
+        this._layers = layersObjects;
+        this.updateScreenCharts();
     }
 
     /**
      * When there is a change in the mesh update the screen charts that depend on the mesh
      */
     async updateScreenCharts(){
-        throw new Error('Not implemented yet.');
+        this.fillScreenChart0();
     }
 
     async runD3Code0(dataIn: string, plotWidth: number, plotHeight: number){
@@ -383,11 +386,84 @@ export class D3Expec {
 
     }
 
-    // runD3Code3(){
-        
-    //     ds
+    fillScreenChart0(){
 
-    // }
+        function prepareData(_this: any){
+            let shadowAvg: number[] = [];
+
+            const averageArray = (array: number[]) => array.reduce((a, b) => a + b) / array.length;
+
+            for(const layer of _this._layers){
+                if(layer._styleKey == 'building'){
+
+                    let functionValues = layer._mesh.getFunctionVBO();
+
+                    functionValues.forEach((timestep: number[]) => {
+                        shadowAvg.push(averageArray(timestep));
+                    });
+
+                }
+            }
+
+            return shadowAvg;
+        }
+        
+        let shadowAvg = prepareData(this);
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 30, right: 30, bottom: 70, left: 60},
+            width = this._svgSurfacePlot.attr("width") - margin.left - margin.right,
+            height = this._svgSurfacePlot.attr("height") - margin.top - margin.bottom;
+
+        this._svgSurfacePlot.style('background-color', 'white');
+
+        // append the svg object to the body of the page
+        this._svgSurfacePlot
+            .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+        shadowAvg.sort();
+
+        console.log(shadowAvg);
+
+        console.log(width);
+
+        // X axis
+        var x = d3.scaleBand()
+            .range([ 0, width ])
+            .domain(["timestep0"])
+            .padding(0.2);
+
+        // console.log(x('timestep0'));
+
+        this._svgSurfacePlot.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-45)")
+            .style("text-anchor", "end");
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+            .domain([0, 1])
+            .range([ height, 0]);
+        this._svgSurfacePlot.append("g")
+            .call(d3.axisLeft(y));
+
+        // Bars
+        this._svgSurfacePlot.selectAll("mybar")
+            .data(shadowAvg)
+            .enter()
+            .append("rect")
+            .attr("x", function(d: any) { return x('timestep0'); })
+            .attr("y", function(d: any) { return y(d); })
+            .attr("width", x.bandwidth())
+            .attr("height", function(d: any) { return height - y(d); })
+            .attr("fill", "#69b3a2")
+
+
+    }
 
 
 }

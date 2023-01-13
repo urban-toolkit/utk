@@ -11,57 +11,21 @@ import {Container, Row} from 'react-bootstrap'
 // componentns
 import { MapViewer } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
-import { BarChartContainer } from './components/VisComponent/BarChart/BarChartContainer';
-import { ScatterPlotContainer } from './components/VisComponent/ScatterPlot/ScatterPlotContainer';
-import { HeatMapContainer } from './components/VisComponent/HeatMap/HeatMapContainer';
-import { useData } from './components/VisComponent/ScatterPlot/useData';
-import { useHeatData } from './components/VisComponent/HeatMap/heatData';
-import { useBarData } from './components/VisComponent/BarChart/useBarData';
+
+import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
 
 // common variables for vis components
 // width and height of the whole SVG 
 //  are calculated using useWindowResize function
 // at the end of this file
 
-// defining margin of the SVG
-const margin = {top:20, right:40, bottom: 50, left:80} 
-
-// scale offsets for nice placement
-const scaleOffset = 5
-const yScaleOffset = 22
-
-// label offsets to place the labels correctly 
-const xAxisLabelOffset = 40
-const yAxisLabelOffset = 40
-
-
-// fake data for bar chart
-// const barData = [
-//   {country: 'Russia', value: 6148},
-//   {country: 'Germany', value: 1653},
-//   {country: 'France', value: 2162},
-//   {country: 'China', value: 1131},
-//   {country: 'Spain', value: 814},
-//   {country: 'Netherlands', value: 1167},
-//   {country: 'Italy', value: 660},
-//   {country: 'Israel', value: 1263},
-// ];
-
 function App() {
   // size to maintain responsiveness
   const size = useWindowResize();
-  //example bar data for barchart
-  const barData = useBarData()
 
-  // example iris data for scatter
-  const scatterData = useData()
-  // example heatmap data 
-  const heatData = useHeatData()
+  const svgId = "genericPlotSvg";
 
-  // state variable to handle viewing of bar chart
-  const [barChartView, setBarChartView] = useState(false)
-  const [scatterPlotView, setScatterPlotView] = useState(false)
-  const [heatmapView, setHeatmapView] = useState(false)
+  const [genericScreenPlotView, setGenericScreenPlotView] = useState(false)
 
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('Chicago')
@@ -81,9 +45,7 @@ function App() {
         {/* widgets component */}
       <WidgetsComponent
         // visualization toggle varibles 
-        barChartToggle ={setBarChartView}
-        scatterToggle ={setScatterPlotView}
-        heatmapToggle ={setHeatmapView}
+        genericScreenPlotToggle ={setGenericScreenPlotView}
         // city data change function
         onCityRefChange = {onCityChange}
       />
@@ -92,50 +54,18 @@ function App() {
       // variable contains which city data to load
         dataToView = {cityRef}
         divWidth = {11}
+        screenPlotSvgId = {svgId}
       />
 
-      {/* bar chart, by default hidden */}
-      <BarChartContainer
+      {/* generic plot, by default hidden */}
+      <GenericScreenPlotContainer
       // BOOLEAN - whether to show vis or not
-        disp = {barChartView}
-        data={barData}
+        disp = {genericScreenPlotView}
         width={size.width}
         height={size.height}
-        margin={margin}
-        scaleOffset={scaleOffset}
-        yScaleOffset={yScaleOffset}
-        xAxisLabelOffset={xAxisLabelOffset}
-        yAxisLabelOffset={yAxisLabelOffset}
+        svgId={svgId}
       />
 
-      {/* scatter plot, by default hidden */}
-      <ScatterPlotContainer
-        // BOOLEAN - whether to show vis or not
-        disp = {scatterPlotView}
-        data={scatterData}
-        width={size.width}
-        height={size.height}
-        margin={margin}
-        scaleOffset={scaleOffset}
-        yScaleOffset={yScaleOffset}
-        xAxisLabelOffset={xAxisLabelOffset}
-        yAxisLabelOffset={yAxisLabelOffset}
-      />
-
-      {/* heatmap, by default hidden */}
-      <HeatMapContainer
-        // BOOLEAN - whether to show vis or not
-        disp = {heatmapView}
-        data = {heatData}
-        width={size.width}
-        height={size.height}
-        margin={margin}
-        scaleOffset={scaleOffset}
-        yScaleOffset={yScaleOffset}
-        xAxisLabelOffset={xAxisLabelOffset}
-        yAxisLabelOffset={yAxisLabelOffset}
-      />
-        
       </Row>
     </Container>
   );

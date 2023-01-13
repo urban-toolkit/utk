@@ -11,10 +11,8 @@ import {Container, Row} from 'react-bootstrap'
 // componentns
 import { MapViewer } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
-import { BarChartContainer } from './components/VisComponent/BarChart/BarChartContainer';
-import { ScatterPlotContainer } from './components/VisComponent/ScatterPlot/ScatterPlotContainer';
-import { HeatMapContainer } from './components/VisComponent/HeatMap/HeatMapContainer';
 
+import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
 
 // common variables for vis components
 // width and height of the whole SVG 
@@ -48,18 +46,10 @@ const yAxisLabelOffset = 40
 function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   // size to maintain responsiveness
   const size = useWindowResize();
-  //example bar data for barchart
-  const barData = data.bar;
 
-  // example iris data for scatter
-  const scatterData = data.scatter;
-  // example heatmap data 
-  const heatData = data.heat;
+  const svgId = "genericPlotSvg";
 
-  // state variable to handle viewing of bar chart
-  const [barChartView, setBarChartView] = useState(false)
-  const [scatterPlotView, setScatterPlotView] = useState(false)
-  const [heatmapView, setHeatmapView] = useState(false)
+  const [genericScreenPlotView, setGenericScreenPlotView] = useState(false)
 
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('none')
@@ -79,9 +69,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         {/* widgets component */}
       <WidgetsComponent
         // visualization toggle varibles 
-        barChartToggle ={setBarChartView}
-        scatterToggle ={setScatterPlotView}
-        heatmapToggle ={setHeatmapView}
+        genericScreenPlotToggle ={setGenericScreenPlotView}
         // city data change function
         onCityRefChange = {onCityChange}
       />
@@ -89,51 +77,19 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
       <MapViewer 
         dataToView = {'none'}
         divWidth = {11}
+        screenPlotSvgId = {svgId}
         data = {data.city}
       />
 
-      {/* bar chart, by default hidden */}
-      <BarChartContainer
+      {/* generic plot, by default hidden */}
+      <GenericScreenPlotContainer
       // BOOLEAN - whether to show vis or not
-        disp = {barChartView}
-        data={barData}
+        disp = {genericScreenPlotView}
         width={size.width}
         height={size.height}
-        margin={margin}
-        scaleOffset={scaleOffset}
-        yScaleOffset={yScaleOffset}
-        xAxisLabelOffset={xAxisLabelOffset}
-        yAxisLabelOffset={yAxisLabelOffset}
+        svgId={svgId}
       />
 
-      {/* scatter plot, by default hidden */}
-      <ScatterPlotContainer
-        // BOOLEAN - whether to show vis or not
-        disp = {scatterPlotView}
-        data={scatterData}
-        width={size.width}
-        height={size.height}
-        margin={margin}
-        scaleOffset={scaleOffset}
-        yScaleOffset={yScaleOffset}
-        xAxisLabelOffset={xAxisLabelOffset}
-        yAxisLabelOffset={yAxisLabelOffset}
-      />
-
-      {/* heatmap, by default hidden */}
-      <HeatMapContainer
-        // BOOLEAN - whether to show vis or not
-        disp = {heatmapView}
-        data = {heatData}
-        width={size.width}
-        height={size.height}
-        margin={margin}
-        scaleOffset={scaleOffset}
-        yScaleOffset={yScaleOffset}
-        xAxisLabelOffset={xAxisLabelOffset}
-        yAxisLabelOffset={yAxisLabelOffset}
-      />
-        
       </Row>
     </Container>
   );
