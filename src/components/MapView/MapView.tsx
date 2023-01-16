@@ -68,8 +68,8 @@ class D3App {
   _d3Expec: D3Expec;
   _svgSelector: string;
 
-  constructor(svg: any){
-    this._d3Expec = new D3Expec(svg);
+  constructor(svg: any, screenPlotSvgId: any){
+    this._d3Expec = new D3Expec(svg, screenPlotSvgId);
     this._svgSelector = svg;
   }
 
@@ -199,8 +199,9 @@ class D3App {
     }
   }
 
-  public setMeshReferences(meshesObjects: any[]){
-    this._d3Expec.setMeshReferences(meshesObjects);
+  public setLayerReferences(layerObjects: any[]){
+    this._d3Expec.setLayerReferences(layerObjects);
+    // this._d3Expec.updateScreenCharts();
   }
 
 }
@@ -209,11 +210,12 @@ class D3App {
 type mapViewDataProps = {
   dataToView: any,
   divWidth: number,
+  screenPlotSvgId?: string,
   frontEndMode?: string, //web is the default
   data?: any
 }
 
-export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewDataProps) => {
+export const MapViewer = ({dataToView, divWidth, screenPlotSvgId, frontEndMode, data}:mapViewDataProps) => {
 
     useEffect(()=> {
         $('#map').empty();
@@ -238,7 +240,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data}:mapViewData
 
         }else{
 
-          let d3app = new D3App('#svg_element');
+          let d3app = new D3App('#svg_element', '#'+screenPlotSvgId);
 
           let app = new App('#map', d3app);
         
