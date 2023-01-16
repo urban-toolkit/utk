@@ -2,12 +2,13 @@ import { useState } from "react";
 // bootstrap component
 import { Row, Col, Button, Collapse, Form } from "react-bootstrap";
 // icon
-import { FaChartBar } from "react-icons/fa";
+import { FaChartBar, FaEdit } from "react-icons/fa";
 
 
 // VisWidget parameter types
 type visWidProps = {
-    genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>
+    genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
+    addGenericPlot: React.Dispatch<React.SetStateAction<any>>
 }
 
 /** 
@@ -16,10 +17,12 @@ type visWidProps = {
 */
 
 export const VisWidget = ({
-    genericScreenPlotToggle
+    genericScreenPlotToggle,
+    addGenericPlot
 }:visWidProps) =>{
     // state controlling the collapse
     const [visOpen, setVisOpen] = useState(false)
+    const [currentPlotId, setCurrentPlotId] = useState(1)
 
     /**
      * state variables controlling the checkbox toggles
@@ -27,12 +30,48 @@ export const VisWidget = ({
      * if not hide the visualization
      */
 
-    const [genericScreenPlotCheckBox, setGenericScreenPlotCheckBox] = useState(false);
+    // const [genericScreenPlotCheckBox, setGenericScreenPlotCheckBox] = useState(false);
 
-    const handleGenericScreenPlotCheckBoxChange = () => {
-        setGenericScreenPlotCheckBox(!genericScreenPlotCheckBox)
-        genericScreenPlotToggle(!genericScreenPlotCheckBox)        
+    const handleGenericScreenPlotCheckBoxChange = (id: number) => {
+        // setGenericScreenPlotCheckBox(!genericScreenPlotCheckBox)
+        // genericScreenPlotToggle(!genericScreenPlotCheckBox)        
+        genericScreenPlotToggle(id);
+    }
 
+    const [listGenericPlots, setListGenericPlots] = useState([{id: 0, label: "Generic Plot", checked: false, edit: false}])
+
+    const addSurfacePlotComponent = () => {
+        setListGenericPlots(listGenericPlots.concat([{id: currentPlotId, label: "Generic Plot", checked: false, edit: false}]))
+        addGenericPlot(currentPlotId);
+        setCurrentPlotId(currentPlotId+1);
+    }
+
+    const handleLabelEdit = (event: any, plotId: number) => {
+        let modifiedPlots = [];
+        
+        for(const plot of listGenericPlots){
+            if(plot.id == plotId){
+                modifiedPlots.push({id: plot.id, label: event.target.value, checked: plot.checked, edit: plot.edit});
+            }else{
+                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: plot.edit});
+            }
+        }
+    
+        setListGenericPlots(modifiedPlots);
+    }
+
+    const toggleEditing = (plotId: number) => {
+        let modifiedPlots = [];
+        
+        for(const plot of listGenericPlots){
+            if(plot.id == plotId){
+                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: !plot.edit});
+            }else{
+                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: plot.edit});
+            }
+        }
+    
+        setListGenericPlots(modifiedPlots);
     }
 
     return (<Row>
@@ -50,9 +89,21 @@ export const VisWidget = ({
                 <Collapse in={visOpen}>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBarVisCheckbox" id="space">
-                            <Form.Check type="checkbox" label="Generic Plot"  onChange={handleGenericScreenPlotCheckBoxChange}/>
+                            {
+                                listGenericPlots.map((item) => (
+                                    <div key={"genericPlotsDiv"+item.id}>
+                                        <Form.Check key={item.id} type="checkbox" label={item.label}  onChange={() => handleGenericScreenPlotCheckBoxChange(item.id)}/> 
+                                        <Button key={"genericPlotEdit"+item.id} onClick={() => toggleEditing(item.id)} variant="link"><FaEdit /></Button>
+                                        {/* handles name edit */}
+                                        <input style={{width: '100px', display: item.edit? 'block' : 'none'}} key={"labelInput"+item.id} type="text" value={item.label} onChange={(event) => handleLabelEdit(event,item.id)}/> 
+                                    </div>
+                                ))
+                            }
                         </Form.Group>
-                    </Form>        
+                        <Button id="newSurfacePlot" variant="outline-secondary" onClick={addSurfacePlotComponent}>
+                            New Plot
+                        </Button>       
+                    </Form>
                 </Collapse>
             </Col>
         </Row>);
