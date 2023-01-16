@@ -49,7 +49,23 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
 
   const svgId = "genericPlotSvg";
 
-  const [genericScreenPlotView, setGenericScreenPlotView] = useState(false)
+  const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0"}])
+
+  const addNewGenericPlot = (newPlotId: number) => {
+    setGenericPlots(genericPlots.concat([{id: newPlotId, hidden: true, svgId: "genericPlotSvg"+newPlotId}]));
+  }
+
+  const toggleGenericPlot = (plotId: number) => {
+    let modifiedPlots = [];
+    for(const plot of genericPlots){
+      if(plot.id == plotId){
+        modifiedPlots.push({id: plot.id, hidden: !plot.hidden, svgId: plot.svgId});
+      }else{
+        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId});
+      }
+    }
+    setGenericPlots(modifiedPlots);
+  }
 
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('none')
@@ -69,7 +85,8 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         {/* widgets component */}
       <WidgetsComponent
         // visualization toggle varibles 
-        genericScreenPlotToggle ={setGenericScreenPlotView}
+        genericScreenPlotToggle ={toggleGenericPlot}
+        addGenericPlot = {addNewGenericPlot}
         // city data change function
         onCityRefChange = {onCityChange}
       />
@@ -81,14 +98,17 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         data = {data.city}
       />
 
-      {/* generic plot, by default hidden */}
-      <GenericScreenPlotContainer
-      // BOOLEAN - whether to show vis or not
-        disp = {genericScreenPlotView}
-        width={size.width}
-        height={size.height}
-        svgId={svgId}
-      />
+      {
+        genericPlots.map((item) => (
+            <GenericScreenPlotContainer
+              key={item.id}
+              disp = {!item.hidden}
+              width={size.width}
+              height={size.height}
+              svgId={item.svgId}
+            />
+        ))
+      }
 
       </Row>
     </Container>

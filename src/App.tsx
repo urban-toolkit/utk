@@ -81,7 +81,7 @@ function App() {
               disp = {!item.hidden}
               width={size.width}
               height={size.height}
-              svgId={svgId}
+              svgId={item.svgId}
             />
         ))
       }
