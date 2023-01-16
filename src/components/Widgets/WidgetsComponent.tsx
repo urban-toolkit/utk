@@ -9,6 +9,7 @@ import { VisWidget } from "./VisWidget";
 // value types that are being passed in the function parameter
 type widgetProps = {
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
+    addGenericPlot: React.Dispatch<React.SetStateAction<any>>,
     onCityRefChange: React.ChangeEventHandler
 }
 /**
@@ -26,6 +27,7 @@ type widgetProps = {
  */
 export const WidgetsComponent = ({
     genericScreenPlotToggle,
+    addGenericPlot,
     onCityRefChange
 
 }: widgetProps) => {
@@ -35,6 +37,7 @@ export const WidgetsComponent = ({
             {/* visualization widget */}
             <VisWidget 
                 genericScreenPlotToggle = {genericScreenPlotToggle}
+                addGenericPlot = {addGenericPlot}
             />
             {/* data widget */}
             <DataWidget 
