@@ -33,13 +33,8 @@ export class D3Expec {
 
     }
 
-<<<<<<< HEAD
-    async setMeshReferences(meshesObjects: any[]){
-        this._meshes = meshesObjects;
-=======
     async setLayerReferences(layersObjects: Layer[]){
         this._layers = layersObjects;
->>>>>>> 72648f7ce69dd6749cd7b66b36dc34b0d11f86aa
         this.updateScreenCharts();
     }
 
@@ -47,12 +42,7 @@ export class D3Expec {
      * When there is a change in the mesh update the screen charts that depend on the mesh
      */
     async updateScreenCharts(){
-<<<<<<< HEAD
-        // update the chart code in the front end
-
-=======
         this.fillScreenChart0();
->>>>>>> 72648f7ce69dd6749cd7b66b36dc34b0d11f86aa
     }
 
     async runD3Code0(dataIn: string, plotWidth: number, plotHeight: number){
