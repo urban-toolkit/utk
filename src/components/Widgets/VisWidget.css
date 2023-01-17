@@ -1,0 +1,13 @@
+.flex-div-genericPlots{
+    display: flex;
+    /* justify-content: space-between; */
+    align-items: center;
+}
+
+.hidden-element label{
+    display: none;
+}
+
+button:focus{
+    box-shadow: none !important;
+}

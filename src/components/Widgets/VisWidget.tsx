@@ -2,13 +2,16 @@ import { useState } from "react";
 // bootstrap component
 import { Row, Col, Button, Collapse, Form } from "react-bootstrap";
 // icon
-import { FaChartBar, FaEdit } from "react-icons/fa";
+import { FaChartBar, FaEdit, FaRegTrashAlt } from "react-icons/fa";
 
+import './VisWidget.css';
 
 // VisWidget parameter types
 type visWidProps = {
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
-    addGenericPlot: React.Dispatch<React.SetStateAction<any>>
+    addGenericPlot: React.Dispatch<React.SetStateAction<any>>,
+    togglePlotCollection: React.Dispatch<React.SetStateAction<any>>,
+    removeGenericPlot: React.Dispatch<React.SetStateAction<any>>,
 }
 
 /** 
@@ -18,7 +21,9 @@ type visWidProps = {
 
 export const VisWidget = ({
     genericScreenPlotToggle,
-    addGenericPlot
+    addGenericPlot,
+    togglePlotCollection,
+    removeGenericPlot
 }:visWidProps) =>{
     // state controlling the collapse
     const [visOpen, setVisOpen] = useState(false)
@@ -74,6 +79,19 @@ export const VisWidget = ({
         setListGenericPlots(modifiedPlots);
     }
 
+    const removeGenericPlotCheck = (plotId: number) => {
+        let modifiedPlots = [];
+        
+        for(const plot of listGenericPlots){
+            if(plot.id != plotId){
+                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: plot.edit});
+            }
+        }
+    
+        setListGenericPlots(modifiedPlots);
+        removeGenericPlot(plotId);
+    }
+
     return (<Row>
             <Col>
                 {
@@ -82,7 +100,9 @@ export const VisWidget = ({
                 <Button id="space" variant="outline-secondary" onClick={() => setVisOpen(!visOpen)} aria-controls="example-collapse-text" aria-expanded={visOpen}>
                     <FaChartBar /> VIS
                 </Button>
-
+                <Button id="space" variant="outline-secondary" onClick={togglePlotCollection}>
+                    <FaChartBar /> Plot Collection
+                </Button>
                 {
                 /* list of visualizations */
                 }
@@ -91,11 +111,11 @@ export const VisWidget = ({
                         <Form.Group className="mb-3" controlId="formBarVisCheckbox" id="space">
                             {
                                 listGenericPlots.map((item) => (
-                                    <div key={"genericPlotsDiv"+item.id}>
-                                        <Form.Check key={item.id} type="checkbox" label={item.label}  onChange={() => handleGenericScreenPlotCheckBoxChange(item.id)}/> 
-                                        <Button key={"genericPlotEdit"+item.id} onClick={() => toggleEditing(item.id)} variant="link"><FaEdit /></Button>
-                                        {/* handles name edit */}
+                                    <div key={"genericPlotsDiv"+item.id} className={"flex-div-genericPlots"}>
+                                        <Form.Check className={item.edit? "hidden-element" : ""} key={item.id} type="checkbox" label={item.label}  onChange={() => handleGenericScreenPlotCheckBoxChange(item.id)}/> 
                                         <input style={{width: '100px', display: item.edit? 'block' : 'none'}} key={"labelInput"+item.id} type="text" value={item.label} onChange={(event) => handleLabelEdit(event,item.id)}/> 
+                                        <Button key={"genericPlotEdit"+item.id} onClick={() => toggleEditing(item.id)} variant="link"><FaEdit /></Button>
+                                        <Button key={"genericPlotRemove"+item.id} onClick={() => removeGenericPlotCheck(item.id)} variant="link"><FaRegTrashAlt /></Button>
                                     </div>
                                 ))
                             }

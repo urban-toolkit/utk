@@ -55,6 +55,16 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
     setGenericPlots(genericPlots.concat([{id: newPlotId, hidden: true, svgId: "genericPlotSvg"+newPlotId}]));
   }
 
+  const removeGenericPlot = (plotId: number) => {
+    let modifiedPlots = [];
+    for(const plot of genericPlots){
+      if(plot.id != plotId){
+        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId});
+      }
+    }
+    setGenericPlots(modifiedPlots);    
+  }
+
   const toggleGenericPlot = (plotId: number) => {
     let modifiedPlots = [];
     for(const plot of genericPlots){
@@ -87,13 +97,14 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         // visualization toggle varibles 
         genericScreenPlotToggle ={toggleGenericPlot}
         addGenericPlot = {addNewGenericPlot}
+        removeGenericPlot = {removeGenericPlot}
         // city data change function
         onCityRefChange = {onCityChange}
       />
       {/* map view */}
       <MapViewer 
         dataToView = {'none'}
-        divWidth = {11}
+        divWidth = {10}
         screenPlotSvgId = {svgId}
         data = {data.city}
       />

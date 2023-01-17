@@ -10,6 +10,8 @@ import { VisWidget } from "./VisWidget";
 type widgetProps = {
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
     addGenericPlot: React.Dispatch<React.SetStateAction<any>>,
+    removeGenericPlot: React.Dispatch<React.SetStateAction<any>>,
+    togglePlotCollection: React.Dispatch<React.SetStateAction<any>>,
     onCityRefChange: React.ChangeEventHandler
 }
 /**
@@ -28,16 +30,20 @@ type widgetProps = {
 export const WidgetsComponent = ({
     genericScreenPlotToggle,
     addGenericPlot,
+    removeGenericPlot,
+    togglePlotCollection,
     onCityRefChange
 
 }: widgetProps) => {
 
     return(
-        <Col md={1}>
+        <Col md={2}>
             {/* visualization widget */}
             <VisWidget 
                 genericScreenPlotToggle = {genericScreenPlotToggle}
                 addGenericPlot = {addGenericPlot}
+                removeGenericPlot = {removeGenericPlot}
+                togglePlotCollection = {togglePlotCollection}
             />
             {/* data widget */}
             <DataWidget 

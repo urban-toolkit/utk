@@ -13,6 +13,8 @@ import { MapViewer } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
 import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
+import { PlotCollectionContainer } from './components/Widgets/PlotCollection';
+import { PlotSpecificationContainer } from './components/Widgets/PlotSpecification';
 
 // common variables for vis components
 // width and height of the whole SVG 
@@ -26,9 +28,21 @@ function App() {
   const svgId = "genericPlotSvg";
 
   const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0"}])
+  const [showPlotCollection, setShowPlotCollection] = useState(false)
+  const [showPlotSpec, setShowPlotSpec] = useState(false)
 
   const addNewGenericPlot = (newPlotId: number) => {
     setGenericPlots(genericPlots.concat([{id: newPlotId, hidden: true, svgId: "genericPlotSvg"+newPlotId}]));
+  }
+
+  const removeGenericPlot = (plotId: number) => {
+    let modifiedPlots = [];
+    for(const plot of genericPlots){
+      if(plot.id != plotId){
+        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId});
+      }
+    }
+    setGenericPlots(modifiedPlots);    
   }
 
   const toggleGenericPlot = (plotId: number) => {
@@ -41,6 +55,14 @@ function App() {
       }
     }
     setGenericPlots(modifiedPlots);
+  }
+
+  const togglePlotCollection = () => {
+    setShowPlotCollection(!showPlotCollection);
+  }
+
+  const togglePlotSpec = () => {
+    setShowPlotSpec(!showPlotSpec);
   }
 
   // data handler - by default load chicago data
@@ -63,6 +85,8 @@ function App() {
         // visualization toggle varibles 
         genericScreenPlotToggle ={toggleGenericPlot}
         addGenericPlot = {addNewGenericPlot}
+        removeGenericPlot = {removeGenericPlot}
+        togglePlotCollection = {togglePlotCollection}
         // city data change function
         onCityRefChange = {onCityChange}
       />
@@ -70,7 +94,7 @@ function App() {
       <MapViewer 
       // variable contains which city data to load
         dataToView = {cityRef}
-        divWidth = {11}
+        divWidth = {10}
         screenPlotSvgId = {svgId}
       />
 
@@ -85,6 +109,15 @@ function App() {
             />
         ))
       }
+
+      <PlotCollectionContainer 
+        disp = {showPlotCollection}
+        togglePlotSpec = {togglePlotSpec}
+      />
+
+      <PlotSpecificationContainer
+        disp = {showPlotSpec}
+      />
 
       </Row>
     </Container>

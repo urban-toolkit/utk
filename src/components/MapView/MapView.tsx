@@ -266,7 +266,7 @@ export const MapViewer = ({dataToView, divWidth, screenPlotSvgId, frontEndMode, 
 
     return(
       <React.Fragment>
-        <Col md={divWidth}>
+        <Col md={divWidth} style={{padding: 0}}>
             <div id='map'>
             </div>
         </Col>

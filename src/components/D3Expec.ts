@@ -388,6 +388,10 @@ export class D3Expec {
 
     fillScreenChart0(){
 
+        let functionDefinedInRuntime = new Function("console.log(0)");
+
+        functionDefinedInRuntime();
+
         function prepareData(_this: any){
             let shadowAvg: number[] = [];
 
