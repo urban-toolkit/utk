@@ -9,6 +9,7 @@ export class D3Expec {
     _svg: any;
     _svgSurfacePlot: any;
     _layers: Layer[];
+    _plotCollectionList: {id: number, content: string}[];
 
     constructor(svgSelector: any, screenPlotSvgId: any){
         this._svgSurfacePlot = d3.select(screenPlotSvgId);
@@ -31,6 +32,10 @@ export class D3Expec {
             await this.runD3Code2(data, plotWidth, plotHeight);
         }
 
+    }
+
+    async updatePlotCollectionList(plotCollectionList: {id: number, content: string}[]){
+        this._plotCollectionList = plotCollectionList;
     }
 
     async setLayerReferences(layersObjects: Layer[]){

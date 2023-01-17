@@ -11,17 +11,21 @@ import '../VisComponent/Dragbox.css'
 // declaring the types of the props
 type PlotSpecificationProps = {
     disp: boolean,
+    addSpecInCollection: React.Dispatch<React.SetStateAction<any>>,
 }
 
 export const PlotSpecificationContainer = ({
     disp,
+    addSpecInCollection
 }: PlotSpecificationProps
 ) =>{
     const nodeRef = useRef(null);
     const [currentSpecText, setCurrentSpecText] = useState("");
+    const [idCurrentSpec, setIdCurrentSpec] = useState(0);
 
-    const applySpec = (event: any) => {
-        console.log(currentSpecText);
+    const applySpec = () => {
+        addSpecInCollection({id: idCurrentSpec, content: currentSpecText});
+        setIdCurrentSpec(idCurrentSpec+1);
     }
 
     return(

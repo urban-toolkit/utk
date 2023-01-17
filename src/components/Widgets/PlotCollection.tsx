@@ -12,11 +12,13 @@ import '../VisComponent/Dragbox.css'
 type PlotCollectionProps = {
     disp: boolean,
     togglePlotSpec: React.Dispatch<React.SetStateAction<any>>,
+    collection: {id: number, content: string}[]
 }
 
 export const PlotCollectionContainer = ({
     disp,
-    togglePlotSpec
+    togglePlotSpec,
+    collection
 }: PlotCollectionProps
 ) =>{
     const nodeRef = useRef(null)
@@ -26,6 +28,11 @@ export const PlotCollectionContainer = ({
             <div ref={nodeRef} className="drag-box" style={{display: disp? 'block' : 'none'}}>
                 <div>
                     <h3>Plot collection</h3>
+                    {
+                        collection.map((item) => (
+                            <p key={"plotCollection"+item.id}>{item.content}</p>
+                        ))
+                    }
                     <Button id="newPlotSpec" variant="outline-secondary" onClick={togglePlotSpec}>
                             New Plot Specification
                     </Button>  

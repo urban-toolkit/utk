@@ -16,6 +16,8 @@ import { GenericScreenPlotContainer } from './components/VisComponent/GenericScr
 import { PlotCollectionContainer } from './components/Widgets/PlotCollection';
 import { PlotSpecificationContainer } from './components/Widgets/PlotSpecification';
 
+import { D3App } from './components/MapView/D3App';
+
 // common variables for vis components
 // width and height of the whole SVG 
 //  are calculated using useWindowResize function
@@ -27,9 +29,12 @@ function App() {
 
   const svgId = "genericPlotSvg";
 
-  const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0"}])
-  const [showPlotCollection, setShowPlotCollection] = useState(false)
-  const [showPlotSpec, setShowPlotSpec] = useState(false)
+  const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0"}]);
+  const [showPlotCollection, setShowPlotCollection] = useState(false);
+  const [showPlotSpec, setShowPlotSpec] = useState(false);
+  const [plotCollectionList, setPlotCollectionList] = useState([{id: -1, content: ""}]);
+
+  const d3App = new D3App('#svg_element', "#genericPlotSvg", plotCollectionList);
 
   const addNewGenericPlot = (newPlotId: number) => {
     setGenericPlots(genericPlots.concat([{id: newPlotId, hidden: true, svgId: "genericPlotSvg"+newPlotId}]));
@@ -65,6 +70,23 @@ function App() {
     setShowPlotSpec(!showPlotSpec);
   }
 
+  const addSpecInCollection = (specObj: {id: number, content: string}) => {
+
+    let newList = [];
+
+    for(const elem of plotCollectionList){
+      if(elem.id != -1){
+        newList.push({id: elem.id, content: elem.content});
+      }
+    }
+
+    newList.push({id: specObj.id, content: specObj.content});
+  
+    setPlotCollectionList(newList);
+
+    d3App.updatePlotCollectionList(newList);
+  }
+
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('Chicago')
 
@@ -95,7 +117,7 @@ function App() {
       // variable contains which city data to load
         dataToView = {cityRef}
         divWidth = {10}
-        screenPlotSvgId = {svgId}
+        d3App = {d3App}
       />
 
       {
@@ -113,10 +135,12 @@ function App() {
       <PlotCollectionContainer 
         disp = {showPlotCollection}
         togglePlotSpec = {togglePlotSpec}
+        collection = {plotCollectionList}
       />
 
       <PlotSpecificationContainer
         disp = {showPlotSpec}
+        addSpecInCollection = {addSpecInCollection}
       />
 
       </Row>
