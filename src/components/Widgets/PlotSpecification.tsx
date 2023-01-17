@@ -33,7 +33,7 @@ export const PlotSpecificationContainer = ({
             <div ref={nodeRef} className="drag-box" style={{display: disp? 'block' : 'none'}}>
                 <div>
                     <h3>Plot specification</h3>
-                    <textarea onChange={(event) => setCurrentSpecText(event.target.value)} />
+                    <textarea style={{width: "450px", height: "250px"}} onChange={(event) => setCurrentSpecText(event.target.value)} />
                     <Button id="applySpec" variant="outline-secondary" onClick={applySpec}>
                         Apply Spec
                     </Button>    

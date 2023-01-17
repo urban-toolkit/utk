@@ -27,14 +27,12 @@ function App() {
   // size to maintain responsiveness
   const size = useWindowResize();
 
-  const svgId = "genericPlotSvg";
-
   const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0"}]);
   const [showPlotCollection, setShowPlotCollection] = useState(false);
   const [showPlotSpec, setShowPlotSpec] = useState(false);
   const [plotCollectionList, setPlotCollectionList] = useState([{id: -1, content: ""}]);
 
-  const d3App = new D3App('#svg_element', "#genericPlotSvg", plotCollectionList);
+  const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
   const addNewGenericPlot = (newPlotId: number) => {
     setGenericPlots(genericPlots.concat([{id: newPlotId, hidden: true, svgId: "genericPlotSvg"+newPlotId}]));

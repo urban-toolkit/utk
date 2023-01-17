@@ -9,7 +9,7 @@ export class D3Expec {
     _svg: any;
     _svgSurfacePlot: any;
     _layers: Layer[];
-    _plotCollectionList: {id: number, content: string}[];
+    _plotCollectionList: Function[] = [];
 
     constructor(svgSelector: any, screenPlotSvgId: any){
         this._svgSurfacePlot = d3.select(screenPlotSvgId);
@@ -35,7 +35,19 @@ export class D3Expec {
     }
 
     async updatePlotCollectionList(plotCollectionList: {id: number, content: string}[]){
-        this._plotCollectionList = plotCollectionList;
+
+        // this._svgSurfacePlot.append("text").html("Plot defined by user").attr("x", "20").attr("y", "20");
+
+        // this._svgSurfacePlot.append("rect");
+
+        for(const elem of plotCollectionList){
+
+            let definedFunction = new Function(elem.content);
+            this._plotCollectionList.push(definedFunction);
+            definedFunction.apply(this, this._svgSurfacePlot);
+
+        }
+
     }
 
     async setLayerReferences(layersObjects: Layer[]){
@@ -392,10 +404,6 @@ export class D3Expec {
     }
 
     fillScreenChart0(){
-
-        let functionDefinedInRuntime = new Function("console.log(0)");
-
-        functionDefinedInRuntime();
 
         function prepareData(_this: any){
             let shadowAvg: number[] = [];
