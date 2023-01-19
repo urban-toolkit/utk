@@ -37,6 +37,7 @@ class App {
   }
 
   run(data:any) {
+
     this._map.initMapView(data).then(() => {
       this._map.render();
     });

@@ -27,22 +27,24 @@ function App() {
   // size to maintain responsiveness
   const size = useWindowResize();
 
-  const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0"}]);
+  const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0", label: "Generic Plot", checked: false, edit: false}]);
   const [showPlotCollection, setShowPlotCollection] = useState(false);
   const [showPlotSpec, setShowPlotSpec] = useState(false);
   const [plotCollectionList, setPlotCollectionList] = useState([{id: -1, content: ""}]);
+  const [currentPlotId, setCurrentPlotId] = useState(1)
 
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
-  const addNewGenericPlot = (newPlotId: number) => {
-    setGenericPlots(genericPlots.concat([{id: newPlotId, hidden: true, svgId: "genericPlotSvg"+newPlotId}]));
+  const addNewGenericPlot = () => {
+    setGenericPlots(genericPlots.concat([{id: currentPlotId, hidden: true, svgId: "genericPlotSvg"+currentPlotId, label: "Generic Plot", checked: false, edit: false}]));
+    setCurrentPlotId(currentPlotId+1);
   }
 
   const removeGenericPlot = (plotId: number) => {
     let modifiedPlots = [];
     for(const plot of genericPlots){
       if(plot.id != plotId){
-        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId});
+        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
       }
     }
     setGenericPlots(modifiedPlots);    
@@ -52,9 +54,9 @@ function App() {
     let modifiedPlots = [];
     for(const plot of genericPlots){
       if(plot.id == plotId){
-        modifiedPlots.push({id: plot.id, hidden: !plot.hidden, svgId: plot.svgId});
+        modifiedPlots.push({id: plot.id, hidden: !plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
       }else{
-        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId});
+        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
       }
     }
     setGenericPlots(modifiedPlots);
@@ -85,6 +87,34 @@ function App() {
     d3App.updatePlotCollectionList(newList);
   }
 
+  const modifyLabelPlot = (newName: string, plotId: number) => {
+    let modifiedPlots = [];
+    
+    for(const plot of genericPlots){
+        if(plot.id == plotId){
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: newName, checked: plot.checked, edit: plot.edit});
+        }else{
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
+        }
+    }
+
+    setGenericPlots(modifiedPlots);
+  }
+
+  const modifyEditingState = (plotId: number) => {
+    let modifiedPlots = [];
+    
+    for(const plot of genericPlots){
+        if(plot.id == plotId){
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: !plot.edit});
+        }else{
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
+        }
+    }
+
+    setGenericPlots(modifiedPlots);
+  }
+
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('Chicago')
 
@@ -109,6 +139,9 @@ function App() {
         togglePlotCollection = {togglePlotCollection}
         // city data change function
         onCityRefChange = {onCityChange}
+        listPlots = {genericPlots}
+        modifyLabelPlot = {modifyLabelPlot}
+        modifyEditingState = {modifyEditingState}
       />
       {/* map view */}
       <MapViewer 

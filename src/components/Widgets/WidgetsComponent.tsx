@@ -9,9 +9,12 @@ import { VisWidget } from "./VisWidget";
 // value types that are being passed in the function parameter
 type widgetProps = {
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
-    addGenericPlot: React.Dispatch<React.SetStateAction<any>>,
+    addGenericPlot: any,
     removeGenericPlot: React.Dispatch<React.SetStateAction<any>>,
     togglePlotCollection: React.Dispatch<React.SetStateAction<any>>,
+    modifyLabelPlot: any,
+    modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
+    listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     onCityRefChange: React.ChangeEventHandler
 }
 /**
@@ -32,6 +35,9 @@ export const WidgetsComponent = ({
     addGenericPlot,
     removeGenericPlot,
     togglePlotCollection,
+    modifyLabelPlot,
+    modifyEditingState,
+    listPlots,
     onCityRefChange
 
 }: widgetProps) => {
@@ -44,6 +50,9 @@ export const WidgetsComponent = ({
                 addGenericPlot = {addGenericPlot}
                 removeGenericPlot = {removeGenericPlot}
                 togglePlotCollection = {togglePlotCollection}
+                listPlots = {listPlots}
+                modifyLabelPlot = {modifyLabelPlot}
+                modifyEditingState = {modifyEditingState}
             />
             {/* data widget */}
             <DataWidget 

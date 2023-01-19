@@ -9,8 +9,11 @@ import './VisWidget.css';
 // VisWidget parameter types
 type visWidProps = {
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
-    addGenericPlot: React.Dispatch<React.SetStateAction<any>>,
+    addGenericPlot: any,
     togglePlotCollection: React.Dispatch<React.SetStateAction<any>>,
+    modifyLabelPlot: any, 
+    modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
+    listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     removeGenericPlot: React.Dispatch<React.SetStateAction<any>>,
 }
 
@@ -23,11 +26,13 @@ export const VisWidget = ({
     genericScreenPlotToggle,
     addGenericPlot,
     togglePlotCollection,
+    modifyLabelPlot,
+    modifyEditingState,
+    listPlots,
     removeGenericPlot
 }:visWidProps) =>{
     // state controlling the collapse
     const [visOpen, setVisOpen] = useState(false)
-    const [currentPlotId, setCurrentPlotId] = useState(1)
 
     /**
      * state variables controlling the checkbox toggles
@@ -35,60 +40,23 @@ export const VisWidget = ({
      * if not hide the visualization
      */
 
-    // const [genericScreenPlotCheckBox, setGenericScreenPlotCheckBox] = useState(false);
-
     const handleGenericScreenPlotCheckBoxChange = (id: number) => {
-        // setGenericScreenPlotCheckBox(!genericScreenPlotCheckBox)
-        // genericScreenPlotToggle(!genericScreenPlotCheckBox)        
         genericScreenPlotToggle(id);
     }
 
-    const [listGenericPlots, setListGenericPlots] = useState([{id: 0, label: "Generic Plot", checked: false, edit: false}])
-
     const addSurfacePlotComponent = () => {
-        setListGenericPlots(listGenericPlots.concat([{id: currentPlotId, label: "Generic Plot", checked: false, edit: false}]))
-        addGenericPlot(currentPlotId);
-        setCurrentPlotId(currentPlotId+1);
+        addGenericPlot();
     }
 
     const handleLabelEdit = (event: any, plotId: number) => {
-        let modifiedPlots = [];
-        
-        for(const plot of listGenericPlots){
-            if(plot.id == plotId){
-                modifiedPlots.push({id: plot.id, label: event.target.value, checked: plot.checked, edit: plot.edit});
-            }else{
-                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: plot.edit});
-            }
-        }
-    
-        setListGenericPlots(modifiedPlots);
+        modifyLabelPlot(event.target.value, plotId);
     }
 
     const toggleEditing = (plotId: number) => {
-        let modifiedPlots = [];
-        
-        for(const plot of listGenericPlots){
-            if(plot.id == plotId){
-                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: !plot.edit});
-            }else{
-                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: plot.edit});
-            }
-        }
-    
-        setListGenericPlots(modifiedPlots);
+        modifyEditingState(plotId);
     }
 
     const removeGenericPlotCheck = (plotId: number) => {
-        let modifiedPlots = [];
-        
-        for(const plot of listGenericPlots){
-            if(plot.id != plotId){
-                modifiedPlots.push({id: plot.id, label: plot.label, checked: plot.checked, edit: plot.edit});
-            }
-        }
-    
-        setListGenericPlots(modifiedPlots);
         removeGenericPlot(plotId);
     }
 
@@ -110,7 +78,7 @@ export const VisWidget = ({
                     <Form>
                         <Form.Group className="mb-3" controlId="formBarVisCheckbox" id="space">
                             {
-                                listGenericPlots.map((item) => (
+                                listPlots.map((item) => (
                                     <div key={"genericPlotsDiv"+item.id} className={"flex-div-genericPlots"}>
                                         <Form.Check className={item.edit? "hidden-element" : ""} key={item.id} type="checkbox" label={item.label}  onChange={() => handleGenericScreenPlotCheckBoxChange(item.id)}/> 
                                         <input style={{width: '100px', display: item.edit? 'block' : 'none'}} key={"labelInput"+item.id} type="text" value={item.label} onChange={(event) => handleLabelEdit(event,item.id)}/> 
