@@ -623,8 +623,6 @@ class OSM:
             nodes = way['geometry']
             ways.append({'outer': nodes, 'inner': [], 'tags': way['tags'],'type': 'type'})
 
-        print(ways)
-
         # to shapely
         polygons = []
         for way in ways:

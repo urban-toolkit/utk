@@ -1,0 +1,24 @@
+{
+    "views": [
+        {
+            "knot": {
+                "physical": {
+                    
+                },
+                "abstract": [
+
+                ],
+                "aggregation": "uniform" 
+            },
+            "selection": {
+                "type": "brush",
+                "shape": "horizontal"
+            },
+            "vis": {
+                "code": "this._svgSurfacePlot.append(\"text\").html(\"Plot defined by user\").attr(\"x\", \"20\").attr(\"y\", \"20\");"
+            },
+            "arrangement": "linked"
+        }
+    ],
+    "arrangement": "embedded"
+}
