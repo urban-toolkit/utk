@@ -79,10 +79,10 @@ export class D3App {
         image.src = blobURL;
 
         let checkFlag = async () => {
-        if(lockFlag.flag == false) {
-            await new Promise(r => setTimeout(r, 100));
-            checkFlag();
-        }
+            if(lockFlag.flag == false) {
+                await new Promise(r => setTimeout(r, 100));
+                checkFlag();
+            }
         }
         
         await checkFlag();

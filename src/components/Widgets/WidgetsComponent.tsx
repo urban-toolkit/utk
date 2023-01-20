@@ -5,6 +5,7 @@ import "./WidgetsComponent.css";
 // data and vis widgets components
 import { DataWidget } from "./DataWidget";
 import { VisWidget } from "./VisWidget";
+import { GrammarPanelContainer } from "./GrammarPanel";
 
 // value types that are being passed in the function parameter
 type widgetProps = {
@@ -55,9 +56,14 @@ export const WidgetsComponent = ({
                 modifyEditingState = {modifyEditingState}
             />
             {/* data widget */}
-            <DataWidget 
+            {/* <DataWidget 
                 onCityRefChange = {onCityRefChange}
-            />      
+            />      */}
+
+            <GrammarPanelContainer 
+                textSpec = {}
+            />
+
         </Col>
     )
 

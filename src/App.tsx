@@ -18,6 +18,8 @@ import { PlotSpecificationContainer } from './components/Widgets/PlotSpecificati
 
 import { D3App } from './components/MapView/D3App';
 
+import * as d3 from "d3";
+
 // common variables for vis components
 // width and height of the whole SVG 
 //  are calculated using useWindowResize function
@@ -27,19 +29,67 @@ function App() {
   // size to maintain responsiveness
   const size = useWindowResize();
 
-  const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0", label: "Generic Plot", checked: false, edit: false}]);
+  const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
   const [showPlotCollection, setShowPlotCollection] = useState(false);
   const [showPlotSpec, setShowPlotSpec] = useState(false);
-  const [plotCollectionList, setPlotCollectionList] = useState([{id: -1, content: ""}]);
-  const [currentPlotId, setCurrentPlotId] = useState(1)
+  const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
+  const [currentPlotId, setCurrentPlotId] = useState(0)
 
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
-  const addNewGenericPlot = () => {
-    setGenericPlots(genericPlots.concat([{id: currentPlotId, hidden: true, svgId: "genericPlotSvg"+currentPlotId, label: "Generic Plot", checked: false, edit: false}]));
-    setCurrentPlotId(currentPlotId+1);
+  const addNewGenericPlot = (n: number = 1) => {
+
+    let tempId = currentPlotId;
+    let createdIds = [];
+    let tempPlots = [];
+
+    for(let i = 0; i < n; i++){
+      tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Generic Plot", checked: false, edit: false});
+      createdIds.push(tempId);
+      tempId += 1;
+    }
+
+    setGenericPlots(genericPlots.concat(tempPlots));
+    setCurrentPlotId(tempId);
+    return createdIds;
   }
 
+  const linkedContainerGenerator = (n: number) => {
+    let createdIds = addNewGenericPlot(n);
+
+    // promise is only resolved when the container is created
+    return new Promise(async function (resolve, reject) {
+
+      let checkContainer = async () => {
+
+        let allContainersCreated = true;
+
+        for(const id of createdIds){
+          if(d3.select("#"+"genericPlotSvg"+id).empty()){
+            allContainersCreated = false;
+            break;
+          }
+        }
+
+        if(!allContainersCreated) { // the container was not create yet or the state still needs to be updated
+            await new Promise(r => setTimeout(r, 100));
+            checkContainer();
+        }
+      }
+    
+      await checkContainer();
+
+      let returnIds = [];
+
+      for(const id of createdIds){
+        returnIds.push("genericPlotSvg"+id);
+      }
+
+      resolve(returnIds);
+
+    });
+  }
+  
   const removeGenericPlot = (plotId: number) => {
     let modifiedPlots = [];
     for(const plot of genericPlots){
@@ -71,20 +121,11 @@ function App() {
   }
 
   const addSpecInCollection = (specObj: {id: number, content: string}) => {
+    
+    d3App.updatePlotCollectionList(plotCollectionList.concat(specObj));
 
-    let newList = [];
+    setPlotCollectionList(plotCollectionList.concat(specObj));
 
-    for(const elem of plotCollectionList){
-      if(elem.id != -1){
-        newList.push({id: elem.id, content: elem.content});
-      }
-    }
-
-    newList.push({id: specObj.id, content: specObj.content});
-  
-    setPlotCollectionList(newList);
-
-    d3App.updatePlotCollectionList(newList);
   }
 
   const modifyLabelPlot = (newName: string, plotId: number) => {
@@ -149,6 +190,7 @@ function App() {
         dataToView = {cityRef}
         divWidth = {10}
         d3App = {d3App}
+        linkedContainerGenerator = {linkedContainerGenerator}
       />
 
       {
