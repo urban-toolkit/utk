@@ -59,7 +59,7 @@ export class D3Expec {
      * When there is a change in the mesh update the screen charts that depend on the mesh
      */
     async updateScreenCharts(){
-        this.fillScreenChart0();
+        // this.fillScreenChart0();
     }
 
     async runD3Code0(dataIn: string, plotWidth: number, plotHeight: number){

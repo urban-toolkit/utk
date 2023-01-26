@@ -1,8 +1,10 @@
 import os
 import json
 import asyncio
+import geopandas as gpd
 
 from ipykernel.comm import Comm
+from shapely.geometry import Polygon
 
 import map
 # import urbantk.io.osm as osm
@@ -14,7 +16,8 @@ class UrbanComponent:
 
     cid = None
     style = {}
-    layers = {}
+    layers = []
+    layers_gdf = []
     camera = {}
     bbox = []
 
@@ -28,17 +31,53 @@ class UrbanComponent:
             self.camera = camera
         if bbox != None:
             self.bbox = bbox
-        
 
-    # def add_layers(self, layers):
-    #     loaded = osm.get_osm(self.bbox, layers, False)
-    #     data = {}
-    #     data['data'] = loaded
-    #     comm = Comm(target_name=self.cid+'_addLayers', data={})
-    #     comm.send(loaded[0])
+        for layer in self.layers:
+            self.layers_gdf.append(self.jsonToGdf(layer))
 
-    # def remove_layers(self):
-    #     pass
+    def jsonToGdf(self, layer_json):
+
+        geometries = []
+
+        for elem in layer_json['data']:
+            groupedCoordinates = []
+
+            polygon_coordinates = None
+
+            if('sectionFootprint' in elem['geometry']):
+                polygon_coordinates = elem['geometry']['sectionFootprint'][0] # specially used for buildings
+            else:
+                polygon_coordinates = elem['geometry']['coordinates']
+
+            print(polygon_coordinates)
+
+            for i in range(0,int(len(polygon_coordinates)/2)):
+                    
+                groupedCoordinates.append((polygon_coordinates[i*2], polygon_coordinates[i*2+1]))
+
+                geometries.append(Polygon(groupedCoordinates))
+
+            gdf = gpd.GeoDataFrame({'geometry': geometries}, crs=3395)
+
+        self.layers_gdf.append(gdf)
+
+    def addLayer(self, data):
+        layer_json = []
+
+        if(isinstance(data, str)):
+            with open(data, "r", encoding="utf-8") as f:
+                layer_json = json.load(f)
+        else:
+            layer_json = data
+
+        self.layers_gdf.append(self.jsonToGdf(layer_json))
+
+        if self.layers == None:
+            self.layers = layer_json
+        else:
+            self.layers.append(layer_json)   
+
+    # def attachLayers(self, contain_layer, contained_layer):
 
     def to_file(self, filepath, separateFiles=False):
         '''

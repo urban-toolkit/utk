@@ -60,10 +60,6 @@ export const WidgetsComponent = ({
                 onCityRefChange = {onCityRefChange}
             />      */}
 
-            <GrammarPanelContainer 
-                textSpec = {}
-            />
-
         </Col>
     )
 

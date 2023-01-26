@@ -52,7 +52,14 @@ def get_camera(bbox):
     center = convertProjections("4326", "3395", center)
     center.append(1) # zoom level
 
-    return {'coordinates': [center]}
+    return {
+        'position': center, 
+        'direction': {
+            'right': [0,0,0],
+            'lookAt': [0,0,0],
+            'up': [0,1,0]
+        }
+    }
 
 def intersect_bbox(bb1, bb2):
     if point_within_bbox([bb1[0],bb1[1]],bb2) or point_within_bbox([bb1[2],bb1[3]],bb2)\
