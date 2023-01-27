@@ -5,7 +5,7 @@ import geopandas as gpd
 import pandas as pd
 
 from ipykernel.comm import Comm
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 
 import map
 # import urbantk.io.osm as osm
@@ -17,7 +17,7 @@ class UrbanComponent:
 
     cid = None
     style = {}
-    layers = {'json': [], 'gdf': []}
+    layers = {'json': [], 'gdf': {'objects': [], 'coordinates': []}}
     camera = {}
     bbox = []
 
@@ -35,8 +35,11 @@ class UrbanComponent:
     def jsonToGdf(self, layer_json, dim):
 
         ids = []
+        ids_coordinates = []
+        counter_id_coordinates = 0
 
         geometries = []
+        geometries_coordinates = []
 
         for id, elem in enumerate(layer_json['data']):
 
@@ -52,14 +55,18 @@ class UrbanComponent:
                 polygon_coordinates = elem['geometry']['coordinates']
 
             for i in range(0,int(len(polygon_coordinates)/dim)):
-                    
-                groupedCoordinates.append((polygon_coordinates[dim*2], polygon_coordinates[dim*2+1]))
+                geometries_coordinates.append(Point(polygon_coordinates[i*dim], polygon_coordinates[i*dim+1]))
+                ids_coordinates.append(counter_id_coordinates)
+                counter_id_coordinates += 1
+                
+                groupedCoordinates.append((polygon_coordinates[i*dim], polygon_coordinates[i*dim+1]))
 
             geometries.append(Polygon(groupedCoordinates))
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
+        gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
 
-        return gdf
+        return {'objects': gdf, 'coordinates': gdf_coordinates}
 
     def addLayerFromJsonFile(self, json_pathfile, dim=None, gdf=None):
         layer_json = []
@@ -75,7 +82,8 @@ class UrbanComponent:
                 raise Exception("If gdf data is not provided, the coordinates dimensions must be provided so the gdf can be calculated")
 
         self.layers['json'].append(layer_json)
-        self.layers['gdf'].append(layer_gdf)
+        self.layers['gdf']['objects'].append(layer_gdf['objects'])
+        self.layers['gdf']['coordinates'].append(layer_gdf['coordinates'])
 
     def addLayer(self, json_data, dim=None, gdf=None):
         layer_gdf = gdf
@@ -87,13 +95,14 @@ class UrbanComponent:
                 raise Exception("If gdf data is not provided, the coordinates dimensions must be provided so the gdf can be calculated")
 
         self.layers['json'].append(json_data)
-        self.layers['gdf'].append(layer_gdf)
+        self.layers['gdf']['objects'].append(layer_gdf['objects'])
+        self.layers['gdf']['coordinates'].append(layer_gdf['coordinates'])
 
-    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='object', right_level='object'):
+    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects'):
         '''
             The predicates can be: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
 
-            The levels can be: coordinate, object.
+            The levels can be: coordinates, objects.
 
             The attaching include the ids of the geometries of the right layer into the left layer considering the specified predicate
         '''
@@ -108,16 +117,21 @@ class UrbanComponent:
         for i in range(len(self.layers['json'])):
             if self.layers['json'][i]['id'] == id_left_layer:
                 left_layer_json = self.layers['json'][i]
-                left_layer_gdf = self.layers['gdf'][i]
+                left_layer_gdf = self.layers['gdf'][left_level][i]
                 left_layer_found = True
             elif self.layers['json'][i]['id'] == id_right_layer:
-                right_layer_gdf = self.layers['gdf'][i]
+                right_layer_gdf = self.layers['gdf'][right_level][i]
                 right_layer_found = True
 
         if(left_layer_found == False or right_layer_found == False):
             raise Exception("Left and/or right layer not found")
 
-        join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
+        join_left_gdf = {}
+
+        if(predicate == 'nearest'):
+            join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
+        else:
+            join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
 
         if('joined_layers' in left_layer_json):
             for join in left_layer_json['joined_layers']:

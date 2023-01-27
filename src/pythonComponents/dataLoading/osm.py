@@ -13,7 +13,7 @@ import osmium as o
 import subprocess
 import pyproj
 
-from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box
+from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box, Point
 from shapely.ops import linemerge, transform
 from shapely.wkb import loads
 from shapely.validation import explain_validity
@@ -364,8 +364,11 @@ class OSM:
         project = pyproj.Transformer.from_crs(proj_4326, proj_3395, always_xy=True).transform
 
         geometries = []
+        geometries_coordinates = []
 
         ids = []
+        ids_coordinates = []
+        counter_id_coordinates = 0
 
         for id, line in enumerate(inter):
 
@@ -385,6 +388,11 @@ class OSM:
 
             coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
 
+            for i in range(int(len(coords_duplicated)/2)):
+                geometries_coordinates.append(Point(coords_duplicated[i*2], coords_duplicated[i*2+1]))
+                ids_coordinates.append(counter_id_coordinates)
+                counter_id_coordinates += 1
+
             coords_duplicated = utils.from2dTo3d(coords_duplicated)
 
             mesh.append({'type': 'roads', 'geometry': {'coordinates': coords_duplicated, 'types': types}})
@@ -393,7 +401,9 @@ class OSM:
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
-        return {'data': mesh, 'gdf': gdf}
+        gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
+
+        return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates}}
 
     def osm_to_coastline_mesh(osm_elements, bbox):
         '''
@@ -564,8 +574,11 @@ class OSM:
         project = pyproj.Transformer.from_crs(proj_4326, proj_3395, always_xy=True).transform
 
         geometries = []
+        geometries_coordinates = []
 
         ids = []
+        ids_coordinates = []
+        counter_id_coordinates = 0
 
         # triangulate
         mesh = []
@@ -608,13 +621,21 @@ class OSM:
             #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
 
             nodes = utils.convertProjections("4326", "3395", nodes)
+            
+            for i in range(int(len(nodes)/2)):
+                geometries_coordinates.append(Point(nodes[i*2], nodes[i*2+1]))
+                ids_coordinates.append(counter_id_coordinates)
+                counter_id_coordinates += 1
+
             nodes = utils.from2dTo3d(nodes)
 
             mesh.append({'type': poly['type'], 'geometry': {'coordinates': nodes, 'indices': indices}})
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
-        return {'data': mesh, 'gdf': gdf}
+        gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
+
+        return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates}}
 
     def osm_to_building_mesh(osm_elements, bbox):
         '''
@@ -912,8 +933,11 @@ class OSM:
         project = pyproj.Transformer.from_crs(proj_4326, proj_3395, always_xy=True).transform
 
         geometries = []
+        geometries_coordinates = []
 
         ids = []
+        ids_coordinates = []
+        counter_id_coordinates = 0
 
         # triangulate
         mesh = []
@@ -959,6 +983,11 @@ class OSM:
             
             nodes = utils.convertProjections("4326", "3395", nodes)
 
+            for i in range(int(len(nodes)/2)):
+                geometries_coordinates.append(Point(nodes[i*2], nodes[i*2+1]))
+                ids_coordinates.append(counter_id_coordinates)
+                counter_id_coordinates += 1
+
             if convert2dto3d:
                 nodes = utils.from2dTo3d(nodes)
 
@@ -966,7 +995,9 @@ class OSM:
         
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
-        return {'data': mesh, 'gdf': gdf}
+        gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
+
+        return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates}}
 
     def parse_osm(osm_json):
         '''
@@ -1273,6 +1304,8 @@ class OSM:
 
         gdf = gpd.GeoDataFrame({'geometry': [Polygon([(nodes[0], nodes[1]), (nodes[2], nodes[3]), (nodes[4], nodes[5]), (nodes[6], nodes[7])])], "id": [0]}, crs=3395)
 
+        gdf_coordinates = gpd.GeoDataFrame({'geometry': [Point((nodes[0], nodes[1])), Point((nodes[2], nodes[3])), Point((nodes[4], nodes[5])), Point((nodes[6], nodes[7]))], "id": [0, 1, 2, 3]}, crs=3395)
+
         nodes = utils.from2dTo3d(nodes)
 
         indices = [0, 3, 2, 2, 1, 0]
@@ -1293,4 +1326,4 @@ class OSM:
             }
         }]
 
-        return {'data': mesh, 'gdf': gdf}
+        return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates}}

@@ -25,6 +25,7 @@ class ShadowAccumulator:
     intervals = [] # list of lists containing different time intervals
     season = ''
 
+    flat_coords = []
     coords = np.array([])
     indices = np.array([])
     ids = np.array([])
@@ -245,7 +246,7 @@ class ShadowAccumulator:
 
         return np.array(avg_accumulation_per_coordinates)
 
-    def writeShadowData(self, accumulation, functionIndex):
+    def writeShadowData(self, accumulation, function_index):
         '''
             Writes the shadow data back to the mesh files passed to the constructor
 
@@ -260,26 +261,33 @@ class ShadowAccumulator:
 
         function_values = function_values.tolist()
 
-        for index, geometries_count in enumerate(self.coords_per_file):
+        shadow_layer = {'coordinates': self.flat_coords, 'values': function_values}
+
+        print(self.filespaths)
+
+        with open("shadow"+str(function_index)+".json", "w") as outfile:
+            json.dump(shadow_layer, outfile, indent=4)
+
+        # for index, geometries_count in enumerate(self.coords_per_file):
             
-            mesh_file = open(self.filespaths[index],mode='r')
+        #     mesh_file = open(self.filespaths[index],mode='r')
 
-            mesh_json = json.loads(mesh_file.read())
+        #     mesh_json = json.loads(mesh_file.read())
 
-            mesh_file.close()
+        #     mesh_file.close()
 
-            for index_geometry, geometry_count in enumerate(geometries_count):
+        #     for index_geometry, geometry_count in enumerate(geometries_count):
 
-                # mesh_json["data"][index_geometry]["geometry"]["function"+str(functionIndex)] = function_values[:geometry_count] 
-                if not "function" in mesh_json["data"][index_geometry]["geometry"]:
-                    mesh_json["data"][index_geometry]["geometry"]["function"] = []
+        #         # mesh_json["data"][index_geometry]["geometry"]["function"+str(functionIndex)] = function_values[:geometry_count] 
+        #         if not "function" in mesh_json["data"][index_geometry]["geometry"]:
+        #             mesh_json["data"][index_geometry]["geometry"]["function"] = []
                 
-                mesh_json["data"][index_geometry]["geometry"]["function"].append(function_values[:geometry_count])
+        #         mesh_json["data"][index_geometry]["geometry"]["function"].append(function_values[:geometry_count])
 
-                function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
+        #         function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
 
-            with open(self.filespaths[index], "w") as outfile:
-                json.dump(mesh_json, outfile, indent=4)
+        #     with open(self.filespaths[index], "w") as outfile:
+        #         json.dump(mesh_json, outfile, indent=4)
 
     def accumulate_shadow(self):
         '''
@@ -288,9 +296,9 @@ class ShadowAccumulator:
 
         self.loadFiles()
 
+        self.flat_coords = [float(elem) for sublist in self.coords for elem in sublist]
+
         for index, interval in enumerate(self.intervals):
-            print(index)
-            print(interval)
             accum = self.accumulate(interval[0], interval[1], 0, 0, self.coords, self.indices, self.normals, 15)
             self.per_face_avg_accum = self.per_face_avg(accum, self.indices, self.ids, self.ids_per_structure) # accumulation per triangle
             avg_accumulation_per_coordinates = self.per_coordinates_avg(self.per_face_avg_accum, self.coords, self.indices) # accumulation per vertice
