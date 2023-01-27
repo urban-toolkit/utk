@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import geopandas as gpd
+import pandas as pd
 
 from ipykernel.comm import Comm
 from shapely.geometry import Polygon
@@ -33,9 +34,14 @@ class UrbanComponent:
 
     def jsonToGdf(self, layer_json, dim):
 
+        ids = []
+
         geometries = []
 
-        for elem in layer_json['data']:
+        for id, elem in enumerate(layer_json['data']):
+
+            ids.append(id)
+
             groupedCoordinates = []
 
             polygon_coordinates = None
@@ -51,7 +57,7 @@ class UrbanComponent:
 
             geometries.append(Polygon(groupedCoordinates))
 
-        gdf = gpd.GeoDataFrame({'geometry': geometries}, crs=3395)
+        gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
         return gdf
 
@@ -83,28 +89,60 @@ class UrbanComponent:
         self.layers['json'].append(json_data)
         self.layers['gdf'].append(layer_gdf)
 
-    def attachLayers(self, id_contain_layer, id_contained_layer):
-        
-        contain_layer_json = {}
-        contained_layer_json = {}
+    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='object', right_level='object'):
+        '''
+            The predicates can be: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
 
-        contain_layer_gdf = {}
-        contained_layer_gdf = {}
+            The levels can be: coordinate, object.
+
+            The attaching include the ids of the geometries of the right layer into the left layer considering the specified predicate
+        '''
+
+        left_layer_json = {}
+
+        left_layer_gdf = {}
+        left_layer_found = False
+        right_layer_gdf = {}
+        right_layer_found = False
 
         for i in range(len(self.layers['json'])):
-            if self.layers['json'][i]['id'] == id_contain_layer:
-                contain_layer_json = self.layers['json'][i]
-                contain_layer_gdf = self.layers['gdf'][i]
-            elif self.layers['json'][i]['id'] == id_contained_layer:
-                contained_layer_json = self.layers['json'][i]
-                contained_layer_gdf = self.layers['gdf'][i]
+            if self.layers['json'][i]['id'] == id_left_layer:
+                left_layer_json = self.layers['json'][i]
+                left_layer_gdf = self.layers['gdf'][i]
+                left_layer_found = True
+            elif self.layers['json'][i]['id'] == id_right_layer:
+                right_layer_gdf = self.layers['gdf'][i]
+                right_layer_found = True
 
-        join_left_gdf = contain_layer_gdf.sjoin(contained_layer_gdf, how='left')
+        if(left_layer_found == False or right_layer_found == False):
+            raise Exception("Left and/or right layer not found")
 
-        # join_left_gdf.to_file('join_test.json', driver="GeoJSON")
+        join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
+
+        if('joined_layers' in left_layer_json):
+            for join in left_layer_json['joined_layers']:
+                if(join['predicate'] == predicate and join['layer_id'] == id_right_layer and join['this_level'] == left_level and join['other_level'] == right_level): # if this attachment was already made
+                    return
+            left_layer_json['joined_layers'].append({"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level})
+        else:
+            left_layer_json['joined_layers'] = [{"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level}]
+
+        joined_objects_entry = {"joined_layer_index": len(left_layer_json['joined_layers'])-1, "other_ids": [None]*len(left_layer_gdf.index)}
+
+        if('joined_objects' not in left_layer_json):
+            left_layer_json['joined_objects'] = [joined_objects_entry]
+        else:
+            left_layer_json['joined_objects'].append(joined_objects_entry)
+
+        for elem in join_left_gdf.iloc:
+            
+            if(not pd.isna(elem['id_right'])):
+                if(left_layer_json['joined_objects'][-1]['other_ids'][int(elem['id_left'])] == None):
+                    left_layer_json['joined_objects'][-1]['other_ids'][int(elem['id_left'])] = []
+
+                left_layer_json['joined_objects'][-1]['other_ids'][int(elem['id_left'])].append(int(elem['id_right']))
 
         return join_left_gdf
-
 
     def to_file(self, filepath, separateFiles=False):
         '''

@@ -613,6 +613,10 @@ class Buildings:
         geometries = []
         ids = [] 
 
+        geometries_coordinates = []
+        ids_coordinates = []
+        counter_id_coordinates = 0
+
         for id, elem in enumerate(footprints):
 
             ids.append(id)
@@ -622,15 +626,19 @@ class Buildings:
 
             for i in range(0,int(len(polygon_coordinates)/2)):
                 groupedCoordinates.append((polygon_coordinates[i*2], polygon_coordinates[i*2+1]))
+                geometries_coordinates.append(Point(polygon_coordinates[i*2], polygon_coordinates[i*2+1]))
+                ids_coordinates.append(counter_id_coordinates)
+                counter_id_coordinates += 1
 
             geometries.append(Polygon(groupedCoordinates))
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
-      
+        gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
+
         df = df.set_index('building_id', drop=False)
         df = df.sort_index()
 
-        return {"df": df, "gdf": gdf}
+        return {"df": df, "gdf": {"objects": gdf, "coordinates": gdf_coordinates}}
 
     def get_coordinates(gdf, compute_normals=False):
         coordinates = gdf['coordinates'].values

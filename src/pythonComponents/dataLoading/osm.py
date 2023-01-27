@@ -282,7 +282,8 @@ class OSM:
                 overpass_responses[layer] = OSM.parse_osm({'elements': ways_elements['elements'] + complete_relation_elements['elements']})
 
         result = []
-        result_gdf = []
+        result_gdf_objects = []
+        result_gdf_coordinates = []
         ttype = ''
         styleKey = ''
         renderStyle = []
@@ -293,8 +294,8 @@ class OSM:
             if layer == 'buildings':
                 layer_geometry = OSM.osm_to_building_mesh(overpass_responses[layer], bbox)
                 geometry = layer_geometry['data']
-                gdf_geometry = layer_geometry['gdf']
-                result_gdf.append(gdf_geometry)
+                result_gdf_objects.append(layer_geometry['gdf']['objects'])
+                result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
                 ttype = 'BUILDINGS_LAYER'
                 styleKey = 'building'
                 renderStyle = ['SMOOTH_COLOR']
@@ -302,8 +303,8 @@ class OSM:
             elif layer == 'roads':
                 layer_geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bbox)
                 geometry = layer_geometry['data']
-                gdf_geometry = layer_geometry['gdf']
-                result_gdf.append(gdf_geometry)
+                result_gdf_objects.append(layer_geometry['gdf']['objects'])
+                result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
                 ttype = 'LINES_3D_LAYER'
                 styleKey = 'roads'
                 renderStyle = ['FLAT_COLOR']
@@ -311,8 +312,8 @@ class OSM:
             elif layer == 'coastline':
                 layer_geometry = OSM.osm_to_coastline_mesh(overpass_responses[layer], bbox)
                 geometry = layer_geometry['data']
-                gdf_geometry = layer_geometry['gdf']
-                result_gdf.append(gdf_geometry)
+                result_gdf_objects.append(layer_geometry['gdf']['objects'])
+                result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = 'land'
                 renderStyle = ['FLAT_COLOR']
@@ -320,8 +321,8 @@ class OSM:
             else:
                 layer_geometry = OSM.osm_to_generic_mesh(overpass_responses[layer], bbox, convert2dto3d=True)
                 geometry = layer_geometry['data']
-                gdf_geometry = layer_geometry['gdf']
-                result_gdf.append(gdf_geometry)
+                result_gdf_objects.append(layer_geometry['gdf']['objects'])
+                result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = layer
                 renderStyle = ['FLAT_COLOR']
@@ -332,11 +333,11 @@ class OSM:
         if load_surface:
             layer_geometry = OSM.create_surface_mesh(bbox)
             geometry = layer_geometry['data']
-            gdf_geometry = layer_geometry['gdf']
-            result_gdf.insert(0,gdf_geometry)
+            result_gdf_objects.insert(0,layer_geometry['gdf']['objects'])
+            result_gdf_coordinates.insert(0, layer_geometry['gdf']['coordinates'])
             result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['FLAT_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
 
-        return {'json': result, 'gdf': result_gdf}
+        return {'json': result, 'gdf': {'objects': result_gdf_objects, 'coordinates': result_gdf_coordinates}}
 
     def osm_to_roads_polyline(osm_elements, bbox):
         '''
@@ -808,11 +809,10 @@ class OSM:
         layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
 
         df_mesh = layer_dataframes['df']
-        gdf = layer_dataframes['gdf']
 
         json_mesh = Buildings.df_to_json(df_mesh) # prepares the layer   
 
-        return {"data": json_mesh['data'], "gdf": gdf}
+        return {"data": json_mesh['data'], "gdf": {'objects': layer_dataframes['gdf']['objects'], 'coordinates': layer_dataframes['gdf']['coordinates']}}
 
     def osm_to_generic_mesh(osm_elements, bbox, convert2dto3d=False):
         '''
@@ -913,9 +913,13 @@ class OSM:
 
         geometries = []
 
+        ids = []
+
         # triangulate
         mesh = []
-        for poly in polygons:
+        for id, poly in enumerate(polygons):
+
+            ids.append(id)
 
             nodes = []
             rings = []
@@ -960,7 +964,7 @@ class OSM:
 
             mesh.append({'type': 'type', 'geometry': {'coordinates': nodes, 'indices': indices}})
         
-        gdf = gpd.GeoDataFrame({'geometry': geometries}, crs=3395)
+        gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
         return {'data': mesh, 'gdf': gdf}
 
@@ -1267,7 +1271,7 @@ class OSM:
 
         nodes = utils.convertProjections("4326", "3395", nodes)
 
-        gdf = gpd.GeoDataFrame({'geometry': [Polygon([(nodes[0], nodes[1]), (nodes[2], nodes[3]), (nodes[4], nodes[5]), (nodes[6], nodes[7])])]}, crs=3395)
+        gdf = gpd.GeoDataFrame({'geometry': [Polygon([(nodes[0], nodes[1]), (nodes[2], nodes[3]), (nodes[4], nodes[5]), (nodes[6], nodes[7])])], "id": [0]}, crs=3395)
 
         nodes = utils.from2dTo3d(nodes)
 

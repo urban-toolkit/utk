@@ -32,6 +32,9 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
 
     data = []
     objectId = []
+    coordinates_geometries = []
+    coordinates_ids = []
+    coord_id_counter = 0
 
     for id, row in enumerate(loaded_shp.iloc):
 
@@ -59,6 +62,9 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
             for i in range(0, len(points), 2):
                 coordinates.append(points[i])
                 coordinates.append(points[i+1])
+                coordinates_geometries.append(Point(points[i], points[i+1]))
+                coordinates_ids.append(coord_id_counter)
+                coord_id_counter += 1
                 coordinates.append(0)
 
             count = int(len(coordinates)/3)
@@ -90,4 +96,6 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
 
     loaded_shp['id'] = objectId
 
-    return loaded_shp
+    coordinates_gdf = gpd.GeoDataFrame({'geometry': coordinates_geometries, "id": coordinates_ids}, crs=3395)
+
+    return {'objects': loaded_shp, 'coordinates': coordinates_gdf}
