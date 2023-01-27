@@ -31,8 +31,11 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
     loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
 
     data = []
+    objectId = []
 
-    for row in loaded_shp.iloc:
+    for id, row in enumerate(loaded_shp.iloc):
+
+        objectId.append(id)
 
         geometries = []
         if row['geometry'].geom_type == 'MultiPolygon':
@@ -85,46 +88,6 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
         layer_json_str = str(json.dumps(result, indent=4))
         f.write(layer_json_str)
 
+    loaded_shp['id'] = objectId
+
     return loaded_shp
-
-# def attachZip(buildings_file, zip_shape, bbox):
-#     '''
-#         In the same folder as the .shp file there must be a .prj and .shx files   
-
-#         The bounding box must be in the 4326 projection
-#     '''
-
-#     # bbox_series_4326 = gpd.GeoSeries([Point(bbox[0], bbox[1]), Point(bbox[2], bbox[3])], crs=4326)
-#     bbox_series_4326 = gpd.GeoSeries([Point(bbox[1], bbox[0]), Point(bbox[3], bbox[2])], crs=4326)
-
-#     shapefile = gpd.read_file(zip_shape, bbox=bbox_series_4326)
-
-#     bbox_series_4326 = bbox_series_4326.to_crs(3395)
-
-#     shapefile = shapefile.to_crs(3395)
-#     shapefile = shapefile.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
-#     # shapefile.plot()
-
-#     file = open(buildings_file, mode='r')
-#     file_content = json.loads(file.read())
-
-#     footprints_geometries = []
-
-#     for building_data in file_content['data']:
-#         groupedCoordinates = []
-
-#         sectionFootprint = building_data['geometry']['sectionFootprint'][0]
-
-#         for i in range(0,int(len(sectionFootprint)/2)):
-            
-#             groupedCoordinates.append((sectionFootprint[i*2], sectionFootprint[i*2+1]))
-
-#         footprints_geometries.append(Polygon(groupedCoordinates))
-
-#     footprints_gdf = gpd.GeoDataFrame({'geometry': footprints_geometries}, crs=3395)
-
-#     # print(footprints_gdf)
-
-#     join_left_gdf = footprints_gdf.sjoin(shapefile, how='left')
-
-#     # remove duplicate intersection by picking the first one    

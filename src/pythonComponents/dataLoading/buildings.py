@@ -8,7 +8,7 @@ import vedo
 from tqdm.notebook import trange
 from shapely import affinity
 from shapely.ops import linemerge
-from shapely.geometry import MultiPolygon, MultiLineString, LineString, Point, MultiPoint, box, polygon
+from shapely.geometry import MultiPolygon, MultiLineString, LineString, Point, MultiPoint, box, polygon, Polygon
 
 class Buildings:
                 
@@ -610,10 +610,27 @@ class Buildings:
             'pointsPerSection': pd.Series(pointsPerSection)
         })
 
+        geometries = []
+        ids = [] 
+
+        for id, elem in enumerate(footprints):
+
+            ids.append(id)
+
+            polygon_coordinates = elem[0]
+            groupedCoordinates = []
+
+            for i in range(0,int(len(polygon_coordinates)/2)):
+                groupedCoordinates.append((polygon_coordinates[i*2], polygon_coordinates[i*2+1]))
+
+            geometries.append(Polygon(groupedCoordinates))
+
+        gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
+      
         df = df.set_index('building_id', drop=False)
         df = df.sort_index()
 
-        return df
+        return {"df": df, "gdf": gdf}
 
     def get_coordinates(gdf, compute_normals=False):
         coordinates = gdf['coordinates'].values
