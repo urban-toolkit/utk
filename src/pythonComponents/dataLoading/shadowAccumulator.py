@@ -13,6 +13,7 @@ from datetime import datetime
 from datetime import timedelta
 
 import json
+import os
 
 class ShadowAccumulator:
     '''
@@ -263,9 +264,9 @@ class ShadowAccumulator:
 
         shadow_layer = {'coordinates': self.flat_coords, 'values': function_values}
 
-        print(self.filespaths)
+        directory = os.path.dirname(self.filespaths[0])
 
-        with open("shadow"+str(function_index)+".json", "w") as outfile:
+        with open(os.path.join(directory, "shadow"+str(function_index)+".json"), "w") as outfile:
             json.dump(shadow_layer, outfile, indent=4)
 
         # for index, geometries_count in enumerate(self.coords_per_file):
@@ -296,7 +297,7 @@ class ShadowAccumulator:
 
         self.loadFiles()
 
-        self.flat_coords = [float(elem) for sublist in self.coords for elem in sublist]
+        self.flat_coords = [float(elem) for sublist in self.coords_before_transformation for elem in sublist]
 
         for index, interval in enumerate(self.intervals):
             accum = self.accumulate(interval[0], interval[1], 0, 0, self.coords, self.indices, self.normals, 15)
