@@ -3,9 +3,11 @@ import json
 import asyncio
 import geopandas as gpd
 import pandas as pd
+import numpy as np
 
 from ipykernel.comm import Comm
 from shapely.geometry import Polygon, Point
+from scipy.spatial import KDTree
 
 import map
 # import urbantk.io.osm as osm
@@ -17,7 +19,7 @@ class UrbanComponent:
 
     cid = None
     style = {}
-    layers = {'json': [], 'gdf': {'objects': [], 'coordinates': []}}
+    layers = {'json': [], 'gdf': {'objects': [], 'coordinates': [], 'coordinates3d': []}}
     camera = {}
     bbox = []
 
@@ -32,6 +34,7 @@ class UrbanComponent:
         if bbox != None:
             self.bbox = bbox
 
+    # TODO: make this function more generic regarding the section footprint
     def jsonToGdf(self, layer_json, dim, abstract=False):
 
         ids = []
@@ -42,6 +45,9 @@ class UrbanComponent:
         geometries = []
         geometries_coordinates = []
 
+        tridimensional_coordinates = []
+        ids_tridimensional_coordinates = []
+        counter_id_tridimensional_coordinates = 0
 
         if(not abstract):
             for id, elem in enumerate(layer_json['data']):
@@ -53,7 +59,7 @@ class UrbanComponent:
                 polygon_coordinates = None
 
                 if('sectionFootprint' in elem['geometry']):
-                    polygon_coordinates = elem['geometry']['sectionFootprint'][0] # specially used for buildings
+                    polygon_coordinates = elem['geometry']['sectionFootprint'][0] # used for buildings
                 else:
                     polygon_coordinates = elem['geometry']['coordinates']
 
@@ -64,16 +70,31 @@ class UrbanComponent:
                     
                     groupedCoordinates.append((polygon_coordinates[i*dim], polygon_coordinates[i*dim+1]))
 
-                    geometries.append(Polygon(groupedCoordinates))
+                    if(dim == 3 and 'sectionFootprint' not in elem['geometry']): # if it has a 3d representation and it is not a building
+                        tridimensional_coordinates.append([polygon_coordinates[i*dim], polygon_coordinates[i*dim+1], polygon_coordinates[i*dim+2]])
+                        ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
+                        counter_id_tridimensional_coordinates += 1  
+
+                if('sectionFootprint' in elem['geometry']): # it is a building so a 3d representation must be included (it comes from the coordinates field)
+                    for i in range(0,int(len(elem['geometry']['coordinates'])/3)):
+                        tridimensional_coordinates.append([elem['geometry']['coordinates'][i*3], elem['geometry']['coordinates'][i*3+1], elem['geometry']['coordinates'][i*3+2]])
+                        ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
+                        counter_id_tridimensional_coordinates += 1  
+
+                geometries.append(Polygon(groupedCoordinates))
         else:
-            for i in range(0,int(len(layer_json['coordinates'])/dim)):
-                geometries_coordinates.append(Point(layer_json['coordinates'][i*dim], layer_json['coordinates'][i*dim+1]))
+            for i in range(0,int(len(layer_json['coordinates'])/3)):
+                
+                values_coordinates.append(layer_json['values'][i])
+                geometries_coordinates.append(Point(layer_json['coordinates'][i*3], layer_json['coordinates'][i*3+1]))
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395) if not abstract else {}
 
         gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395) if not abstract else gpd.GeoDataFrame({'geometry': geometries_coordinates, 'value': values_coordinates}, crs=3395)
 
-        return {'objects': gdf, 'coordinates': gdf_coordinates}
+        df_coordinates3d = pd.DataFrame({'geometry': tridimensional_coordinates, 'id': ids_tridimensional_coordinates}) if len(tridimensional_coordinates > 0) and len(ids_tridimensional_coordinates > 0) else None
+
+        return {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': df_coordinates3d}
 
     def addLayerFromJsonFile(self, json_pathfile, dim=None, gdf=None, abstract=False):
         layer_json = []
@@ -91,6 +112,7 @@ class UrbanComponent:
         self.layers['json'].append(layer_json)
         self.layers['gdf']['objects'].append(layer_gdf['objects'])
         self.layers['gdf']['coordinates'].append(layer_gdf['coordinates'])
+        self.layers['gdf']['coordinates3d'].append(layer_gdf['coordinates3d'])
 
     def addLayer(self, json_data, dim=None, gdf=None, abstract=False):
         layer_gdf = gdf
@@ -103,9 +125,9 @@ class UrbanComponent:
 
         self.layers['json'].append(json_data)
         self.layers['gdf']['objects'].append(layer_gdf['objects'])
-        self.layers['gdf']['coordinates'].append(layer_gdf['coordinates'])
+        self.layers['gdf']['coordinates3d'].append(layer_gdf['coordinates3d'])
 
-    def attachAbstractToPhysical(self, id_physical_layer, id_abstract_layer, predicate='nearest', aggregation='avg'):
+    def attachAbstractToPhysical(self, id_physical_layer, id_abstract_layer, predicate='nearest', aggregation='avg', tridimensional=False):
         '''
             Link one abstract layer to a physical layer considering a specific predicate: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
         
@@ -114,9 +136,9 @@ class UrbanComponent:
             When an abstract layer is merged with a physical layer the joined_objects are the attribute values and not ids of joined elements
         '''
 
-        return self.attachLayers(id_physical_layer, id_abstract_layer, predicate, left_level='coordinates', right_level='coordinates', abstract=True, aggregation=aggregation)
+        return self.attachLayers(id_physical_layer, id_abstract_layer, predicate, left_level='coordinates', right_level='coordinates', abstract=True, aggregation=aggregation, tridimensional=tridimensional)
 
-    def attachPhysicalLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects'):
+    def attachPhysicalLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', tridimensional=False):
         '''
             The predicates can be: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
 
@@ -124,10 +146,20 @@ class UrbanComponent:
 
             The attaching include the ids of the geometries of the right layer into the left layer considering the specified predicate
         '''
+        
+        return self.attachLayers(id_left_layer, id_right_layer, predicate, left_level, right_level, tridimensional=tridimensional)
 
-        return self.attachLayers(id_left_layer, id_right_layer, predicate, left_level, right_level)
+    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', abstract=False, aggregation='avg', tridimensional=False):
+        '''
+            Tridimensional indicates if the attaching should be done considering 3D geometries.
+        '''
 
-    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', abstract=False, aggregation='avg'):
+        if(tridimensional):
+            if(predicate != 'nearest'):
+                raise Exception("The predicate "+predicate+" is not supported for tridimensional geometries yet")
+
+            if(left_level != 'coordinates' or right_level != 'coordinates'):
+                raise Exception("Tridimensional attachment of layers can only be done with coordinates")
 
         left_layer_json = {}
 
@@ -146,22 +178,43 @@ class UrbanComponent:
                 right_layer_found = True
 
         if(left_layer_found == False or right_layer_found == False):
-            raise Exception("Left and/or right layer not found")
+            raise Exception("Left and/or right layer(s) not found")
+
+        if(tridimensional and ('tridimensional_representation' not in left_layer_gdf.columns or 'tridimensional_representation' not in right_layer_gdf.columns)):
+            raise Exception("Left and/or right layer(s) do(es) not have a tridimensional representation")
 
         join_left_gdf = {}
 
-        if(predicate == 'nearest'):
-            join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
+        if(not tridimensional): # if it is not tridimensional geopandas can be used
+            if(predicate == 'nearest'):
+                join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
+            else:
+                join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
         else:
-            join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
+            left_coords = left_layer_gdf['tridimensional_representation'].values
+            right_coords = right_layer_gdf['tridimensional_representation'].values
+
+            kdtree=KDTree(left_coords)
+            dist,points = kdtree.query(right_coords,1) # 1 best neighbor for the sample candidates
+
+            if(abstract):
+                left_coords['value_right'] = np.nan
+            else:
+                left_coords['id_right'] = np.nan
+
+            for index, point in enumerate(points):
+                if(abstract):
+                    left_coords.loc[index]['value_right'] = right_coords.loc[point]['value']
+                else:
+                    left_coords.loc[index]['id_right'] = right_coords.loc[point]['id']
 
         if('joined_layers' in left_layer_json):
             for join in left_layer_json['joined_layers']:
-                if(join['predicate'] == predicate and join['layer_id'] == id_right_layer and join['this_level'] == left_level and join['other_level'] == right_level and join['abstract'] == abstract): # if this attachment was already made
+                if(join['predicate'] == predicate and join['layer_id'] == id_right_layer and join['this_level'] == left_level and join['other_level'] == right_level and join['abstract'] == abstract and join['tridimensional'] == tridimensional): # if this attachment was already made
                     return
-            left_layer_json['joined_layers'].append({"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level, "abstract": abstract})
+            left_layer_json['joined_layers'].append({"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level, "abstract": abstract, "tridimensional": tridimensional})
         else:
-            left_layer_json['joined_layers'] = [{"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level, "abstract": abstract}]
+            left_layer_json['joined_layers'] = [{"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level, "abstract": abstract, "tridimensional": tridimensional}]
 
         joined_objects_entry = {}
 

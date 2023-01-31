@@ -610,9 +610,18 @@ class Buildings:
             'pointsPerSection': pd.Series(pointsPerSection)
         })
 
+        tridimensional_coordinates = []
+        ids_tridimensional_coordinates = []
+        counter_id_tridimensional_coordinates = 0
+
+        for sublist in coordinates:
+            for elem in sublist:
+                tridimensional_coordinates.append(elem)
+                ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)
+                counter_id_tridimensional_coordinates += 1
+
         geometries = []
         ids = [] 
-
         geometries_coordinates = []
         ids_coordinates = []
         counter_id_coordinates = 0
@@ -634,11 +643,12 @@ class Buildings:
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
         gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
+        df_3d_coordinates = pd.DataFrame({'geometry': tridimensional_coordinates, 'id': ids_tridimensional_coordinates})
 
         df = df.set_index('building_id', drop=False)
         df = df.sort_index()
 
-        return {"df": df, "gdf": {"objects": gdf, "coordinates": gdf_coordinates}}
+        return {"df": df, "gdf": {"objects": gdf, "coordinates": gdf_coordinates, "coordinates3d": df_3d_coordinates}}
 
     def get_coordinates(gdf, compute_normals=False):
         coordinates = gdf['coordinates'].values

@@ -262,7 +262,7 @@ class ShadowAccumulator:
 
         function_values = function_values.tolist()
 
-        shadow_layer = {'coordinates': self.flat_coords, 'values': function_values}
+        shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': self.flat_coords, 'values': function_values}
 
         directory = os.path.dirname(self.filespaths[0])
 
