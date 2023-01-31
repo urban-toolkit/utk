@@ -20,7 +20,7 @@ class UrbanComponent:
     cid = None
     style = {}
     layers = {'json': [], 'gdf': {'objects': [], 'coordinates': [], 'coordinates3d': []}}
-    camera = {}
+    camera = None
     bbox = []
 
     def __init__(self, cid = 'map', filepath = None, layers = None, camera = None, bbox = None):
@@ -146,7 +146,7 @@ class UrbanComponent:
 
             Levels supported: coordinates, coordinates3d. They are the same for the abstract and physical layers
 
-            When an abstract layer is merged with a physical layer the joined_objects are the attribute values and not ids of joined elements
+            When an abstract layer is merged with a physical layer the joinedObjects are the attribute values and not ids of joined elements
         '''
 
         return self.attachLayers(id_physical_layer, id_abstract_layer, predicate, left_level=level, right_level=level, abstract=True, aggregation=aggregation)
@@ -195,9 +195,9 @@ class UrbanComponent:
         if(not(isinstance(left_layer_gdf, pd.DataFrame)) or not(isinstance(right_layer_gdf, pd.DataFrame))):
             raise Exception("Left and/or right layer(s) do(es) not have a 3d representation")
 
-        if('joined_layers' in left_layer_json):
-            for join in left_layer_json['joined_layers']:
-                if(join['predicate'] == predicate and join['layer_id'] == id_right_layer and join['this_level'] == left_level and join['other_level'] == right_level and join['abstract'] == abstract): # if this attachment was already made
+        if('joinedLayers' in left_layer_json):
+            for join in left_layer_json['joinedLayers']:
+                if(join['predicate'] == predicate and join['layerId'] == id_right_layer and join['thisLevel'] == left_level and join['otherLevel'] == right_level and join['abstract'] == abstract): # if this attachment was already made
                     return
 
         join_left_gdf = {}
@@ -231,51 +231,51 @@ class UrbanComponent:
                 else:
                     join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[point, 'id']
 
-        if('joined_layers' in left_layer_json):
-            left_layer_json['joined_layers'].append({"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level, "abstract": abstract})
+        if('joinedLayers' in left_layer_json):
+            left_layer_json['joinedLayers'].append({"predicate": predicate, "layerId": id_right_layer, "thisLevel": left_level, "otherLevel": right_level, "abstract": abstract})
         else:
-            left_layer_json['joined_layers'] = [{"predicate": predicate, "layer_id": id_right_layer, "this_level": left_level, "other_level": right_level, "abstract": abstract}]
+            left_layer_json['joinedLayers'] = [{"predicate": predicate, "layerId": id_right_layer, "thisLevel": left_level, "otherLevel": right_level, "abstract": abstract}]
 
         joined_objects_entry = {}
 
         if(not abstract):
-            joined_objects_entry = {"joined_layer_index": len(left_layer_json['joined_layers'])-1, "other_ids": [None]*len(left_layer_gdf.index)}
+            joined_objects_entry = {"joinedLayerIndex": len(left_layer_json['joinedLayers'])-1, "otherIds": [None]*len(left_layer_gdf.index)}
         else: # the join with abstract layers carry values, not ids
-            joined_objects_entry = {"joined_layer_index": len(left_layer_json['joined_layers'])-1, "other_values": [None]*len(left_layer_gdf.index)}
+            joined_objects_entry = {"joinedLayerIndex": len(left_layer_json['joinedLayers'])-1, "otherValues": [None]*len(left_layer_gdf.index)}
 
-        if('joined_objects' not in left_layer_json):
-            left_layer_json['joined_objects'] = [joined_objects_entry]
+        if('joinedObjects' not in left_layer_json):
+            left_layer_json['joinedObjects'] = [joined_objects_entry]
         else:
-            left_layer_json['joined_objects'].append(joined_objects_entry)
+            left_layer_json['joinedObjects'].append(joined_objects_entry)
 
         for elem in join_left_gdf.iloc:
 
             if(not abstract):
                 if(not pd.isna(elem['id_right'])):
-                    if(left_layer_json['joined_objects'][-1]['other_ids'][int(elem['id'])] == None):
-                        left_layer_json['joined_objects'][-1]['other_ids'][int(elem['id'])] = []
+                    if(left_layer_json['joinedObjects'][-1]['otherIds'][int(elem['id'])] == None):
+                        left_layer_json['joinedObjects'][-1]['otherIds'][int(elem['id'])] = []
 
-                    left_layer_json['joined_objects'][-1]['other_ids'][int(elem['id'])].append(int(elem['id_right']))
+                    left_layer_json['joinedObjects'][-1]['otherIds'][int(elem['id'])].append(int(elem['id_right']))
             else:
                 if(not pd.isna(elem['value_right'])):
-                    if(left_layer_json['joined_objects'][-1]['other_values'][int(elem['id'])] == None):
-                        left_layer_json['joined_objects'][-1]['other_values'][int(elem['id'])] = []
+                    if(left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])] == None):
+                        left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])] = []
 
-                    left_layer_json['joined_objects'][-1]['other_values'][int(elem['id'])].append(int(elem['value_right']))
+                    left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])].append(int(elem['value_right']))
 
         if(abstract): # agregate values
-            for i in range(len(left_layer_json['joined_objects'][-1]['other_values'])):
-                if(left_layer_json['joined_objects'][-1]['other_values'][i] != None):
-                    if(len(left_layer_json['joined_objects'][-1]['other_values'][i]) == 1):
-                        left_layer_json['joined_objects'][-1]['other_values'][i] = left_layer_json['joined_objects'][-1]['other_values'][i][0]
+            for i in range(len(left_layer_json['joinedObjects'][-1]['otherValues'])):
+                if(left_layer_json['joinedObjects'][-1]['otherValues'][i] != None):
+                    if(len(left_layer_json['joinedObjects'][-1]['otherValues'][i]) == 1):
+                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = left_layer_json['joinedObjects'][-1]['otherValues'][i][0]
                     elif(aggregation == 'max'):
-                        left_layer_json['joined_objects'][-1]['other_values'][i] = max(left_layer_json['joined_objects'][-1]['other_values'][i])
+                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = max(left_layer_json['joinedObjects'][-1]['otherValues'][i])
                     elif(aggregation == 'min'):
-                        left_layer_json['joined_objects'][-1]['other_values'][i] = min(left_layer_json['joined_objects'][-1]['other_values'][i])
+                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = min(left_layer_json['joinedObjects'][-1]['otherValues'][i])
                     elif(aggregation == 'sum'):
-                        left_layer_json['joined_objects'][-1]['other_values'][i] = sum(left_layer_json['joined_objects'][-1]['other_values'][i])
+                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = sum(left_layer_json['joinedObjects'][-1]['otherValues'][i])
                     elif(aggregation == 'avg'):
-                        left_layer_json['joined_objects'][-1]['other_values'][i] = sum(left_layer_json['joined_objects'][-1]['other_values'][i])/len(left_layer_json['joined_objects'][-1]['other_values'][i])
+                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = sum(left_layer_json['joinedObjects'][-1]['otherValues'][i])/len(left_layer_json['joinedObjects'][-1]['otherValues'][i])
 
         return join_left_gdf
 
@@ -305,9 +305,10 @@ class UrbanComponent:
                     with open(os.path.join(filepath,layer['id']+'.json'), "w") as f:
                         f.write(layer_json_str)
 
-                camera_json_str = str(json.dumps(self.camera, indent=4))
-                with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
-                    f.write(camera_json_str)
+                if(self.camera != None):
+                    camera_json_str = str(json.dumps(self.camera, indent=4))
+                    with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
+                        f.write(camera_json_str)
 
                 index_json_str = str(json.dumps(index_json, indent=4))
                 with open(os.path.join(filepath,"index.json"), "w", encoding="utf-8") as f:
