@@ -140,7 +140,8 @@ class UrbanComponent:
 
     def attachAbstractToPhysical(self, id_physical_layer, id_abstract_layer, level='coordinates3d', predicate='nearest', aggregation='avg'):
         '''
-            Link one abstract layer to a physical layer considering a specific predicate: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
+            Link one abstract layer to a physical layer considering a specific predicate: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates) 
+            or direct (attach following the order)
         
             An aggregation function must be specified: avg, max, min, sum. The aggregation function will only be used when there is more than one match
 
@@ -170,7 +171,7 @@ class UrbanComponent:
         if((left_level == 'coordinates3d' and right_level != 'coordinates3d') or (left_level != 'coordinates3d' and right_level == 'coordinates3d')):
             raise Exception("3d coordinates can only be attached to 3d coordinates")
             
-        if(left_level == 'coordinates3d' and predicate != 'nearest'):
+        if(left_level == 'coordinates3d' and (predicate != 'nearest' and predicate != 'direct')):
             raise Exception("The predicate "+predicate+" is not supported for tridimensional geometries yet")
 
         left_layer_json = {}
@@ -202,21 +203,7 @@ class UrbanComponent:
 
         join_left_gdf = {}
 
-        if(left_level != 'coordinates3d'): # if it is not tridimensional geopandas can be used
-            if(predicate == 'nearest'):
-                join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
-            else:
-                join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
-        else:
-            left_coords = np.array([list(elem) for elem in left_layer_gdf['geometry'].values])
-            left_coords = np.reshape(left_coords, (-1,3))
-
-            right_coords = np.array([list(elem) for elem in left_layer_gdf['geometry'].values])
-            right_coords = np.reshape(right_coords, (-1,3))
-
-            kdtree=KDTree(left_coords)
-
-            dist,points = kdtree.query(right_coords,1) # 1 best neighbor for the sample candidates
+        if(predicate == 'direct'):
 
             join_left_gdf = left_layer_gdf.copy(deep=True)
 
@@ -225,11 +212,43 @@ class UrbanComponent:
             else:
                 join_left_gdf['id_right'] = np.nan
 
-            for index, point in enumerate(points):
+            for index in range(len(join_left_gdf.index)):
                 if(abstract):
-                    join_left_gdf.loc[index, 'value_right'] = right_layer_gdf.loc[point, 'value']
+                    join_left_gdf.loc[index, 'value_right'] = right_layer_gdf.loc[index, 'value']
                 else:
-                    join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[point, 'id']
+                    join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[index, 'id']
+        else:
+            if(left_level != 'coordinates3d'): # if it is not tridimensional geopandas can be used
+                if(predicate == 'nearest'):
+                    join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
+                elif(predicate == 'direct'):
+                    join_left_gdf = left_layer_gdf.copy(deep=True)
+                else:
+                    join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
+            else: 
+
+                join_left_gdf = left_layer_gdf.copy(deep=True)
+
+                if(abstract):
+                    join_left_gdf['value_right'] = np.nan
+                else:
+                    join_left_gdf['id_right'] = np.nan
+
+                left_coords = np.array([list(elem) for elem in left_layer_gdf['geometry'].values])
+                left_coords = np.reshape(left_coords, (-1,3))
+
+                right_coords = np.array([list(elem) for elem in left_layer_gdf['geometry'].values])
+                right_coords = np.reshape(right_coords, (-1,3))
+
+                kdtree=KDTree(left_coords)
+
+                dist,points = kdtree.query(right_coords,1) # 1 best neighbor for the sample candidates
+
+                for index, point in enumerate(points):
+                    if(abstract):
+                        join_left_gdf.loc[index, 'value_right'] = right_layer_gdf.loc[point, 'value']
+                    else:
+                        join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[point, 'id']
 
         if('joinedLayers' in left_layer_json):
             left_layer_json['joinedLayers'].append({"predicate": predicate, "layerId": id_right_layer, "thisLevel": left_level, "otherLevel": right_level, "abstract": abstract})
@@ -261,7 +280,7 @@ class UrbanComponent:
                     if(left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])] == None):
                         left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])] = []
 
-                    left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])].append(int(elem['value_right']))
+                    left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])].append(elem['value_right'])
 
         if(abstract): # agregate values
             for i in range(len(left_layer_json['joinedObjects'][-1]['otherValues'])):

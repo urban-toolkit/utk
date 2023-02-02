@@ -190,6 +190,7 @@ class ShadowAccumulator:
         return accumulation
 
     def per_face_avg(self, accumulation, indices, ids, ids_per_buildings):
+
         #make the ids global
         global_ids = []
 
@@ -238,7 +239,8 @@ class ShadowAccumulator:
         '''
             Distributes triangle avg to the coordinates that composes the triangle. The coordinates need to be duplicated, meaning that there are unique indices. 
         '''
-        avg_accumulation_per_coordinates = np.zeros(len(coords), dtype=np.float32) # the coordinate vector is flattened that is why /3
+
+        avg_accumulation_per_coordinates = np.zeros(len(coords), dtype=np.float32) 
 
         for index, elem in enumerate(avg_accumulation_triangle):
             avg_accumulation_per_coordinates[indices[index][0]] = elem
@@ -262,6 +264,7 @@ class ShadowAccumulator:
 
         function_values = function_values.tolist()
 
+        # decoupled abstract layer
         shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': self.flat_coords, 'values': function_values}
 
         directory = os.path.dirname(self.filespaths[0])
@@ -269,6 +272,7 @@ class ShadowAccumulator:
         with open(os.path.join(directory, "shadow"+str(function_index)+".json"), "w") as outfile:
             json.dump(shadow_layer, outfile, indent=4)
 
+        # coupled abstract layer
         # for index, geometries_count in enumerate(self.coords_per_file):
             
         #     mesh_file = open(self.filespaths[index],mode='r')
@@ -301,10 +305,12 @@ class ShadowAccumulator:
 
         for index, interval in enumerate(self.intervals):
             accum = self.accumulate(interval[0], interval[1], 0, 0, self.coords, self.indices, self.normals, 15)
+
             self.per_face_avg_accum = self.per_face_avg(accum, self.indices, self.ids, self.ids_per_structure) # accumulation per triangle
             avg_accumulation_per_coordinates = self.per_coordinates_avg(self.per_face_avg_accum, self.coords, self.indices) # accumulation per vertice
 
-            self.writeShadowData(avg_accumulation_per_coordinates, index)
+            # self.writeShadowData(avg_accumulation_per_coordinates, index)
+            self.writeShadowData([elem[0] for elem in accum], index)
 
     def loadFiles(self):
 
