@@ -196,10 +196,13 @@ class UrbanComponent:
         if(not(isinstance(left_layer_gdf, pd.DataFrame)) or not(isinstance(right_layer_gdf, pd.DataFrame))):
             raise Exception("Left and/or right layer(s) do(es) not have a 3d representation")
 
+        alreadyExistingJoinedIndex = -1
+
         if('joinedLayers' in left_layer_json):
-            for join in left_layer_json['joinedLayers']:
-                if(join['predicate'] == predicate and join['layerId'] == id_right_layer and join['thisLevel'] == left_level and join['otherLevel'] == right_level and join['abstract'] == abstract): # if this attachment was already made
-                    return
+            for index, join in enumerate(left_layer_json['joinedLayers']):
+                if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract): # if this attachment was already made
+                    alreadyExistingJoinedIndex = index
+                    break
 
         join_left_gdf = {}
 
@@ -250,51 +253,65 @@ class UrbanComponent:
                     else:
                         join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[point, 'id']
 
-        if('joinedLayers' in left_layer_json):
-            left_layer_json['joinedLayers'].append({"predicate": predicate, "layerId": id_right_layer, "thisLevel": left_level, "otherLevel": right_level, "abstract": abstract})
-        else:
-            left_layer_json['joinedLayers'] = [{"predicate": predicate, "layerId": id_right_layer, "thisLevel": left_level, "otherLevel": right_level, "abstract": abstract}]
+        if(alreadyExistingJoinedIndex == -1): # if it is a new join
+            if('joinedLayers' in left_layer_json):
+                left_layer_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract})
+            else:
+                left_layer_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract}]
 
         joined_objects_entry = {}
 
+        if(alreadyExistingJoinedIndex == -1):
+            alreadyExistingJoinedIndex = len(left_layer_json['joinedLayers'])-1
+
         if(not abstract):
-            joined_objects_entry = {"joinedLayerIndex": len(left_layer_json['joinedLayers'])-1, "otherIds": [None]*len(left_layer_gdf.index)}
+            joined_objects_entry = {"joinedLayerIndex": alreadyExistingJoinedIndex, "otherIds": [None]*len(left_layer_gdf.index)}
         else: # the join with abstract layers carry values, not ids
-            joined_objects_entry = {"joinedLayerIndex": len(left_layer_json['joinedLayers'])-1, "otherValues": [None]*len(left_layer_gdf.index)}
+            joined_objects_entry = {"joinedLayerIndex": alreadyExistingJoinedIndex, "otherValues": [None]*len(left_layer_gdf.index)}
+
+        replace = -1
 
         if('joinedObjects' not in left_layer_json):
             left_layer_json['joinedObjects'] = [joined_objects_entry]
         else:
-            left_layer_json['joinedObjects'].append(joined_objects_entry)
+
+            for index, joinedObject in enumerate(left_layer_json['joinedObjects']):
+                if(joinedObject['joinedLayerIndex'] == alreadyExistingJoinedIndex):
+                    replace = index
+
+            if(replace != -1): # if it is just an update
+                left_layer_json['joinedObjects'][replace] = joined_objects_entry
+            else: # if it is a brand new join
+                left_layer_json['joinedObjects'].append(joined_objects_entry)
 
         for elem in join_left_gdf.iloc:
 
             if(not abstract):
                 if(not pd.isna(elem['id_right'])):
-                    if(left_layer_json['joinedObjects'][-1]['otherIds'][int(elem['id'])] == None):
-                        left_layer_json['joinedObjects'][-1]['otherIds'][int(elem['id'])] = []
+                    if(left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id'])] == None):
+                        left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id'])] = []
 
-                    left_layer_json['joinedObjects'][-1]['otherIds'][int(elem['id'])].append(int(elem['id_right']))
+                    left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id'])].append(int(elem['id_right']))
             else:
                 if(not pd.isna(elem['value_right'])):
-                    if(left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])] == None):
-                        left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])] = []
+                    if(left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id'])] == None):
+                        left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id'])] = []
 
-                    left_layer_json['joinedObjects'][-1]['otherValues'][int(elem['id'])].append(elem['value_right'])
+                    left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id'])].append(elem['value_right'])
 
         if(abstract): # agregate values
-            for i in range(len(left_layer_json['joinedObjects'][-1]['otherValues'])):
-                if(left_layer_json['joinedObjects'][-1]['otherValues'][i] != None):
-                    if(len(left_layer_json['joinedObjects'][-1]['otherValues'][i]) == 1):
-                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = left_layer_json['joinedObjects'][-1]['otherValues'][i][0]
+            for i in range(len(left_layer_json['joinedObjects'][replace]['otherValues'])):
+                if(left_layer_json['joinedObjects'][replace]['otherValues'][i] != None):
+                    if(len(left_layer_json['joinedObjects'][replace]['otherValues'][i]) == 1):
+                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = left_layer_json['joinedObjects'][replace]['otherValues'][i][0]
                     elif(aggregation == 'max'):
-                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = max(left_layer_json['joinedObjects'][-1]['otherValues'][i])
+                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = max(left_layer_json['joinedObjects'][replace]['otherValues'][i])
                     elif(aggregation == 'min'):
-                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = min(left_layer_json['joinedObjects'][-1]['otherValues'][i])
+                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = min(left_layer_json['joinedObjects'][replace]['otherValues'][i])
                     elif(aggregation == 'sum'):
-                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = sum(left_layer_json['joinedObjects'][-1]['otherValues'][i])
+                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_json['joinedObjects'][replace]['otherValues'][i])
                     elif(aggregation == 'avg'):
-                        left_layer_json['joinedObjects'][-1]['otherValues'][i] = sum(left_layer_json['joinedObjects'][-1]['otherValues'][i])/len(left_layer_json['joinedObjects'][-1]['otherValues'][i])
+                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_json['joinedObjects'][replace]['otherValues'][i])/len(left_layer_json['joinedObjects'][replace]['otherValues'][i])
 
         return join_left_gdf
 
