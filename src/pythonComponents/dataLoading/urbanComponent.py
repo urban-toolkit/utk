@@ -302,7 +302,7 @@ class UrbanComponent:
         '''
             If separateFiles is true. filepath must be an existing directory.
             If running with separateFiles = True, this are the resulting files:
-            index.json
+            grammar.json
             building -> buildings.json
             camera -> camera.json
             coastline -> coastline.json
@@ -315,23 +315,36 @@ class UrbanComponent:
 
         if(separateFiles):
             if(os.path.isdir(filepath)):
-                index_json = {'cid': self.cid, 'layers': [], 'camera': 'camera'}
+                grammar_json = {
+                    "views": [
+                        {
+                            "map": {
+                                "camera": self.camera,
+                                "knots": []
+                            },
+                            "plots": [],
+                            "knots": []            
+                        }
+                    ],
+                    "arrangement": "LINKED"
+                }
 
                 for layer in self.layers['json']:
-                    index_json['layers'].append(layer['id'])
+                    grammar_json['views'][0]['knots'].append({"id": "pure"+layer['id'], "linkingScheme": [{"thisLayer": layer['id']}], "aggregationScheme": ["NONE"]})
+                    grammar_json['views'][0]['map']['knots'].append("pure"+layer['id'])
 
                     layer_json_str = str(json.dumps(layer, indent=4))
                     with open(os.path.join(filepath,layer['id']+'.json'), "w") as f:
                         f.write(layer_json_str)
 
-                if(self.camera != None):
-                    camera_json_str = str(json.dumps(self.camera, indent=4))
-                    with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
-                        f.write(camera_json_str)
+                # if(self.camera != None):
+                #     camera_json_str = str(json.dumps(self.camera, indent=4))
+                #     with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
+                #         f.write(camera_json_str)
 
-                index_json_str = str(json.dumps(index_json, indent=4))
-                with open(os.path.join(filepath,"index.json"), "w", encoding="utf-8") as f:
-                    f.write(index_json_str)
+                grammar_json_str = str(json.dumps(grammar_json, indent=4))
+                with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
+                    f.write(grammar_json_str)
 
             else:
                 raise Exception("separateFiles is true but filepath does not point to an existing directory")

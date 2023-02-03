@@ -96,7 +96,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, link
           // Serves data files to the map
           Environment.setEnvironment({backend: 'http://'+paramsMapView.environmentIP+':'+port+'/', dataFolder:paramsMapView.environmentDataFolder});
           // index.json is a file containing the descrition of map layers
-          const url = `${Environment.backend}/${Environment.dataFolder}/index.json`;
+          const url = `${Environment.backend}/${Environment.dataFolder}/grammar.json`;
           DataLoader.getJsonData(url).then(data => {
               app.run(data);
           });
