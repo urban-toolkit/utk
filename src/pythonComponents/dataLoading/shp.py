@@ -98,4 +98,6 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
 
     coordinates_gdf = gpd.GeoDataFrame({'geometry': coordinates_geometries, "id": coordinates_ids}, crs=3395)
 
+    print(loaded_shp)
+
     return {'objects': loaded_shp, 'coordinates': coordinates_gdf, 'coordinates3d': None}
