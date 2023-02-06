@@ -222,6 +222,7 @@ class UrbanComponent:
                     join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[index, 'id']
         else:
             if(left_level != 'coordinates3d'): # if it is not tridimensional geopandas can be used
+
                 if(predicate == 'nearest'):
                     join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
                 elif(predicate == 'direct'):
@@ -288,16 +289,16 @@ class UrbanComponent:
 
             if(not abstract):
                 if(not pd.isna(elem['id_right'])):
-                    if(left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id'])] == None):
-                        left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id'])] = []
+                    if(left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] == None):
+                        left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] = []
 
-                    left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id'])].append(int(elem['id_right']))
+                    left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])].append(int(elem['id_right']))
             else:
                 if(not pd.isna(elem['value_right'])):
-                    if(left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id'])] == None):
-                        left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id'])] = []
+                    if(left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] == None):
+                        left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] = []
 
-                    left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id'])].append(elem['value_right'])
+                    left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])].append(elem['value_right'])
 
         if(abstract): # agregate values
             for i in range(len(left_layer_json['joinedObjects'][replace]['otherValues'])):
