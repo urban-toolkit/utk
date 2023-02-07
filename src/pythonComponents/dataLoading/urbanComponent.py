@@ -285,6 +285,9 @@ class UrbanComponent:
             else: # if it is a brand new join
                 left_layer_json['joinedObjects'].append(joined_objects_entry)
 
+        if('id_left' not in join_left_gdf.columns):
+            join_left_gdf = join_left_gdf.rename(columns={'id': 'id_left'})
+
         for elem in join_left_gdf.iloc:
 
             if(not abstract):
