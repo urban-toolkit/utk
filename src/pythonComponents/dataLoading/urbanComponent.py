@@ -50,6 +50,7 @@ class UrbanComponent:
         counter_id_tridimensional_coordinates = 0
 
         if(not abstract):
+
             for id, elem in enumerate(layer_json['data']):
 
                 ids.append(id)

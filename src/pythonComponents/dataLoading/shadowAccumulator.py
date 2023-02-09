@@ -309,8 +309,25 @@ class ShadowAccumulator:
             self.per_face_avg_accum = self.per_face_avg(accum, self.indices, self.ids, self.ids_per_structure) # accumulation per triangle
             avg_accumulation_per_coordinates = self.per_coordinates_avg(self.per_face_avg_accum, self.coords, self.indices) # accumulation per vertice
 
+            max = -1
+            min = -1
+
+            for elem in accum:
+
+                if max == -1:
+                    max = elem[0]
+
+                if min == -1:
+                    min = elem[0]
+
+                if elem[0] > max:
+                    max = elem[0]
+
+                if elem[0] < min:
+                    min = elem[0]
+ 
             # self.writeShadowData(avg_accumulation_per_coordinates, index)
-            self.writeShadowData([elem[0] for elem in accum], index)
+            self.writeShadowData([(elem[0] - min) / (max - min) for elem in accum], index)
 
     def loadFiles(self):
 
