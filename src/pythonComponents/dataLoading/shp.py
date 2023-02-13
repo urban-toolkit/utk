@@ -30,6 +30,9 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
     loaded_shp = loaded_shp.to_crs(3395)
     loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
 
+    zip_code_name = []
+    zip_code_coordinates = []
+
     data = []
     objectId = []
     coordinates_geometries = []
@@ -67,8 +70,13 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
                 coord_id_counter += 1
                 coordinates.append(0)
 
+                zip_code_name.append(str(id))
+
+
             count = int(len(coordinates)/3)
         
+        zip_code_coordinates += coordinates
+
         data.append({
             "geometry": {
                 "coordinates": coordinates.copy(),
@@ -98,6 +106,11 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
 
     coordinates_gdf = gpd.GeoDataFrame({'geometry': coordinates_geometries, "id": coordinates_ids}, crs=3395)
 
-    print(loaded_shp)
+    output_abstract = {"id": "zipName", "coordinates": zip_code_coordinates, "values": zip_code_name}
+
+    with open(os.path.join(os.path.dirname(filepath), 'zipName.json') , "w", encoding="utf-8") as f:
+        
+        output_str = str(json.dumps(output_abstract, indent=4))
+        f.write(output_str)
 
     return {'objects': loaded_shp, 'coordinates': coordinates_gdf, 'coordinates3d': None}
