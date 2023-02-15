@@ -44,7 +44,7 @@ function App() {
     let tempPlots = [];
 
     for(let i = 0; i < n; i++){
-      tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Generic Plot", checked: false, edit: false});
+      tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: "Generic Plot", checked: false, edit: false});
       createdIds.push(tempId);
       tempId += 1;
     }
