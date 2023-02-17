@@ -24,7 +24,7 @@ export const GenericScreenPlotContainer = ({
     const nodeRef = useRef(null)
     
     return(
-        <Draggable nodeRef={nodeRef}>
+        // <Draggable nodeRef={nodeRef}>
             <div ref={nodeRef} className="drag-box" style={{display: disp? 'block' : 'none'}}>
                 {/* this div is holding the generic chart */}
                 <div>
@@ -34,6 +34,6 @@ export const GenericScreenPlotContainer = ({
                 </div>
             </div>
             
-        </Draggable>
+        // </Draggable>
     )
 }
