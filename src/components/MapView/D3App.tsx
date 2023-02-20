@@ -69,10 +69,10 @@ export class D3App {
         // loading image to html image element
         let image = new Image();
         image.addEventListener('load', function() {
-        
-        urlCreator.revokeObjectURL(blobURL);
+            
+            urlCreator.revokeObjectURL(blobURL);
 
-        lockFlag.set();
+            lockFlag.set();
 
         });
 
