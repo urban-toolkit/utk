@@ -20,8 +20,10 @@ class UrbanComponent:
     cid = None
     style = {}
     layers = {'json': [], 'gdf': {'objects': [], 'coordinates': [], 'coordinates3d': []}}
+    joinedJson = {}
     camera = None
     bbox = []
+    workDir = None
 
     def __init__(self, cid = 'map', filepath = None, layers = None, camera = None, bbox = None):
         if filepath != None:
@@ -33,6 +35,9 @@ class UrbanComponent:
             self.camera = camera
         if bbox != None:
             self.bbox = bbox
+
+    def setWorkDir(self, directory):
+        self.workDir = directory
 
     # TODO: make this function more generic regarding the section footprint
     def jsonToGdf(self, layer_json, dim, abstract=False):
@@ -164,6 +169,28 @@ class UrbanComponent:
         
         return self.attachLayers(id_left_layer, id_right_layer, predicate, left_level, right_level)
 
+    def loadJoinedJson(self, id_layer):
+        '''
+            Load the json file with the joined layers or create one if it doesnt exist.
+
+            Directory: where the json files are stored.
+        '''
+
+        if(self.workDir == None):
+            raise Exception("Error loading joined json workDir not configure")
+
+        filePath = os.path.join(self.workDir, id_layer+"_joined.json")
+
+        fileExists = os.path.exists(filePath)
+
+        joinedJson = {}
+
+        if(fileExists):
+            with open(filePath, "r", encoding="utf-8") as f:
+                joinedJson = json.load(f)
+
+        return joinedJson
+
     def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', abstract=False, aggregation='avg'):
         '''
             Tridimensional indicates if the attaching should be done considering 3D geometries.
@@ -197,10 +224,12 @@ class UrbanComponent:
         if(not(isinstance(left_layer_gdf, pd.DataFrame)) or not(isinstance(right_layer_gdf, pd.DataFrame))):
             raise Exception("Left and/or right layer(s) do(es) not have a 3d representation")
 
+        left_layer_joined_json = self.loadJoinedJson(id_left_layer)
+
         alreadyExistingJoinedIndex = -1
 
-        if('joinedLayers' in left_layer_json):
-            for index, join in enumerate(left_layer_json['joinedLayers']):
+        if('joinedLayers' in left_layer_joined_json):
+            for index, join in enumerate(left_layer_joined_json['joinedLayers']):
                 if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract): # if this attachment was already made
                     alreadyExistingJoinedIndex = index
                     break
@@ -256,15 +285,15 @@ class UrbanComponent:
                         join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[point, 'id']
 
         if(alreadyExistingJoinedIndex == -1): # if it is a new join
-            if('joinedLayers' in left_layer_json):
-                left_layer_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract})
+            if('joinedLayers' in left_layer_joined_json):
+                left_layer_joined_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract})
             else:
-                left_layer_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract}]
+                left_layer_joined_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract}]
 
         joined_objects_entry = {}
 
         if(alreadyExistingJoinedIndex == -1):
-            alreadyExistingJoinedIndex = len(left_layer_json['joinedLayers'])-1
+            alreadyExistingJoinedIndex = len(left_layer_joined_json['joinedLayers'])-1
 
         if(not abstract):
             joined_objects_entry = {"joinedLayerIndex": alreadyExistingJoinedIndex, "otherIds": [None]*len(left_layer_gdf.index)}
@@ -273,18 +302,18 @@ class UrbanComponent:
 
         replace = -1
 
-        if('joinedObjects' not in left_layer_json):
-            left_layer_json['joinedObjects'] = [joined_objects_entry]
+        if('joinedObjects' not in left_layer_joined_json):
+            left_layer_joined_json['joinedObjects'] = [joined_objects_entry]
         else:
 
-            for index, joinedObject in enumerate(left_layer_json['joinedObjects']):
+            for index, joinedObject in enumerate(left_layer_joined_json['joinedObjects']):
                 if(joinedObject['joinedLayerIndex'] == alreadyExistingJoinedIndex):
                     replace = index
 
             if(replace != -1): # if it is just an update
-                left_layer_json['joinedObjects'][replace] = joined_objects_entry
+                left_layer_joined_json['joinedObjects'][replace] = joined_objects_entry
             else: # if it is a brand new join
-                left_layer_json['joinedObjects'].append(joined_objects_entry)
+                left_layer_joined_json['joinedObjects'].append(joined_objects_entry)
 
         if('id_left' not in join_left_gdf.columns):
             join_left_gdf = join_left_gdf.rename(columns={'id': 'id_left'})
@@ -293,30 +322,33 @@ class UrbanComponent:
 
             if(not abstract):
                 if(not pd.isna(elem['id_right'])):
-                    if(left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] == None):
-                        left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] = []
+                    if(left_layer_joined_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] == None):
+                        left_layer_joined_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] = []
 
-                    left_layer_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])].append(int(elem['id_right']))
+                    left_layer_joined_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])].append(int(elem['id_right']))
             else:
                 if(not pd.isna(elem['value_right'])):
-                    if(left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] == None):
-                        left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] = []
+                    if(left_layer_joined_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] == None):
+                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] = []
 
-                    left_layer_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])].append(elem['value_right'])
+                    left_layer_joined_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])].append(elem['value_right'])
 
         if(abstract): # agregate values
-            for i in range(len(left_layer_json['joinedObjects'][replace]['otherValues'])):
-                if(left_layer_json['joinedObjects'][replace]['otherValues'][i] != None):
-                    if(len(left_layer_json['joinedObjects'][replace]['otherValues'][i]) == 1):
-                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = left_layer_json['joinedObjects'][replace]['otherValues'][i][0]
+            for i in range(len(left_layer_joined_json['joinedObjects'][replace]['otherValues'])):
+                if(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] != None):
+                    if(len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i]) == 1):
+                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = left_layer_joined_json['joinedObjects'][replace]['otherValues'][i][0]
                     elif(aggregation == 'max'):
-                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = max(left_layer_json['joinedObjects'][replace]['otherValues'][i])
+                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = max(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
                     elif(aggregation == 'min'):
-                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = min(left_layer_json['joinedObjects'][replace]['otherValues'][i])
+                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = min(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
                     elif(aggregation == 'sum'):
-                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_json['joinedObjects'][replace]['otherValues'][i])
+                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
                     elif(aggregation == 'avg'):
-                        left_layer_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_json['joinedObjects'][replace]['otherValues'][i])/len(left_layer_json['joinedObjects'][replace]['otherValues'][i])
+                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])/len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
+
+        if(id_left_layer+"_joined" not in self.joinedJson):
+            self.joinedJson[id_left_layer+"_joined"] = left_layer_joined_json
 
         return join_left_gdf
 
@@ -367,6 +399,11 @@ class UrbanComponent:
                 grammar_json_str = str(json.dumps(grammar_json, indent=4))
                 with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
                     f.write(grammar_json_str)
+
+                for fileName in self.joinedJson:
+                    with open(os.path.join(filepath,fileName+".json"), "w", encoding="utf-8") as f:
+                        joined_json_str = str(json.dumps(self.joinedJson[fileName], indent=4))
+                        f.write(joined_json_str)
 
             else:
                 raise Exception("separateFiles is true but filepath does not point to an existing directory")

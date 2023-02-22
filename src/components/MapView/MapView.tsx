@@ -25,11 +25,11 @@ import {D3App} from './D3App';
 // Mapview Application Class
 class App {
   _map: WebMap;
-  constructor(div: any, d3App: D3App | null = null, linkedContainerGenerator: any | null = null) {
+  constructor(div: any, d3App: D3App | null = null, linkedContainerGenerator: any | null = null, setGrammarFront: any | null = null) {
     const mapDiv = document.querySelector(div);
 
     if(d3App){
-      this._map = new WebMap(mapDiv, d3App, linkedContainerGenerator);
+      this._map = new WebMap(mapDiv, d3App, linkedContainerGenerator, setGrammarFront);
     }else{
       this._map = new WebMap(mapDiv);
     }
@@ -53,10 +53,11 @@ type mapViewDataProps = {
   frontEndMode?: string, //web is the default
   data?: any,
   d3App: D3App,
-  linkedContainerGenerator: any
+  linkedContainerGenerator: any,
+  setGrammarFront: any
 }
 
-export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, linkedContainerGenerator}:mapViewDataProps) => {
+export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, linkedContainerGenerator, setGrammarFront}:mapViewDataProps) => {
 
     useEffect(()=> {
         $('#map').empty();
@@ -83,7 +84,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, link
 
           // let d3app = new D3App('#svg_element', '#'+screenPlotSvgId, plotCollectionList);
 
-          let app = new App('#map', d3App, linkedContainerGenerator);
+          let app = new App('#map', d3App, linkedContainerGenerator, setGrammarFront);
         
           let port;
 

@@ -156,6 +156,12 @@ function App() {
     setGenericPlots(modifiedPlots);
   }
 
+  const [grammar, setGrammar] = useState('')
+
+  const setGrammarFront = (grammar: string) => {
+    setGrammar(grammar);
+  }
+
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('Chicago')
 
@@ -183,6 +189,7 @@ function App() {
         listPlots = {genericPlots}
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
+        grammar = {grammar}
       />
       {/* map view */}
       <MapViewer 
@@ -191,6 +198,7 @@ function App() {
         divWidth = {10}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
+        setGrammarFront = {setGrammarFront}
       />
 
       {
