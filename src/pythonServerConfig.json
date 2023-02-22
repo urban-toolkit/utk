@@ -1,0 +1,7 @@
+{
+    "paramsPythonServer": {
+        "environmentIP": "localhost",
+        "port": "3002",
+        "environmentDataFolder": "public/data/one_building"
+    }
+}

@@ -7,7 +7,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import { WebSocketServer } from 'ws';
-// import {paramsSendToUnity} from '../../params.js';
+import {paramsSendToUnity} from '../../params.js';
 
 var clients = [];
 
@@ -96,61 +96,56 @@ const checkNodes = () => {
 
 const run = async () => {
 
-  // TODO check if this is working properly
-  fetch('../../params.json')
-    .then(response => response.json())
-    .then(async (data) => {
-      let paramsSendToUnity = data.paramsSendToUnity;
+  let paramsSendToUnity = data.paramsSendToUnity;
 
-      const wss = new WebSocketServer({port: paramsSendToUnity.orderServerPort}, ()=>{
-        console.log(
-          chalk.green("Initializing server at "+paramsSendToUnity.orderServerPort)
-        );
-        console.log(
-          chalk.green("Waiting for all nodes to connect...")
-        );
-       });
+  const wss = new WebSocketServer({port: paramsSendToUnity.orderServerPort}, ()=>{
+    console.log(
+      chalk.green("Initializing server at "+paramsSendToUnity.orderServerPort)
+    );
+    console.log(
+      chalk.green("Waiting for all nodes to connect...")
+    );
+    });
 
-      wss.on('connection', (ws)=>{
-        // Add connected client to array
-        clients.push([ws, '']);
-        console.log(
-          chalk.green(`${clients.length} nodes connected`)
-        );
+  wss.on('connection', (ws)=>{
+    // Add connected client to array
+    clients.push([ws, '']);
+    console.log(
+      chalk.green(`${clients.length} nodes connected`)
+    );
 
-        ws.on('message', (data)=>{
-          // Associate incoming ID information with right client connection
-          clients.forEach((elem) => {
-            if(ws === elem[0]){
-              elem[1] = data.toString();
-            }
-          });
-          /*console.log(
-            chalk.green(`${data} received. Clients: ${clients}`)
-          );*/
-        });
+    ws.on('message', (data)=>{
+      // Associate incoming ID information with right client connection
+      clients.forEach((elem) => {
+        if(ws === elem[0]){
+          elem[1] = data.toString();
+        }
       });
-
-      checkNodes();
-
-      // Show script introduction
-      init();
-
-      while(true){
-
-        // Ask questions
-        const answers = await askQuestions();
-        const { NODE, SLICE } = answers;
-      
-        console.log(
-          chalk.white.bgGreen.bold(`Changing ${NODE} to slice ${SLICE}...`)
-        );
-
-        // Send choosen slice number to Unity instance
-        clients[parseInt(NODE)-1][0].send(SLICE);
-
-      }
+      /*console.log(
+        chalk.green(`${data} received. Clients: ${clients}`)
+      );*/
+    });
   });
+
+  checkNodes();
+
+  // Show script introduction
+  init();
+
+  while(true){
+
+    // Ask questions
+    const answers = await askQuestions();
+    const { NODE, SLICE } = answers;
+  
+    console.log(
+      chalk.white.bgGreen.bold(`Changing ${NODE} to slice ${SLICE}...`)
+    );
+
+    // Send choosen slice number to Unity instance
+    clients[parseInt(NODE)-1][0].send(SLICE);
+
+  }
 
   
 

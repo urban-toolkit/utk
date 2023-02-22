@@ -2,17 +2,15 @@ import os
 from flask import Flask, request, send_from_directory, abort
 import json
 
-# app = Flask(__name__, static_folder=os.path.abspath('./vis/dist/shadow-maps/'))
 app = Flask(__name__)
 workDir = None
-# @app.route('/', methods=['GET'])
-# def index():
-#     return serve_static('index.html')
 
-# @app.route('/<path:filename>', methods=['GET'])
-# def serve_static(filename):
-#     # return send_from_directory(safe_join(app.root_path,'vis/dist/shadow-maps/'), filename)
-#     return send_from_directory(os.path.join(app.root_path, 'vis/dist/shadow-maps/'), filename)
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
 
 @app.route('/linkLayers', methods=['GET'])
 def serve_linkLayers():
@@ -37,8 +35,6 @@ def serve_linkLayers():
 @app.route('/clearLinks', methods=['GET'])
 def serve_clearLinks():
 
-    print(workDir)
-
     if("layer" not in request.args):
         print("cleaning joined layers of all layers")
     else:
@@ -46,14 +42,25 @@ def serve_clearLinks():
     
     return ''
 
+@app.route('/updateGrammar', methods=['POST'])
+def serve_updateGrammar():
+
+    grammar = request.json['grammar']
+    
+    with open(os.path.join(workDir,"grammar.json"), "w", encoding="utf-8") as f:
+        f.write(grammar)
+
+    return ''
+
 if __name__ == '__main__':
 
     params = {}
 
-    with open('../../params.json', "r", encoding="utf-8") as f:
+    with open('src/pythonServerConfig.json', "r", encoding="utf-8") as f:
         params = json.load(f)
         params = params["paramsPythonServer"]
 
     workDir = params["environmentDataFolder"]
 
+    
     app.run(debug=True, host=params["environmentIP"], port=params["port"])

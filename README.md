@@ -50,7 +50,7 @@ Tested Python version '3.10.6'
 
 ### Configuration
 
-All important configuration parameters are situated in src/params.js.  
+All important configuration parameters are situated in src/params.js or src/pythonServerConfig.json.  
 
 ### Info
 
@@ -74,7 +74,7 @@ When specifying the layers buildings has allways to be the last one.
 
 The data used in the stages is served through the public folder.  
 
-If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js  
+If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js 
 
 Obs: Currently it is only possible to load public/data/example_mesh_nyc, because it is the only example that uses the projection 3395 instead of lat/lng.
 
