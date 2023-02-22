@@ -59,6 +59,7 @@ export const WidgetsComponent = ({
             />
             <GrammarPanelContainer 
                 textSpec = {grammar}
+                applyGrammar = {(text: string) => {console.log(text)}}
             />
             {/* data widget */}
             {/* <DataWidget 

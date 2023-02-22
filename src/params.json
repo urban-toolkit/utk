@@ -1,0 +1,16 @@
+{
+    "paramsSendToUnity": {
+        "orderServerIP": "localhost",
+        "orderServerPort": "4000",
+        "unityServerIP": "localhost"
+    },
+    "paramsMapView": {
+        "environmentIP": "localhost",
+        "environmentDataFolder": "data/one_building"
+    },
+    "paramsPythonServer": {
+        "environmentIP": "localhost",
+        "port": "3002",
+        "environmentDataFolder": "data/one_building"
+    }
+}
