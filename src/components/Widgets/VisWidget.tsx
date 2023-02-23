@@ -68,9 +68,9 @@ export const VisWidget = ({
                 <Button id="space" variant="outline-secondary" onClick={() => setVisOpen(!visOpen)} aria-controls="example-collapse-text" aria-expanded={visOpen}>
                     <FaChartBar /> VIS
                 </Button>
-                <Button id="space" variant="outline-secondary" onClick={togglePlotCollection}>
+                {/* <Button id="space" variant="outline-secondary" onClick={togglePlotCollection}>
                     <FaChartBar /> Plot Collection
-                </Button>
+                </Button> */}
                 {
                 /* list of visualizations */
                 }

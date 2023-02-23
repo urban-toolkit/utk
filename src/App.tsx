@@ -156,7 +156,7 @@ function App() {
     setGenericPlots(modifiedPlots);
   }
 
-  const [grammar, setGrammar] = useState('')
+  const [grammar, setGrammar] = useState('');
 
   const setGrammarFront = (grammar: string) => {
     setGrammar(grammar);
@@ -195,7 +195,7 @@ function App() {
       <MapViewer 
       // variable contains which city data to load
         dataToView = {cityRef}
-        divWidth = {10}
+        divWidth = {9}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
         setGrammarFront = {setGrammarFront}
@@ -213,16 +213,16 @@ function App() {
         ))
       }
 
-      <PlotCollectionContainer 
+      {/* <PlotCollectionContainer 
         disp = {showPlotCollection}
         togglePlotSpec = {togglePlotSpec}
         collection = {plotCollectionList}
-      />
+      /> */}
 
-      <PlotSpecificationContainer
+      {/* <PlotSpecificationContainer
         disp = {showPlotSpec}
         addSpecInCollection = {addSpecInCollection}
-      />
+      /> */}
 
       </Row>
     </Container>

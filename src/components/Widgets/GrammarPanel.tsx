@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
+import { createAndRunMap } from "../MapView/MapView";
 
 import * as d3 from "d3";
 
@@ -11,7 +12,7 @@ type GrammarPanelProps = {
 }
 
 export const GrammarPanelContainer = ({
-    textSpec
+    textSpec,
 }: GrammarPanelProps
 ) =>{
 
@@ -30,6 +31,9 @@ export const GrammarPanelContainer = ({
             },
             body: JSON.stringify(data)
         })
+        .then((response) => {
+            createAndRunMap();
+        })
         .catch(error => {
             console.error('Request to update grammar failed: ', error);
         });
@@ -46,24 +50,25 @@ export const GrammarPanelContainer = ({
         //         {/* <button type="button" onClick={() => applyGrammar(d3.select("#grammarTextArea").property('value'))}>Apply</button> */}
         //     </div>
         // </div>
-        
         <div>
-            <CodeEditor
-                value={textSpec}
-                language="js"
-                placeholder="Grammar specification"
-                onChange={(evn) => setCode(evn.target.value)}
-                padding={15}
-                style={{
-                    fontSize: 12,
-                    backgroundColor: "#f5f5f5",
-                    fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
-                    overflow: "scroll",
-                    height: "650px"
-                }}
-            />
+            <div style={{height: "650px", overflow: "auto"}}>
+                <CodeEditor
+                    value={textSpec}
+                    language="js"
+                    placeholder="Grammar specification"
+                    onChange={(evn) => setCode(evn.target.value)}
+                    padding={15}
+                    style={{
+                        fontSize: 12,
+                        backgroundColor: "#f5f5f5",
+                        fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                        
+                    }}
+                />
+            </div>
             <button type="button" onClick={() => applyGrammar()}>Apply</button>
         </div>
+        
         
     )
 }

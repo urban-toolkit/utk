@@ -7,6 +7,7 @@ import { DataWidget } from "./DataWidget";
 import { VisWidget } from "./VisWidget";
 import { GrammarPanelContainer } from "./GrammarPanel";
 
+
 // value types that are being passed in the function parameter
 type widgetProps = {
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
@@ -46,7 +47,7 @@ export const WidgetsComponent = ({
 }: widgetProps) => {
 
     return(
-        <Col md={2}>
+        <Col md={3}>
             {/* visualization widget */}
             <VisWidget 
                 genericScreenPlotToggle = {genericScreenPlotToggle}

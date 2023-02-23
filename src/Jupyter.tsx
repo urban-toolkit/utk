@@ -14,6 +14,10 @@ import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
 import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
 
+import { D3App } from './components/MapView/D3App';
+
+import * as d3 from "d3";
+
 // common variables for vis components
 // width and height of the whole SVG 
 //  are calculated using useWindowResize function
@@ -30,36 +34,39 @@ const yScaleOffset = 22
 const xAxisLabelOffset = 40
 const yAxisLabelOffset = 40
 
-
-// fake data for bar chart
-// const barData = [
-//   {country: 'Russia', value: 6148},
-//   {country: 'Germany', value: 1653},
-//   {country: 'France', value: 2162},
-//   {country: 'China', value: 1131},
-//   {country: 'Spain', value: 814},
-//   {country: 'Netherlands', value: 1167},
-//   {country: 'Italy', value: 660},
-//   {country: 'Israel', value: 1263},
-// ];
-
 function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   // size to maintain responsiveness
   const size = useWindowResize();
 
-  const svgId = "genericPlotSvg";
+  const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
+  const [currentPlotId, setCurrentPlotId] = useState(0);
+  const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
+  const [grammar, setGrammar] = useState('');
 
-  const [genericPlots, setGenericPlots] = useState([{id: 0, hidden: true, svgId: "genericPlotSvg0"}])
+  const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
-  const addNewGenericPlot = (newPlotId: number) => {
-    setGenericPlots(genericPlots.concat([{id: newPlotId, hidden: true, svgId: "genericPlotSvg"+newPlotId}]));
+  const addNewGenericPlot = (n: number = 1) => {
+
+    let tempId = currentPlotId;
+    let createdIds = [];
+    let tempPlots = [];
+
+    for(let i = 0; i < n; i++){
+      tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: "Generic Plot", checked: false, edit: false});
+      createdIds.push(tempId);
+      tempId += 1;
+    }
+
+    setGenericPlots(genericPlots.concat(tempPlots));
+    setCurrentPlotId(tempId);
+    return createdIds;
   }
 
   const removeGenericPlot = (plotId: number) => {
     let modifiedPlots = [];
     for(const plot of genericPlots){
       if(plot.id != plotId){
-        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId});
+        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
       }
     }
     setGenericPlots(modifiedPlots);    
@@ -69,9 +76,9 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
     let modifiedPlots = [];
     for(const plot of genericPlots){
       if(plot.id == plotId){
-        modifiedPlots.push({id: plot.id, hidden: !plot.hidden, svgId: plot.svgId});
+        modifiedPlots.push({id: plot.id, hidden: !plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
       }else{
-        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId});
+        modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
       }
     }
     setGenericPlots(modifiedPlots);
@@ -79,6 +86,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
 
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('none')
+  const [showPlotCollection, setShowPlotCollection] = useState(false);
 
   /**
    * data handler function - on radio button change save the value of the city
@@ -87,6 +95,78 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   const onCityChange = (event: React.ChangeEvent<HTMLInputElement>) =>{
     setCityRef(event.target.value);
     // console.log(event.target)
+  }
+
+  const togglePlotCollection = () => {
+    setShowPlotCollection(!showPlotCollection);
+  }
+
+  const modifyLabelPlot = (newName: string, plotId: number) => {
+    let modifiedPlots = [];
+    
+    for(const plot of genericPlots){
+        if(plot.id == plotId){
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: newName, checked: plot.checked, edit: plot.edit});
+        }else{
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
+        }
+    }
+
+    setGenericPlots(modifiedPlots);
+  }
+
+  const modifyEditingState = (plotId: number) => {
+    let modifiedPlots = [];
+    
+    for(const plot of genericPlots){
+        if(plot.id == plotId){
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: !plot.edit});
+        }else{
+            modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
+        }
+    }
+
+    setGenericPlots(modifiedPlots);
+  }
+
+  const linkedContainerGenerator = (n: number) => {
+    let createdIds = addNewGenericPlot(n);
+
+    // promise is only resolved when the container is created
+    return new Promise(async function (resolve, reject) {
+
+      let checkContainer = async () => {
+
+        let allContainersCreated = true;
+
+        for(const id of createdIds){
+          if(d3.select("#"+"genericPlotSvg"+id).empty()){
+            allContainersCreated = false;
+            break;
+          }
+        }
+
+        if(!allContainersCreated) { // the container was not create yet or the state still needs to be updated
+            await new Promise(r => setTimeout(r, 100));
+            checkContainer();
+        }
+      }
+    
+      await checkContainer();
+
+      let returnIds = [];
+
+      for(const id of createdIds){
+        returnIds.push("genericPlotSvg"+id);
+      }
+
+      resolve(returnIds);
+
+    });
+  }
+
+  const setGrammarFront = (grammar: string) => {
+    setGrammar(grammar);
   }
 
   return (
@@ -98,15 +178,21 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         genericScreenPlotToggle ={toggleGenericPlot}
         addGenericPlot = {addNewGenericPlot}
         removeGenericPlot = {removeGenericPlot}
+        togglePlotCollection = {togglePlotCollection}
         // city data change function
         onCityRefChange = {onCityChange}
+        listPlots = {genericPlots}
+        modifyLabelPlot = {modifyLabelPlot}
+        modifyEditingState = {modifyEditingState}
+        grammar = {grammar}
       />
       {/* map view */}
       <MapViewer 
         dataToView = {'none'}
-        divWidth = {10}
-        screenPlotSvgId = {svgId}
-        data = {data.city}
+        divWidth = {9}
+        d3App = {d3App}
+        linkedContainerGenerator = {linkedContainerGenerator}
+        setGrammarFront = {setGrammarFront}
       />
 
       {
