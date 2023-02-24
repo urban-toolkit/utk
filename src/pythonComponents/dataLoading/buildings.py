@@ -442,6 +442,7 @@ class Buildings:
         '''
 
         building = building.to_crs('epsg:3395')
+
         min_heights = building.min_height.values
         heights = building.height.values
         all_heights = np.concatenate((min_heights, heights))
@@ -561,7 +562,7 @@ class Buildings:
     def generate_building_layer(gdf, size):
         
         gdf = gdf.to_crs('epsg:3395')   
-        
+
         building_ids = []
         coordinates = []
         indices = []
@@ -642,6 +643,7 @@ class Buildings:
             geometries.append(Polygon(groupedCoordinates))
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
+
         gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
         df_3d_coordinates = pd.DataFrame({'geometry': tridimensional_coordinates, 'id': ids_tridimensional_coordinates})
 

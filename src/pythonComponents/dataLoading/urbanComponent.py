@@ -396,9 +396,9 @@ class UrbanComponent:
                 #     with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
                 #         f.write(camera_json_str)
 
-                grammar_json_str = str(json.dumps(grammar_json, indent=4))
-                with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
-                    f.write(grammar_json_str)
+                # grammar_json_str = str(json.dumps(grammar_json, indent=4))
+                # with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
+                #     f.write(grammar_json_str)
 
                 for fileName in self.joinedJson:
                     with open(os.path.join(filepath,fileName+".json"), "w", encoding="utf-8") as f:
