@@ -107,14 +107,6 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 - Fix bugs regarding the orientation of the texture in the surface (I am not accounting for rotated planes).
 - Improve d3Expec class. urbantk-map should not need to know what happens in the front end (create abstract class that is implemented in the front-end).
 
-- Because of a package used in urban-tk some rules from typescript were disabled (in order to build urbantk-react). The best solution is to enable them again and use the source code of the library as a sub-module. They were disabled by inserting comments in the file.Disabled rules:
-   - @typescript-eslint/no-empty-function
-      - /* eslint-disable @typescript-eslint/no-empty-function */
-   - no-cond-assign
-      - /* eslint-disable no-cond-assign */
-   - require-yield
-      - /* eslint-disable require-yield */
-
 ### Package List
 
 1. react-bootstrap - https://www.npmjs.com/package/react-bootstrap
