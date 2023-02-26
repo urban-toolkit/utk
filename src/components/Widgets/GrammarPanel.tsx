@@ -20,8 +20,14 @@ export const GrammarPanelContainer = ({
 
     const applyGrammar = () => {
 
+        let sendGrammar = grammar;
+
+        if(sendGrammar == ''){
+            sendGrammar = textSpec;
+        }
+
         const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port+"/updateGrammar";
-        const data = { "grammar": grammar };
+        const data = { "grammar": sendGrammar };
     
         fetch(url, {
             method: 'POST',

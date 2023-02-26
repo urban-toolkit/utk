@@ -55,7 +55,22 @@ function App() {
   }
 
   const linkedContainerGenerator = (n: number) => {
-    let createdIds = addNewGenericPlot(n);
+
+    let neededPlots = n - genericPlots.length;
+
+    let createdIds: number[] = [];
+
+    if(neededPlots > 0){
+      for(let i = 0; i < genericPlots.length; i++){
+        createdIds.push(genericPlots[i].id);
+      }
+
+      createdIds = createdIds.concat(addNewGenericPlot(neededPlots));
+    }else{
+      for(let i = 0; i < n; i++){
+        createdIds.push(genericPlots[i].id);
+      }
+    }
 
     // promise is only resolved when the container is created
     return new Promise(async function (resolve, reject) {
