@@ -18,7 +18,48 @@ export const GrammarPanelContainer = ({
 
     const [grammar, setCode] = useState('');
 
-    const applyGrammar = () => {
+    const createLinks = async (url: string) => {
+        let grammarString = grammar;
+
+        if(grammarString == ''){
+            grammarString = textSpec;
+        }
+
+        if(grammarString == '')
+            return
+
+        let grammarObject = JSON.parse(grammarString);
+
+        for(const knot of grammarObject.views[0].knots){
+            if(knot.knotOp != true){
+                for(let i = 0; i < knot.linkingScheme.length; i++){
+                    if(knot.linkingScheme[i].predicate != 'INNERAGG' && knot.linkingScheme[i].otherLayer != undefined){
+                        let predicate = knot.linkingScheme[i].predicate.toLowerCase();
+                        let thisLayer = knot.linkingScheme[i].thisLayer;
+                        let thisLevel = knot.linkingScheme[i].thisLevel.toLowerCase();
+                        let otherLevel = knot.linkingScheme[i].otherLevel.toLowerCase();
+
+                        let aggregation = knot.aggregationScheme[i].toLowerCase();
+
+                        if(aggregation == 'none'){
+                            aggregation = 'avg'; // there must be an aggregation to solve conflicts in the join
+                        }
+
+                        let otherLayer = knot.linkingScheme[i].otherLayer;
+                        let abstract = knot.linkingScheme[i].abstract;
+
+                        await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel);
+                    }
+                }
+            }
+        }
+    }
+
+    const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
+
+    createLinks(url);
+
+    const applyGrammar = async () => {
 
         let sendGrammar = grammar;
 
@@ -26,10 +67,9 @@ export const GrammarPanelContainer = ({
             sendGrammar = textSpec;
         }
 
-        const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port+"/updateGrammar";
         const data = { "grammar": sendGrammar };
     
-        fetch(url, {
+        fetch(url+"/updateGrammar", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -37,7 +77,10 @@ export const GrammarPanelContainer = ({
             },
             body: JSON.stringify(data)
         })
-        .then((response) => {
+        .then(async (response) => {
+
+            await createLinks(url);
+
             createAndRunMap();
         })
         .catch(error => {

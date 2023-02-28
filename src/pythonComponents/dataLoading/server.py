@@ -1,6 +1,9 @@
 import os
 from flask import Flask, request, send_from_directory, abort
 import json
+from osm import *
+from urbanComponent import *
+import pandas as pd
 
 app = Flask(__name__)
 workDir = None
@@ -15,21 +18,45 @@ def add_cors_headers(response):
 @app.route('/linkLayers', methods=['GET'])
 def serve_linkLayers():
 
-    if("predicate" not in request.args or "layerId" not in request.args or "thisLevel" not in request.args or "otherLevel" not in request.args or "abstract" not in request.args):
-        abort(400, "Missing one or more parameters of: predicate, layerId, thisLevel, otherLevel, abstract")
+    if("otherLayer" not in request.args or "predicate" not in request.args or "thisLayer" not in request.args or "thisLevel" not in request.args or "otherLevel" not in request.args or "abstract" not in request.args):
+        abort(400, "Missing one or more parameters of: otherLayer, predicate, thisLayer, thisLevel, otherLevel, abstract")
 
     predicate = request.args.get('predicate')
-    layerId = request.args.get('layerId')
+    thisLayer = request.args.get('thisLayer')
+    otherLayer = request.args.get('otherLayer')
     thisLevel = request.args.get('thisLevel')
     otherLevel = request.args.get('otherLevel')
     abstract = request.args.get('abstract')
 
-    print("predicate "+predicate)
-    print("layerId "+layerId)
-    print("thisLevel "+thisLevel)
-    print("otherLevel "+otherLevel)
-    print("abstract "+abstract)
-    
+    if(abstract == "true"):
+        abstract = True
+    else:
+        abstract = False
+
+    aggregation = 'avg'
+
+    if("aggregation" in request.args):
+        aggregation = request.args.get('aggregation')
+
+    uc = UrbanComponent()
+
+    uc.setWorkDir(workDir)
+
+    uc.addLayerFromJsonFile(os.path.join(workDir, thisLayer+".json"))
+    uc.addLayerFromJsonFile(os.path.join(workDir, otherLayer+".json"), abstract=abstract)
+
+    newAttachments = pd.DataFrame()
+
+    if(abstract):
+        if(thisLevel != otherLevel):
+            raise Exception("For abstract join the levels of both layers should be the same")
+        newAttachments = uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation)
+    else:
+        newAttachments = uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
+
+    if(not newAttachments.empty):
+        uc.to_file(workDir, True)
+
     return ''
 
 @app.route('/clearLinks', methods=['GET'])

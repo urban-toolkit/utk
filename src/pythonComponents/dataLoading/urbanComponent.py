@@ -54,7 +54,12 @@ class UrbanComponent:
         ids_tridimensional_coordinates = []
         counter_id_tridimensional_coordinates = 0
 
+        dimensions = 3
+
+
         if(not abstract):
+            if('sectionFootprint' in layer_json['data'][0]['geometry']): # hard coded buildings case. We want to consider the footprint for 2D joins not the whole building
+                dimensions = 2 
 
             for id, elem in enumerate(layer_json['data']):
 
@@ -69,15 +74,15 @@ class UrbanComponent:
                 else:
                     polygon_coordinates = elem['geometry']['coordinates']
 
-                for i in range(0,int(len(polygon_coordinates)/dim)):
-                    geometries_coordinates.append(Point(polygon_coordinates[i*dim], polygon_coordinates[i*dim+1]))
+                for i in range(0,int(len(polygon_coordinates)/dimensions)):
+                    geometries_coordinates.append(Point(polygon_coordinates[i*dimensions], polygon_coordinates[i*dimensions+1]))
                     ids_coordinates.append(counter_id_coordinates)
                     counter_id_coordinates += 1
                     
-                    groupedCoordinates.append((polygon_coordinates[i*dim], polygon_coordinates[i*dim+1]))
+                    groupedCoordinates.append((polygon_coordinates[i*dimensions], polygon_coordinates[i*dimensions+1]))
 
-                    if(dim == 3 and 'sectionFootprint' not in elem['geometry']): # if it has a 3d representation and it is not a building
-                        tridimensional_coordinates.append([polygon_coordinates[i*dim], polygon_coordinates[i*dim+1], polygon_coordinates[i*dim+2]])
+                    if(dimensions == 3 and 'sectionFootprint' not in elem['geometry']): # if it has a 3d representation and it is not a building
+                        tridimensional_coordinates.append([polygon_coordinates[i*dimensions], polygon_coordinates[i*dimensions+1], polygon_coordinates[i*dimensions+2]])
                         ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
                         counter_id_tridimensional_coordinates += 1  
 
@@ -89,13 +94,13 @@ class UrbanComponent:
 
                 geometries.append(Polygon(groupedCoordinates))
         else:
-            for i in range(0,int(len(layer_json['coordinates'])/dim)):
+            for i in range(0,int(len(layer_json['coordinates'])/dimensions)):
                 
                 values_coordinates.append(layer_json['values'][i])
-                geometries_coordinates.append(Point(layer_json['coordinates'][i*dim], layer_json['coordinates'][i*dim+1]))
+                geometries_coordinates.append(Point(layer_json['coordinates'][i*dimensions], layer_json['coordinates'][i*dimensions+1]))
 
-                if(dim == 3):
-                    tridimensional_coordinates.append([layer_json['coordinates'][i*dim], layer_json['coordinates'][i*dim+1], layer_json['coordinates'][i*dim+2]])
+                if(dimensions == 3):
+                    tridimensional_coordinates.append([layer_json['coordinates'][i*dimensions], layer_json['coordinates'][i*dimensions+1], layer_json['coordinates'][i*dimensions+2]])
                     ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
                     counter_id_tridimensional_coordinates += 1  
 
@@ -112,7 +117,7 @@ class UrbanComponent:
 
         return {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': df_coordinates3d}
 
-    def addLayerFromJsonFile(self, json_pathfile, dim=None, gdf=None, abstract=False):
+    def addLayerFromJsonFile(self, json_pathfile, gdf=None, abstract=False):
         layer_json = []
         layer_gdf = gdf
 
@@ -120,10 +125,10 @@ class UrbanComponent:
             layer_json = json.load(f)
 
         if(layer_gdf == None):
-            if(dim != None):
-                layer_gdf = self.jsonToGdf(layer_json, dim, abstract)
-            else:
-                raise Exception("If gdf data is not provided, the coordinates dimensions must be provided so the gdf can be calculated")
+            # if(dim != None):
+            layer_gdf = self.jsonToGdf(layer_json, None, abstract)
+            # else:
+                # raise Exception("If gdf data is not provided, the coordinates dimensions must be provided so the gdf can be calculated")
 
         self.layers['json'].append(layer_json)
         self.layers['gdf']['objects'].append(layer_gdf['objects'])
@@ -230,9 +235,12 @@ class UrbanComponent:
 
         if('joinedLayers' in left_layer_joined_json):
             for index, join in enumerate(left_layer_joined_json['joinedLayers']):
-                if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract): # if this attachment was already made
+                if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract and join['aggregation'] == aggregation): # if this attachment was already made
                     alreadyExistingJoinedIndex = index
                     break
+
+        if(alreadyExistingJoinedIndex != -1): # exiting if the join already exists
+            return pd.DataFrame()
 
         join_left_gdf = {}
 
@@ -286,9 +294,9 @@ class UrbanComponent:
 
         if(alreadyExistingJoinedIndex == -1): # if it is a new join
             if('joinedLayers' in left_layer_joined_json):
-                left_layer_joined_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract})
+                left_layer_joined_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract, "aggregation": aggregation})
             else:
-                left_layer_joined_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract}]
+                left_layer_joined_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract, "aggregation": aggregation}]
 
         joined_objects_entry = {}
 
