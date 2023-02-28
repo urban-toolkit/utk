@@ -173,6 +173,7 @@ function App() {
 
   const [grammar, setGrammar] = useState('');
 
+  // give the backend the ability to control what is the grammar displayed in the front-end
   const setGrammarFront = (grammar: string) => {
     setGrammar(grammar);
   }

@@ -117,29 +117,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, link
         // map.addLayer(data);
 
       }else{
-
-        // let d3app = new D3App('#svg_element', '#'+screenPlotSvgId, plotCollectionList);
-
-        createAndRunMap();
-
-        // let app = new App('#map', d3App, linkedContainerGenerator, setGrammarFront);
-      
-        // let port;
-
-        // if(frontEndMode == 'vr'){
-        //   port = '3001';
-        // }else{
-        //   port = '3000';
-        // }
-
-        // // Serves data files to the map
-        // Environment.setEnvironment({backend: 'http://'+paramsMapView.environmentIP+':'+port+'/', dataFolder:paramsMapView.environmentDataFolder});
-        // // index.json is a file containing the descrition of map layers
-        // const url = `${Environment.backend}/${Environment.dataFolder}/grammar.json`;
-        // DataLoader.getJsonData(url).then(data => {
-        //     app.run(data);
-        // });
-
+        // createAndRunMap();
       }   
 
   }, [dataToView, data])

@@ -43,7 +43,6 @@ export const WidgetsComponent = ({
     listPlots,
     onCityRefChange,
     grammar
-
 }: widgetProps) => {
 
     return(

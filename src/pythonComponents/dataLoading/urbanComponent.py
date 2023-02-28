@@ -176,7 +176,7 @@ class UrbanComponent:
 
     def loadJoinedJson(self, id_layer):
         '''
-            Load the json file with the joined layers or create one if it doesnt exist.
+            Load the json file with the joined layers
 
             Directory: where the json files are stored.
         '''
@@ -195,6 +195,39 @@ class UrbanComponent:
                 joinedJson = json.load(f)
 
         return joinedJson
+
+    def existsJoin(self, thisLayer, otherLayer, predicate, thisLevel, otherLevel, abstract):
+        if(self.workDir == None):
+            raise Exception("Error checking existance of join workDir not configure")
+
+        joinedJson = self.loadJoinedJson(thisLayer)
+
+        if("joinedLayers" not in joinedJson):
+            return False
+
+        for link in joinedJson["joinedLayers"]:
+            found = True
+
+            if("predicate" not in link or link["predicate"] != predicate):
+                found = False
+                continue
+            if("layerId" not in link or link["layerId"] != otherLayer):
+                found = False
+                continue
+            if("thisLevel" not in link or link["thisLevel"] != thisLevel):
+                found = False
+                continue
+            if("otherLevel" not in link or link["otherLevel"] != otherLevel):
+                found = False
+                continue
+            if("abstract" not in link or link["abstract"] != abstract):
+                found = False
+                continue
+
+            if(found):
+                return True
+
+        return False
 
     def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', abstract=False, aggregation='avg'):
         '''
@@ -235,12 +268,10 @@ class UrbanComponent:
 
         if('joinedLayers' in left_layer_joined_json):
             for index, join in enumerate(left_layer_joined_json['joinedLayers']):
-                if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract and join['aggregation'] == aggregation): # if this attachment was already made
+                # if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract and join['aggregation'] == aggregation): # if this attachment was already made
+                if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract): # if this attachment was already made
                     alreadyExistingJoinedIndex = index
                     break
-
-        if(alreadyExistingJoinedIndex != -1): # exiting if the join already exists
-            return pd.DataFrame()
 
         join_left_gdf = {}
 
@@ -294,9 +325,9 @@ class UrbanComponent:
 
         if(alreadyExistingJoinedIndex == -1): # if it is a new join
             if('joinedLayers' in left_layer_joined_json):
-                left_layer_joined_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract, "aggregation": aggregation})
+                left_layer_joined_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract})
             else:
-                left_layer_joined_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract, "aggregation": aggregation}]
+                left_layer_joined_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract}]
 
         joined_objects_entry = {}
 

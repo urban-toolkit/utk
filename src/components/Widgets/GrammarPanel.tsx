@@ -12,17 +12,21 @@ type GrammarPanelProps = {
 }
 
 export const GrammarPanelContainer = ({
-    textSpec,
+    textSpec
 }: GrammarPanelProps
 ) =>{
 
     const [grammar, setCode] = useState('');
 
-    const createLinks = async (url: string) => {
+    const createLinks = async (url: string, tempGrammar: string = '') => {
         let grammarString = grammar;
 
+        // if(grammarString == ''){
+        //     grammarString = textSpec;
+        // }
+
         if(grammarString == ''){
-            grammarString = textSpec;
+            grammarString = tempGrammar;
         }
 
         if(grammarString == '')
@@ -48,24 +52,40 @@ export const GrammarPanelContainer = ({
                         let otherLayer = knot.linkingScheme[i].otherLayer;
                         let abstract = knot.linkingScheme[i].abstract;
 
+                        console.log("requesting knot", knot);
+
                         await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel);
+                    
+                        console.log("request finished");
                     }
                 }
             }
         }
+
+        console.log("loading map");
+        createAndRunMap();
     }
 
-    const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
+    const getInitialGrammar = async (url: string) => {
+        let response = await fetch(url+"/getGrammar");
+        let data = await response.json();
+        let stringData = JSON.stringify(data, null, 4);
 
-    createLinks(url);
+        grammar = stringData;
+
+        // setCode(stringData);
+        createLinks(url, stringData);
+    }
+
+
 
     const applyGrammar = async () => {
 
         let sendGrammar = grammar;
 
-        if(sendGrammar == ''){
-            sendGrammar = textSpec;
-        }
+        // if(sendGrammar == ''){
+        //     sendGrammar = textSpec;
+        // }
 
         const data = { "grammar": sendGrammar };
     
@@ -78,16 +98,17 @@ export const GrammarPanelContainer = ({
             body: JSON.stringify(data)
         })
         .then(async (response) => {
-
             await createLinks(url);
-
-            createAndRunMap();
         })
         .catch(error => {
             console.error('Request to update grammar failed: ', error);
         });
        
     }
+
+    const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
+
+    getInitialGrammar(url);
 
     return(
         // <div>

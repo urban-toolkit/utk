@@ -42,20 +42,20 @@ def serve_linkLayers():
 
     uc.setWorkDir(workDir)
 
+    if(uc.existsJoin(thisLayer, otherLayer, predicate.upper(), thisLevel.upper(), otherLevel.upper(), abstract)):
+        return ''
+
     uc.addLayerFromJsonFile(os.path.join(workDir, thisLayer+".json"))
     uc.addLayerFromJsonFile(os.path.join(workDir, otherLayer+".json"), abstract=abstract)
-
-    newAttachments = pd.DataFrame()
 
     if(abstract):
         if(thisLevel != otherLevel):
             raise Exception("For abstract join the levels of both layers should be the same")
-        newAttachments = uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation)
+        uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation)
     else:
-        newAttachments = uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
+        uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
 
-    if(not newAttachments.empty):
-        uc.to_file(workDir, True)
+    uc.to_file(workDir, True)
 
     return ''
 
@@ -68,6 +68,16 @@ def serve_clearLinks():
         print("clearning joined layers of "+request.args.get("layer"))
     
     return ''
+
+@app.route('/getGrammar', methods=['GET'])
+def serve_getGrammar():
+
+    grammar = {}
+
+    with open(os.path.join(workDir,"grammar.json"), "r", encoding="utf-8") as f:
+        grammar = json.load(f)
+
+    return json.dumps(grammar, indent=4)
 
 @app.route('/updateGrammar', methods=['POST'])
 def serve_updateGrammar():
