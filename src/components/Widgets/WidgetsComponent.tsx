@@ -17,8 +17,7 @@ type widgetProps = {
     modifyLabelPlot: any,
     modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
-    onCityRefChange: React.ChangeEventHandler,
-    grammar: string
+    onCityRefChange: React.ChangeEventHandler
 }
 /**
  * @function WidgetsComponent - widgets container
@@ -41,8 +40,7 @@ export const WidgetsComponent = ({
     modifyLabelPlot,
     modifyEditingState,
     listPlots,
-    onCityRefChange,
-    grammar
+    onCityRefChange
 }: widgetProps) => {
 
     return(
@@ -58,7 +56,6 @@ export const WidgetsComponent = ({
                 modifyEditingState = {modifyEditingState}
             />
             <GrammarPanelContainer 
-                textSpec = {grammar}
             />
             {/* data widget */}
             {/* <DataWidget 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { createAndRunMap } from "../MapView/MapView";
 
@@ -8,22 +8,36 @@ const params = require('../../pythonServerConfig.json');
 
 // declaring the types of the props
 type GrammarPanelProps = {
-    textSpec: string
 }
 
 export const GrammarPanelContainer = ({
-    textSpec
 }: GrammarPanelProps
 ) =>{
 
     const [grammar, setCode] = useState('');
+    const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
 
-    const createLinks = async (url: string, tempGrammar: string = '') => {
+    const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
+
+    const addNewMessage = (msg: string, color: string) => {
+        
+        let messagesCopy = [];
+
+        for(let i = 0; i < systemMessages.length; i++){
+            messagesCopy.push(systemMessages[i]);
+        }
+
+        messagesCopy.push({text: msg, color: color});
+
+        while(messagesCopy.length > 3){
+            messagesCopy.shift();
+        }
+
+        setSystemMessages(messagesCopy);
+    }
+
+    const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
         let grammarString = grammar;
-
-        // if(grammarString == ''){
-        //     grammarString = textSpec;
-        // }
 
         if(grammarString == ''){
             grammarString = tempGrammar;
@@ -52,40 +66,36 @@ export const GrammarPanelContainer = ({
                         let otherLayer = knot.linkingScheme[i].otherLayer;
                         let abstract = knot.linkingScheme[i].abstract;
 
-                        console.log("requesting knot", knot);
+                        addNewMessage("Joining "+thisLayer+" with "+otherLayer, "red");
+
+                        let start = Date.now();
 
                         await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel);
                     
-                        console.log("request finished");
+                        let end = Date.now();
+                        let elapsed = end - start; 
+
+                        addNewMessage("Join finished in " +(elapsed/1000)+" seconds", "green");
+
                     }
                 }
             }
         }
 
-        console.log("loading map");
+        // TODO: make the calculation of render styles more efficient
+        // addNewMessage("Adding render styles", "red");
+        // await fetch(url+"/addRenderStyles");
+        // addNewMessage("Render Styles added", "red");
+
+
+        addNewMessage("Loading map", "red");
         createAndRunMap();
+        addNewMessage("Map loaded", "green");
     }
-
-    const getInitialGrammar = async (url: string) => {
-        let response = await fetch(url+"/getGrammar");
-        let data = await response.json();
-        let stringData = JSON.stringify(data, null, 4);
-
-        grammar = stringData;
-
-        // setCode(stringData);
-        createLinks(url, stringData);
-    }
-
-
 
     const applyGrammar = async () => {
 
         let sendGrammar = grammar;
-
-        // if(sendGrammar == ''){
-        //     sendGrammar = textSpec;
-        // }
 
         const data = { "grammar": sendGrammar };
     
@@ -98,7 +108,7 @@ export const GrammarPanelContainer = ({
             body: JSON.stringify(data)
         })
         .then(async (response) => {
-            await createLinks(url);
+            await createLinksAndRenderStyles(url);
         })
         .catch(error => {
             console.error('Request to update grammar failed: ', error);
@@ -106,9 +116,19 @@ export const GrammarPanelContainer = ({
        
     }
 
-    const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
+    // run only once to load the initial data
+    useEffect(() => {
+        async function getInitialGrammar(url: string){
+            let response = await fetch(url+"/getGrammar");
+            let data = await response.json();
+            let stringData = JSON.stringify(data, null, 4);
 
-    getInitialGrammar(url);
+            setCode(stringData);
+            createLinksAndRenderStyles(url, stringData);
+        }
+
+        getInitialGrammar(url);
+    }, []);
 
     return(
         // <div>
@@ -123,7 +143,7 @@ export const GrammarPanelContainer = ({
         <div>
             <div style={{height: "650px", overflow: "auto"}}>
                 <CodeEditor
-                    value={textSpec}
+                    value={grammar}
                     language="js"
                     placeholder="Grammar specification"
                     onChange={(evn) => setCode(evn.target.value)}
@@ -137,6 +157,11 @@ export const GrammarPanelContainer = ({
                 />
             </div>
             <button type="button" onClick={() => applyGrammar()}>Apply</button>
+            {
+                systemMessages.map((item, index) => (
+                    <p style={{color: item.color}} key={index}>{item.text}</p>
+                ))
+            }
         </div>
         
         

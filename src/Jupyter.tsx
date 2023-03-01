@@ -41,7 +41,6 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0);
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
-  const [grammar, setGrammar] = useState('');
 
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
@@ -165,10 +164,6 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
     });
   }
 
-  const setGrammarFront = (grammar: string) => {
-    setGrammar(grammar);
-  }
-
   return (
     <Container fluid>
       <Row>
@@ -184,7 +179,6 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         listPlots = {genericPlots}
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
-        grammar = {grammar}
       />
       {/* map view */}
       <MapViewer 
@@ -192,7 +186,6 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         divWidth = {9}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
-        setGrammarFront = {setGrammarFront}
       />
 
       {

@@ -50,7 +50,7 @@ def serve_linkLayers():
 
     if(abstract):
         if(thisLevel != otherLevel):
-            raise Exception("For abstract join the levels of both layers should be the same")
+            abort(400, "For abstract join the levels of both layers should be the same")
         uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation)
     else:
         uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
@@ -78,6 +78,129 @@ def serve_getGrammar():
         grammar = json.load(f)
 
     return json.dumps(grammar, indent=4)
+
+# @app.route('/addRenderStyles', methods=['GET'])
+# def serve_addRenderStyles():
+
+#     if("layer" not in request.args or "renderStyles" not in request.args):
+#         abort(400, "Missing one or more parameters of: layer, renderStyles")
+    
+#     layer = request.args.get('layer')
+#     renderStyles = request.args.get('renderStyles')
+#     renderStyles = [elem.upper() for elem in renderStyles.split(',')]
+
+#     replace = False
+
+#     if("replace" in request.args and request.args.get('replace') == 'true'):
+#         replace = True
+
+#     layerJson = {}
+
+#     with open(os.path.join(workDir, layer+".json"), "r", encoding="utf-8") as f:
+#         layerJson = json.load(f)
+
+#     if("renderStyle" not in layerJson):
+#         abort(400, "There is no renderStyle field in the json")
+
+#     if(replace):
+#         layerJson['renderStyle'] = renderStyles
+#     else:
+#         layerJson['renderStyle'] = layerJson['renderStyle']+renderStyles
+
+#     with open(os.path.join(workDir, layer+".json"), "w", encoding="utf-8") as f:
+#         f.write(json.dumps(layerJson, indent=4))
+
+#     return ''
+
+@app.route('/addRenderStyles', methods=['GET'])
+def serve_addRenderStyles():
+
+    grammar = {}
+
+    with open(os.path.join(workDir,"grammar.json"), "r", encoding="utf-8") as f:
+        grammar = json.load(f)
+
+    layersInfo = {}
+
+    for knot in grammar["views"][0]["knots"]:
+        if('knotOp' not in knot or knot['knotOp'] != True):
+            
+            for index, link in enumerate(knot['linkingScheme']):
+
+                layer = link['thisLayer']
+                buildings = False
+                triangles = False
+                interactions = False
+                embeddedPlots = False
+                abstract = 'otherLayer' in link
+                data = {}
+
+                if(layer not in layersInfo):
+                    with open(os.path.join(workDir,layer+".json"), "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                else:
+                    data = layersInfo[layer]['data']
+
+                if(data["type"] == "TRIANGLES_3D_LAYER" or data["type"] == "TRIANGLES_3D_LAYER"):
+                    triangles = True
+
+                if(data["type"] == "BUILDINGS_LAYER"):
+                    buildings = True
+
+                for i in range(len(grammar["views"][0]['map']["knots"])):
+                    if(grammar["views"][0]['map']["knots"][i] == knot["id"] and grammar["views"][0]["map"]["interactions"][i] != "NONE"):
+                        if(index == len(knot['linkingScheme'])-1): # only the layers that will be rendered can be interacted with
+                            interactions = True
+                        break
+
+                for i in range(len(grammar["views"][0]["plots"])):
+                    if(knot["id"] in grammar["views"][0]["plots"][i]["knots"] and grammar["views"][0]["plots"][i]["arrangement"] == "SUR_EMBEDDED" or grammar["views"][0]["plots"][i]["arrangement"] == "FOOT_EMBEDDED"):
+                        embeddedPlots = True
+                        break
+
+                if(layer not in layersInfo):
+                    layersInfo[layer] = {
+                        "layer": layer,
+                        "triangles": triangles,
+                        "buildings": buildings,
+                        "interactions": interactions,
+                        "embeddedPlots": embeddedPlots,
+                        "abstract": abstract,
+                        "data": data
+                    }
+                else:
+                    layersInfo[layer]['triangles'] =  layersInfo[layer]['triangles'] or triangles
+                    layersInfo[layer]['buildings'] =  layersInfo[layer]['buildings'] or buildings
+                    layersInfo[layer]['interactions'] =  layersInfo[layer]['interactions'] or interactions
+                    layersInfo[layer]['embeddedPlots'] =  layersInfo[layer]['embeddedPlots'] or embeddedPlots
+                    layersInfo[layer]['abstract'] =  layersInfo[layer]['abstract'] or abstract
+
+    for layer in layersInfo:
+        renderStyles = []
+
+        # coloring shader
+        if(not layersInfo[layer]['abstract']):
+            renderStyles.append("SMOOTH_COLOR")
+        elif(not layersInfo[layer]['buildings']):
+            renderStyles.append("SMOOTH_COLOR_MAP")
+        else:
+            renderStyles.append("SMOOTH_COLOR_MAP_TEX")
+
+        if(layersInfo[layer]['interactions']):
+            renderStyles.append("PICKING")
+
+        if(layersInfo[layer]['buildings'] and layersInfo[layer]['embeddedPlots']):
+            renderStyles.append("ABSTRACT_SURFACES")
+
+        layersInfo[layer]['data']['renderStyle'] = renderStyles
+
+        print(layer, renderStyles)
+
+        with open(os.path.join(workDir,layer+".json"), "w", encoding="utf-8") as f:
+            f.write(json.dumps(layersInfo[layer]['data'], indent=4))
+
+    return ''
+
 
 @app.route('/updateGrammar', methods=['POST'])
 def serve_updateGrammar():

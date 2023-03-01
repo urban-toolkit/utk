@@ -56,7 +56,9 @@ All important configuration parameters are situated in src/params.js or src/pyth
 
 Web runs on the 3000 port. VR and CAVE2 runs in the 3001 port.  
 
-When specifying the layers buildings has allways to be the last one.
+When specifying the layers buildings has allways to be the last one.  
+
+The name of the layer file must be equal to the id of the layer.
 
 ### Available start options
 

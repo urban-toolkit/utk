@@ -17,8 +17,10 @@ import { PlotCollectionContainer } from './components/Widgets/PlotCollection';
 import { PlotSpecificationContainer } from './components/Widgets/PlotSpecification';
 
 import { D3App } from './components/MapView/D3App';
-
 import * as d3 from "d3";
+
+const pythonServerParams = require('./pythonServerConfig.json');
+
 
 // common variables for vis components
 // width and height of the whole SVG 
@@ -171,13 +173,6 @@ function App() {
     setGenericPlots(modifiedPlots);
   }
 
-  const [grammar, setGrammar] = useState('');
-
-  // give the backend the ability to control what is the grammar displayed in the front-end
-  const setGrammarFront = (grammar: string) => {
-    setGrammar(grammar);
-  }
-
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('Chicago')
 
@@ -205,7 +200,6 @@ function App() {
         listPlots = {genericPlots}
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
-        grammar = {grammar}
       />
       {/* map view */}
       <MapViewer 
@@ -214,7 +208,6 @@ function App() {
         divWidth = {9}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
-        setGrammarFront = {setGrammarFront}
       />
 
       {
