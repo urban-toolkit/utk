@@ -82,33 +82,6 @@ Obs: Currently it is only possible to load public/data/example_mesh_nyc, because
 
 ### To load project into the CAVE2
 
-### TODO
-
-- Give support to fixed resolution in urbantk-map (for CAVE2)
-- Initialize all dependent servers with `npm run start:cave`
-- Finalize the start:vr:local (for local testing purposes)
-- Fix dependency issues with urbantk-react
-- Fix coastline mesh loading (dataLoading)
-- Unify node dependancies
-- Change repository name, delete all other branches except master, delete all other repositories except `urbantk-map` and `urbantk-react`
-- Add CAVE2 Unity side as a sub-module
-- Clean code
-- Clean big files of repo
-- Make shaders pretty [link](https://www.kpf.com/about/innovation)
-- Dont try to connect to unity or order server when the web server is executed
-- Prevent the need of starting web server 
-- Fix appBuildingOptions in config/path.js
-- Fix error messages in jupyter and fix jupyter after execution (it breaks)
-- Fix the indices of all non building layers
-- Integrate shadow calculation into jupyter workflow
-- Write user commands on the documentation
-- Be able to move the picked portion
-- Be able to wheel the picked portion to increase the plot
-- Semantic query (I want to see these floors...)
-- View impact: sun, body of water, landmark and parks
-- Fix bugs regarding the orientation of the texture in the surface (I am not accounting for rotated planes).
-- Improve d3Expec class. urbantk-map should not need to know what happens in the front end (create abstract class that is implemented in the front-end).
-
 ### Package List
 
 1. react-bootstrap - https://www.npmjs.com/package/react-bootstrap

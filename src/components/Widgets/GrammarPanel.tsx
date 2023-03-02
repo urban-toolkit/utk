@@ -21,19 +21,21 @@ export const GrammarPanelContainer = ({
 
     const addNewMessage = (msg: string, color: string) => {
         
-        let messagesCopy = [];
+        // let messagesCopy = [];
 
-        for(let i = 0; i < systemMessages.length; i++){
-            messagesCopy.push(systemMessages[i]);
-        }
+        // for(let i = 0; i < systemMessages.length; i++){
+        //     messagesCopy.push(systemMessages[i]);
+        // }
 
-        messagesCopy.push({text: msg, color: color});
+        // messagesCopy.push({text: msg, color: color});
 
-        while(messagesCopy.length > 3){
-            messagesCopy.shift();
-        }
+        // while(messagesCopy.length > 3){
+        //     messagesCopy.shift();
+        // }
 
-        setSystemMessages(messagesCopy);
+        // setSystemMessages(messagesCopy);
+
+        setSystemMessages([{text: msg, color: color}]);
     }
 
     const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {

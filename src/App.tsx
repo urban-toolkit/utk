@@ -41,9 +41,10 @@ function App() {
 
   const addNewGenericPlot = (n: number = 1) => {
 
-    let tempId = currentPlotId;
     let createdIds = [];
     let tempPlots = [];
+
+    let tempId = 0;
 
     for(let i = 0; i < n; i++){
       tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: "Generic Plot", checked: false, edit: false});
@@ -51,28 +52,16 @@ function App() {
       tempId += 1;
     }
 
-    setGenericPlots(genericPlots.concat(tempPlots));
+    setGenericPlots(tempPlots);
     setCurrentPlotId(tempId);
     return createdIds;
   }
 
   const linkedContainerGenerator = (n: number) => {
 
-    let neededPlots = n - genericPlots.length;
-
     let createdIds: number[] = [];
 
-    if(neededPlots > 0){
-      for(let i = 0; i < genericPlots.length; i++){
-        createdIds.push(genericPlots[i].id);
-      }
-
-      createdIds = createdIds.concat(addNewGenericPlot(neededPlots));
-    }else{
-      for(let i = 0; i < n; i++){
-        createdIds.push(genericPlots[i].id);
-      }
-    }
+    createdIds = addNewGenericPlot(n);
 
     // promise is only resolved when the container is created
     return new Promise(async function (resolve, reject) {
@@ -105,6 +94,7 @@ function App() {
       resolve(returnIds);
 
     });
+
   }
   
   const removeGenericPlot = (plotId: number) => {
