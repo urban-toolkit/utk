@@ -219,7 +219,7 @@ class OSM:
 
             loaded = OSM.get_osm(bbox, layers, True, output_file)
         else:
-            loaded = OSM.get_osm(bbox, layers)
+            loaded = OSM.get_osm(bbox, layers, False)
 
         component = UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
 
@@ -298,6 +298,7 @@ class OSM:
                 continue
             if layer == 'buildings':
                 layer_geometry = OSM.osm_to_building_mesh(overpass_responses[layer], bbox)
+                print("osm_to_building_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -308,6 +309,7 @@ class OSM:
                 selectable = True
             elif layer == 'roads':
                 layer_geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bbox)
+                print("osm_to_roads_polyline finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -318,6 +320,7 @@ class OSM:
                 selectable = False
             elif layer == 'coastline':
                 layer_geometry = OSM.osm_to_coastline_mesh(overpass_responses[layer], bbox)
+                print("osm_to_coastline_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -328,6 +331,7 @@ class OSM:
                 selectable = False
             else:
                 layer_geometry = OSM.osm_to_generic_mesh(overpass_responses[layer], bbox, convert2dto3d=True)
+                print("osm_to_generic_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -340,7 +344,9 @@ class OSM:
             result.append({'id': layer, 'type': ttype, 'renderStyle': renderStyle, 'styleKey': styleKey, 'visible': True, 'selectable': selectable, 'skip': False, 'data': geometry})
         
         if load_surface:
+            print("creating surface")
             layer_geometry = OSM.create_surface_mesh(bbox)
+            print("create_surface_mesh finished")
             geometry = layer_geometry['data']
             result_gdf_objects.insert(0,layer_geometry['gdf']['objects'])
             result_gdf_coordinates.insert(0, layer_geometry['gdf']['coordinates'])
@@ -416,6 +422,7 @@ class OSM:
         return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': None}}
 
     def osm_to_coastline_mesh(osm_elements, bbox):
+
         '''
             Creates the coastline mesh based on the OSM elements
 
@@ -616,6 +623,7 @@ class OSM:
             geometries.append(transform(project,Polygon(outer_lng_lat, inner_lng_lat)))
 
             nodes = np.array(nodes)
+
             indices = earcut.triangulate_float64(nodes, rings)
             indices = np.flip(indices, axis=0)
 
@@ -703,6 +711,8 @@ class OSM:
                 if inserted == False:
                     ways[lastouter]['inner'] = innernodes
 
+        print("multi ways processed (osm_to_building_mesh)")
+
         # end = time.time()
         # print("handling multiways: "+str(end - start))
 
@@ -713,6 +723,8 @@ class OSM:
             way = osm_elements['ways'][wid]
             nodes = way['geometry']
             ways.append({'outer': nodes, 'inner': [], 'tags': way['tags'],'type': 'type'})
+
+        print("single ways processed (osm_to_building_mesh)")
 
         # end = time.time()
         # print("handling singleways: "+str(end - start))
@@ -747,6 +759,8 @@ class OSM:
                     for interior in p.interiors:
                         interiors.append(list(interior.coords))
                     polygons.append({'geom': [exterior, interiors], 'tags': way['tags']})
+
+        print("to shapely processed (osm_to_building_mesh)")
 
         # end = time.time()
         # print("to shapely: "+str(end - start))
@@ -858,15 +872,23 @@ class OSM:
 
         # start = time.time()
 
+        print("merging overlapping buildings (osm_to_building_mesh)")
+
         gdf_merged_buildings = Buildings.merge_overlapping_buildings(gdf)
+
+        print("overlapping buildings merged (osm_to_building_mesh)")
 
         # end = time.time()
         # print("merge_overlapping_buildings: "+str(end - start))
 
         # start = time.time()
 
+        print("generating building layers (osm_to_building_mesh)")
+
         layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
         # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 10) #gdf, size
+
+        print("building layers generated (osm_to_building_mesh)")
 
         # end = time.time()
         # print("generate_building_layer: "+str(end - start))
@@ -966,14 +988,16 @@ class OSM:
                 interiors = []
                 for interior in poly.interiors:
                     interiors.append(list(interior.coords))
-                polygons.append([exterior, interiors])
+                if(len(exterior) > 0 or len(interiors) > 0):
+                    polygons.append([exterior, interiors])
             elif poly.geom_type == 'MultiPolygon':
                 for p in poly:
                     exterior = list(p.exterior.coords)
                     interiors = []
                     for interior in p.interiors:
                         interiors.append(list(interior.coords))
-                    polygons.append([exterior, interiors])
+                    if(len(exterior) > 0 or len(interiors) > 0):
+                        polygons.append([exterior, interiors])
 
         proj_4326 = pyproj.CRS('EPSG:4326')
         proj_3395 = pyproj.CRS('EPSG:3395')
@@ -1025,8 +1049,8 @@ class OSM:
             nodes = nodes.flatten().tolist()
             indices = indices.tolist()
             dev = utils.deviation(nodes, rings, 2, indices)
-            if(abs(dev) > 0.001):
-                raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
+            # if(abs(dev) > 0.001):
+            #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
             
             nodes = utils.convertProjections("4326", "3395", nodes)
 

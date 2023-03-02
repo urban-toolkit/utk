@@ -56,6 +56,7 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
         for geometry in geometries:
             points = np.array(geometry.exterior.coords[0:-1]) # remove last one (repeated)
             rings = np.array([len(points)])
+
             ind = earcut.triangulate_float64(points, rings)
             ind = (ind+count).tolist()
             indices += ind

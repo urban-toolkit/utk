@@ -2,6 +2,6 @@
     "paramsPythonServer": {
         "environmentIP": "localhost",
         "port": "3002",
-        "environmentDataFolder": "public/data/couple_buildings_manhattan"
+        "environmentDataFolder": "public/data/manhattan"
     }
 }

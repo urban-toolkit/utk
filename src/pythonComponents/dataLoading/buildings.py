@@ -6,6 +6,7 @@ import mapbox_earcut as earcut
 import vedo
 import time
 import os
+import matplotlib.pyplot as plt 
 
 from tqdm.notebook import trange
 from shapely import affinity
@@ -26,96 +27,81 @@ class Buildings:
 
         epsilon = 1e-8
         for poly in boundaries:
-    #         lines = poly.exterior
 
-    #         length = lines.length
-    #         size = min(size, length)
-    #         num_cells = ((length - length%size)/size) # equal sized cells
-    #         size = length / num_cells
-    #         distances = np.arange(0, length, size)
+            lines = poly.exterior
 
-    #         interpolated_points = list(MultiPoint([lines.interpolate(distance) for distance in distances]))
-    #         points = list(MultiPoint(lines.coords))
-
-    #         joined_points = []
-
-    #         for j in range(0, len(points)-1):
-    #             segment = LineString([points[j], points[j+1]])
-    #             joined_points.append(points[j])
-    #             # corners.append(points[j])
-
-    #             aux = []
-    #             for k in range(0, len(interpolated_points)):
-    #                 pt = interpolated_points[k]
-    #                 if pt.distance(points[j]) > epsilon and pt.distance(points[j+1]) and pt.buffer(epsilon).intersects(segment):
-    #                     joined_points.append(pt)
-    #                 else:
-    #                     aux.append(pt)
-    #             interpolated_points = aux 
-
-    #         joined_points.append(points[-1])
-    #         # corners.append(points[-1])
-
-    #         cur_length = 0
-    #         segments = []
-    #         cur_multiline = []
-    #         for j in range(0, len(joined_points)-1):
-    #             segment = LineString([joined_points[j], joined_points[j+1]])
-
-    #             cur_multiline.append(segment)
-    #             cur_length += segment.length
-
-    #             if (cur_length >= size-1e-5):
-    #                 cur_length = 0
-    #                 cur_pt = joined_points[j]
-    #                 segments.append(cur_multiline)
-    #                 cur_multiline = []
-
-    # #             if (cur_length < DISTANCE_DELTA-1e-5) and (j == len(joined_points)-2):
-    # #                 segments[-1].append(segment)
-
-    #         # for j in range(0,len(segments)):
-    #         #     seg = linemerge(MultiLineString(segments[j]))
-    #         #     for coordObj in list(MultiPoint(seg.coords)): # TODO: maybe we can have performance issues in this nested loop
-    #         #         corner = False
-    #         #         for elem in corners:
-    #         #             if(coordObj.equals(elem)):
-    #         #                 corner = True
-    #         #                 break
-    #         #         if corner:
-    #         #             # if(len(isCorner) >= 2):
-    #         #             #     # isCorner[len(isCorner)-2] = False
-    #         #             #     if isCorner[len(isCorner)-2]: # You can not have two trues in a row
-    #         #             #         isCorner.append(False)
-    #         #             #     else:
-    #         #             #         isCorner.append(True)
-    #         #             isCorner.append(True)
-    #         #         else:
-    #         #             isCorner.append(False)
-
-    #         #     merged_segments.append(seg)
-
-    #         for j in range(0,len(segments)):
-    #             seg = linemerge(MultiLineString(segments[j]))
-    #             merged_segments.append(seg)
-
-    #         points = joined_points
-
-            ring = poly.exterior
-
-            length = ring.length
+            length = lines.length
             size = min(size, length)
-            num_cells = int((length - length%size)/size) # equal sized cells
+            num_cells = ((length - length%size)/size) # equal sized cells
+            size = length / num_cells
+            distances = np.arange(0, length, size)
 
-            parts = [ring.interpolate(i / num_cells, normalized=True) for i in range(num_cells + 1)]
+            interpolated_points = list(MultiPoint([lines.interpolate(distance) for distance in distances]))
+            points = list(MultiPoint(lines.coords))
 
-            # print(num_cells)
-            # rings = [LinearRing(parts[i:i + 2]) for i in range(num_cells)]
+            joined_points = []
 
-            merged_segments.append(LineString(parts))
+            for j in range(0, len(points)-1):
+                segment = LineString([points[j], points[j+1]])
+                joined_points.append(points[j])
+                # corners.append(points[j])
 
-            # for r in rings:
-            #     print(r)
+                aux = []
+                for k in range(0, len(interpolated_points)):
+                    pt = interpolated_points[k]
+                    if pt.distance(points[j]) > epsilon and pt.distance(points[j+1]) and pt.buffer(epsilon).intersects(segment):
+                        joined_points.append(pt)
+                    else:
+                        aux.append(pt)
+                interpolated_points = aux 
+
+            joined_points.append(points[-1])
+            # corners.append(points[-1])
+
+            cur_length = 0
+            segments = []
+            cur_multiline = []
+            for j in range(0, len(joined_points)-1):
+                segment = LineString([joined_points[j], joined_points[j+1]])
+
+                cur_multiline.append(segment)
+                cur_length += segment.length
+
+                if (cur_length >= size-1e-5):
+                    cur_length = 0
+                    cur_pt = joined_points[j]
+                    segments.append(cur_multiline)
+                    cur_multiline = []
+
+    #             if (cur_length < DISTANCE_DELTA-1e-5) and (j == len(joined_points)-2):
+    #                 segments[-1].append(segment)
+
+            # for j in range(0,len(segments)):
+            #     seg = linemerge(MultiLineString(segments[j]))
+            #     for coordObj in list(MultiPoint(seg.coords)): # TODO: maybe we can have performance issues in this nested loop
+            #         corner = False
+            #         for elem in corners:
+            #             if(coordObj.equals(elem)):
+            #                 corner = True
+            #                 break
+            #         if corner:
+            #             # if(len(isCorner) >= 2):
+            #             #     # isCorner[len(isCorner)-2] = False
+            #             #     if isCorner[len(isCorner)-2]: # You can not have two trues in a row
+            #             #         isCorner.append(False)
+            #             #     else:
+            #             #         isCorner.append(True)
+            #             isCorner.append(True)
+            #         else:
+            #             isCorner.append(False)
+
+            #     merged_segments.append(seg)
+
+            for j in range(0,len(segments)):
+                seg = linemerge(MultiLineString(segments[j]))
+                merged_segments.append(seg)
+
+            points = joined_points
 
         # return merged_segments, isCorner #, list(MultiPoint([lines.interpolate(distance) for distance in distances]))
         return merged_segments #, list(MultiPoint([lines.interpolate(distance) for distance in distances]))
