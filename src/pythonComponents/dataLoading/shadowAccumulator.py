@@ -265,12 +265,12 @@ class ShadowAccumulator:
         function_values = function_values.tolist()
 
         # decoupled abstract layer
-        shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': self.flat_coords, 'values': function_values}
+        shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': [round(item,4) for item in self.flat_coords], 'values': [round(item,4) for item in function_values]}
 
         directory = os.path.dirname(self.filespaths[0])
 
         with open(os.path.join(directory, "shadow"+str(function_index)+".json"), "w") as outfile:
-            json.dump(shadow_layer, outfile, indent=4)
+            json.dump(shadow_layer, outfile)
 
         # coupled abstract layer
         # for index, geometries_count in enumerate(self.coords_per_file):

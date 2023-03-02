@@ -66,8 +66,6 @@ class MapConfig {
 
 export const createAndRunMap = () => {
 
-  console.log("creating and running map");
-
   $('#map').empty();
   // let d3app = new D3App('#svg_element', '#'+screenPlotSvgId, plotCollectionList);
 

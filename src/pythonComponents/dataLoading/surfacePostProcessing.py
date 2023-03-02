@@ -23,7 +23,7 @@ def postProcessSurface(dir, interval0, interval1):
             #     element['geometry']['coordinates'][index*3+2] += -1
 
         with open(os.path.join(dir,'surface.json'), 'w') as f:
-            json.dump(surface_content, f, indent=4)
+            json.dump(surface_content, f)
 
         for element in surface_content['data']:
             element['geometry']['discardFuncInterval'] = interval1
@@ -33,7 +33,7 @@ def postProcessSurface(dir, interval0, interval1):
             #     element['geometry']['coordinates'][index*3+2] += offset
 
         with open(os.path.join(dir,'surface1.json'), 'w') as f:
-            json.dump(surface_content, f, indent=4)
+            json.dump(surface_content, f)
 
         surface0.close()
 
@@ -63,7 +63,7 @@ def postProcessSurface(dir, interval0, interval1):
         indexFile.close()
 
         with open(os.path.join(dir,'index.json'), 'w') as f:
-            json.dump(index_content, f, indent=4)
+            json.dump(index_content, f)
 
     else:
         raise Exception("First argument must be a directory where the layers are stored")

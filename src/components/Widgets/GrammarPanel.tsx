@@ -87,7 +87,6 @@ export const GrammarPanelContainer = ({
         // await fetch(url+"/addRenderStyles");
         // addNewMessage("Render Styles added", "red");
 
-
         addNewMessage("Loading map", "red");
         createAndRunMap();
         addNewMessage("Map loaded", "green");

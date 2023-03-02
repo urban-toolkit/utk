@@ -79,7 +79,7 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
 
         data.append({
             "geometry": {
-                "coordinates": coordinates.copy(),
+                "coordinates": [round(item,4) for item in coordinates.copy()],
                 "indices": indices.copy()
             }
         })
@@ -99,18 +99,18 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
             "data": data
         }
 
-        layer_json_str = str(json.dumps(result, indent=4))
+        layer_json_str = str(json.dumps(result))
         f.write(layer_json_str)
 
     loaded_shp['id'] = objectId
 
     coordinates_gdf = gpd.GeoDataFrame({'geometry': coordinates_geometries, "id": coordinates_ids}, crs=3395)
 
-    output_abstract = {"id": "zipName", "coordinates": zip_code_coordinates, "values": zip_code_name}
+    output_abstract = {"id": "zipName", "coordinates": [round(item,4) for item in zip_code_coordinates], "values": zip_code_name}
 
     with open(os.path.join(os.path.dirname(filepath), 'zipName.json') , "w", encoding="utf-8") as f:
         
-        output_str = str(json.dumps(output_abstract, indent=4))
+        output_str = str(json.dumps(output_abstract))
         f.write(output_str)
 
     return {'objects': loaded_shp, 'coordinates': coordinates_gdf, 'coordinates3d': None}

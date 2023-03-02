@@ -1,9 +1,10 @@
 import os
-from flask import Flask, request, send_from_directory, abort
+from flask import Flask, request, send_from_directory, abort, jsonify
 import json
 from osm import *
 from urbanComponent import *
 import pandas as pd
+import gzip
 
 app = Flask(__name__)
 workDir = None
@@ -112,6 +113,21 @@ def serve_getGrammar():
 
 #     return ''
 
+@app.route('/getLayer', methods=['GET'])
+def serve_getLayer():
+
+    if("layer" not in request.args):
+        abort(400, "Missing one or more parameters of: layer")
+
+    layer = request.args.get('layer')
+
+    layer_json = {}
+
+    with open(os.path.join(workDir,layer+".json"), "r", encoding="utf-8") as f:
+        layer_json = json.load(f)
+
+    return json.dumps(layer_json, indent=4)
+
 @app.route('/addRenderStyles', methods=['GET'])
 def serve_addRenderStyles():
 
@@ -197,7 +213,7 @@ def serve_addRenderStyles():
         print(layer, renderStyles)
 
         with open(os.path.join(workDir,layer+".json"), "w", encoding="utf-8") as f:
-            f.write(json.dumps(layersInfo[layer]['data'], indent=4))
+            f.write(json.dumps(layersInfo[layer]['data']))
 
     return ''
 

@@ -426,7 +426,8 @@ class UrbanComponent:
                     grammar_json['views'][0]['knots'].append({"id": "pure"+layer['id'], "linkingScheme": [{"thisLayer": layer['id']}], "aggregationScheme": ["NONE"]})
                     grammar_json['views'][0]['map']['knots'].append("pure"+layer['id'])
 
-                    layer_json_str = str(json.dumps(layer, indent=4))
+                    # layer_json_str = str(json.dumps(layer, indent=4))
+                    layer_json_str = str(json.dumps(layer))
                     with open(os.path.join(filepath,layer['id']+'.json'), "w") as f:
                         f.write(layer_json_str)
 
@@ -441,7 +442,7 @@ class UrbanComponent:
 
                 for fileName in self.joinedJson:
                     with open(os.path.join(filepath,fileName+".json"), "w", encoding="utf-8") as f:
-                        joined_json_str = str(json.dumps(self.joinedJson[fileName], indent=4))
+                        joined_json_str = str(json.dumps(self.joinedJson[fileName]))
                         f.write(joined_json_str)
 
             else:

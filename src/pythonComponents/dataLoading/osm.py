@@ -252,12 +252,15 @@ class OSM:
                 continue
             
             if(pbf_filepath == None):
+
                 query = OSM.build_osm_query(bbox, 'geom', [layer])
+
                 response = cache._load_osm_from_cache(query)
                 if not response:
                     time.sleep(1) # avoiding Overpass 429 Too Many Requests
                     response = api.get(query, build=False)
                     cache._save_osm_to_cache(query,response)
+
                 overpass_responses[layer] = OSM.parse_osm(response)
             else:
                 relation_handler = RelationHandler(OSM.get_osmium_filters(layer))
@@ -289,6 +292,7 @@ class OSM:
         styleKey = ''
         renderStyle = []
         selectable = ''
+
         for layer in layers:
             if layer == 'surface':
                 continue
@@ -401,7 +405,7 @@ class OSM:
 
             coords_duplicated = utils.from2dTo3d(coords_duplicated)
 
-            mesh.append({'type': 'roads', 'geometry': {'coordinates': coords_duplicated, 'types': types}})
+            mesh.append({'type': 'roads', 'geometry': {'coordinates': [round(item,4) for item in coords_duplicated], 'types': types}})
 
             geometries.append(transform(project, line))
 
@@ -635,7 +639,7 @@ class OSM:
 
             nodes = utils.from2dTo3d(nodes)
 
-            mesh.append({'type': poly['type'], 'geometry': {'coordinates': nodes, 'indices': indices}})
+            mesh.append({'type': poly['type'], 'geometry': {'coordinates': [round(item,4) for item in nodes], 'indices': indices}})
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
@@ -654,6 +658,8 @@ class OSM:
             Returns:
                 mesh (object): A json object describing the geometry of the layer
         '''
+
+        # start = time.time()
 
         ways = []
         # handle multiways first
@@ -697,11 +703,21 @@ class OSM:
                 if inserted == False:
                     ways[lastouter]['inner'] = innernodes
 
+        # end = time.time()
+        # print("handling multiways: "+str(end - start))
+
+        # start = time.time()
+
         # single ways
         for wid in osm_elements['ways']:
             way = osm_elements['ways'][wid]
             nodes = way['geometry']
             ways.append({'outer': nodes, 'inner': [], 'tags': way['tags'],'type': 'type'})
+
+        # end = time.time()
+        # print("handling singleways: "+str(end - start))
+
+        # start = time.time()
 
         # to shapely
         polygons = []
@@ -731,6 +747,9 @@ class OSM:
                     for interior in p.interiors:
                         interiors.append(list(interior.coords))
                     polygons.append({'geom': [exterior, interiors], 'tags': way['tags']})
+
+        # end = time.time()
+        # print("to shapely: "+str(end - start))
 
         # https://wiki.openstreetmap.org/wiki/Simple_3D_buildings#Other_roof_tags
         def _feet_to_meters(s):
@@ -797,6 +816,9 @@ class OSM:
         min_heights = []
         heights = []
         building_id = []
+
+        # start = time.time()
+
         for index_polygon, building_info in enumerate(polygons):
 
             tags.append(building_info['tags'])
@@ -807,6 +829,9 @@ class OSM:
             geometry.append(MultiPolygon(shapely_polygons))
 
             building_id.append(index_polygon)
+
+        # end = time.time()
+        # print("building Polygon and MultiPolygon: "+str(end - start))
 
         geometry = gpd.GeoSeries(geometry, crs='epsg:4326')
         heights = pd.Series(heights, dtype='float')
@@ -831,13 +856,29 @@ class OSM:
         gdf = gdf.set_index('building_id', drop=False)
         gdf = gdf.sort_index()
 
+        # start = time.time()
+
         gdf_merged_buildings = Buildings.merge_overlapping_buildings(gdf)
 
+        # end = time.time()
+        # print("merge_overlapping_buildings: "+str(end - start))
+
+        # start = time.time()
+
         layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
+        # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 10) #gdf, size
+
+        # end = time.time()
+        # print("generate_building_layer: "+str(end - start))
 
         df_mesh = layer_dataframes['df']
 
+        # start = time.time()
+
         json_mesh = Buildings.df_to_json(df_mesh) # prepares the layer   
+
+        # end = time.time()
+        # print("df_to_json: "+str(end - start))
 
         return {"data": json_mesh['data'], "gdf": {'objects': layer_dataframes['gdf']['objects'], 'coordinates': layer_dataframes['gdf']['coordinates'], "coordinates3d": layer_dataframes['gdf']['coordinates3d']}}
 
@@ -997,7 +1038,7 @@ class OSM:
             if convert2dto3d:
                 nodes = utils.from2dTo3d(nodes)
 
-            mesh.append({'type': 'type', 'geometry': {'coordinates': nodes, 'indices': indices}})
+            mesh.append({'type': 'type', 'geometry': {'coordinates': [round(item,4) for item in nodes], 'indices': indices}})
         
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
@@ -1286,7 +1327,8 @@ class OSM:
     def discretize_surface_mesh(coords, size=-1):
         poly = Polygon(coords[:,:2])
 
-        coordinates, indices, ids, _, _, _, _ = Buildings.get_roof(poly, None, 0, size)
+        # coordinates, indices, ids, _, _, _, _ = Buildings.get_roof(poly, None, 0, size)
+        coordinates, indices, ids, _ = Buildings.get_roof(poly, None, 0, size)
 
         vmesh = vedo.Mesh([coordinates, indices])
         normals = vmesh.normals(cells=False)
