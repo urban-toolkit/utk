@@ -36,6 +36,7 @@ function App() {
   const [showPlotSpec, setShowPlotSpec] = useState(false);
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0)
+  const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
 
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
@@ -55,6 +56,10 @@ function App() {
     setGenericPlots(tempPlots);
     setCurrentPlotId(tempId);
     return createdIds;
+  }
+
+  const updateCamera = (cameraData: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+    setCamera(cameraData);
   }
 
   const linkedContainerGenerator = (n: number) => {
@@ -190,6 +195,7 @@ function App() {
         listPlots = {genericPlots}
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
+        camera = {camera}
       />
       {/* map view */}
       <MapViewer 
@@ -198,6 +204,7 @@ function App() {
         divWidth = {9}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
+        cameraUpdateCallback = {updateCamera}
       />
 
       {

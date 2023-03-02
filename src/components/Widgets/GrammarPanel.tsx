@@ -8,9 +8,11 @@ const params = require('../../pythonServerConfig.json');
 
 // declaring the types of the props
 type GrammarPanelProps = {
+    camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}
 }
 
 export const GrammarPanelContainer = ({
+    camera
 }: GrammarPanelProps
 ) =>{
 
@@ -132,6 +134,23 @@ export const GrammarPanelContainer = ({
         getInitialGrammar(url);
     }, []);
 
+    const addCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+        
+        if(grammar == ''){
+            return ''
+        }
+
+        if(camera.position.length == 0){
+            return grammar
+        }
+
+        let parsedGrammar = JSON.parse(grammar);
+
+        parsedGrammar.views[0].map.camera = camera;
+
+        return JSON.stringify(parsedGrammar, null, 4);
+    }
+
     return(
         // <div>
         //     <div>
@@ -145,7 +164,7 @@ export const GrammarPanelContainer = ({
         <div>
             <div style={{height: "650px", overflow: "auto"}}>
                 <CodeEditor
-                    value={grammar}
+                    value={addCamera(grammar, camera)}
                     language="js"
                     placeholder="Grammar specification"
                     onChange={(evn) => setCode(evn.target.value)}
