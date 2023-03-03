@@ -39,7 +39,7 @@ module.exports = function (proxy, allowedHost) {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': '*',
-      'Access-Control-Allow-Headers': '*',
+      'Access-Control-Allow-Headers': '*'
     },
     // Enable gzip compression of generated files.
     compress: true,

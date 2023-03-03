@@ -110,6 +110,7 @@
   },
   "devDependencies": {
     "@types/jquery": "^3.5.14",
+    "compression-webpack-plugin": "^10.0.0",
     "cross-env": "^7.0.3",
     "gulp": "^4.0.2",
     "gulp-inline-source": "^4.0.0",

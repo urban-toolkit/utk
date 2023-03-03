@@ -28,6 +28,8 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
+const CompressionPlugin = require("compression-webpack-plugin");
+
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 
@@ -746,6 +748,14 @@ module.exports = function (webpackEnv) {
               }),
             },
           },
+        }),
+        // compression-webpack-plugin
+        new CompressionPlugin({
+          filename: "[path][base].gz",
+          algorithm: "gzip",
+          test: /\.json$/,
+          threshold: 10240,
+          minRatio: 0.8,
         }),
     ].filter(Boolean),
     // Turn off performance processing because we utilize

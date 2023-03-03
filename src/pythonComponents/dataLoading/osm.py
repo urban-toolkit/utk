@@ -800,7 +800,12 @@ class OSM:
                 elif 'building:levels' in tags:
                     level_tag = 'building:levels'
 
-                height = float(tags[level_tag]) * LEVEL_HEIGHT
+                height = 0
+
+                try:
+                    height = float(tags[level_tag]) * LEVEL_HEIGHT
+                except:
+                    pass
 
                 if 'roof_levels' in tags and roof_height == 0:
                     height += float(tags['roof_levels']) * LEVEL_HEIGHT
