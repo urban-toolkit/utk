@@ -17,6 +17,7 @@ export const GrammarPanelContainer = ({
 ) =>{
 
     const [grammar, setCode] = useState('');
+    const [refresh, setRefresh] = useState(false);
     const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
 
     const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
@@ -41,6 +42,7 @@ export const GrammarPanelContainer = ({
     }
 
     const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
+        
         let grammarString = grammar;
 
         if(grammarString == ''){
@@ -99,7 +101,7 @@ export const GrammarPanelContainer = ({
 
     const applyGrammar = async () => {
 
-        let sendGrammar = grammar;
+        let sendGrammar = addCamera(grammar, camera);
 
         const data = { "grammar": sendGrammar };
     
@@ -151,6 +153,20 @@ export const GrammarPanelContainer = ({
         return JSON.stringify(parsedGrammar, null, 4);
     }
 
+    const checkIfAddCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+        let inputLink = d3.select("#linkMapAndGrammar")
+        
+        if(inputLink.empty())
+            return grammar
+
+        let mapAndGrammarLinked = inputLink.property("checked");
+
+        if(mapAndGrammarLinked)
+            return addCamera(grammar, camera);
+        else
+            return grammar;
+    }
+
     return(
         // <div>
         //     <div>
@@ -164,7 +180,7 @@ export const GrammarPanelContainer = ({
         <div>
             <div style={{height: "650px", overflow: "auto"}}>
                 <CodeEditor
-                    value={addCamera(grammar, camera)}
+                    value={checkIfAddCamera(grammar, camera)}
                     language="js"
                     placeholder="Grammar specification"
                     onChange={(evn) => setCode(evn.target.value)}
@@ -178,6 +194,8 @@ export const GrammarPanelContainer = ({
                 />
             </div>
             <button type="button" onClick={() => applyGrammar()}>Apply</button>
+            <input type="checkbox" id="linkMapAndGrammar" style={{margin: "8px"}} onChange={() => setRefresh(!refresh)}></input>
+            <label htmlFor="linkMapAndGrammar"> Link Map and Grammar</label>
             {
                 systemMessages.map((item, index) => (
                     <p style={{color: item.color}} key={index}>{item.text}</p>

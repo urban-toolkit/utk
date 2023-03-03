@@ -41,6 +41,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0);
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
+  const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
 
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
@@ -59,6 +60,10 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
     setGenericPlots(genericPlots.concat(tempPlots));
     setCurrentPlotId(tempId);
     return createdIds;
+  }
+
+  const updateCamera = (cameraData: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+    setCamera(cameraData);
   }
 
   const removeGenericPlot = (plotId: number) => {
@@ -179,6 +184,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         listPlots = {genericPlots}
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
+        camera = {camera}
       />
       {/* map view */}
       <MapViewer 
