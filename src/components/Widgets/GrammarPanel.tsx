@@ -62,11 +62,16 @@ export const GrammarPanelContainer = ({
                         let thisLayer = knot.linkingScheme[i].thisLayer;
                         let thisLevel = knot.linkingScheme[i].thisLevel.toLowerCase();
                         let otherLevel = knot.linkingScheme[i].otherLevel.toLowerCase();
+                        let maxDistance = knot.linkingScheme[i].maxDistance;
 
                         let aggregation = knot.aggregationScheme[i].toLowerCase();
 
                         if(aggregation == 'none'){
                             aggregation = 'avg'; // there must be an aggregation to solve conflicts in the join
+                        }
+
+                        if(maxDistance != undefined && predicate != 'nearest'){
+                            throw Error("The maxdistance field can only be used with the nearest predicate");
                         }
 
                         let otherLayer = knot.linkingScheme[i].otherLayer;
@@ -76,8 +81,11 @@ export const GrammarPanelContainer = ({
 
                         let start = Date.now();
 
-                        await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel);
-                    
+                        if(maxDistance != undefined)
+                            await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel+"&maxDistance="+maxDistance);
+                        else
+                            await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel);
+
                         let end = Date.now();
                         let elapsed = end - start; 
 
