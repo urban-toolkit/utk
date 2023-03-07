@@ -46,9 +46,9 @@ export const WidgetsComponent = ({
 }: widgetProps) => {
 
     return(
-        <Col md={3}>
+        <Col md={5} style={{padding: "0"}}>
             {/* visualization widget */}
-            <VisWidget 
+            {/* <VisWidget 
                 genericScreenPlotToggle = {genericScreenPlotToggle}
                 addGenericPlot = {addGenericPlot}
                 removeGenericPlot = {removeGenericPlot}
@@ -56,8 +56,15 @@ export const WidgetsComponent = ({
                 listPlots = {listPlots}
                 modifyLabelPlot = {modifyLabelPlot}
                 modifyEditingState = {modifyEditingState}
-            />
+            /> */}
             <GrammarPanelContainer 
+                genericScreenPlotToggle = {genericScreenPlotToggle}
+                addGenericPlot = {addGenericPlot}
+                removeGenericPlot = {removeGenericPlot}
+                togglePlotCollection = {togglePlotCollection}
+                listPlots = {listPlots}
+                modifyLabelPlot = {modifyLabelPlot}
+                modifyEditingState = {modifyEditingState}
                 camera = {camera}
             />
             {/* data widget */}

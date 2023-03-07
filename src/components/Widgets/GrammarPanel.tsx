@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { createAndRunMap } from "../MapView/MapView";
 import VanillaJSONEditor from "./VanillaJSONEditor";
+import { Col, Row, Button } from "react-bootstrap";
+import { VisWidget } from "./VisWidget";
 
 import * as d3 from "d3";
 
@@ -9,31 +11,36 @@ const params = require('../../pythonServerConfig.json');
 
 // declaring the types of the props
 type GrammarPanelProps = {
+    genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
+    addGenericPlot: any,
+    removeGenericPlot: React.Dispatch<React.SetStateAction<any>>,
+    togglePlotCollection: React.Dispatch<React.SetStateAction<any>>,
+    modifyLabelPlot: any,
+    modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
+    listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}
 }
 
 export const GrammarPanelContainer = ({
+    genericScreenPlotToggle,
+    addGenericPlot,
+    removeGenericPlot,
+    togglePlotCollection,
+    modifyLabelPlot,
+    modifyEditingState,
+    listPlots,
     camera
 }: GrammarPanelProps
 ) =>{
 
     const [grammar, setCode] = useState('');
+    const [tempGrammar, setTempGrammar] = useState('');
+    const [dirtyTempGrammar, setDirtyTempGrammar] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
 
     const [showEditor, setShowEditor] = useState(true);
     const [readOnly, setReadOnly] = useState(false);
-    const [content, setContent] = useState({
-        json: {
-          greeting: "Hello World",
-          color: "#ff3e00",
-          ok: true,
-          values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        },
-        text: undefined
-    });
-
-
 
     const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
 
@@ -124,7 +131,17 @@ export const GrammarPanelContainer = ({
 
     const applyGrammar = async () => {
 
-        let sendGrammar = addCamera(grammar, camera);
+        try{
+            JSON.parse(tempGrammar); // testing if temp grammar contains a valid grammar
+        }catch(err){
+            console.error('Grammar is not valid');
+            return;
+        }
+
+        // let sendGrammar = addCamera(grammar, camera);
+        let sendGrammar = addCamera(tempGrammar, camera);
+        setCode(tempGrammar);
+        setTempGrammar('');
 
         const data = { "grammar": sendGrammar };
     
@@ -176,14 +193,19 @@ export const GrammarPanelContainer = ({
         return JSON.stringify(parsedGrammar, null, 4);
     }
 
-    const checkIfAddCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+    const checkIfAddCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, tempGrammar: string) => {
+
         let inputLink = d3.select("#linkMapAndGrammar")
         
-        let returnedGrammar = {json: {}, text: undefined};
+        let returnedGrammar: any = {};
 
         if(inputLink.empty()){
-            if(grammar != ''){
+            if(tempGrammar != ''){
+                returnedGrammar.text = tempGrammar;
+            }else if(grammar != ''){
                 returnedGrammar.json = JSON.parse(grammar);
+            }else{
+                returnedGrammar.json = {};
             }
             return returnedGrammar
         }
@@ -195,19 +217,38 @@ export const GrammarPanelContainer = ({
 
             if(mergedGrammar != ''){
                 returnedGrammar.json = JSON.parse(mergedGrammar);
+            }else{
+                returnedGrammar.json = {};
             }
 
             return returnedGrammar
         }else{
-            if(grammar != ''){
+            if(tempGrammar != ''){
+                returnedGrammar.text = tempGrammar;
+            }else if(grammar != ''){
                 returnedGrammar.json = JSON.parse(grammar);
+            }else{
+                returnedGrammar.json = {};
             }
+
             return returnedGrammar;
         }
     }
 
     const updateGrammarContent = (grammarObj: any) => {
-        setCode(JSON.stringify(grammarObj.json));
+        if(grammarObj.text != undefined){
+            // try{
+            //     setTempGrammar(JSON.stringify(JSON.parse(grammarObj.text), null, 4));
+            // }catch(err){
+            //     setTempGrammar(grammarObj.text);
+            // }
+            setTempGrammar(grammarObj.text);
+
+        }else{
+            // setCode(JSON.stringify(grammarObj.json));
+            setTempGrammar(JSON.stringify(grammarObj.json, null, 4));
+        }
+
     }
 
     return(
@@ -220,30 +261,51 @@ export const GrammarPanelContainer = ({
         //         {/* <button type="button" onClick={() => applyGrammar(d3.select("#grammarTextArea").property('value'))}>Apply</button> */}
         //     </div>
         // </div>
-        <div>
-            <div style={{height: "650px", overflow: "auto"}}>
-                {showEditor && (
-                    <>
-                    <div className="my-editor">
-                        <VanillaJSONEditor
-                        content={checkIfAddCamera(grammar, camera)}
-                        readOnly={readOnly}
-                        onChange={updateGrammarContent}
-                        mode={'text'}
-                        />
+        <Row md={6} style={{margin: 0}}>
+
+            <Col md={10} style={{padding: "0"}} id={"grammarColumn"}>
+                <div style={{height: "100vh", overflow: "auto"}}>
+                    {showEditor && (
+                        <>
+                        <div className="my-editor">
+                            <VanillaJSONEditor
+                            content={checkIfAddCamera(grammar, camera, tempGrammar)}
+                            readOnly={readOnly}
+                            onChange={updateGrammarContent}
+                            mode={'text'}
+                            indentation={4}
+                            />
+                        </div>
+                        </>
+                    )}
+                </div>
+            </Col>
+
+            <Col md={2} style={{padding: "4px", backgroundColor: "#F5F5F5"}} className="d-flex align-items-center justify-content-center">
+                <Row style={{margin: 0}}>
+                    {
+                        systemMessages.map((item, index) => (
+                            <p style={{color: item.color, textAlign: "center", fontWeight: "bold"}} key={index}>{item.text}</p>
+                        ))
+                    }
+                    <Button variant="secondary" onClick={() => applyGrammar()}>Apply</Button>
+                    <div style={{textAlign: "center", paddingLeft: 0}}>
+                        <input type="checkbox" id="linkMapAndGrammar" style={{margin: "8px"}} onChange={() => setRefresh(!refresh)}></input>
+                        <label htmlFor="linkMapAndGrammar"> Link</label>
                     </div>
-                    </>
-                )}
-            </div>
-            <button type="button" onClick={() => applyGrammar()}>Apply</button>
-            <input type="checkbox" id="linkMapAndGrammar" style={{margin: "8px"}} onChange={() => setRefresh(!refresh)}></input>
-            <label htmlFor="linkMapAndGrammar"> Link Map and Grammar</label>
-            {
-                systemMessages.map((item, index) => (
-                    <p style={{color: item.color}} key={index}>{item.text}</p>
-                ))
-            }
-        </div>
+                    <VisWidget 
+                        genericScreenPlotToggle = {genericScreenPlotToggle}
+                        addGenericPlot = {addGenericPlot}
+                        removeGenericPlot = {removeGenericPlot}
+                        togglePlotCollection = {togglePlotCollection}
+                        listPlots = {listPlots}
+                        modifyLabelPlot = {modifyLabelPlot}
+                        modifyEditingState = {modifyEditingState}
+                    />
+                </Row>
+            </Col>
+            
+        </Row>
         
         
     )

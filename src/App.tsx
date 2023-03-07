@@ -48,7 +48,7 @@ function App() {
     let tempId = 0;
 
     for(let i = 0; i < n; i++){
-      tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: "Generic Plot", checked: false, edit: false});
+      tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
       createdIds.push(tempId);
       tempId += 1;
     }
@@ -201,23 +201,11 @@ function App() {
       <MapViewer 
       // variable contains which city data to load
         dataToView = {cityRef}
-        divWidth = {9}
+        divWidth = {7}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
         cameraUpdateCallback = {updateCamera}
       />
-
-      {
-        genericPlots.map((item) => (
-            <GenericScreenPlotContainer
-              key={item.id}
-              disp = {!item.hidden}
-              width={size.width}
-              height={size.height}
-              svgId={item.svgId}
-            />
-        ))
-      }
 
       {/* <PlotCollectionContainer 
         disp = {showPlotCollection}
@@ -231,6 +219,18 @@ function App() {
       /> */}
 
       </Row>
+
+      {
+        genericPlots.map((item) => (
+            <GenericScreenPlotContainer
+              key={item.id}
+              disp = {!item.hidden}
+              width={size.width}
+              height={size.height}
+              svgId={item.svgId}
+            />
+        ))
+      }
     </Container>
   );
 }
