@@ -336,7 +336,7 @@ module.exports = function (webpackEnv) {
           babelRuntimeEntryHelpers,
           babelRuntimeRegenerator,
         ]),
-      ],
+      ]
     },
     module: {
       strictExportPresence: true,
@@ -753,10 +753,10 @@ module.exports = function (webpackEnv) {
         new CompressionPlugin({
           filename: "[path][base].gz",
           algorithm: "gzip",
-          test: /\.json$/,
+          test: /\.(json|data)$/,
           threshold: 10240,
           minRatio: 0.8,
-        }),
+        })
     ].filter(Boolean),
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
