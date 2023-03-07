@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { createAndRunMap } from "../MapView/MapView";
+import VanillaJSONEditor from "./VanillaJSONEditor";
 
 import * as d3 from "d3";
 
@@ -19,6 +20,20 @@ export const GrammarPanelContainer = ({
     const [grammar, setCode] = useState('');
     const [refresh, setRefresh] = useState(false);
     const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
+
+    const [showEditor, setShowEditor] = useState(true);
+    const [readOnly, setReadOnly] = useState(false);
+    const [content, setContent] = useState({
+        json: {
+          greeting: "Hello World",
+          color: "#ff3e00",
+          ok: true,
+          values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        },
+        text: undefined
+    });
+
+
 
     const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
 
@@ -164,15 +179,35 @@ export const GrammarPanelContainer = ({
     const checkIfAddCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
         let inputLink = d3.select("#linkMapAndGrammar")
         
-        if(inputLink.empty())
-            return grammar
+        let returnedGrammar = {json: {}, text: undefined};
+
+        if(inputLink.empty()){
+            if(grammar != ''){
+                returnedGrammar.json = JSON.parse(grammar);
+            }
+            return returnedGrammar
+        }
 
         let mapAndGrammarLinked = inputLink.property("checked");
 
-        if(mapAndGrammarLinked)
-            return addCamera(grammar, camera);
-        else
-            return grammar;
+        if(mapAndGrammarLinked){
+            let mergedGrammar = addCamera(grammar, camera);
+
+            if(mergedGrammar != ''){
+                returnedGrammar.json = JSON.parse(mergedGrammar);
+            }
+
+            return returnedGrammar
+        }else{
+            if(grammar != ''){
+                returnedGrammar.json = JSON.parse(grammar);
+            }
+            return returnedGrammar;
+        }
+    }
+
+    const updateGrammarContent = (grammarObj: any) => {
+        setCode(JSON.stringify(grammarObj.json));
     }
 
     return(
@@ -187,19 +222,18 @@ export const GrammarPanelContainer = ({
         // </div>
         <div>
             <div style={{height: "650px", overflow: "auto"}}>
-                <CodeEditor
-                    value={checkIfAddCamera(grammar, camera)}
-                    language="js"
-                    placeholder="Grammar specification"
-                    onChange={(evn) => setCode(evn.target.value)}
-                    padding={15}
-                    style={{
-                        fontSize: 12,
-                        backgroundColor: "#f5f5f5",
-                        fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
-                        
-                    }}
-                />
+                {showEditor && (
+                    <>
+                    <div className="my-editor">
+                        <VanillaJSONEditor
+                        content={checkIfAddCamera(grammar, camera)}
+                        readOnly={readOnly}
+                        onChange={updateGrammarContent}
+                        mode={'text'}
+                        />
+                    </div>
+                    </>
+                )}
             </div>
             <button type="button" onClick={() => applyGrammar()}>Apply</button>
             <input type="checkbox" id="linkMapAndGrammar" style={{margin: "8px"}} onChange={() => setRefresh(!refresh)}></input>
