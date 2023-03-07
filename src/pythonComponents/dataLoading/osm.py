@@ -890,8 +890,8 @@ class OSM:
 
         print("generating building layers (osm_to_building_mesh)")
 
-        layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, -1) #gdf, size
-        # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
+        # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, -1) #gdf, size
+        layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
         # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 10) #gdf, size
 
         print("building layers generated (osm_to_building_mesh)")
