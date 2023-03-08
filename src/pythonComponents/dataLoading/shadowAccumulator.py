@@ -264,13 +264,40 @@ class ShadowAccumulator:
 
         function_values = function_values.tolist()
 
+        flat_coords = self.flat_coords.copy()
+
         # decoupled abstract layer
-        shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': [round(item,4) for item in self.flat_coords], 'values': [round(item,4) for item in function_values]}
+        # shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': [round(item,4) for item in self.flat_coords], 'values': [round(item,4) for item in function_values]}
 
-        directory = os.path.dirname(self.filespaths[0])
+        # directory = os.path.dirname(self.filespaths[0])
 
-        with open(os.path.join(directory, "shadow"+str(function_index)+".json"), "w") as outfile:
-            json.dump(shadow_layer, outfile)
+        # with open(os.path.join(directory, "shadow"+str(function_index)+".json"), "w") as outfile:
+        #     json.dump(shadow_layer, outfile)
+
+        for index, geometries_count in enumerate(self.coords_per_file):
+            
+            fileName = os.path.splitext(os.path.basename(self.filespaths[index]))[0]
+
+            directory = os.path.dirname(self.filespaths[index])
+
+            function_values_this_file = []
+            flat_coords_this_file = []
+
+            for geometry_count in geometries_count:
+
+                function_values_this_file += function_values[:geometry_count]
+
+                flat_coords_this_file += flat_coords[:geometry_count*3]
+
+                flat_coords = flat_coords[geometry_count*3:] # remove the values that belong to the current mesh
+                function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
+
+            shadow_layer = {'id': "shadow"+str(function_index)+'_'+fileName, 'coordinates': [round(item,4) for item in flat_coords_this_file], 'values': [round(item,4) for item in function_values_this_file]}
+
+            with open(os.path.join(directory, "shadow"+str(function_index)+'_'+fileName+".json"), "w") as outfile:
+                json.dump(shadow_layer, outfile)
+
+
 
         # coupled abstract layer
         # for index, geometries_count in enumerate(self.coords_per_file):

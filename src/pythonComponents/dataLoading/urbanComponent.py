@@ -1,9 +1,9 @@
-import os
 import json
 import asyncio
 import geopandas as gpd
 import pandas as pd
 import numpy as np
+import os
 
 from ipykernel.comm import Comm
 from shapely.geometry import Polygon, Point
@@ -22,10 +22,10 @@ class UrbanComponent:
     layers = {'json': [], 'gdf': {'objects': [], 'coordinates': [], 'coordinates3d': []}}
     joinedJson = {}
     camera = None
-    bbox = []
+    bpolygon = []
     workDir = None
 
-    def __init__(self, cid = 'map', filepath = None, layers = None, camera = None, bbox = None):
+    def __init__(self, cid = 'map', filepath = None, layers = None, camera = None, bpolygon = None):
         if filepath != None:
             self.from_file(filepath)
         self.cid = cid
@@ -33,8 +33,8 @@ class UrbanComponent:
             self.layers = layers
         if camera != None:
             self.camera = camera
-        if bbox != None:
-            self.bbox = bbox
+        if bpolygon != None:
+            self.bpolygon = bpolygon
 
     def setWorkDir(self, directory):
         self.workDir = directory
@@ -321,10 +321,8 @@ class UrbanComponent:
                 kdtree=KDTree(left_coords)
 
                 if(max_distance == -1):
-                    print("distance_upper_bound", max_distance)
                     dist,points = kdtree.query(right_coords,1) # 1 best neighbor for the sample candidates
                 else:
-                    print("distance_upper_bound", max_distance)
                     dist,points = kdtree.query(right_coords,1,distance_upper_bound=float(max_distance)) # 1 best neighbor for the sample candidates
 
                 for index, point in enumerate(points):
@@ -401,6 +399,26 @@ class UrbanComponent:
 
         return join_left_gdf
 
+    def crop_layer(self, layer_id, polygon, featureFieldName):
+
+        layer_json = {}
+
+        for i in range(len(self.layers['json'])):
+            if self.layers['json'][i]['id'] == layer_id:
+                layer_json = self.layers['json'][i]
+
+        final_data_array = []
+
+        for i in range(len(layer_json['data'])):
+            point = Point(layer_json['data'][i][featureFieldName][0][:2])
+
+            # this intersection checking will certaintly include buildings that are completly inside the geometry but might include or not those that are on the border
+            if(polygon.contains(point)):
+                final_data_array(layer_json['data'][i])
+        
+        layer_json['data'] = final_data_array
+
+
     def to_file(self, filepath, separateFiles=False):
         '''
             If separateFiles is true. filepath must be an existing directory.
@@ -459,22 +477,24 @@ class UrbanComponent:
                 raise Exception("separateFiles is true but filepath does not point to an existing directory")
 
         else:
-            if not os.path.exists(os.path.dirname(filepath)):
-                os.makedirs(os.path.dirname(filepath))
+            raise Exception("to_file can only be used with separate files")
 
-            outjson = {'cid': self.cid, 'style': self.style, 'layers': self.layers['json'], 'camera': self.camera, 'bbox': self.bbox}
-            outjson_str = str(json.dumps(outjson))
-            with open(filepath, "w", encoding="utf-8") as f:
-                f.write(outjson_str)
+            # if not os.path.exists(os.path.dirname(filepath)):
+            #     os.makedirs(os.path.dirname(filepath))
 
-    def from_file(self, filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
-            injson = json.load(f)
-            self.cid = injson['cid']
-            self.style = injson['style']
-            self.layers['json'] = injson['layers']
-            self.camera = injson['camera']
-            self.bbox = injson['bbox']
+            # outjson = {'cid': self.cid, 'style': self.style, 'layers': self.layers['json'], 'camera': self.camera, 'bbox': self.bbox}
+            # outjson_str = str(json.dumps(outjson))
+            # with open(filepath, "w", encoding="utf-8") as f:
+            #     f.write(outjson_str)
+
+    # def from_file(self, filepath):
+    #     with open(filepath, "r", encoding="utf-8") as f:
+    #         injson = json.load(f)
+    #         self.cid = injson['cid']
+    #         self.style = injson['style']
+    #         self.layers['json'] = injson['layers']
+    #         self.camera = injson['camera']
+    #         self.bbox = injson['bbox']
     
     async def task(self):
         data = {}

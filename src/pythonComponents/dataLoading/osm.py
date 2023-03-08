@@ -198,7 +198,7 @@ class OSM:
         
         '''
         
-        cam = utils.get_camera(bbox)
+        cam = utils.get_camera(bbox, True)
         
         loaded = None
 
@@ -217,21 +217,32 @@ class OSM:
 
             proc = subprocess.call(['wsl', 'osmium', 'extract', '-b', aux, '-o', output_file, '--overwrite', pbf_filepath], shell=True) # TODO: make it not depend on the OS
 
-            loaded = OSM.get_osm(bbox, layers, True, output_file)
+            loaded = OSM.get_osm(bbox, layers, True, True, output_file)
         else:
-            loaded = OSM.get_osm(bbox, layers, False)
+            loaded = OSM.get_osm(bbox, layers, True, False)
 
-        component = UrbanComponent(layers = loaded, bbox = bbox, camera = cam)
+        component = UrbanComponent(layers = loaded, bpolygon = bbox, camera = cam)
 
         return component
 
-    def get_osm(bounding_box, layers=['parks','water','roads','buildings'], load_surface = True, pbf_filepath=None):
+    def load_from_polygon(bpolygon, layers=['parks','water','roads','buildings']):
+        
+        cam = utils.get_camera(bpolygon)
+
+        loaded = OSM.get_osm(bpolygon, False, layers, False)
+
+        component = UrbanComponent(layers = loaded, bpolygon = bpolygon, camera = cam)
+
+        return component
+
+    def get_osm(bpolygon, bbox=False, layers=['parks','water','roads','buildings'], load_surface = True, pbf_filepath=None):
 
         '''
             Request data to OSM API using overpass and builds meshes for each loaded data from the result
 
             Args:
-                bounding_box (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]
+                bpolygon (float[]): coordinates of bounding polygon
+                bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
                 layers (string[]): Name of the layers that will be loaded. Possible values: parks, water, costline, roads, buildings. If buildings are used it must be the last layer to ensure correct rendering.
                     (default is ['parks', 'water', 'roads','buildings'])
                 load_surface (boolean): Indicates if the surface should be loaded
@@ -243,7 +254,7 @@ class OSM:
                 result (list[object]): A list of python objects representing the layers in json format
         '''
 
-        bbox = bounding_box.copy()
+        bpoly = bpolygon.copy()
         api = overpass.API()
 
         overpass_responses = {}
@@ -253,7 +264,7 @@ class OSM:
             
             if(pbf_filepath == None):
 
-                query = OSM.build_osm_query(bbox, 'geom', [layer])
+                query = OSM.build_osm_query(bpoly, 'geom', bbox, [layer])
 
                 response = cache._load_osm_from_cache(query)
                 if not response:
@@ -297,7 +308,7 @@ class OSM:
             if layer == 'surface':
                 continue
             if layer == 'buildings':
-                layer_geometry = OSM.osm_to_building_mesh(overpass_responses[layer], bbox)
+                layer_geometry = OSM.osm_to_building_mesh(overpass_responses[layer], bpoly, bbox)
                 print("osm_to_building_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
@@ -308,7 +319,7 @@ class OSM:
                 renderStyle = ['SMOOTH_COLOR']
                 selectable = True
             elif layer == 'roads':
-                layer_geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bbox)
+                layer_geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bpoly, bbox)
                 print("osm_to_roads_polyline finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
@@ -319,7 +330,7 @@ class OSM:
                 renderStyle = ['FLAT_COLOR']
                 selectable = False
             elif layer == 'coastline':
-                layer_geometry = OSM.osm_to_coastline_mesh(overpass_responses[layer], bbox)
+                layer_geometry = OSM.osm_to_coastline_mesh(overpass_responses[layer], bpoly, bbox)
                 print("osm_to_coastline_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
@@ -330,7 +341,7 @@ class OSM:
                 renderStyle = ['FLAT_COLOR']
                 selectable = False
             else:
-                layer_geometry = OSM.osm_to_generic_mesh(overpass_responses[layer], bbox, convert2dto3d=True)
+                layer_geometry = OSM.osm_to_generic_mesh(overpass_responses[layer], bpoly, bbox, convert2dto3d=True)
                 print("osm_to_generic_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
@@ -345,7 +356,7 @@ class OSM:
         
         if load_surface:
             print("creating surface")
-            layer_geometry = OSM.create_surface_mesh(bbox)
+            layer_geometry = OSM.create_surface_mesh(bpoly, bbox)
             print("create_surface_mesh finished")
             geometry = layer_geometry['data']
             result_gdf_objects.insert(0,layer_geometry['gdf']['objects'])
@@ -355,13 +366,14 @@ class OSM:
 
         return {'json': result, 'gdf': {'objects': result_gdf_objects, 'coordinates': result_gdf_coordinates, 'coordinates3d': result_gdf_coordinates_3d}}
 
-    def osm_to_roads_polyline(osm_elements, bbox):
+    def osm_to_roads_polyline(osm_elements, bpoly, bbox):
         '''
             Creates the roads polyline based on the OSM elements
 
             Args:
                 osm_elements (object): A json object describing the components of the roads layer 
-                bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]. Used to define the limits of the polyline
+                bpoly (float[]): coordinates of bounding polygon
+                bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
 
             Returns:
                 mesh (object): A json object describing the geometry of the layer
@@ -373,7 +385,7 @@ class OSM:
             way = osm_elements['ways'][wid]
             coords.append(way['geometry'])
         lines = MultiLineString(coords)
-        inter = lines.intersection(box(bbox[0],bbox[1],bbox[2],bbox[3]))
+        inter = lines.intersection(utils.polygon_bpoly(bpoly, bbox))
 
         proj_4326 = pyproj.CRS('EPSG:4326')
         proj_3395 = pyproj.CRS('EPSG:3395')
@@ -421,18 +433,26 @@ class OSM:
 
         return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': None}}
 
-    def osm_to_coastline_mesh(osm_elements, bbox):
+    def osm_to_coastline_mesh(osm_elements, bpoly, using_bbox):
 
         '''
             Creates the coastline mesh based on the OSM elements
 
             Args:
                 osm_elements (object): A json object describing the components of the coastline layer 
-                bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]. Used to define the limits of the coastline
+                bpoly (float[]): coordinates of bounding polygon
+                bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
 
             Returns:
                 mesh (object): A json object describing the geometry of the layer
         '''
+
+        bbox = []
+
+        if(using_bbox):
+            bbox = bpoly
+        else:
+            bbox = utils.polygon_bpoly(bpoly).bounds
 
         # to shapely
         lines = []
@@ -655,13 +675,14 @@ class OSM:
 
         return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': None}}
 
-    def osm_to_building_mesh(osm_elements, bbox):
+    def osm_to_building_mesh(osm_elements, bpoly, bbox = False):
         '''
             Creates the building mesh based on the OSM elements
 
             Args:
                 osm_elements (object): A json object describing the components of the layer 
-                bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]. Used to define the limits of the layer
+                bpoly (float[]): coordinates of bounding polygon
+                bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
 
             Returns:
                 mesh (object): A json object describing the geometry of the layer
@@ -744,7 +765,7 @@ class OSM:
                 print(explain_validity(poly))
                 print('poly not valid')
                 return
-            if poly.overlaps(box(bbox[0],bbox[1],bbox[2],bbox[3])):
+            if poly.overlaps(utils.polygon_bpoly(bpoly, bbox)):
                 continue
             if poly.geom_type == 'Polygon':
                 exterior = list(poly.exterior.coords)
@@ -910,13 +931,14 @@ class OSM:
 
         return {"data": json_mesh['data'], "gdf": {'objects': layer_dataframes['gdf']['objects'], 'coordinates': layer_dataframes['gdf']['coordinates'], "coordinates3d": layer_dataframes['gdf']['coordinates3d']}}
 
-    def osm_to_generic_mesh(osm_elements, bbox, convert2dto3d=False):
+    def osm_to_generic_mesh(osm_elements, bpoly, bbox, convert2dto3d=False):
         '''
             Used to load all generic layers that do not have specific functions to handle
 
             Args:
                 osm_elements (object): A json object describing the components of layer 
-                bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]. Used to define the limits of the layer
+                bpoly (float[]): coordinates of bounding polygon
+                bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
                 convert2dto3d (boolean): Indicates if the layer should be converted to 3D by adding z=0
                     (default is False)
 
@@ -988,7 +1010,7 @@ class OSM:
                 print('poly not valid')
                 return
 
-            poly = poly.intersection(box(bbox[0],bbox[1],bbox[2],bbox[3]))
+            poly = poly.intersection(utils.polygon_bpoly(bpoly, bbox))
             if poly.geom_type == 'Polygon':
                 exterior = list(poly.exterior.coords)
                 interiors = []
@@ -1055,8 +1077,8 @@ class OSM:
             nodes = nodes.flatten().tolist()
             indices = indices.tolist()
             dev = utils.deviation(nodes, rings, 2, indices)
-            # if(abs(dev) > 0.001):
-            #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
+            if(abs(dev) > 0.001):
+                raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
             
             nodes = utils.convertProjections("4326", "3395", nodes)
 
@@ -1136,13 +1158,13 @@ class OSM:
 
         return {'ways': ways, 'multiways': multiways}
         
-
-    def build_osm_query(bouding_box, output_type, layers=['parks', 'water', 'roads','building']):
+    def build_osm_query(coordinates, output_type, bbox=False, layers=['parks', 'water', 'roads','building']):
         '''
             Create an OSM query from layer types
 
             Args:
-                bouding_box (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]
+                bpoly (float[]): coordinates of bounding polygon
+                bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
                 output_type (string): Type of output (i.e. geom)
                 layers (string[]): List of strings containing the names of the layers that will be included in the OSM query. Possible values: ('coastline', 'parks', 'water', 'roads','building')
                     (default is ['parks', 'water', 'roads','building'])
@@ -1152,16 +1174,43 @@ class OSM:
 
         '''
 
-        bbox = ','.join(format(coord,".8f") for coord in bouding_box)
+        # test_bbox = [40.7065227, -73.9957237, 40.6981960, -74.0112591, 40.7004079, -74.0234041, 40.7110434, -74.0229750, 40.7229778, -74.0183830, 40.7251455, -74.0139055, 40.7065125, -73.9955807]
+        # test_bbox = [40.6979579, -74.0146923, 40.7047885, -74.0242195, 40.7178622, -74.0213013, 40.7406970, -74.0177536, 
+        #              40.7582171, -74.0124464, 40.7797333, -73.9968252, 40.8037116, -73.9801311, 40.8264477, -73.9618492, 
+        #              40.8544337, -73.9488029, 40.8692525, -73.9410782, 40.8791798, -73.9281607, 40.8780249, -73.9232719,
+        #              40.8761352, -73.9201283, 40.8747078, -73.9149141, 40.8729788, -73.9099646, 40.8673246, -73.9106727,
+        #              40.8627411, -73.9148355, 40.8584904, -73.9190197, 40.8535037, -73.9229608, 40.8492956, -73.9259648,
+        #              40.8410680, -73.9312148, 40.8336130, -73.9343619, 40.8267696, -73.9338899, 40.8145508, -73.9331245,
+        #              40.8089873, -73.9335251, 40.8032547, -73.9291906, 40.7998264, -73.9279675, 40.7948624, -73.9286399,
+        #              40.7887648, -73.9353490, 40.7811608, -73.9405417, 40.7767898, -73.9412713, 40.7703865, -73.9454985,
+        #              40.7630899, -73.9517713, 40.7566336, -73.9579082, 40.7433268, -73.9699817, 40.7328711, -73.9716983,
+        #              40.7211009, -73.9701891, 40.7088030, -73.9768267, 40.7061541, -73.9964533, 40.7011167, -74.0048647,
+        #              40.6980209, -74.0144205
+        #             ]
+
+        if(bbox):
+            bpoly = ','.join(format(coord,".8f") for coord in coordinates)
+        else:
+            bpoly = ' '.join(format(coord,".8f") for coord in coordinates)
         query = '[out:json];('
         for layer in layers:
             filters = OSM.get_overpass_filters(layer)
             for ffilter in filters['way']:
-                query += 'way%s(%s);'%(ffilter,bbox)
+                if(bbox):
+                    query += 'way%s(%s);'%(ffilter,bpoly)
+                else:
+                    query += 'way%s(poly:"%s");'%(ffilter,bpoly)
             for ffilter in filters['rel']:
-                query += 'rel%s(%s);'%(ffilter,bbox)
+                if(bbox):
+                    query += 'rel%s(%s);'%(ffilter,bpoly)
+                else:
+                    query += 'rel%s(poly:"%s");'%(ffilter,bpoly)
             for ffilter in filters['node']:
-                query += 'node%s(%s);'%(ffilter,bbox)
+                if(bbox):
+                    query += 'node%s(%s);'%(ffilter,bpoly)
+                else:
+                    query += 'node%s(poly:"%s");'%(ffilter,bpoly)
+
 
         query += ');out %s;'%output_type
 
@@ -1187,7 +1236,6 @@ class OSM:
         if layer_type == 'water':
             natural_types = ['water', 'wetland', 'bay', 'strait', 'spring']
             water_types = ['pond', 'reservoir', 'lagoon', 'stream_pool', 'lake', 'pool', 'canal', 'river']
-            # natural_types = ['water']
             
             filters['way'].extend(['["natural"="%s"]'%t for t in natural_types])
             filters['rel'].extend(['["natural"="%s"]'%t for t in natural_types])
@@ -1365,18 +1413,23 @@ class OSM:
 
         return coordinates, indices, ids, normals
 
-    def create_surface_mesh(bbox):
+    def create_surface_mesh(bpoly, bbox):
         '''
             Creates the surface mesh that covers the bounding box
 
             Args:
-                bbox (float[]): List containing the two extreme corners of the bounding box. [minLat, minLng, maxLat, maxLng]. Used to define the limits of the layer
-
+                bpoly (float[]): coordinates of bounding polygon
+                bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
             Returns:
                 mesh (object): A json object describing the geometry of the layer
         '''
-
-        nodes = [bbox[0],bbox[1], bbox[2],bbox[1], bbox[2],bbox[3], bbox[0],bbox[3]]
+        
+        if(bbox):
+            nodes = [bpoly[0],bpoly[1], bpoly[2],bpoly[1], bpoly[2],bpoly[3], bpoly[0],bpoly[3]]
+        else:
+            # TODO: crop the bbox according to the polygon
+            boundaries = utils.polygon_bpoly(bpoly, bbox).bounds
+            nodes = [boundaries[0],boundaries[1], boundaries[2],boundaries[1], boundaries[2],boundaries[3], boundaries[0],boundaries[3]]
 
         nodes = utils.convertProjections("4326", "3395", nodes)
 

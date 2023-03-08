@@ -3,7 +3,8 @@ import pyproj
 import numpy as np
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon, box
+
 
 import lineclipping
 
@@ -47,8 +48,16 @@ def convertProjections(inProj, outProj, geometry, dim2=True):
 
     return translatedGeometry
 
-def get_camera(bbox):
-    center = [(bbox[0]+bbox[2])/2.0,(bbox[1]+bbox[3])/2.0]
+def get_camera(coordinates, bbox=False):
+
+    center = [(0,0)]
+
+    if(bbox):
+        center = [(coordinates[0]+coordinates[2])/2.0,(coordinates[1]+coordinates[3])/2.0]
+    else:
+        polygon = polygon_bpoly(coordinates, bbox)
+        center = list(polygon.centroid.coords[0])
+
     center = convertProjections("4326", "3395", center)
     center.append(1) # zoom level
 
@@ -141,3 +150,17 @@ def from2dTo3d(nodes, z_offset=0):
         index += 2
 
     return new_3d_node
+
+def polygon_bpoly(coordinates, bbox = False):
+
+    if(not bbox):
+        groupped_coords = []
+
+        for i in range(int(len(coordinates)/2)):
+            groupped_coords.append((coordinates[i*2], coordinates[i*2+1]))
+
+        groupped_coords.append((coordinates[-2], coordinates[-1])) # close the polygon
+
+        return Polygon(groupped_coords)
+    else:
+        return box(coordinates[0], coordinates[1], coordinates[2], coordinates[3])
