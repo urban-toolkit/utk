@@ -25,11 +25,11 @@ import {D3App} from './D3App';
 // Mapview Application Class
 class App {
   _map: WebMap;
-  constructor(div: any, d3App: D3App | null = null, linkedContainerGenerator: any | null = null, setGrammarFront: any | null = null) {
+  constructor(div: any, d3App: D3App | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null) {
     const mapDiv = document.querySelector(div);
 
     if(d3App){
-      this._map = new WebMap(mapDiv, d3App, linkedContainerGenerator);
+      this._map = new WebMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback);
     }else{
       this._map = new WebMap(mapDiv);
     }
@@ -54,14 +54,14 @@ type mapViewDataProps = {
   data?: any,
   d3App?: D3App,
   linkedContainerGenerator?: any,
-  setGrammarFront?: any
+  cameraUpdateCallback?: any
 }
 
 class MapConfig {
   public static frontEndMode: string | undefined;
   public static d3App: D3App | undefined;
   public static linkedContainerGenerator: any;
-  public static setGrammarFront: any;
+  public static cameraUpdateCallback: any;
 }
 
 export const createAndRunMap = () => {
@@ -69,7 +69,7 @@ export const createAndRunMap = () => {
   $('#map').empty();
   // let d3app = new D3App('#svg_element', '#'+screenPlotSvgId, plotCollectionList);
 
-  let app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.setGrammarFront);
+  let app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback);
       
   let port;
 
@@ -88,12 +88,12 @@ export const createAndRunMap = () => {
   });
 }
 
-export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, linkedContainerGenerator, setGrammarFront}:mapViewDataProps) => {
+export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback}:mapViewDataProps) => {
 
   MapConfig.frontEndMode = frontEndMode;
   MapConfig.d3App = d3App;
   MapConfig.linkedContainerGenerator = linkedContainerGenerator;
-  MapConfig.setGrammarFront = setGrammarFront;
+  MapConfig.cameraUpdateCallback = cameraUpdateCallback;
 
   useEffect(()=> {
       $('#map').empty();

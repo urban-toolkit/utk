@@ -149,7 +149,7 @@ class UrbanComponent:
         self.layers['gdf']['coordinates'].append(layer_gdf['coordinates'])
         self.layers['gdf']['coordinates3d'].append(layer_gdf['coordinates3d'])
 
-    def attachAbstractToPhysical(self, id_physical_layer, id_abstract_layer, level='coordinates3d', predicate='nearest', aggregation='avg'):
+    def attachAbstractToPhysical(self, id_physical_layer, id_abstract_layer, level='coordinates3d', predicate='nearest', aggregation='avg', max_distance=-1):
         '''
             Link one abstract layer to a physical layer considering a specific predicate: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates) 
             or direct (attach following the order)
@@ -161,9 +161,9 @@ class UrbanComponent:
             When an abstract layer is merged with a physical layer the joinedObjects are the attribute values and not ids of joined elements
         '''
 
-        return self.attachLayers(id_physical_layer, id_abstract_layer, predicate, left_level=level, right_level=level, abstract=True, aggregation=aggregation)
+        return self.attachLayers(id_physical_layer, id_abstract_layer, predicate, left_level=level, right_level=level, abstract=True, aggregation=aggregation, max_distance=max_distance)
 
-    def attachPhysicalLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects'):
+    def attachPhysicalLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', max_distance=-1):
         '''
             The predicates can be: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
 
@@ -172,7 +172,7 @@ class UrbanComponent:
             The attaching include the ids of the geometries of the right layer into the left layer considering the specified predicate
         '''
         
-        return self.attachLayers(id_left_layer, id_right_layer, predicate, left_level, right_level)
+        return self.attachLayers(id_left_layer, id_right_layer, predicate, left_level, right_level, max_distance=max_distance)
 
     def loadJoinedJson(self, id_layer):
         '''
@@ -229,7 +229,7 @@ class UrbanComponent:
 
         return False
 
-    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', abstract=False, aggregation='avg'):
+    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', abstract=False, aggregation='avg', max_distance=-1):
         '''
             Tridimensional indicates if the attaching should be done considering 3D geometries.
         '''
@@ -239,6 +239,9 @@ class UrbanComponent:
             
         if(left_level == 'coordinates3d' and (predicate != 'nearest' and predicate != 'direct')):
             raise Exception("The predicate "+predicate+" is not supported for tridimensional geometries yet")
+
+        if(predicate != "nearest" and max_distance != -1):
+            raise Exception("The max_distance field can only be used with the nearest predicate")
 
         left_layer_json = {}
 
@@ -291,9 +294,11 @@ class UrbanComponent:
                     join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[index, 'id']
         else:
             if(left_level != 'coordinates3d'): # if it is not tridimensional geopandas can be used
-
                 if(predicate == 'nearest'):
-                    join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
+                    if(max_distance == -1):
+                        join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
+                    else:
+                        join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left', max_distance=max_distance)
                 elif(predicate == 'direct'):
                     join_left_gdf = left_layer_gdf.copy(deep=True)
                 else:
@@ -315,7 +320,12 @@ class UrbanComponent:
 
                 kdtree=KDTree(left_coords)
 
-                dist,points = kdtree.query(right_coords,1) # 1 best neighbor for the sample candidates
+                if(max_distance == -1):
+                    print("distance_upper_bound", max_distance)
+                    dist,points = kdtree.query(right_coords,1) # 1 best neighbor for the sample candidates
+                else:
+                    print("distance_upper_bound", max_distance)
+                    dist,points = kdtree.query(right_coords,1,distance_upper_bound=float(max_distance)) # 1 best neighbor for the sample candidates
 
                 for index, point in enumerate(points):
                     if(abstract):

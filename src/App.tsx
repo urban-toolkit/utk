@@ -36,43 +36,37 @@ function App() {
   const [showPlotSpec, setShowPlotSpec] = useState(false);
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0)
+  const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
 
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
   const addNewGenericPlot = (n: number = 1) => {
 
-    let tempId = currentPlotId;
     let createdIds = [];
     let tempPlots = [];
 
+    let tempId = 0;
+
     for(let i = 0; i < n; i++){
-      tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: "Generic Plot", checked: false, edit: false});
+      tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
       createdIds.push(tempId);
       tempId += 1;
     }
 
-    setGenericPlots(genericPlots.concat(tempPlots));
+    setGenericPlots(tempPlots);
     setCurrentPlotId(tempId);
     return createdIds;
   }
 
-  const linkedContainerGenerator = (n: number) => {
+  const updateCamera = (cameraData: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+    setCamera(cameraData);
+  }
 
-    let neededPlots = n - genericPlots.length;
+  const linkedContainerGenerator = (n: number) => {
 
     let createdIds: number[] = [];
 
-    if(neededPlots > 0){
-      for(let i = 0; i < genericPlots.length; i++){
-        createdIds.push(genericPlots[i].id);
-      }
-
-      createdIds = createdIds.concat(addNewGenericPlot(neededPlots));
-    }else{
-      for(let i = 0; i < n; i++){
-        createdIds.push(genericPlots[i].id);
-      }
-    }
+    createdIds = addNewGenericPlot(n);
 
     // promise is only resolved when the container is created
     return new Promise(async function (resolve, reject) {
@@ -105,6 +99,7 @@ function App() {
       resolve(returnIds);
 
     });
+
   }
   
   const removeGenericPlot = (plotId: number) => {
@@ -200,27 +195,17 @@ function App() {
         listPlots = {genericPlots}
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
+        camera = {camera}
       />
       {/* map view */}
       <MapViewer 
       // variable contains which city data to load
         dataToView = {cityRef}
-        divWidth = {9}
+        divWidth = {7}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
+        cameraUpdateCallback = {updateCamera}
       />
-
-      {
-        genericPlots.map((item) => (
-            <GenericScreenPlotContainer
-              key={item.id}
-              disp = {!item.hidden}
-              width={size.width}
-              height={size.height}
-              svgId={item.svgId}
-            />
-        ))
-      }
 
       {/* <PlotCollectionContainer 
         disp = {showPlotCollection}
@@ -234,6 +219,18 @@ function App() {
       /> */}
 
       </Row>
+
+      {
+        genericPlots.map((item) => (
+            <GenericScreenPlotContainer
+              key={item.id}
+              disp = {!item.hidden}
+              width={size.width}
+              height={size.height}
+              svgId={item.svgId}
+            />
+        ))
+      }
     </Container>
   );
 }

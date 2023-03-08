@@ -351,7 +351,7 @@ class OSM:
             result_gdf_objects.insert(0,layer_geometry['gdf']['objects'])
             result_gdf_coordinates.insert(0, layer_geometry['gdf']['coordinates'])
             result_gdf_coordinates_3d.insert(0, layer_geometry['gdf']['coordinates'])
-            result.insert(0,{'id': 'surface', 'type': "TRIANGLES_3D_LAYER", 'renderStyle': ['FLAT_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
+            result.insert(0,{'id': 'surface', 'type': "HEATMAP_LAYER", 'renderStyle': ['FLAT_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
 
         return {'json': result, 'gdf': {'objects': result_gdf_objects, 'coordinates': result_gdf_coordinates, 'coordinates3d': result_gdf_coordinates_3d}}
 
@@ -1400,7 +1400,8 @@ class OSM:
                 'coordinates': [float(elem) for sublist in coordinates for elem in sublist],
                 'indices': [int(elem) for sublist in indices for elem in sublist],
                 'ids': [int(elem) for elem in ids],
-                'normals': [float(elem) for sublist in normals for elem in sublist]
+                'normals': [float(elem) for sublist in normals for elem in sublist],
+                "discardFuncInterval": [0, 0.01]
             }
         }]
 

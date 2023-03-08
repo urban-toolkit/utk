@@ -17,7 +17,8 @@ type widgetProps = {
     modifyLabelPlot: any,
     modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
-    onCityRefChange: React.ChangeEventHandler
+    onCityRefChange: React.ChangeEventHandler,
+    camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}
 }
 /**
  * @function WidgetsComponent - widgets container
@@ -40,13 +41,14 @@ export const WidgetsComponent = ({
     modifyLabelPlot,
     modifyEditingState,
     listPlots,
-    onCityRefChange
+    onCityRefChange,
+    camera
 }: widgetProps) => {
 
     return(
-        <Col md={3}>
+        <Col md={5} style={{padding: "0"}}>
             {/* visualization widget */}
-            <VisWidget 
+            {/* <VisWidget 
                 genericScreenPlotToggle = {genericScreenPlotToggle}
                 addGenericPlot = {addGenericPlot}
                 removeGenericPlot = {removeGenericPlot}
@@ -54,8 +56,16 @@ export const WidgetsComponent = ({
                 listPlots = {listPlots}
                 modifyLabelPlot = {modifyLabelPlot}
                 modifyEditingState = {modifyEditingState}
-            />
+            /> */}
             <GrammarPanelContainer 
+                genericScreenPlotToggle = {genericScreenPlotToggle}
+                addGenericPlot = {addGenericPlot}
+                removeGenericPlot = {removeGenericPlot}
+                togglePlotCollection = {togglePlotCollection}
+                listPlots = {listPlots}
+                modifyLabelPlot = {modifyLabelPlot}
+                modifyEditingState = {modifyEditingState}
+                camera = {camera}
             />
             {/* data widget */}
             {/* <DataWidget 

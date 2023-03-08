@@ -39,6 +39,14 @@ def serve_linkLayers():
     if("aggregation" in request.args):
         aggregation = request.args.get('aggregation')
 
+    maxDistance = None
+
+    if("maxDistance" in request.args):
+        maxDistance = request.args.get('maxDistance')
+
+    if(maxDistance != None and predicate.upper() != 'NEAREST'):
+        abort(400, "Max distance can only be used with the NEAREST predicate")
+
     uc = UrbanComponent()
 
     uc.setWorkDir(workDir)
@@ -52,9 +60,16 @@ def serve_linkLayers():
     if(abstract):
         if(thisLevel != otherLevel):
             abort(400, "For abstract join the levels of both layers should be the same")
-        uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation)
+
+        if(maxDistance != None):
+            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation, maxDistance)
+        else:
+            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation)
     else:
-        uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
+        if(maxDistance != None):
+            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel, maxDistance)
+        else:
+            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
 
     uc.to_file(workDir, True)
 
@@ -79,39 +94,6 @@ def serve_getGrammar():
         grammar = json.load(f)
 
     return json.dumps(grammar, indent=4)
-
-# @app.route('/addRenderStyles', methods=['GET'])
-# def serve_addRenderStyles():
-
-#     if("layer" not in request.args or "renderStyles" not in request.args):
-#         abort(400, "Missing one or more parameters of: layer, renderStyles")
-    
-#     layer = request.args.get('layer')
-#     renderStyles = request.args.get('renderStyles')
-#     renderStyles = [elem.upper() for elem in renderStyles.split(',')]
-
-#     replace = False
-
-#     if("replace" in request.args and request.args.get('replace') == 'true'):
-#         replace = True
-
-#     layerJson = {}
-
-#     with open(os.path.join(workDir, layer+".json"), "r", encoding="utf-8") as f:
-#         layerJson = json.load(f)
-
-#     if("renderStyle" not in layerJson):
-#         abort(400, "There is no renderStyle field in the json")
-
-#     if(replace):
-#         layerJson['renderStyle'] = renderStyles
-#     else:
-#         layerJson['renderStyle'] = layerJson['renderStyle']+renderStyles
-
-#     with open(os.path.join(workDir, layer+".json"), "w", encoding="utf-8") as f:
-#         f.write(json.dumps(layerJson, indent=4))
-
-#     return ''
 
 @app.route('/getLayer', methods=['GET'])
 def serve_getLayer():

@@ -2,8 +2,9 @@
 .drag-box {
     /* padding: 50px; */
     background: #ccc;
-    width: 35vw !important;
-    height: 40vh !important;
+    padding: 0;
+    /* width: 35vw !important;
+    height: 40vh !important; */
     /* cursor: move; */
     position: absolute;
   }
