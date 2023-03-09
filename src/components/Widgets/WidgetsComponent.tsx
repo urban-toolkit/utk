@@ -19,7 +19,8 @@ type widgetProps = {
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     onCityRefChange: React.ChangeEventHandler,
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
-    inputId: string
+    inputId: string,
+    setCamera: any
 }
 /**
  * @function WidgetsComponent - widgets container
@@ -44,7 +45,8 @@ export const WidgetsComponent = ({
     listPlots,
     onCityRefChange,
     camera,
-    inputId
+    inputId,
+    setCamera
 }: widgetProps) => {
 
     return(
@@ -69,6 +71,7 @@ export const WidgetsComponent = ({
                 modifyEditingState = {modifyEditingState}
                 camera = {camera}
                 inputId = {inputId}
+                setCamera = {setCamera}
             />
             {/* data widget */}
             {/* <DataWidget 

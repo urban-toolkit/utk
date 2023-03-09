@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { createAndRunMap } from "../MapView/MapView";
 import VanillaJSONEditor from "./VanillaJSONEditor";
@@ -22,7 +22,8 @@ type GrammarPanelProps = {
     modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
-    inputId: string
+    inputId: string,
+    setCamera: any
 }
 
 export const GrammarPanelContainer = ({
@@ -34,11 +35,19 @@ export const GrammarPanelContainer = ({
     modifyEditingState,
     listPlots,
     camera,
-    inputId
+    inputId,
+    setCamera
 }: GrammarPanelProps
 ) =>{
 
-    const [grammar, setCode] = useState('');
+    const [grammar, _setCode] = useState('');
+
+    const grammarStateRef = useRef(grammar);
+    const setCode = (data: any) => {
+        grammarStateRef.current = data;
+      _setCode(data);
+    };
+
     const [tempGrammar, setTempGrammar] = useState('');
     const [dirtyTempGrammar, setDirtyTempGrammar] = useState(false);
     const [refresh, setRefresh] = useState(false);
@@ -143,7 +152,12 @@ export const GrammarPanelContainer = ({
         }
 
         // let sendGrammar = addCamera(grammar, camera);
-        let sendGrammar = addCamera(tempGrammar, camera);
+        let sendGrammar = '';
+        if(d3.select("#linkMapAndGrammar").property("checked")){
+            sendGrammar = addCamera(tempGrammar, camera);
+        }else{
+            sendGrammar = tempGrammar;
+        }
         setCode(tempGrammar);
         setTempGrammar('');
 
@@ -183,23 +197,22 @@ export const GrammarPanelContainer = ({
         return JSON.stringify(parsedGrammar, null, 4);
     }
 
+    const updateLocalNominatim = (camera: { position: number[], direction: { right: number[], lookAt: number[], up: number[] } }) => {
+        setTempGrammar(addCamera(grammarStateRef.current, camera)); // overwrite previous changes with grammar integrated with camera
+    }
+    
     const updateCameraNominatim = (place: string) => {
-
-        const updateLocalNominatim = (camera: { position: number[], direction: { right: number[], lookAt: number[], up: number[] } }) => {
-            setTempGrammar(addCamera(grammar, camera)); // overwrite previous changes with grammar integrated with camera
-        }
-
-        const updateCameraPosition = () => {
-            
-        }
 
         fetch(url+"/solveNominatim?text="+place, {
             method: 'GET'
         })
         .then(async (response) => {
+
             let responseJson = await response.json();
 
             updateLocalNominatim(responseJson);
+            setCamera(responseJson);
+
         })
         .catch(error => {
             console.error('Error trying to resolve nominatim: ', error);
@@ -221,6 +234,9 @@ export const GrammarPanelContainer = ({
 
         $('#'+inputId).on( "keydown", function(e: any) {
             if(e.key == 'Enter'){
+
+                d3.select("#linkMapAndGrammar").property("checked", false);
+
                 let inputValue = $(this).val();
                 
                 if(inputValue != undefined && !Array.isArray(inputValue)){

@@ -43,6 +43,8 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
 
+  let inputBarId = "searchBar";
+
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
   const addNewGenericPlot = (n: number = 1) => {
@@ -185,6 +187,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
         camera = {camera}
+        inputId = {inputBarId}
       />
       {/* map view */}
       <MapViewer 
@@ -192,6 +195,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         divWidth = {9}
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
+        inputId = {inputBarId}
       />
 
       {

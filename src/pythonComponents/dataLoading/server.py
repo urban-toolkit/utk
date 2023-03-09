@@ -5,10 +5,11 @@ from osm import *
 from urbanComponent import *
 import pandas as pd
 import gzip
-from geopy.geocoders import Nominatim
+from geopy.geocoders import Nominatim, DataBC
 import utils
 
 app = Flask(__name__)
+geolocator = Nominatim(user_agent="urbantk")
 workDir = None
 
 @app.after_request
@@ -120,18 +121,18 @@ def serve_solveNominatim():
 
     text = request.args.get('text')
 
-    try:
-        geolocator = Nominatim(user_agent="urbantk")
-        location = geolocator.geocode(text)
-    except:
-        abort(400, "Error while trying to solve nominatim")
+    location = geolocator.geocode(text, timeout=5)
+
+    # try:
+    # except:
+    #     abort(400, "Error while trying to solve nominatim")
 
     convertedProj = utils.convertProjections("4326", "3395", [location.latitude, location.longitude])
 
     return json.dumps({
-        'position': convertedProj+[1], 
+        'position': convertedProj+[3], 
         'direction': {
-            'right': [0,0,1000],
+            'right': [0,0,3000],
             'lookAt': [0,0,0],
             'up': [0,1,0]
         }

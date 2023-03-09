@@ -442,10 +442,6 @@ export class D3Expec {
 
         shadowAvg.sort();
 
-        console.log(shadowAvg);
-
-        console.log(width);
-
         // X axis
         var x = d3.scaleBand()
             .range([ 0, width ])

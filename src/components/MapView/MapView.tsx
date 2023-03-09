@@ -24,6 +24,8 @@ import {D3App} from './D3App';
 
 import { FaChartBar, FaEdit, FaRegTrashAlt } from "react-icons/fa";
 
+var app: any;
+
 // Mapview Application Class
 class App {
   _map: WebMap;
@@ -46,6 +48,11 @@ class App {
     
     initializeConnection(this._map);
   }
+
+  setCamera(camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) {
+    this._map.setCamera(camera);
+  }
+
 }
 
 // MapViewer parameter types
@@ -72,7 +79,7 @@ export const createAndRunMap = () => {
   $('#map').empty();
   // let d3app = new D3App('#svg_element', '#'+screenPlotSvgId, plotCollectionList);
 
-  let app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback);
+  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback);
       
   let port;
 
@@ -111,7 +118,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, link
         // create new instance of Mapview from urbanktk.iife.js - jupyter
         // let map = new JupyterMap(el, false);
 
-        let app = new App('#map');
+        app = new App('#map');
         app.run(data);
 
         // render the map in jupyter
@@ -138,4 +145,8 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, link
       </div>
     </React.Fragment>
   )
+}
+
+export const setCameraPosMap = (camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+  app.setCamera(camera);
 }

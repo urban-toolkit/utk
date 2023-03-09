@@ -9,7 +9,7 @@ import './App.css';
 // bootstrap elememts
 import {Container, Row} from 'react-bootstrap'
 // componentns
-import { MapViewer } from './components/MapView/MapView';
+import { MapViewer, setCameraPosMap } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
 import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
@@ -199,6 +199,7 @@ function App() {
         modifyEditingState = {modifyEditingState}
         camera = {camera}
         inputId = {inputBarId}
+        setCamera = {setCameraPosMap}
       />
       {/* map view */}
       <MapViewer 
