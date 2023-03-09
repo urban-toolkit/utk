@@ -18,7 +18,8 @@ type widgetProps = {
     modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     onCityRefChange: React.ChangeEventHandler,
-    camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}
+    camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
+    inputId: string
 }
 /**
  * @function WidgetsComponent - widgets container
@@ -42,7 +43,8 @@ export const WidgetsComponent = ({
     modifyEditingState,
     listPlots,
     onCityRefChange,
-    camera
+    camera,
+    inputId
 }: widgetProps) => {
 
     return(
@@ -66,6 +68,7 @@ export const WidgetsComponent = ({
                 modifyLabelPlot = {modifyLabelPlot}
                 modifyEditingState = {modifyEditingState}
                 camera = {camera}
+                inputId = {inputId}
             />
             {/* data widget */}
             {/* <DataWidget 

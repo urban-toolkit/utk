@@ -5,6 +5,8 @@ from osm import *
 from urbanComponent import *
 import pandas as pd
 import gzip
+from geopy.geocoders import Nominatim
+import utils
 
 app = Flask(__name__)
 workDir = None
@@ -109,6 +111,31 @@ def serve_getLayer():
         layer_json = json.load(f)
 
     return json.dumps(layer_json, indent=4)
+
+@app.route('/solveNominatim', methods=['GET'])
+def serve_solveNominatim():
+
+    if("text" not in request.args):
+        abort(400, "Missing one or more parameters of: text")
+
+    text = request.args.get('text')
+
+    try:
+        geolocator = Nominatim(user_agent="urbantk")
+        location = geolocator.geocode(text)
+    except:
+        abort(400, "Error while trying to solve nominatim")
+
+    convertedProj = utils.convertProjections("4326", "3395", [location.latitude, location.longitude])
+
+    return json.dumps({
+        'position': convertedProj+[1], 
+        'direction': {
+            'right': [0,0,1000],
+            'lookAt': [0,0,0],
+            'up': [0,1,0]
+        }
+    })
 
 @app.route('/addRenderStyles', methods=['GET'])
 def serve_addRenderStyles():

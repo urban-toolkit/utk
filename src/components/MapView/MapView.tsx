@@ -22,6 +22,8 @@ import {paramsMapView} from '../../params.js';
 
 import {D3App} from './D3App';
 
+import { FaChartBar, FaEdit, FaRegTrashAlt } from "react-icons/fa";
+
 // Mapview Application Class
 class App {
   _map: WebMap;
@@ -54,7 +56,8 @@ type mapViewDataProps = {
   data?: any,
   d3App?: D3App,
   linkedContainerGenerator?: any,
-  cameraUpdateCallback?: any
+  cameraUpdateCallback?: any,
+  inputId?: string
 }
 
 class MapConfig {
@@ -88,7 +91,7 @@ export const createAndRunMap = () => {
   });
 }
 
-export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback}:mapViewDataProps) => {
+export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, inputId}:mapViewDataProps) => {
 
   MapConfig.frontEndMode = frontEndMode;
   MapConfig.d3App = d3App;
@@ -127,6 +130,7 @@ export const MapViewer = ({dataToView, divWidth, frontEndMode, data, d3App, link
       <Col md={divWidth} style={{padding: 0}}>
           <div id='map'>
           </div>
+          <input type="text" id={inputId} name="searchBar" placeholder='Search place' style={{position: "absolute", left: ((12-divWidth)/12)*window.innerWidth+((divWidth/12)*window.innerWidth/2)-225, top: window.innerHeight-80}}></input>
       </Col>
       <div id='svg_div'>
         <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>
