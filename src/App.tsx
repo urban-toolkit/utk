@@ -37,6 +37,7 @@ function App() {
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0)
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
+  let inputBarId = "searchBar";
 
   const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
@@ -180,6 +181,7 @@ function App() {
     // console.log(event.target)
   }
 
+
   return (
     <Container fluid>
       <Row>
@@ -196,6 +198,7 @@ function App() {
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
         camera = {camera}
+        inputId = {inputBarId}
       />
       {/* map view */}
       <MapViewer 
@@ -205,6 +208,7 @@ function App() {
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
         cameraUpdateCallback = {updateCamera}
+        inputId = {inputBarId}
       />
 
       {/* <PlotCollectionContainer 

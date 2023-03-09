@@ -7,6 +7,9 @@ import { VisWidget } from "./VisWidget";
 
 import * as d3 from "d3";
 
+// jquery
+import $ from 'jquery';
+
 const params = require('../../pythonServerConfig.json');
 
 // declaring the types of the props
@@ -18,7 +21,8 @@ type GrammarPanelProps = {
     modifyLabelPlot: any,
     modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
-    camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}
+    camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
+    inputId: string
 }
 
 export const GrammarPanelContainer = ({
@@ -29,7 +33,8 @@ export const GrammarPanelContainer = ({
     modifyLabelPlot,
     modifyEditingState,
     listPlots,
-    camera
+    camera,
+    inputId
 }: GrammarPanelProps
 ) =>{
 
@@ -161,20 +166,6 @@ export const GrammarPanelContainer = ({
        
     }
 
-    // run only once to load the initial data
-    useEffect(() => {
-        async function getInitialGrammar(url: string){
-            let response = await fetch(url+"/getGrammar");
-            let data = await response.json();
-            let stringData = JSON.stringify(data, null, 4);
-
-            setCode(stringData);
-            createLinksAndRenderStyles(url, stringData);
-        }
-
-        getInitialGrammar(url);
-    }, []);
-
     const addCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
         
         if(grammar == ''){
@@ -191,6 +182,56 @@ export const GrammarPanelContainer = ({
 
         return JSON.stringify(parsedGrammar, null, 4);
     }
+
+    const updateCameraNominatim = (place: string) => {
+
+        const updateLocalNominatim = (camera: { position: number[], direction: { right: number[], lookAt: number[], up: number[] } }) => {
+            setTempGrammar(addCamera(grammar, camera)); // overwrite previous changes with grammar integrated with camera
+        }
+
+        const updateCameraPosition = () => {
+            
+        }
+
+        fetch(url+"/solveNominatim?text="+place, {
+            method: 'GET'
+        })
+        .then(async (response) => {
+            let responseJson = await response.json();
+
+            updateLocalNominatim(responseJson);
+        })
+        .catch(error => {
+            console.error('Error trying to resolve nominatim: ', error);
+        });
+    }
+
+    // run only once to load the initial data
+    useEffect(() => {
+        async function getInitialGrammar(url: string){
+            let response = await fetch(url+"/getGrammar");
+            let data = await response.json();
+            let stringData = JSON.stringify(data, null, 4);
+
+            setCode(stringData);
+            createLinksAndRenderStyles(url, stringData);
+        }
+
+        getInitialGrammar(url);
+
+        $('#'+inputId).on( "keydown", function(e: any) {
+            if(e.key == 'Enter'){
+                let inputValue = $(this).val();
+                
+                if(inputValue != undefined && !Array.isArray(inputValue)){
+                    updateCameraNominatim(inputValue.toString());
+                }else{
+                    throw Error("Invalid place");
+                }
+    
+            }
+        });
+    }, []);
 
     const checkIfAddCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, tempGrammar: string) => {
 
