@@ -5,7 +5,7 @@ from osm import *
 from urbanComponent import *
 import pandas as pd
 import gzip
-from geopy.geocoders import Nominatim, DataBC
+from geopy.geocoders import Nominatim
 import utils
 
 app = Flask(__name__)

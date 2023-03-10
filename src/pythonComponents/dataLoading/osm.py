@@ -13,6 +13,7 @@ import osmium as o
 import subprocess
 import pyproj
 
+from geopy.geocoders import Nominatim
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box, Point
 from shapely.ops import linemerge, transform
 from shapely.wkb import loads
@@ -217,9 +218,9 @@ class OSM:
 
             proc = subprocess.call(['wsl', 'osmium', 'extract', '-b', aux, '-o', output_file, '--overwrite', pbf_filepath], shell=True) # TODO: make it not depend on the OS
 
-            loaded = OSM.get_osm(bbox, layers, True, True, output_file)
+            loaded = OSM.get_osm(bbox, True, layers, True, output_file)
         else:
-            loaded = OSM.get_osm(bbox, layers, True, False)
+            loaded = OSM.get_osm(bbox, True, layers, False)
 
         component = UrbanComponent(layers = loaded, bpolygon = bbox, camera = cam)
 
@@ -234,6 +235,20 @@ class OSM:
         component = UrbanComponent(layers = loaded, bpolygon = bpolygon, camera = cam)
 
         return component
+
+    def load_from_address(address, layers=['parks','water','roads','buildings'], pbf_filepath=None):
+
+        geolocator = Nominatim(user_agent="urbantk")
+
+        location = geolocator.geocode(address, timeout=5).raw
+
+        bbox = [float(x) for x in location['boundingbox']]
+        bbox = [bbox[0],bbox[2],bbox[1],bbox[3]]
+
+        if(pbf_filepath != None):
+            return OSM.load_from_bbox(bbox, layers, pbf_filepath)
+        else:
+            return OSM.load_from_bbox(bbox, layers)
 
     def get_osm(bpolygon, bbox=False, layers=['parks','water','roads','buildings'], load_surface = True, pbf_filepath=None):
 
@@ -258,6 +273,7 @@ class OSM:
         api = overpass.API()
 
         overpass_responses = {}
+
         for layer in layers:
             if layer == 'surface':
                 continue
