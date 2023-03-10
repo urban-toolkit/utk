@@ -74,7 +74,7 @@ def serve_linkLayers():
         else:
             uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
 
-    uc.to_file(workDir, True)
+    uc.to_file(workDir, True, False)
 
     return ''
 

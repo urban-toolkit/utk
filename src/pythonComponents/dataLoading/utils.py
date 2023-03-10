@@ -64,7 +64,7 @@ def get_camera(coordinates, bbox=False):
     return {
         'position': center, 
         'direction': {
-            'right': [0,0,0],
+            'right': [0,0,3000],
             'lookAt': [0,0,0],
             'up': [0,1,0]
         }

@@ -4,6 +4,7 @@ import geopandas as gpd
 import pandas as pd
 import numpy as np
 import os
+import struct
 
 from ipykernel.comm import Comm
 from shapely.geometry import Polygon, Point
@@ -121,8 +122,85 @@ class UrbanComponent:
         layer_json = []
         layer_gdf = gdf
 
+        coordinates = []
+        normals = []
+        indices = []
+        ids = []
+
         with open(json_pathfile, "r", encoding="utf-8") as f:
             layer_json = json.load(f)
+
+        if(not abstract):
+
+            directory = os.path.dirname(json_pathfile)
+
+            # file name with extension
+            file_name = os.path.basename(json_pathfile)
+            # file name without extension
+            file_name_wo_extension = os.path.splitext(file_name)[0]
+
+            if('coordinates' in layer_json['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_coordinates.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('d', data)
+
+                for elem in unpacked_data:
+                    coordinates.append(elem[0])
+
+                f.close()
+            if('normals' in layer_json['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_normals.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('f', data)
+
+                for elem in unpacked_data:
+                    normals.append(elem[0])
+
+                f.close()
+            if('indices' in layer_json['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_indices.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('I', data)
+
+                for elem in unpacked_data:
+                    indices.append(elem[0])
+
+                f.close()
+            if('ids' in layer_json['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_ids.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('I', data)
+
+                for elem in unpacked_data:
+                    ids.append(elem[0])
+
+                f.close()
+
+            for i in range(len(layer_json['data'])):
+
+                if(len(coordinates) > 0):
+                    startAndSize = layer_json['data'][i]['geometry']['coordinates']
+                    layer_json['data'][i]['geometry']['coordinates'] = coordinates[startAndSize[0]:startAndSize[0]+startAndSize[1]]
+
+                if(len(indices) > 0):
+                    startAndSize = layer_json['data'][i]['geometry']['indices']
+                    layer_json['data'][i]['geometry']['indices'] = indices[startAndSize[0]:startAndSize[0]+startAndSize[1]]
+
+                if(len(normals) > 0):
+                    startAndSize = layer_json['data'][i]['geometry']['normals']
+                    layer_json['data'][i]['geometry']['normals'] = normals[startAndSize[0]:startAndSize[0]+startAndSize[1]]
+
+                if(len(ids) > 0):
+                    startAndSize = layer_json['data'][i]['geometry']['ids']
+                    layer_json['data'][i]['geometry']['ids'] = ids[startAndSize[0]:startAndSize[0]+startAndSize[1]]
 
         if(layer_gdf == None):
             # if(dim != None):
@@ -399,27 +477,38 @@ class UrbanComponent:
 
         return join_left_gdf
 
-    def crop_layer(self, layer_id, polygon, featureFieldName):
+    def break_into_binary(self, filepath, filename, data, types, dataTypes):
 
-        layer_json = {}
+        for index, type in enumerate(types):
 
-        for i in range(len(self.layers['json'])):
-            if self.layers['json'][i]['id'] == layer_id:
-                layer_json = self.layers['json'][i]
+            readCoords = 0
 
-        final_data_array = []
+            floatList = []
 
-        for i in range(len(layer_json['data'])):
-            point = Point(layer_json['data'][i][featureFieldName][0][:2])
+            for i in range(len(data['data'])):
+                geometry = data['data'][i]['geometry']
 
-            # this intersection checking will certaintly include buildings that are completly inside the geometry but might include or not those that are on the border
-            if(polygon.contains(point)):
-                final_data_array(layer_json['data'][i])
-        
-        layer_json['data'] = final_data_array
+                newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
 
+                readCoords += len(geometry[type])
 
-    def to_file(self, filepath, separateFiles=False):
+                floatList += geometry[type].copy()
+
+                geometry[type] = newValue
+
+            fout = open(os.path.join(filepath,filename+'_'+type+'.data'), 'wb')
+
+            buf = struct.pack(str(len(floatList))+dataTypes[index], *floatList)
+
+            fout.write(buf)
+            fout.close()
+
+            json_object = json.dumps(data)
+
+            with open(os.path.join(filepath,filename+".json"), "w") as outfile:
+                outfile.write(json_object)
+
+    def to_file(self, filepath, separateFiles=False, includeGrammar=True):
         '''
             If separateFiles is true. filepath must be an existing directory.
             If running with separateFiles = True, this are the resulting files:
@@ -441,7 +530,8 @@ class UrbanComponent:
                         {
                             "map": {
                                 "camera": self.camera,
-                                "knots": []
+                                "knots": [],
+                                "interactions": []
                             },
                             "plots": [],
                             "knots": []            
@@ -451,22 +541,47 @@ class UrbanComponent:
                 }
 
                 for layer in self.layers['json']:
+
                     grammar_json['views'][0]['knots'].append({"id": "pure"+layer['id'], "linkingScheme": [{"thisLayer": layer['id']}], "aggregationScheme": ["NONE"]})
                     grammar_json['views'][0]['map']['knots'].append("pure"+layer['id'])
+                    grammar_json['views'][0]['map']['interactions'].append("NONE")
 
-                    # layer_json_str = str(json.dumps(layer, indent=4))
-                    layer_json_str = str(json.dumps(layer))
-                    with open(os.path.join(filepath,layer['id']+'.json'), "w") as f:
-                        f.write(layer_json_str)
+                    if('data' in layer and includeGrammar): # if it is not an abstract layer
+
+                        types = []
+                        dataTypes = []
+
+                        if('coordinates' in layer['data'][0]['geometry']):
+                            types.append("coordinates")
+                            dataTypes.append("d")
+
+                        if('normals' in layer['data'][0]['geometry']):
+                            types.append("normals")
+                            dataTypes.append("f")
+
+                        if('indices' in layer['data'][0]['geometry']):
+                            types.append("indices")
+                            dataTypes.append("I")
+
+                        if('ids' in layer['data'][0]['geometry']):
+                            types.append("ids")
+                            dataTypes.append("I")
+
+                        self.break_into_binary(filepath, layer['id'], layer, types, dataTypes)
+
+                    # layer_json_str = str(json.dumps(layer))
+                    # with open(os.path.join(filepath,layer['id']+'.json'), "w") as f:
+                    #     f.write(layer_json_str)
 
                 # if(self.camera != None):
                 #     camera_json_str = str(json.dumps(self.camera, indent=4))
                 #     with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
                 #         f.write(camera_json_str)
 
-                # grammar_json_str = str(json.dumps(grammar_json, indent=4))
-                # with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
-                #     f.write(grammar_json_str)
+                if(includeGrammar):
+                    grammar_json_str = str(json.dumps(grammar_json, indent=4))
+                    with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
+                        f.write(grammar_json_str)
 
                 for fileName in self.joinedJson:
                     with open(os.path.join(filepath,fileName+".json"), "w", encoding="utf-8") as f:
