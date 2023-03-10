@@ -212,7 +212,7 @@ export const GrammarPanelContainer = ({
 
             updateLocalNominatim(responseJson);
             setCamera(responseJson);
-
+            d3.select("#linkMapAndGrammar").property("checked", true);
         })
         .catch(error => {
             console.error('Error trying to resolve nominatim: ', error);
