@@ -1,4 +1,4 @@
-import {D3Expec} from '../D3Expec';
+import {D3ExpecFactory} from '../D3Expec';
 
 class LockFlag {
   
@@ -18,14 +18,15 @@ class LockFlag {
   
 }
 
-export class D3App {
+class D3App {
 
-    _d3Expec: D3Expec;
+    _d3Expec: any;
     _svgSelector: string;
     _plotCollectionList: {id: number, content: string}[];
 
-    constructor(svg: any, screenPlotSvgId: any, plotCollectionList: {id: number, content: string}[]){
-        this._d3Expec = new D3Expec(svg, screenPlotSvgId);
+    resetD3App(svg: any, screenPlotSvgId: any, plotCollectionList: {id: number, content: string}[]): void {
+        this._d3Expec = D3ExpecFactory.getInstance();
+        this._d3Expec.resetD3Expec(svg, screenPlotSvgId);
         this._svgSelector = svg;
         this._plotCollectionList = plotCollectionList;
     }
@@ -166,3 +167,19 @@ export class D3App {
     }
 
 }
+
+export var D3AppFactory = (function(){
+
+    var instance: D3App;
+  
+    return {
+      getInstance: function(){
+          if (instance == null) {
+              instance = new D3App();
+              // instance.constructor = null;
+          }
+          return instance;
+      }
+    };
+  
+})();

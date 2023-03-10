@@ -16,7 +16,7 @@ import { GenericScreenPlotContainer } from './components/VisComponent/GenericScr
 import { PlotCollectionContainer } from './components/Widgets/PlotCollection';
 import { PlotSpecificationContainer } from './components/Widgets/PlotSpecification';
 
-import { D3App } from './components/MapView/D3App';
+import { D3AppFactory } from './components/MapView/D3App';
 import * as d3 from "d3";
 
 const pythonServerParams = require('./pythonServerConfig.json');
@@ -39,8 +39,9 @@ function App() {
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
   let inputBarId = "searchBar";
 
-  const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
-
+  const d3App = D3AppFactory.getInstance();
+  d3App.resetD3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
+  
   const addNewGenericPlot = (n: number = 1) => {
 
     let createdIds = [];

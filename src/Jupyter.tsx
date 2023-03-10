@@ -9,12 +9,12 @@ import './App.css';
 // bootstrap elememts
 import {Container, Row} from 'react-bootstrap'
 // componentns
-import { MapViewer } from './components/MapView/MapView';
+import { MapViewer, setCameraPosMap } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
 import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
 
-import { D3App } from './components/MapView/D3App';
+import { D3AppFactory } from './components/MapView/D3App';
 
 import * as d3 from "d3";
 
@@ -45,7 +45,8 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
 
   let inputBarId = "searchBar";
 
-  const d3App = new D3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
+  const d3App = D3AppFactory.getInstance();
+  d3App.resetD3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
   const addNewGenericPlot = (n: number = 1) => {
 
@@ -188,6 +189,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         modifyEditingState = {modifyEditingState}
         camera = {camera}
         inputId = {inputBarId}
+        setCamera = {setCameraPosMap}
       />
       {/* map view */}
       <MapViewer 

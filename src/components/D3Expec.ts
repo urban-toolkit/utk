@@ -3,18 +3,19 @@ import * as d3 from "d3";
 import {Layer} from '../urbantk-map/ts/dist/urbantkmap';
 
 // Represents the D3 specification
-export class D3Expec {
+class D3Expec {
     
     _svgSelector: any;
     _svg: any;
     _svgSurfacePlot: any;
     _layers: Layer[];
-    _plotCollectionList: Function[] = [];
+    _plotCollectionList: Function[];
 
-    constructor(svgSelector: any, screenPlotSvgId: any){
+    resetD3Expec(svgSelector: any, screenPlotSvgId: any){
         this._svgSurfacePlot = d3.select(screenPlotSvgId);
         this._svgSelector = svgSelector;
         this._layers = [];
+        this._plotCollectionList = [];
     }
 
     async run(data: any, plotWidth: number, plotHeight: number, plotType: number){
@@ -480,3 +481,19 @@ export class D3Expec {
 
 
 }
+
+export var D3ExpecFactory = (function(){
+
+    var instance: D3Expec;
+  
+    return {
+      getInstance: function(){
+          if (instance == null) {
+              instance = new D3Expec();
+              // instance.constructor = null;
+          }
+          return instance;
+      }
+    };
+  
+})();

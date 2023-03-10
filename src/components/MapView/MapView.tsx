@@ -4,7 +4,8 @@ import {Col} from 'react-bootstrap'
 import React, {useEffect} from 'react'
 
 // urbantkmap.js
-import {Environment, MapView as WebMap, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
+// import {Environment, MapView as WebMap, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
+import {Environment, MapViewFactory, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
 
 // for jupyter python
 import {MapView as JupyterMap} from '../../utilities/urbantkmap.iife.js';
@@ -16,11 +17,11 @@ import $ from 'jquery';
 import './MapView.css';
 
 // enables sending images to cave
-import {initializeConnection} from '../../caveSupport/sendToUnity.js';
+// import {initializeConnection} from '../../caveSupport/sendToUnity.js';
 
 import {paramsMapView} from '../../params.js';
 
-import {D3App} from './D3App';
+import {D3AppFactory} from './D3App';
 
 import { FaChartBar, FaEdit, FaRegTrashAlt } from "react-icons/fa";
 
@@ -28,14 +29,16 @@ var app: any;
 
 // Mapview Application Class
 class App {
-  _map: WebMap;
-  constructor(div: any, d3App: D3App | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null) {
+  _map: any;
+  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null) {
     const mapDiv = document.querySelector(div);
 
     if(d3App){
-      this._map = new WebMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback);
+      this._map = MapViewFactory.getInstance();
+      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback);
     }else{
-      this._map = new WebMap(mapDiv);
+      this._map = MapViewFactory.getInstance();
+      this._map.resetMap(mapDiv);
     }
 
   }
@@ -46,7 +49,8 @@ class App {
       this._map.render();
     });
     
-    initializeConnection(this._map);
+    // cave connection
+    // initializeConnection(this._map);
   }
 
   setCamera(camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) {
@@ -61,7 +65,7 @@ type mapViewDataProps = {
   divWidth: number,
   frontEndMode?: string, //web is the default
   data?: any,
-  d3App?: D3App,
+  d3App?: any,
   linkedContainerGenerator?: any,
   cameraUpdateCallback?: any,
   inputId?: string
@@ -69,7 +73,7 @@ type mapViewDataProps = {
 
 class MapConfig {
   public static frontEndMode: string | undefined;
-  public static d3App: D3App | undefined;
+  public static d3App: any | undefined;
   public static linkedContainerGenerator: any;
   public static cameraUpdateCallback: any;
 }
@@ -77,7 +81,6 @@ class MapConfig {
 export const createAndRunMap = () => {
 
   $('#map').empty();
-  // let d3app = new D3App('#svg_element', '#'+screenPlotSvgId, plotCollectionList);
 
   app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback);
       
