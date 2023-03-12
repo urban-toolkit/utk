@@ -12,6 +12,7 @@ import vedo
 import osmium as o
 import subprocess
 import pyproj
+import matplotlib.pyplot as plt
 
 from geopy.geocoders import Nominatim
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString, box, Point
@@ -20,6 +21,7 @@ from shapely.wkb import loads
 from shapely.validation import explain_validity
 from buildings import Buildings
 from urbanComponent import UrbanComponent
+
 
 class RelationHandler(o.SimpleHandler):
     def __init__(self, filters):
@@ -341,7 +343,7 @@ class OSM:
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
                 result_gdf_coordinates_3d.append(layer_geometry['gdf']['coordinates3d'])
-                ttype = 'LINES_3D_LAYER'
+                ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = 'roads'
                 renderStyle = ['FLAT_COLOR']
                 selectable = False
@@ -400,6 +402,7 @@ class OSM:
         for wid in osm_elements['ways']:
             way = osm_elements['ways'][wid]
             coords.append(way['geometry'])
+        
         lines = MultiLineString(coords)
         inter = lines.intersection(utils.polygon_bpoly(bpoly, bbox))
 
@@ -416,38 +419,83 @@ class OSM:
 
         for id, line in enumerate(inter):
 
+            # extruding line ============================
+            x, y = line.coords.xy
+            invertedLine = LineString(list(zip(y,x)))
+            
             ids.append(id)
 
-            coords = line.coords
-            coords_duplicated = []
-            for i in range(1, len(coords)):
-                p0 = coords[i-1]
-                p1 = coords[i]
-                coords_duplicated.append(p0[0])
-                coords_duplicated.append(p0[1])
-                coords_duplicated.append(p1[0])
-                coords_duplicated.append(p1[1])
+            transformed_line = transform(project, invertedLine)
 
-            types = ['primary']
+            buffer_line = transformed_line.buffer(5) # in meters
 
-            coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
+            geometries.append(buffer_line)
 
-            for i in range(int(len(coords_duplicated)/2)):
-                geometries_coordinates.append(Point(coords_duplicated[i*2], coords_duplicated[i*2+1]))
+            x, y = buffer_line.exterior.coords.xy
+
+            nodes = list(zip(x,y))
+            rings = [len(nodes)]
+
+            indices = earcut.triangulate_float64(nodes, rings)
+
+            nodes = np.array(nodes)
+            
+            # empty triangulation
+            if(len(indices) == 0 or (len(indices) % 3) > 0):
+                raise errors.InvalidPolygon('Invalid triangulation')
+
+            nodes = nodes.flatten().tolist()
+            indices = indices.tolist()
+
+            for i in range(int(len(nodes)/2)):
+                geometries_coordinates.append(Point(nodes[i*2], nodes[i*2+1]))
                 ids_coordinates.append(counter_id_coordinates)
                 counter_id_coordinates += 1
 
-            coords_duplicated = utils.from2dTo3d(coords_duplicated)
+            nodes = utils.from2dTo3d(nodes)
 
-            mesh.append({'type': 'roads', 'geometry': {'coordinates': [round(item,4) for item in coords_duplicated], 'types': types}})
-
-            geometries.append(transform(project, line))
+            mesh.append({'type': 'type', 'geometry': {'coordinates': [round(item,4) for item in nodes], 'indices': indices}})
 
         gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
 
         gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
 
         return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': None}}
+
+        # ============================================
+
+            # ids.append(id)
+
+            # coords = line.coords
+            # coords_duplicated = []
+            # for i in range(1, len(coords)):
+            #     p0 = coords[i-1]
+            #     p1 = coords[i]
+            #     coords_duplicated.append(p0[0])
+            #     coords_duplicated.append(p0[1])
+            #     coords_duplicated.append(p1[0])
+            #     coords_duplicated.append(p1[1])
+
+            # types = ['primary']
+
+            # coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
+
+            # for i in range(int(len(coords_duplicated)/2)):
+            #     geometries_coordinates.append(Point(coords_duplicated[i*2], coords_duplicated[i*2+1]))
+            #     ids_coordinates.append(counter_id_coordinates)
+            #     counter_id_coordinates += 1
+
+            # coords_duplicated = utils.from2dTo3d(coords_duplicated)
+
+            # mesh.append({'type': 'roads', 'geometry': {'coordinates': [round(item,4) for item in coords_duplicated], 'types': types}})
+
+            # geometries.append(transform(project, line))
+
+        # gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
+
+        # gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
+
+        # return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': None}}
 
     def osm_to_coastline_mesh(osm_elements, bpoly, using_bbox):
 

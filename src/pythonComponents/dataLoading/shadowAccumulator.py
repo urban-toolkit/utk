@@ -133,7 +133,7 @@ class ShadowAccumulator:
 
         for direction in directions:
             
-            with PinnedBuffer(rt.geometry_data['buildings'], 'Positions') as P: # allow changes in the data points stored internally in the raytracer
+            with PinnedBuffer(rt.geometry_data['buildings'], 'Positions') as P:
                 n = math.ceil(math.sqrt(len(P)))
                 eye = np.zeros((n,n,4), dtype=np.float32) 
 
