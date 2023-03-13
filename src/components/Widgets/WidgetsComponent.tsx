@@ -10,17 +10,12 @@ import { GrammarPanelContainer } from "./GrammarPanel";
 
 // value types that are being passed in the function parameter
 type widgetProps = {
-    genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
-    addGenericPlot: any,
-    removeGenericPlot: React.Dispatch<React.SetStateAction<any>>,
-    togglePlotCollection: React.Dispatch<React.SetStateAction<any>>,
-    modifyLabelPlot: any,
-    modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
-    listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
-    onCityRefChange: React.ChangeEventHandler,
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
     inputId: string,
-    setCamera: any
+    setCamera: any,
+    addNewMessage: any,
+    applyGrammarButtonId: string,
+    linkMapAndGrammarId: string
 }
 /**
  * @function WidgetsComponent - widgets container
@@ -36,17 +31,12 @@ type widgetProps = {
  * @returns 
  */
 export const WidgetsComponent = ({
-    genericScreenPlotToggle,
-    addGenericPlot,
-    removeGenericPlot,
-    togglePlotCollection,
-    modifyLabelPlot,
-    modifyEditingState,
-    listPlots,
-    onCityRefChange,
     camera,
     inputId,
-    setCamera
+    setCamera,
+    addNewMessage,
+    applyGrammarButtonId,
+    linkMapAndGrammarId
 }: widgetProps) => {
 
     return(
@@ -62,16 +52,12 @@ export const WidgetsComponent = ({
                 modifyEditingState = {modifyEditingState}
             /> */}
             <GrammarPanelContainer 
-                genericScreenPlotToggle = {genericScreenPlotToggle}
-                addGenericPlot = {addGenericPlot}
-                removeGenericPlot = {removeGenericPlot}
-                togglePlotCollection = {togglePlotCollection}
-                listPlots = {listPlots}
-                modifyLabelPlot = {modifyLabelPlot}
-                modifyEditingState = {modifyEditingState}
                 camera = {camera}
                 inputId = {inputId}
                 setCamera = {setCamera}
+                addNewMessage = {addNewMessage}
+                applyGrammarButtonId = {applyGrammarButtonId}
+                linkMapAndGrammarId = {linkMapAndGrammarId}
             />
             {/* data widget */}
             {/* <DataWidget 

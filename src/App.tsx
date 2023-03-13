@@ -7,7 +7,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 
 // bootstrap elememts
-import {Container, Row} from 'react-bootstrap'
+import {Container, Row, Col} from 'react-bootstrap'
 // componentns
 import { MapViewer, setCameraPosMap } from './components/MapView/MapView';
 import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
@@ -32,11 +32,13 @@ function App() {
   const size = useWindowResize();
 
   const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
+
   const [showPlotCollection, setShowPlotCollection] = useState(false);
   const [showPlotSpec, setShowPlotSpec] = useState(false);
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0)
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
+  const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
   let inputBarId = "searchBar";
 
   const d3App = D3AppFactory.getInstance();
@@ -170,6 +172,24 @@ function App() {
     setGenericPlots(modifiedPlots);
   }
 
+  const addNewMessage = (msg: string, color: string) => {
+    // let messagesCopy = [];
+
+    // for(let i = 0; i < systemMessages.length; i++){
+    //     messagesCopy.push(systemMessages[i]);
+    // }
+
+    // messagesCopy.push({text: msg, color: color});
+
+    // while(messagesCopy.length > 3){
+    //     messagesCopy.shift();
+    // }
+
+    // setSystemMessages(messagesCopy);
+
+    setSystemMessages([{text: msg, color: color}]);
+  }
+
   // data handler - by default load chicago data
   const [cityRef, setCityRef] = useState('Chicago')
 
@@ -182,36 +202,40 @@ function App() {
     // console.log(event.target)
   }
 
-
   return (
     <Container fluid>
       <Row>
         {/* widgets component */}
       <WidgetsComponent
-        // visualization toggle varibles 
-        genericScreenPlotToggle ={toggleGenericPlot}
-        addGenericPlot = {addNewGenericPlot}
-        removeGenericPlot = {removeGenericPlot}
-        togglePlotCollection = {togglePlotCollection}
-        // city data change function
-        onCityRefChange = {onCityChange}
-        listPlots = {genericPlots}
-        modifyLabelPlot = {modifyLabelPlot}
-        modifyEditingState = {modifyEditingState}
         camera = {camera}
         inputId = {inputBarId}
         setCamera = {setCameraPosMap}
+        addNewMessage = {addNewMessage}
+        applyGrammarButtonId = {"applyGrammarButton"}
+        linkMapAndGrammarId = {"linkMapAndGrammar"}
       />
       {/* map view */}
-      <MapViewer 
-      // variable contains which city data to load
-        dataToView = {cityRef}
-        divWidth = {7}
-        d3App = {d3App}
-        linkedContainerGenerator = {linkedContainerGenerator}
-        cameraUpdateCallback = {updateCamera}
-        inputId = {inputBarId}
-      />
+      <Col md={7} style={{padding: 0}}>
+        <MapViewer 
+        // variable contains which city data to load
+          dataToView = {cityRef}
+          divWidth = {7}
+          d3App = {d3App}
+          linkedContainerGenerator = {linkedContainerGenerator}
+          cameraUpdateCallback = {updateCamera}
+          inputId = {inputBarId}
+          systemMessages = {systemMessages}
+          applyGrammarButtonId = {"applyGrammarButton"}
+          genericScreenPlotToggle ={toggleGenericPlot}
+          addGenericPlot = {addNewGenericPlot}
+          removeGenericPlot = {removeGenericPlot}
+          togglePlotCollection = {togglePlotCollection}
+          listPlots = {genericPlots}
+          modifyLabelPlot = {modifyLabelPlot}
+          modifyEditingState = {modifyEditingState}
+          linkMapAndGrammarId = {"linkMapAndGrammar"}
+        />
+      </Col>
 
       {/* <PlotCollectionContainer 
         disp = {showPlotCollection}

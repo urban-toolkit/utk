@@ -3,7 +3,7 @@ import CodeEditor from '@uiw/react-textarea-code-editor';
 import { createAndRunMap } from "../MapView/MapView";
 import VanillaJSONEditor from "./VanillaJSONEditor";
 import { Col, Row, Button } from "react-bootstrap";
-import { VisWidget } from "./VisWidget";
+
 
 import * as d3 from "d3";
 
@@ -14,29 +14,21 @@ const params = require('../../pythonServerConfig.json');
 
 // declaring the types of the props
 type GrammarPanelProps = {
-    genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>>,
-    addGenericPlot: any,
-    removeGenericPlot: React.Dispatch<React.SetStateAction<any>>,
-    togglePlotCollection: React.Dispatch<React.SetStateAction<any>>,
-    modifyLabelPlot: any,
-    modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
-    listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
     inputId: string,
-    setCamera: any
+    setCamera: any,
+    addNewMessage: any,
+    applyGrammarButtonId: string,
+    linkMapAndGrammarId: string
 }
 
 export const GrammarPanelContainer = ({
-    genericScreenPlotToggle,
-    addGenericPlot,
-    removeGenericPlot,
-    togglePlotCollection,
-    modifyLabelPlot,
-    modifyEditingState,
-    listPlots,
     camera,
     inputId,
-    setCamera
+    setCamera,
+    addNewMessage,
+    applyGrammarButtonId,
+    linkMapAndGrammarId
 }: GrammarPanelProps
 ) =>{
 
@@ -45,37 +37,24 @@ export const GrammarPanelContainer = ({
     const grammarStateRef = useRef(grammar);
     const setCode = (data: any) => {
         grammarStateRef.current = data;
-      _setCode(data);
+        _setCode(data);
     };
 
-    const [tempGrammar, setTempGrammar] = useState('');
+    const [tempGrammar, _setTempGrammar] = useState('');
+
+    const tempGrammarStateRef = useRef(tempGrammar);
+    const setTempGrammar = (data: any) => {
+        tempGrammarStateRef.current = data;
+        _setTempGrammar(data);
+    };
+
     const [dirtyTempGrammar, setDirtyTempGrammar] = useState(false);
     const [refresh, setRefresh] = useState(false);
-    const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
 
     const [showEditor, setShowEditor] = useState(true);
     const [readOnly, setReadOnly] = useState(false);
 
     const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
-
-    const addNewMessage = (msg: string, color: string) => {
-        
-        // let messagesCopy = [];
-
-        // for(let i = 0; i < systemMessages.length; i++){
-        //     messagesCopy.push(systemMessages[i]);
-        // }
-
-        // messagesCopy.push({text: msg, color: color});
-
-        // while(messagesCopy.length > 3){
-        //     messagesCopy.shift();
-        // }
-
-        // setSystemMessages(messagesCopy);
-
-        setSystemMessages([{text: msg, color: color}]);
-    }
 
     const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
         
@@ -144,21 +123,33 @@ export const GrammarPanelContainer = ({
 
     const applyGrammar = async () => {
 
-        try{
-            JSON.parse(tempGrammar); // testing if temp grammar contains a valid grammar
-        }catch(err){
-            console.error('Grammar is not valid');
-            return;
+        if(tempGrammarStateRef.current != ''){
+            try{
+                JSON.parse(tempGrammarStateRef.current); // testing if temp grammar contains a valid grammar
+            }catch(err){
+                console.error('Grammar is not valid');
+                return;
+            }
         }
 
         // let sendGrammar = addCamera(grammar, camera);
         let sendGrammar = '';
-        if(d3.select("#linkMapAndGrammar").property("checked")){
-            sendGrammar = addCamera(tempGrammar, camera);
+        if(d3.select('#'+linkMapAndGrammarId).property("checked")){
+            if(tempGrammarStateRef.current == ''){
+                console.log("tempGrammar empty", grammarStateRef.current);
+                sendGrammar = addCamera(grammarStateRef.current, camera);
+            }else{
+                console.log("tempGrammar", tempGrammarStateRef.current);
+                sendGrammar = addCamera(tempGrammarStateRef.current, camera);
+            }
         }else{
-            sendGrammar = tempGrammar;
+            if(tempGrammarStateRef.current == ''){
+                sendGrammar = grammarStateRef.current;
+            }else{
+                sendGrammar = tempGrammarStateRef.current;
+            }
         }
-        setCode(tempGrammar);
+        setCode(sendGrammar);
         setTempGrammar('');
 
         const data = { "grammar": sendGrammar };
@@ -232,7 +223,7 @@ export const GrammarPanelContainer = ({
 
         getInitialGrammar(url);
 
-        $('#'+inputId).on( "keydown", function(e: any) {
+        $('#'+inputId).on("keydown", function(e: any) {
             if(e.key == 'Enter'){
 
                 d3.select("#linkMapAndGrammar").property("checked", false);
@@ -247,6 +238,15 @@ export const GrammarPanelContainer = ({
     
             }
         });
+
+        $('#'+applyGrammarButtonId).on("click", function(e: any) {
+            applyGrammar();
+        });
+
+        $('#'+linkMapAndGrammarId).on('change', function(e: any){
+            setRefresh(!refresh);
+        });
+
     }, []);
 
     const checkIfAddCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, tempGrammar: string) => {
@@ -319,7 +319,7 @@ export const GrammarPanelContainer = ({
         // </div>
         <Row md={6} style={{margin: 0}}>
 
-            <Col md={10} style={{padding: "0"}} id={"grammarColumn"}>
+            <Col md={12} style={{padding: "0"}} id={"grammarColumn"}>
                 <div style={{height: "100vh", overflow: "auto"}}>
                     {showEditor && (
                         <>
@@ -337,7 +337,7 @@ export const GrammarPanelContainer = ({
                 </div>
             </Col>
 
-            <Col md={2} style={{padding: "4px", backgroundColor: "#F5F5F5"}} className="d-flex align-items-center justify-content-center">
+            {/* <Col md={2} style={{padding: "4px", backgroundColor: "#F5F5F5"}} className="d-flex align-items-center justify-content-center">
                 <Row style={{margin: 0}}>
                     {
                         systemMessages.map((item, index) => (
@@ -359,7 +359,7 @@ export const GrammarPanelContainer = ({
                         modifyEditingState = {modifyEditingState}
                     />
                 </Row>
-            </Col>
+            </Col> */}
             
         </Row>
         
