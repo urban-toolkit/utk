@@ -10,6 +10,8 @@ import * as d3 from "d3";
 // jquery
 import $ from 'jquery';
 
+import './GrammarPanel.css';
+
 const params = require('../../pythonServerConfig.json');
 
 // declaring the types of the props
@@ -337,7 +339,7 @@ export const GrammarPanelContainer = ({
                 <div style={{height: "100vh", overflow: "auto"}}>
                     {showEditor && (
                         <>
-                        <div className="my-editor" style={{height: "100vh"}}>
+                        <div className="my-editor" style={{height: "100vh", fontSize: "24px"}}>
                             <VanillaJSONEditor
                             content={checkIfAddCamera(grammar, camera, tempGrammar)}
                             readOnly={readOnly}
