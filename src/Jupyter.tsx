@@ -41,6 +41,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0);
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
+  const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
 
   let inputBarId = "searchBar";
@@ -172,24 +173,35 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
     });
   }
 
+  const addNewMessage = (msg: string, color: string) => {
+    // let messagesCopy = [];
+
+    // for(let i = 0; i < systemMessages.length; i++){
+    //     messagesCopy.push(systemMessages[i]);
+    // }
+
+    // messagesCopy.push({text: msg, color: color});
+
+    // while(messagesCopy.length > 3){
+    //     messagesCopy.shift();
+    // }
+
+    // setSystemMessages(messagesCopy);
+
+    setSystemMessages([{text: msg, color: color}]);
+  }
+
   return (
     <Container fluid>
       <Row>
         {/* widgets component */}
       <WidgetsComponent
-        // visualization toggle varibles 
-        genericScreenPlotToggle ={toggleGenericPlot}
-        addGenericPlot = {addNewGenericPlot}
-        removeGenericPlot = {removeGenericPlot}
-        togglePlotCollection = {togglePlotCollection}
-        // city data change function
-        onCityRefChange = {onCityChange}
-        listPlots = {genericPlots}
-        modifyLabelPlot = {modifyLabelPlot}
-        modifyEditingState = {modifyEditingState}
         camera = {camera}
         inputId = {inputBarId}
         setCamera = {setCameraPosMap}
+        addNewMessage = {addNewMessage}
+        applyGrammarButtonId = {"applyGrammarButton"}
+        linkMapAndGrammarId = {"linkMapAndGrammar"}
       />
       {/* map view */}
       <MapViewer 
@@ -198,6 +210,16 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         d3App = {d3App}
         linkedContainerGenerator = {linkedContainerGenerator}
         inputId = {inputBarId}
+        systemMessages = {systemMessages}
+        applyGrammarButtonId = {"applyGrammarButton"}
+        genericScreenPlotToggle ={toggleGenericPlot}
+        addGenericPlot = {addNewGenericPlot}
+        removeGenericPlot = {removeGenericPlot}
+        togglePlotCollection = {togglePlotCollection}
+        listPlots = {genericPlots}
+        modifyLabelPlot = {modifyLabelPlot}
+        modifyEditingState = {modifyEditingState}
+        linkMapAndGrammarId = {"linkMapAndGrammar"}
       />
 
       {

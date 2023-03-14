@@ -111,6 +111,10 @@ export const createAndRunMap = () => {
   });
 }
 
+export const emptyMap = () => {
+  $('#map').empty();
+}
+ 
 export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, inputId}:mapViewDataProps) => {
 
   MapConfig.frontEndMode = frontEndMode;
@@ -158,7 +162,6 @@ export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarBut
         </div>
       </div>
 
-
       <div style={{position: "absolute", top: window.innerHeight-160, width: divWidth/12*window.innerWidth-10, backgroundColor: "rgba(200,200,200,0.3)", padding: 0, left: ((12-divWidth)/12)*window.innerWidth-7}}>
         {
           systemMessages.map((item, index) => (
@@ -183,6 +186,7 @@ export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarBut
             modifyEditingState = {modifyEditingState}
           />
       </div>
+
     </Row>
         
 

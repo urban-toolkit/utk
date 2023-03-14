@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import { createAndRunMap } from "../MapView/MapView";
+import { createAndRunMap, emptyMap } from "../MapView/MapView";
 import VanillaJSONEditor from "./VanillaJSONEditor";
 import { Col, Row, Button } from "react-bootstrap";
 
@@ -58,7 +58,7 @@ export const GrammarPanelContainer = ({
 
     const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
         
-        let grammarString = grammar;
+        let grammarString = grammarStateRef.current;
 
         if(grammarString == ''){
             grammarString = tempGrammar;
@@ -67,7 +67,21 @@ export const GrammarPanelContainer = ({
         if(grammarString == '')
             return
 
-        let grammarObject = JSON.parse(grammarString);
+        let grammarObject;
+
+        try{
+            grammarObject = JSON.parse(grammarString);
+        }catch(err){
+            emptyMap();
+            addNewMessage("Invalid grammar specification", "red");
+            return;
+        }
+        
+        if(grammarObject.views == undefined){
+            emptyMap();
+            addNewMessage("Invalid/Empty grammar specification", "red");
+            return;
+        }
 
         for(const knot of grammarObject.views[0].knots){
             if(knot.knotOp != true){
@@ -323,7 +337,7 @@ export const GrammarPanelContainer = ({
                 <div style={{height: "100vh", overflow: "auto"}}>
                     {showEditor && (
                         <>
-                        <div className="my-editor">
+                        <div className="my-editor" style={{height: "100vh"}}>
                             <VanillaJSONEditor
                             content={checkIfAddCamera(grammar, camera, tempGrammar)}
                             readOnly={readOnly}

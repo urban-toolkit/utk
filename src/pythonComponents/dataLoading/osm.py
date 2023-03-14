@@ -222,7 +222,7 @@ class OSM:
 
             loaded = OSM.get_osm(bbox, True, layers, True, output_file)
         else:
-            loaded = OSM.get_osm(bbox, True, layers, False)
+            loaded = OSM.get_osm(bbox, True, layers, True)
 
         component = UrbanComponent(layers = loaded, bpolygon = bbox, camera = cam)
 
@@ -427,7 +427,7 @@ class OSM:
 
             transformed_line = transform(project, invertedLine)
 
-            buffer_line = transformed_line.buffer(5) # in meters
+            buffer_line = transformed_line.buffer(2) # in meters
 
             geometries.append(buffer_line)
 

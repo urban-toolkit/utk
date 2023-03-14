@@ -1,6 +1,7 @@
 import pysolar
 import threading
 import pytz
+import struct
 
 import timezonefinder
 import math
@@ -362,6 +363,80 @@ class ShadowAccumulator:
 
             file = open(filepath, mode='r')
             file_content = json.loads(file.read())
+
+            directory = os.path.dirname(filepath)
+            # file name with extension
+            file_name = os.path.basename(filepath)
+            # file name without extension
+            file_name_wo_extension = os.path.splitext(file_name)[0]
+
+            coordinates = []
+            normals = []
+            indices = []
+            ids = []
+
+            if('coordinates' in file_content['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_coordinates.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('d', data)
+
+                for elem in unpacked_data:
+                    coordinates.append(elem[0])
+
+                f.close()
+            if('normals' in file_content['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_normals.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('f', data)
+
+                for elem in unpacked_data:
+                    normals.append(elem[0])
+
+                f.close()
+            if('indices' in file_content['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_indices.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('I', data)
+
+                for elem in unpacked_data:
+                    indices.append(elem[0])
+
+                f.close()
+            if('ids' in file_content['data'][0]['geometry']):
+                f = open(os.path.join(directory,file_name_wo_extension+'_ids.data'), "rb")
+
+                data = f.read()
+
+                unpacked_data = struct.iter_unpack('I', data)
+
+                for elem in unpacked_data:
+                    ids.append(elem[0])
+
+                f.close()
+
+            for i in range(len(file_content['data'])):
+
+                if(len(coordinates) > 0):
+                    startAndSize = file_content['data'][i]['geometry']['coordinates']
+                    file_content['data'][i]['geometry']['coordinates'] = coordinates[startAndSize[0]:startAndSize[0]+startAndSize[1]]
+
+                if(len(indices) > 0):
+                    startAndSize = file_content['data'][i]['geometry']['indices']
+                    file_content['data'][i]['geometry']['indices'] = indices[startAndSize[0]:startAndSize[0]+startAndSize[1]]
+
+                if(len(normals) > 0):
+                    startAndSize = file_content['data'][i]['geometry']['normals']
+                    file_content['data'][i]['geometry']['normals'] = normals[startAndSize[0]:startAndSize[0]+startAndSize[1]]
+
+                if(len(ids) > 0):
+                    startAndSize = file_content['data'][i]['geometry']['ids']
+                    file_content['data'][i]['geometry']['ids'] = ids[startAndSize[0]:startAndSize[0]+startAndSize[1]]
 
             file_coords = []
             file_indices = []
