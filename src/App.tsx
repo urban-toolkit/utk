@@ -44,7 +44,7 @@ function App() {
   const d3App = D3AppFactory.getInstance();
   d3App.resetD3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
   
-  const addNewGenericPlot = (n: number = 1) => {
+  const addNewGenericPlot = (n: number = 1, names: string[] = []) => {
 
     let createdIds = [];
     let tempPlots = [];
@@ -52,7 +52,11 @@ function App() {
     let tempId = 0;
 
     for(let i = 0; i < n; i++){
-      tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
+      if(names.length > 0 && names[i] != '' && names[i] != undefined){
+        tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: names[i], checked: false, edit: false});
+      }else{
+        tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
+      }
       createdIds.push(tempId);
       tempId += 1;
     }
@@ -66,11 +70,11 @@ function App() {
     setCamera(cameraData);
   }
 
-  const linkedContainerGenerator = (n: number) => {
+  const linkedContainerGenerator = (n: number, names: string[] = []) => {
 
     let createdIds: number[] = [];
 
-    createdIds = addNewGenericPlot(n);
+    createdIds = addNewGenericPlot(n, names);
 
     // promise is only resolved when the container is created
     return new Promise(async function (resolve, reject) {
@@ -203,50 +207,51 @@ function App() {
   }
 
   return (
-    <Container fluid>
-      <Row>
+    // <Container fluid style={{padding: 0}}>
+    <React.Fragment>
+      <Row style={{margin: 0}}>
         {/* widgets component */}
-      <WidgetsComponent
-        camera = {camera}
-        inputId = {inputBarId}
-        setCamera = {setCameraPosMap}
-        addNewMessage = {addNewMessage}
-        applyGrammarButtonId = {"applyGrammarButton"}
-        linkMapAndGrammarId = {"linkMapAndGrammar"}
-      />
-      {/* map view */}
-      <Col md={7} style={{padding: 0}}>
-        <MapViewer 
-        // variable contains which city data to load
-          dataToView = {cityRef}
-          divWidth = {7}
-          d3App = {d3App}
-          linkedContainerGenerator = {linkedContainerGenerator}
-          cameraUpdateCallback = {updateCamera}
+        <WidgetsComponent
+          camera = {camera}
           inputId = {inputBarId}
-          systemMessages = {systemMessages}
+          setCamera = {setCameraPosMap}
+          addNewMessage = {addNewMessage}
           applyGrammarButtonId = {"applyGrammarButton"}
-          genericScreenPlotToggle ={toggleGenericPlot}
-          addGenericPlot = {addNewGenericPlot}
-          removeGenericPlot = {removeGenericPlot}
-          togglePlotCollection = {togglePlotCollection}
-          listPlots = {genericPlots}
-          modifyLabelPlot = {modifyLabelPlot}
-          modifyEditingState = {modifyEditingState}
           linkMapAndGrammarId = {"linkMapAndGrammar"}
         />
-      </Col>
+        {/* map view */}
+        <Col md={7} style={{padding: 0}}>
+          <MapViewer 
+          // variable contains which city data to load
+            dataToView = {cityRef}
+            divWidth = {7}
+            d3App = {d3App}
+            linkedContainerGenerator = {linkedContainerGenerator}
+            cameraUpdateCallback = {updateCamera}
+            inputId = {inputBarId}
+            systemMessages = {systemMessages}
+            applyGrammarButtonId = {"applyGrammarButton"}
+            genericScreenPlotToggle ={toggleGenericPlot}
+            addGenericPlot = {addNewGenericPlot}
+            removeGenericPlot = {removeGenericPlot}
+            togglePlotCollection = {togglePlotCollection}
+            listPlots = {genericPlots}
+            modifyLabelPlot = {modifyLabelPlot}
+            modifyEditingState = {modifyEditingState}
+            linkMapAndGrammarId = {"linkMapAndGrammar"}
+          />
+        </Col>
 
-      {/* <PlotCollectionContainer 
-        disp = {showPlotCollection}
-        togglePlotSpec = {togglePlotSpec}
-        collection = {plotCollectionList}
-      /> */}
+        {/* <PlotCollectionContainer 
+          disp = {showPlotCollection}
+          togglePlotSpec = {togglePlotSpec}
+          collection = {plotCollectionList}
+        /> */}
 
-      {/* <PlotSpecificationContainer
-        disp = {showPlotSpec}
-        addSpecInCollection = {addSpecInCollection}
-      /> */}
+        {/* <PlotSpecificationContainer
+          disp = {showPlotSpec}
+          addSpecInCollection = {addSpecInCollection}
+        /> */}
 
       </Row>
 
@@ -261,7 +266,8 @@ function App() {
             />
         ))
       }
-    </Container>
+    </React.Fragment>
+    // </Container>
   );
 }
 

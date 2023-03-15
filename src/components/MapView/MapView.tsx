@@ -152,42 +152,58 @@ export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarBut
   return(
     <React.Fragment>
       
-    <Row style={{padding: 0}}>
-      <div>
-        <div id='map'>
+      <Row style={{padding: 0, margin: 0}}>
+        <div style={{padding: 0}}>
+          <div id='map'>
+          </div>
+          <div id='svg_div'>
+            <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>
+            </svg>
+          </div>
         </div>
-        <div id='svg_div'>
-          <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>
-          </svg>
-        </div>
-      </div>
 
-      <div style={{position: "absolute", top: window.innerHeight-160, width: divWidth/12*window.innerWidth-10, backgroundColor: "rgba(200,200,200,0.3)", padding: 0, left: ((12-divWidth)/12)*window.innerWidth-7}}>
-        {
-          systemMessages.map((item, index) => (
-              <p style={{color: item.color, textAlign: "center", fontWeight: "bold", marginTop: "10px", marginBottom: "5px"}} key={index}>{item.text}</p>
-          ))
-        }
-        {/* <Button variant="secondary" onClick={() => applyGrammar()}>Apply</Button> */}
-        {/* style={{position: "absolute", left: ((12-divWidth)/12)*window.innerWidth+((divWidth/12)*window.innerWidth/2)-225, top: window.innerHeight-80}} */}
-        <input type="text" id={inputId} name="searchBar" placeholder='Search place' style={{position: "absolute", left: ((divWidth/12)*window.innerWidth)/2-225}}></input>
-        <div style={{textAlign: "left", paddingLeft: 0, width: "200px", marginLeft: "20px"}}>
-            <Button variant="secondary" id={applyGrammarButtonId}>Apply Grammar</Button>
-            <input name="linkMapAndGrammar" type="checkbox" id={linkMapAndGrammarId} style={{margin: "8px"}}></input>
-            <label htmlFor="linkMapAndGrammar">Link</label>
-        </div>
-        <VisWidget 
-            genericScreenPlotToggle = {genericScreenPlotToggle}
-            addGenericPlot = {addGenericPlot}
-            removeGenericPlot = {removeGenericPlot}
-            togglePlotCollection = {togglePlotCollection}
-            listPlots = {listPlots}
-            modifyLabelPlot = {modifyLabelPlot}
-            modifyEditingState = {modifyEditingState}
-          />
-      </div>
+        <div style={{position: "absolute", height: "160px", bottom: 0, width: (divWidth/12)*window.innerWidth, backgroundColor: "rgba(200,200,200,0.3)", padding: 0}}>
+          
+          <Row md={12} style={{padding: 0, margin: 0}}>
 
-    </Row>
+            <Col md={4} style={{padding: 0, margin: "auto", height: "160px"}}>
+              <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                <Button variant="secondary" id={applyGrammarButtonId} style={{marginRight: "10px"}}>Apply Grammar</Button>
+                <input name="linkMapAndGrammar" type="checkbox" id={linkMapAndGrammarId} style={{marginRight: "5px"}}></input>
+                <label htmlFor="linkMapAndGrammar">Link</label>
+              </div>
+            </Col>
+
+            <Col md={4} style={{padding: 0, margin: 0, height: "160px"}}>
+                {
+                  systemMessages.map((item, index) => (
+                      <p style={{color: item.color, width: ((divWidth/12)*window.innerWidth)/3, textAlign: "center", fontWeight: "bold", marginTop: "10px", marginBottom: "5px", position: "absolute"}} key={index}>{item.text}</p>
+                  ))
+                } 
+              <div className="d-flex flex-column align-items-center justify-content-center" style={{height: "160px"}}>
+                <input type="text" id={inputId} name="searchBar" placeholder='Search place' style={{width: "100%"}}></input>
+              </div>
+            </Col>
+
+            <Col md={4} style={{padding: 0, margin: 0, height: "160px"}}>
+              <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                <VisWidget 
+                    genericScreenPlotToggle = {genericScreenPlotToggle}
+                    addGenericPlot = {addGenericPlot}
+                    removeGenericPlot = {removeGenericPlot}
+                    togglePlotCollection = {togglePlotCollection}
+                    listPlots = {listPlots}
+                    modifyLabelPlot = {modifyLabelPlot}
+                    modifyEditingState = {modifyEditingState}
+                  />
+              </div>
+            </Col>
+
+          </Row>
+
+        </div>
+
+      </Row>
         
 
     </React.Fragment>
