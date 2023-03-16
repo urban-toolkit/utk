@@ -61,29 +61,15 @@ export const VisWidget = ({
     }
 
     return (
-        // <div className="d-flex flex-column justify-content-center" style={{height: "60%", overflowY: "auto", padding: "5px"}}>
         <div style={{maxHeight: "60%", overflowY: "auto", padding: "5px"}}>
-            {/* <div className="d-flex flex-column justify-content-center"> */}
                 {
                     listPlots.map((item) => (
                         <div key={"genericPlotsDiv"+item.id} className={"flex-div-genericPlots"}>
                             <Form.Check className={item.edit? "hidden-element" : ""} key={item.id} type="checkbox" label={item.label}  onChange={() => handleGenericScreenPlotCheckBoxChange(item.id)}/> 
                             <input style={{width: '60px', display: item.edit? 'block' : 'none'}} key={"labelInput"+item.id} type="text" value={item.label} onChange={(event) => handleLabelEdit(event,item.id)}/> 
-                            {/* <Button key={"genericPlotEdit"+item.id} style={{paddingTop: 0}} onClick={() => toggleEditing(item.id)} variant="link"><FaEdit /></Button> */}
                         </div>
                     ))
                 }
-            {/* </div> */}
         </div>
-
-        // <div style={{flex: 1, display: "flex", overflow: "auto"}}>
-        //     <div style={{display: "flex", minHeight: "min-content"}}>
-        //         <div>Column 1</div>
-        //         <div>Column 2</div>
-        //         <div>Column 3</div>
-        //     </div>
-        // </div>
-
-
     );
 }

@@ -177,7 +177,7 @@ export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarBut
             <Col md={4} style={{padding: 0, margin: 0, height: "160px"}}>
                 {
                   systemMessages.map((item, index) => (
-                      <p style={{color: item.color, width: ((divWidth/12)*window.innerWidth)/3, textAlign: "center", fontWeight: "bold", marginTop: "10px", marginBottom: "5px", position: "absolute"}} key={index}>{item.text}</p>
+                      <p style={{color: item.color, width: ((divWidth/12)*window.innerWidth)/3, textAlign: "center", fontWeight: "bold", marginTop: "18px", marginBottom: "5px", position: "absolute"}} key={index}>{item.text}</p>
                   ))
                 } 
               <div className="d-flex flex-column align-items-center justify-content-center" style={{height: "160px"}}>
