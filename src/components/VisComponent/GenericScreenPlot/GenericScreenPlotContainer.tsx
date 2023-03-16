@@ -25,7 +25,7 @@ export const GenericScreenPlotContainer = ({
     
     return(
         <Draggable nodeRef={nodeRef} defaultPosition={{x: window.innerWidth/1.5, y: -window.innerHeight/1.5}}>
-            <div ref={nodeRef} className="drag-box" style={{display: disp? 'block' : 'none', boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.35)", overflow: "scroll", maxWidth: window.innerWidth/2, maxHeight: window.innerHeight}}>
+            <div ref={nodeRef} className="drag-box" style={{display: disp? 'block' : 'none', boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.35)", overflow: "auto", maxWidth: window.innerWidth/2, maxHeight: window.innerHeight}}>
                 {/* this div is holding the generic chart */}
                 <div id={svgId}>
                     {/* the svg */}

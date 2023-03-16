@@ -152,10 +152,8 @@ export const GrammarPanelContainer = ({
         let sendGrammar = '';
         if(d3.select('#'+linkMapAndGrammarId).property("checked")){
             if(tempGrammarStateRef.current == ''){
-                console.log("tempGrammar empty", grammarStateRef.current);
                 sendGrammar = addCamera(grammarStateRef.current, camera);
             }else{
-                console.log("tempGrammar", tempGrammarStateRef.current);
                 sendGrammar = addCamera(tempGrammarStateRef.current, camera);
             }
         }else{
