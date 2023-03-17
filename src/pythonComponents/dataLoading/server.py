@@ -50,6 +50,11 @@ def serve_linkLayers():
     if(maxDistance != None and predicate.upper() != 'NEAREST'):
         abort(400, "Max distance can only be used with the NEAREST predicate")
 
+    defaultValue = 0
+
+    if("defaultValue" in request.args):
+        defaultValue = request.args.get('defaultValue')
+
     uc = UrbanComponent()
 
     uc.setWorkDir(workDir)
@@ -65,14 +70,14 @@ def serve_linkLayers():
             abort(400, "For abstract join the levels of both layers should be the same")
 
         if(maxDistance != None):
-            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation, maxDistance)
+            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation, maxDistance, default_value=defaultValue)
         else:
-            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation)
+            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, predicate, aggregation, default_value=defaultValue)
     else:
         if(maxDistance != None):
-            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel, maxDistance)
+            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel, maxDistance, default_value=defaultValue)
         else:
-            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel)
+            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel, default_value=defaultValue)
 
     uc.to_file(workDir, True, False)
 
