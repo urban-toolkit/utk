@@ -39,11 +39,16 @@ function App() {
   const [currentPlotId, setCurrentPlotId] = useState(0)
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
   const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
+  const [layersIds, setLayersIds] = useState<string[]>([]);
   let inputBarId = "searchBar";
 
   const d3App = D3AppFactory.getInstance();
   d3App.resetD3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
   
+  const listLayersCallback = (ids:string[]) => {
+    setLayersIds(ids);
+  }
+
   const addNewGenericPlot = (n: number = 1, names: string[] = []) => {
 
     let createdIds = [];
@@ -239,6 +244,8 @@ function App() {
             modifyLabelPlot = {modifyLabelPlot}
             modifyEditingState = {modifyEditingState}
             linkMapAndGrammarId = {"linkMapAndGrammar"}
+            listLayersCallback = {listLayersCallback}
+            listLayers = {layersIds}
           />
         </Col>
 

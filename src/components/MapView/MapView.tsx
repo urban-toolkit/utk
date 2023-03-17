@@ -1,6 +1,7 @@
 // bootstrap component
 import {Col, Row, Button} from 'react-bootstrap'
 import { VisWidget } from "../Widgets/VisWidget";
+import { LayersWidget } from "../Widgets/LayersWidget";
 import React, {useEffect} from 'react'
 
 // urbantkmap.js
@@ -30,12 +31,12 @@ var app: any;
 // Mapview Application Class
 class App {
   _map: any;
-  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null) {
+  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, listLayersCallback: any | null = null) {
     const mapDiv = document.querySelector(div);
 
     if(d3App){
       this._map = MapViewFactory.getInstance();
-      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback);
+      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback, listLayersCallback);
     }else{
       this._map = MapViewFactory.getInstance();
       this._map.resetMap(mapDiv);
@@ -57,6 +58,10 @@ class App {
     this._map.setCamera(camera);
   }
 
+  get map(){
+    return this._map;
+  }
+
 }
 
 // MapViewer parameter types
@@ -72,6 +77,8 @@ type mapViewDataProps = {
   modifyLabelPlot: any,
   modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
   listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
+  listLayers: string[],
+  listLayersCallback: any,
   linkMapAndGrammarId: string,
   frontEndMode?: string, //web is the default
   data?: any,
@@ -86,13 +93,14 @@ class MapConfig {
   public static d3App: any | undefined;
   public static linkedContainerGenerator: any;
   public static cameraUpdateCallback: any;
+  public static listLayersCallback: any;
 }
 
 export const createAndRunMap = () => {
 
   $('#map').empty();
 
-  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback);
+  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback, MapConfig.listLayersCallback);
       
   let port;
 
@@ -115,12 +123,13 @@ export const emptyMap = () => {
   $('#map').empty();
 }
  
-export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, inputId}:mapViewDataProps) => {
+export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, listLayers, listLayersCallback, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, inputId}:mapViewDataProps) => {
 
   MapConfig.frontEndMode = frontEndMode;
   MapConfig.d3App = d3App;
   MapConfig.linkedContainerGenerator = linkedContainerGenerator;
   MapConfig.cameraUpdateCallback = cameraUpdateCallback;
+  MapConfig.listLayersCallback = listLayersCallback;
 
   useEffect(()=> {
       $('#map').empty();
@@ -186,17 +195,30 @@ export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarBut
             </Col>
 
             <Col md={4} style={{padding: 0, margin: 0, height: "160px"}}>
-              <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
-                <VisWidget 
-                    genericScreenPlotToggle = {genericScreenPlotToggle}
-                    addGenericPlot = {addGenericPlot}
-                    removeGenericPlot = {removeGenericPlot}
-                    togglePlotCollection = {togglePlotCollection}
-                    listPlots = {listPlots}
-                    modifyLabelPlot = {modifyLabelPlot}
-                    modifyEditingState = {modifyEditingState}
-                  />
-              </div>
+              <Row style={{padding: 0, margin: 0}}>
+                <Col md={6} style={{padding: 0, margin: 0}}>
+                  <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                    <VisWidget 
+                        genericScreenPlotToggle = {genericScreenPlotToggle}
+                        addGenericPlot = {addGenericPlot}
+                        removeGenericPlot = {removeGenericPlot}
+                        togglePlotCollection = {togglePlotCollection}
+                        listPlots = {listPlots}
+                        modifyLabelPlot = {modifyLabelPlot}
+                        modifyEditingState = {modifyEditingState}
+                      />
+                  </div>
+                </Col>
+                
+                <Col md={6} style={{padding: 0, margin: 0}}> 
+                  <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                    <LayersWidget 
+                      listLayers = {listLayers}
+                      layerToggle = {(id: string) => app.map.toggleLayer(id)}                      
+                    />
+                  </div>
+                </Col>
+              </Row>
             </Col>
 
           </Row>
