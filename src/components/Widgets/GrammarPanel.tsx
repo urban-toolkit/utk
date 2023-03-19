@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import { createAndRunMap } from "../MapView/MapView";
+import { createAndRunMap, emptyMap } from "../MapView/MapView";
 import VanillaJSONEditor from "./VanillaJSONEditor";
 import { Col, Row, Button } from "react-bootstrap";
 
@@ -9,6 +9,8 @@ import * as d3 from "d3";
 
 // jquery
 import $ from 'jquery';
+
+import './GrammarPanel.css';
 
 const params = require('../../pythonServerConfig.json');
 
@@ -58,7 +60,7 @@ export const GrammarPanelContainer = ({
 
     const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
         
-        let grammarString = grammar;
+        let grammarString = grammarStateRef.current;
 
         if(grammarString == ''){
             grammarString = tempGrammar;
@@ -67,7 +69,21 @@ export const GrammarPanelContainer = ({
         if(grammarString == '')
             return
 
-        let grammarObject = JSON.parse(grammarString);
+        let grammarObject;
+
+        try{
+            grammarObject = JSON.parse(grammarString);
+        }catch(err){
+            emptyMap();
+            addNewMessage("Invalid grammar specification", "red");
+            return;
+        }
+        
+        if(grammarObject.views == undefined){
+            emptyMap();
+            addNewMessage("Invalid/Empty grammar specification", "red");
+            return;
+        }
 
         for(const knot of grammarObject.views[0].knots){
             if(knot.knotOp != true){
@@ -78,15 +94,12 @@ export const GrammarPanelContainer = ({
                         let thisLevel = knot.linkingScheme[i].thisLevel.toLowerCase();
                         let otherLevel = knot.linkingScheme[i].otherLevel.toLowerCase();
                         let maxDistance = knot.linkingScheme[i].maxDistance;
+                        let defaultValue = knot.linkingScheme[i].defaultValue;
 
                         let aggregation = knot.aggregationScheme[i].toLowerCase();
 
                         if(aggregation == 'none'){
                             aggregation = 'avg'; // there must be an aggregation to solve conflicts in the join
-                        }
-
-                        if(maxDistance != undefined && predicate != 'nearest'){
-                            throw Error("The maxdistance field can only be used with the nearest predicate");
                         }
 
                         let otherLayer = knot.linkingScheme[i].otherLayer;
@@ -97,7 +110,7 @@ export const GrammarPanelContainer = ({
                         let start = Date.now();
 
                         if(maxDistance != undefined)
-                            await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel+"&maxDistance="+maxDistance);
+                            await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
                         else
                             await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel);
 
@@ -136,10 +149,8 @@ export const GrammarPanelContainer = ({
         let sendGrammar = '';
         if(d3.select('#'+linkMapAndGrammarId).property("checked")){
             if(tempGrammarStateRef.current == ''){
-                console.log("tempGrammar empty", grammarStateRef.current);
                 sendGrammar = addCamera(grammarStateRef.current, camera);
             }else{
-                console.log("tempGrammar", tempGrammarStateRef.current);
                 sendGrammar = addCamera(tempGrammarStateRef.current, camera);
             }
         }else{
@@ -308,60 +319,30 @@ export const GrammarPanelContainer = ({
     }
 
     return(
-        // <div>
-        //     <div>
-        //         <h3>Grammar</h3>
-        //         {/* <textarea id="grammarTextArea" style={{width: "280px", height: "350px"}} defaultValue={textSpec} /> */}
 
-
-        //         {/* <button type="button" onClick={() => applyGrammar(d3.select("#grammarTextArea").property('value'))}>Apply</button> */}
-        //     </div>
-        // </div>
-        <Row md={6} style={{margin: 0}}>
-
-            <Col md={12} style={{padding: "0"}} id={"grammarColumn"}>
-                <div style={{height: "100vh", overflow: "auto"}}>
-                    {showEditor && (
-                        <>
-                        <div className="my-editor">
-                            <VanillaJSONEditor
-                            content={checkIfAddCamera(grammar, camera, tempGrammar)}
-                            readOnly={readOnly}
-                            onChange={updateGrammarContent}
-                            mode={'text'}
-                            indentation={4}
-                            />
-                        </div>
-                        </>
-                    )}
-                </div>
-            </Col>
-
-            {/* <Col md={2} style={{padding: "4px", backgroundColor: "#F5F5F5"}} className="d-flex align-items-center justify-content-center">
-                <Row style={{margin: 0}}>
-                    {
-                        systemMessages.map((item, index) => (
-                            <p style={{color: item.color, textAlign: "center", fontWeight: "bold"}} key={index}>{item.text}</p>
-                        ))
-                    }
-                    <Button variant="secondary" onClick={() => applyGrammar()}>Apply</Button>
-                    <div style={{textAlign: "center", paddingLeft: 0}}>
-                        <input type="checkbox" id="linkMapAndGrammar" style={{margin: "8px"}} onChange={() => setRefresh(!refresh)}></input>
-                        <label htmlFor="linkMapAndGrammar"> Link</label>
-                    </div>
-                    <VisWidget 
-                        genericScreenPlotToggle = {genericScreenPlotToggle}
-                        addGenericPlot = {addGenericPlot}
-                        removeGenericPlot = {removeGenericPlot}
-                        togglePlotCollection = {togglePlotCollection}
-                        listPlots = {listPlots}
-                        modifyLabelPlot = {modifyLabelPlot}
-                        modifyEditingState = {modifyEditingState}
-                    />
-                </Row>
-            </Col> */}
-            
-        </Row>
+        // <Row md={6} style={{margin: 0, padding: 0}}>
+            // <Col md={12} style={{padding: "0"}} id={"grammarColumn"}>
+                <React.Fragment>
+                    {/* <div style={{height: "90vh", overflow: "auto"}}> */}
+                    {/* <div style={{height: "90vh"}}> */}
+                        {showEditor && (
+                            <>
+                            <div className="my-editor" style={{height: "100vh", overflow: "auto", fontSize: "24px"}}>
+                            {/* <div className="my-editor"> */}
+                                <VanillaJSONEditor
+                                content={checkIfAddCamera(grammar, camera, tempGrammar)}
+                                readOnly={readOnly}
+                                onChange={updateGrammarContent}
+                                mode={'text'}
+                                indentation={4}
+                                />
+                            </div>
+                            </>
+                        )}
+                    {/* </div> */}
+                </React.Fragment>
+            // </Col>
+        // </Row> 
         
         
     )

@@ -9,6 +9,38 @@ import mapbox_earcut as earcut
 import numpy as np
 import pandas as pd
 import os
+import struct
+
+def break_into_binary(filepath, filename, data, types, dataTypes):
+
+    for index, type in enumerate(types):
+
+        readCoords = 0
+
+        floatList = []
+
+        for i in range(len(data['data'])):
+            geometry = data['data'][i]['geometry']
+
+            newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
+
+            readCoords += len(geometry[type])
+
+            floatList += geometry[type].copy()
+
+            geometry[type] = newValue
+
+        fout = open(os.path.join(filepath,filename+'_'+type+'.data'), 'wb')
+
+        buf = struct.pack(str(len(floatList))+dataTypes[index], *floatList)
+
+        fout.write(buf)
+        fout.close()
+
+        json_object = json.dumps(data)
+
+        with open(os.path.join(filepath,filename+".json"), "w") as outfile:
+            outfile.write(json_object)
 
 def generateLayerFromShp(filepath, bbox, layerName, styleKey):
     '''
@@ -99,6 +131,27 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
             "skip": False,
             "data": data
         }
+
+        types = []
+        dataTypes = []
+
+        if('coordinates' in result['data'][0]['geometry']):
+            types.append("coordinates")
+            dataTypes.append("d")
+
+        if('normals' in result['data'][0]['geometry']):
+            types.append("normals")
+            dataTypes.append("f")
+
+        if('indices' in result['data'][0]['geometry']):
+            types.append("indices")
+            dataTypes.append("I")
+
+        if('ids' in result['data'][0]['geometry']):
+            types.append("ids")
+            dataTypes.append("I")
+
+        break_into_binary(os.path.dirname(filepath), layerName, result, types, dataTypes)
 
         layer_json_str = str(json.dumps(result))
         f.write(layer_json_str)

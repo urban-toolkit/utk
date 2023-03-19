@@ -1,6 +1,7 @@
 // bootstrap component
 import {Col, Row, Button} from 'react-bootstrap'
 import { VisWidget } from "../Widgets/VisWidget";
+import { LayersWidget } from "../Widgets/LayersWidget";
 import React, {useEffect} from 'react'
 
 // urbantkmap.js
@@ -30,12 +31,12 @@ var app: any;
 // Mapview Application Class
 class App {
   _map: any;
-  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null) {
+  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, listLayersCallback: any | null = null) {
     const mapDiv = document.querySelector(div);
 
     if(d3App){
       this._map = MapViewFactory.getInstance();
-      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback);
+      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback, listLayersCallback);
     }else{
       this._map = MapViewFactory.getInstance();
       this._map.resetMap(mapDiv);
@@ -57,6 +58,10 @@ class App {
     this._map.setCamera(camera);
   }
 
+  get map(){
+    return this._map;
+  }
+
 }
 
 // MapViewer parameter types
@@ -72,6 +77,8 @@ type mapViewDataProps = {
   modifyLabelPlot: any,
   modifyEditingState: React.Dispatch<React.SetStateAction<any>>,
   listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
+  listLayers: string[],
+  listLayersCallback: any,
   linkMapAndGrammarId: string,
   frontEndMode?: string, //web is the default
   data?: any,
@@ -86,13 +93,14 @@ class MapConfig {
   public static d3App: any | undefined;
   public static linkedContainerGenerator: any;
   public static cameraUpdateCallback: any;
+  public static listLayersCallback: any;
 }
 
 export const createAndRunMap = () => {
 
   $('#map').empty();
 
-  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback);
+  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback, MapConfig.listLayersCallback);
       
   let port;
 
@@ -111,12 +119,17 @@ export const createAndRunMap = () => {
   });
 }
 
-export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, inputId}:mapViewDataProps) => {
+export const emptyMap = () => {
+  $('#map').empty();
+}
+ 
+export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, listLayers, listLayersCallback, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, inputId}:mapViewDataProps) => {
 
   MapConfig.frontEndMode = frontEndMode;
   MapConfig.d3App = d3App;
   MapConfig.linkedContainerGenerator = linkedContainerGenerator;
   MapConfig.cameraUpdateCallback = cameraUpdateCallback;
+  MapConfig.listLayersCallback = listLayersCallback;
 
   useEffect(()=> {
       $('#map').empty();
@@ -148,42 +161,71 @@ export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarBut
   return(
     <React.Fragment>
       
-    <Row style={{padding: 0}}>
-      <div>
-        <div id='map'>
+      <Row style={{padding: 0, margin: 0}}>
+        <div style={{padding: 0}}>
+          <div id='map'>
+          </div>
+          <div id='svg_div'>
+            <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>
+            </svg>
+          </div>
         </div>
-        <div id='svg_div'>
-          <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>
-          </svg>
-        </div>
-      </div>
 
+        <div style={{position: "absolute", height: "160px", bottom: 0, width: (divWidth/12)*window.innerWidth, backgroundColor: "rgba(200,200,200,0.3)", padding: 0}}>
+          
+          <Row md={12} style={{padding: 0, margin: 0}}>
 
-      <div style={{position: "absolute", top: window.innerHeight-160, width: divWidth/12*window.innerWidth-10, backgroundColor: "rgba(200,200,200,0.3)", padding: 0, left: ((12-divWidth)/12)*window.innerWidth-7}}>
-        {
-          systemMessages.map((item, index) => (
-              <p style={{color: item.color, textAlign: "center", fontWeight: "bold", marginTop: "10px", marginBottom: "5px"}} key={index}>{item.text}</p>
-          ))
-        }
-        {/* <Button variant="secondary" onClick={() => applyGrammar()}>Apply</Button> */}
-        {/* style={{position: "absolute", left: ((12-divWidth)/12)*window.innerWidth+((divWidth/12)*window.innerWidth/2)-225, top: window.innerHeight-80}} */}
-        <input type="text" id={inputId} name="searchBar" placeholder='Search place' style={{position: "absolute", left: ((divWidth/12)*window.innerWidth)/2-225}}></input>
-        <div style={{textAlign: "left", paddingLeft: 0, width: "200px", marginLeft: "20px"}}>
-            <Button variant="secondary" id={applyGrammarButtonId}>Apply Grammar</Button>
-            <input name="linkMapAndGrammar" type="checkbox" id={linkMapAndGrammarId} style={{margin: "8px"}}></input>
-            <label htmlFor="linkMapAndGrammar">Link</label>
+            <Col md={4} style={{padding: 0, margin: "auto", height: "160px"}}>
+              <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                <Button variant="secondary" id={applyGrammarButtonId} style={{marginRight: "10px"}}>Apply Grammar</Button>
+                <input name="linkMapAndGrammar" type="checkbox" id={linkMapAndGrammarId} style={{marginRight: "5px"}}></input>
+                <label htmlFor="linkMapAndGrammar">Link</label>
+              </div>
+            </Col>
+
+            <Col md={4} style={{padding: 0, margin: 0, height: "160px"}}>
+                {
+                  systemMessages.map((item, index) => (
+                      <p style={{color: item.color, width: ((divWidth/12)*window.innerWidth)/3, textAlign: "center", fontWeight: "bold", marginTop: "18px", marginBottom: "5px", position: "absolute"}} key={index}>{item.text}</p>
+                  ))
+                } 
+              <div className="d-flex flex-column align-items-center justify-content-center" style={{height: "160px"}}>
+                <input type="text" id={inputId} name="searchBar" placeholder='Search place' style={{width: "100%"}}></input>
+              </div>
+            </Col>
+
+            <Col md={4} style={{padding: 0, margin: 0, height: "160px"}}>
+              <Row style={{padding: 0, margin: 0}}>
+                <Col md={6} style={{padding: 0, margin: 0}}>
+                  <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                    <VisWidget 
+                        genericScreenPlotToggle = {genericScreenPlotToggle}
+                        addGenericPlot = {addGenericPlot}
+                        removeGenericPlot = {removeGenericPlot}
+                        togglePlotCollection = {togglePlotCollection}
+                        listPlots = {listPlots}
+                        modifyLabelPlot = {modifyLabelPlot}
+                        modifyEditingState = {modifyEditingState}
+                      />
+                  </div>
+                </Col>
+                
+                <Col md={6} style={{padding: 0, margin: 0}}> 
+                  <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                    <LayersWidget 
+                      listLayers = {listLayers}
+                      layerToggle = {(id: string) => app.map.toggleLayer(id)}                      
+                    />
+                  </div>
+                </Col>
+              </Row>
+            </Col>
+
+          </Row>
+
         </div>
-        <VisWidget 
-            genericScreenPlotToggle = {genericScreenPlotToggle}
-            addGenericPlot = {addGenericPlot}
-            removeGenericPlot = {removeGenericPlot}
-            togglePlotCollection = {togglePlotCollection}
-            listPlots = {listPlots}
-            modifyLabelPlot = {modifyLabelPlot}
-            modifyEditingState = {modifyEditingState}
-          />
-      </div>
-    </Row>
+
+      </Row>
         
 
     </React.Fragment>

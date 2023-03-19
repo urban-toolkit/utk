@@ -61,34 +61,15 @@ export const VisWidget = ({
     }
 
     return (
-    // <Row style={{padding: 0, margin: 0}}>
-        <div style={{marginLeft: "auto", marginRight: "auto", width: "200px", marginTop: "10px", textAlign: "center", marginBottom: "10px"}}>
-            {
-                /* button for vis, clicking on it will open the list of visualizations supported */
-            }
-            <Button id="space" style={{margin: 0}} variant="outline-secondary" onClick={() => setVisOpen(!visOpen)} aria-controls="example-collapse-text" aria-expanded={visOpen}>
-                <FaChartBar /> Plots
-            </Button>
-            {/* <Button id="space" variant="outline-secondary" onClick={togglePlotCollection}>
-                <FaChartBar /> Plot Collection
-            </Button> */}
-            {
-            /* list of visualizations */
-            }
-            <Collapse in={visOpen} dimension="width">
-                <div>
-                    {
-                        listPlots.map((item) => (
-                            <div key={"genericPlotsDiv"+item.id} className={"flex-div-genericPlots"}>
-                                <Form.Check className={item.edit? "hidden-element" : ""} key={item.id} type="checkbox" label={item.label}  onChange={() => handleGenericScreenPlotCheckBoxChange(item.id)}/> 
-                                <input style={{width: '60px', display: item.edit? 'block' : 'none'}} key={"labelInput"+item.id} type="text" value={item.label} onChange={(event) => handleLabelEdit(event,item.id)}/> 
-                                <Button key={"genericPlotEdit"+item.id} style={{paddingTop: 0}} onClick={() => toggleEditing(item.id)} variant="link"><FaEdit /></Button>
-                                {/* <Button key={"genericPlotRemove"+item.id} onClick={() => removeGenericPlotCheck(item.id)} variant="link"><FaRegTrashAlt /></Button> */}
-                            </div>
-                        ))
-                    }
-                </div>
-            </Collapse>
+        <div style={{maxHeight: "60%", overflowY: "auto", padding: "5px"}}>
+                {
+                    listPlots.map((item) => (
+                        <div key={"genericPlotsDiv"+item.id} className={"flex-div-genericPlots"}>
+                            <Form.Check className={item.edit? "hidden-element" : ""} key={item.id} type="checkbox" label={item.label}  onChange={() => handleGenericScreenPlotCheckBoxChange(item.id)}/> 
+                            <input style={{width: '60px', display: item.edit? 'block' : 'none'}} key={"labelInput"+item.id} type="text" value={item.label} onChange={(event) => handleLabelEdit(event,item.id)}/> 
+                        </div>
+                    ))
+                }
         </div>
     );
 }

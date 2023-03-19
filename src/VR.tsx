@@ -20,12 +20,13 @@ const VR = () => {
     return (
       <Container fluid>
         {/* map view */}
-        <MapViewer 
+        {/* TODO: work on VR interface */}
+        {/* <MapViewer 
         // variable contains which city data to load
           dataToView = {cityRef}
           divWidth = {12}
           frontEndMode = {'vr'}
-        />
+        /> */}
       </Container>
     );
   }
