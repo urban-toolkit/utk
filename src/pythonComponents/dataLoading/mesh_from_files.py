@@ -58,9 +58,12 @@ def mesh_from_csv(filepath, geometry_column='geometry', crs='4326'):
 
     break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"])
 
-def mesh_from_geojson(filepath):
+def mesh_from_geojson(filepath, bbox = None):
 
     gdf = gpd.read_file(filepath)
+
+    if(bbox != None):
+        gdf = gdf.cx[bbox[0]:bbox[2], bbox[1]:bbox[3]]
 
     mesh = mesh_from_gdf(gdf)
 
