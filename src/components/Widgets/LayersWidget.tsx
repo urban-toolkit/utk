@@ -27,7 +27,9 @@ export const LayersWidget = ({
     const toggleLayerChecked = (id:string) => {
         let newObject:any = {};
         
-        for(const key of Object.keys(layersChecked)){
+        let layersCheckedKeys = Object.keys(layersChecked);
+
+        for(const key of layersCheckedKeys){
             if(key != id){
                 newObject[key] = layersChecked[key];  
             }else{

@@ -204,7 +204,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         linkMapAndGrammarId = {"linkMapAndGrammar"}
       />
       {/* map view */}
-      <MapViewer 
+      {/* <MapViewer 
         dataToView = {'none'}
         divWidth = {9}
         d3App = {d3App}
@@ -220,7 +220,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         modifyLabelPlot = {modifyLabelPlot}
         modifyEditingState = {modifyEditingState}
         linkMapAndGrammarId = {"linkMapAndGrammar"}
-      />
+      /> */}
 
       {
         genericPlots.map((item) => (
