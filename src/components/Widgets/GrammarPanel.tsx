@@ -17,6 +17,7 @@ const params = require('../../pythonServerConfig.json');
 // declaring the types of the props
 type GrammarPanelProps = {
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
+    filterKnots: number[],
     inputId: string,
     setCamera: any,
     addNewMessage: any,
@@ -26,6 +27,7 @@ type GrammarPanelProps = {
 
 export const GrammarPanelContainer = ({
     camera,
+    filterKnots,
     inputId,
     setCamera,
     addNewMessage,
@@ -149,9 +151,9 @@ export const GrammarPanelContainer = ({
         let sendGrammar = '';
         if(d3.select('#'+linkMapAndGrammarId).property("checked")){
             if(tempGrammarStateRef.current == ''){
-                sendGrammar = addCamera(grammarStateRef.current, camera);
+                sendGrammar = addCameraAndFilter(grammarStateRef.current, camera, filterKnots);
             }else{
-                sendGrammar = addCamera(tempGrammarStateRef.current, camera);
+                sendGrammar = addCameraAndFilter(tempGrammarStateRef.current, camera, filterKnots);
             }
         }else{
             if(tempGrammarStateRef.current == ''){
@@ -182,25 +184,31 @@ export const GrammarPanelContainer = ({
        
     }
 
-    const addCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
+    const addCameraAndFilter = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, filterKnots: number[]) => {
         
         if(grammar == ''){
             return ''
         }
 
-        if(camera.position.length == 0){
+        if(camera.position.length == 0 && filterKnots.length == 0){
             return grammar
         }
 
         let parsedGrammar = JSON.parse(grammar);
 
-        parsedGrammar.views[0].map.camera = camera;
+        if(camera.position.length != 0)
+            parsedGrammar.views[0].map.camera = camera;
+
+        if(filterKnots.length != 0)
+            parsedGrammar.views[0].map.filterKnots = filterKnots;
+        else if(parsedGrammar.views[0].map.filterKnots != undefined)
+            delete parsedGrammar.views[0].map.filterKnots
 
         return JSON.stringify(parsedGrammar, null, 4);
     }
 
-    const updateLocalNominatim = (camera: { position: number[], direction: { right: number[], lookAt: number[], up: number[] } }) => {
-        setTempGrammar(addCamera(grammarStateRef.current, camera)); // overwrite previous changes with grammar integrated with camera
+    const updateLocalNominatim = (camera: { position: number[], direction: { right: number[], lookAt: number[], up: number[] } }, filterKnots: number[]) => {
+        setTempGrammar(addCameraAndFilter(grammarStateRef.current, camera, filterKnots)); // overwrite previous changes with grammar integrated with camera and filter knots
     }
     
     const updateCameraNominatim = (place: string) => {
@@ -212,7 +220,7 @@ export const GrammarPanelContainer = ({
 
             let responseJson = await response.json();
 
-            updateLocalNominatim(responseJson);
+            updateLocalNominatim(responseJson, filterKnots);
             setCamera(responseJson);
             d3.select("#linkMapAndGrammar").property("checked", true);
         })
@@ -260,7 +268,7 @@ export const GrammarPanelContainer = ({
 
     }, []);
 
-    const checkIfAddCamera = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, tempGrammar: string) => {
+    const checkIfAddCameraAndFilter = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, tempGrammar: string, filterKnots: number[]) => {
 
         let inputLink = d3.select("#linkMapAndGrammar")
         
@@ -280,7 +288,7 @@ export const GrammarPanelContainer = ({
         let mapAndGrammarLinked = inputLink.property("checked");
 
         if(mapAndGrammarLinked){
-            let mergedGrammar = addCamera(grammar, camera);
+            let mergedGrammar = addCameraAndFilter(grammar, camera, filterKnots);
 
             if(mergedGrammar != ''){
                 returnedGrammar.json = JSON.parse(mergedGrammar);
@@ -330,7 +338,7 @@ export const GrammarPanelContainer = ({
                             <div className="my-editor" style={{height: "100vh", overflow: "auto", fontSize: "24px"}}>
                             {/* <div className="my-editor"> */}
                                 <VanillaJSONEditor
-                                content={checkIfAddCamera(grammar, camera, tempGrammar)}
+                                content={checkIfAddCameraAndFilter(grammar, camera, tempGrammar, filterKnots)}
                                 readOnly={readOnly}
                                 onChange={updateGrammarContent}
                                 mode={'text'}

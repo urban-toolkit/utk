@@ -38,6 +38,7 @@ function App() {
   const [plotCollectionList, setPlotCollectionList] = useState<{id: number, content: string}[]>([]);
   const [currentPlotId, setCurrentPlotId] = useState(0)
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
+  const [filterKnots, setFilterKnots] = useState<number[]>([]);
   const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
   const [layersIds, setLayersIds] = useState<string[]>([]);
   let inputBarId = "searchBar";
@@ -73,6 +74,10 @@ function App() {
 
   const updateCamera = (cameraData: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}) => {
     setCamera(cameraData);
+  }
+
+  const updateFilterKnots = (filterKnots: number[]) => {
+    setFilterKnots(filterKnots);
   }
 
   const linkedContainerGenerator = (n: number, names: string[] = []) => {
@@ -218,6 +223,7 @@ function App() {
         {/* widgets component */}
         <WidgetsComponent
           camera = {camera}
+          filterKnots = {filterKnots}
           inputId = {inputBarId}
           setCamera = {setCameraPosMap}
           addNewMessage = {addNewMessage}
@@ -233,6 +239,7 @@ function App() {
             d3App = {d3App}
             linkedContainerGenerator = {linkedContainerGenerator}
             cameraUpdateCallback = {updateCamera}
+            filterKnotsUpdateCallback = {updateFilterKnots}
             inputId = {inputBarId}
             systemMessages = {systemMessages}
             applyGrammarButtonId = {"applyGrammarButton"}

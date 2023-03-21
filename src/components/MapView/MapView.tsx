@@ -31,12 +31,12 @@ var app: any;
 // Mapview Application Class
 class App {
   _map: any;
-  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, listLayersCallback: any | null = null) {
+  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null) {
     const mapDiv = document.querySelector(div);
 
     if(d3App){
       this._map = MapViewFactory.getInstance();
-      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback, listLayersCallback);
+      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
     }else{
       this._map = MapViewFactory.getInstance();
       this._map.resetMap(mapDiv);
@@ -85,6 +85,7 @@ type mapViewDataProps = {
   d3App?: any,
   linkedContainerGenerator?: any,
   cameraUpdateCallback?: any,
+  filterKnotsUpdateCallback?: any,
   inputId?: string
 }
 
@@ -93,6 +94,7 @@ class MapConfig {
   public static d3App: any | undefined;
   public static linkedContainerGenerator: any;
   public static cameraUpdateCallback: any;
+  public static filterKnotsUpdateCallback: any;
   public static listLayersCallback: any;
 }
 
@@ -100,7 +102,7 @@ export const createAndRunMap = () => {
 
   $('#map').empty();
 
-  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback, MapConfig.listLayersCallback);
+  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback, MapConfig.filterKnotsUpdateCallback, MapConfig.listLayersCallback);
       
   let port;
 
@@ -123,12 +125,13 @@ export const emptyMap = () => {
   $('#map').empty();
 }
  
-export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, listLayers, listLayersCallback, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, inputId}:mapViewDataProps) => {
+export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, listLayers, listLayersCallback, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, inputId}:mapViewDataProps) => {
 
   MapConfig.frontEndMode = frontEndMode;
   MapConfig.d3App = d3App;
   MapConfig.linkedContainerGenerator = linkedContainerGenerator;
   MapConfig.cameraUpdateCallback = cameraUpdateCallback;
+  MapConfig.filterKnotsUpdateCallback = filterKnotsUpdateCallback;
   MapConfig.listLayersCallback = listLayersCallback;
 
   useEffect(()=> {

@@ -195,14 +195,14 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
     <Container fluid>
       <Row>
         {/* widgets component */}
-      <WidgetsComponent
+      {/* <WidgetsComponent
         camera = {camera}
         inputId = {inputBarId}
         setCamera = {setCameraPosMap}
         addNewMessage = {addNewMessage}
         applyGrammarButtonId = {"applyGrammarButton"}
         linkMapAndGrammarId = {"linkMapAndGrammar"}
-      />
+      /> */}
       {/* map view */}
       {/* <MapViewer 
         dataToView = {'none'}

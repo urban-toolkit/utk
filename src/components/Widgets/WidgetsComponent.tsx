@@ -11,6 +11,7 @@ import { GrammarPanelContainer } from "./GrammarPanel";
 // value types that are being passed in the function parameter
 type widgetProps = {
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
+    filterKnots: number[],
     inputId: string,
     setCamera: any,
     addNewMessage: any,
@@ -32,6 +33,7 @@ type widgetProps = {
  */
 export const WidgetsComponent = ({
     camera,
+    filterKnots,
     inputId,
     setCamera,
     addNewMessage,
@@ -53,6 +55,7 @@ export const WidgetsComponent = ({
             /> */}
             <GrammarPanelContainer 
                 camera = {camera}
+                filterKnots = {filterKnots}
                 inputId = {inputId}
                 setCamera = {setCamera}
                 addNewMessage = {addNewMessage}

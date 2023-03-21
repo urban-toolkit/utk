@@ -123,7 +123,7 @@ def layer_from_mesh(filepath, type, renderStyle, styleKey):
         "renderStyle": renderStyle,
         "styleKey": styleKey,
         "visible": True,
-        "selectable": False,
+        "selectable": True,
         "skip": False,
         "data": data
     }
