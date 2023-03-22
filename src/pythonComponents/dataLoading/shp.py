@@ -3,7 +3,7 @@
 '''
 
 import geopandas as gpd
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 import json
 import mapbox_earcut as earcut
 import numpy as np
@@ -42,7 +42,7 @@ def break_into_binary(filepath, filename, data, types, dataTypes):
         with open(os.path.join(filepath,filename+".json"), "w") as outfile:
             outfile.write(json_object)
 
-def generateLayerFromShp(filepath, bbox, layerName, styleKey):
+def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
     '''
         In the same folder as the .shp file there must be a .prj and .shx files   
 
@@ -53,14 +53,22 @@ def generateLayerFromShp(filepath, bbox, layerName, styleKey):
         Returns gdf in 3395
     '''
 
-    bbox_series_4326 = gpd.GeoSeries([Point(bbox[1], bbox[0]), Point(bbox[3], bbox[2])], crs=4326)
-    
-    loaded_shp = gpd.read_file(filepath, bbox=bbox_series_4326)
+    if(isBbox):
+        bbox_series_4326 = gpd.GeoSeries([Point(bpoly[1], bpoly[0]), Point(bpoly[3], bpoly[2])], crs=4326)
+        
+        loaded_shp = gpd.read_file(filepath, bbox=bbox_series_4326)
 
-    bbox_series_4326 = bbox_series_4326.to_crs(3395)
+        bbox_series_4326 = bbox_series_4326.to_crs(3395)
 
-    loaded_shp = loaded_shp.to_crs(3395)
-    loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
+        loaded_shp = loaded_shp.to_crs(3395)
+        loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
+    else:
+        bpoly_series_4326 = gpd.GeoSeries([Polygon(bpoly)], crs=4326)
+        bpoly_series_4326 = bpoly_series_4326.to_crs(3395)
+
+        loaded_shp = gpd.read_file(filepath)
+        loaded_shp = loaded_shp.to_crs(3395)
+        loaded_shp = loaded_shp.clip(bpoly_series_4326)
 
     zip_code_name = []
     zip_code_coordinates = []

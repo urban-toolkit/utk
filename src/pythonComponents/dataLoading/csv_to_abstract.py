@@ -32,7 +32,10 @@ def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude
         if(len(z_list) > 0):
             z_value = z_list[index]
 
-        coordinates.append([point[0], point[1], z_value])
+        coordinates.append(point[0])
+        coordinates.append(point[1])
+        coordinates.append(z_value)
+
 
     abstract_json = {
         "id": layer_id,
