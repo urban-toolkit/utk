@@ -187,11 +187,11 @@ export const GrammarPanelContainer = ({
     const addCameraAndFilter = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, filterKnots: number[]) => {
         
         if(grammar == ''){
-            return ''
+            return '';
         }
 
         if(camera.position.length == 0 && filterKnots.length == 0){
-            return grammar
+            return grammar;
         }
 
         let parsedGrammar = JSON.parse(grammar);
