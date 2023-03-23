@@ -113,8 +113,8 @@ class D3App {
         let texCanvas = document.createElement("canvas");
 
         texCanvas.className = "texCanvas";
-        texCanvas.width = 300;
-        texCanvas.height = 300;
+        texCanvas.width = 250;
+        texCanvas.height = 250;
         texCanvas.style.top = (10+((20*imageIndex)+(texCanvas.width*imageIndex)))+"px";
         texCanvas.style.right = "54px";
 

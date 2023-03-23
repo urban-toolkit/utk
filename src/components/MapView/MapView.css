@@ -17,11 +17,12 @@
     /* top: 30px;
     right: 54px; */
     z-index: 2;
-    border: 2px solid black;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.35);
+    /* border: 2px solid black; */
 }
 
 #searchBar {
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     border-radius: 8px 8px 8px 8px;
     border: 1px solid #dadce0;
     background-color: #fff;

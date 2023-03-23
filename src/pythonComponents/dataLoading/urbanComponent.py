@@ -234,8 +234,6 @@ class UrbanComponent:
         
             An aggregation function must be specified: avg, max, min, sum. The aggregation function will only be used when there is more than one match
 
-            Levels supported: coordinates, coordinates3d. They are the same for the abstract and physical layers
-
             When an abstract layer is merged with a physical layer the joinedObjects are the attribute values and not ids of joined elements
         '''
 
@@ -467,8 +465,12 @@ class UrbanComponent:
 
         if(abstract): # agregate values
             for i in range(len(left_layer_joined_json['joinedObjects'][replace]['otherValues'])):
+
+                if(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] == None):
+                    left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = [0] # TODO: let the user defined default value
+
                 if(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] != None):
-                    if(len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i]) == 1 or aggregation == 'discard'):
+                    if(aggregation == 'discard'):
                         left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = left_layer_joined_json['joinedObjects'][replace]['otherValues'][i][0]
                     elif(aggregation == 'max'):
                         left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = max(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
@@ -478,6 +480,8 @@ class UrbanComponent:
                         left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
                     elif(aggregation == 'avg'):
                         left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])/len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
+                    elif(aggregation == 'count'):
+                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
 
         if(id_left_layer+"_joined" not in self.joinedJson):
             self.joinedJson[id_left_layer+"_joined"] = left_layer_joined_json
