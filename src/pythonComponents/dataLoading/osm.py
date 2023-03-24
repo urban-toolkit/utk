@@ -220,9 +220,9 @@ class OSM:
 
             proc = subprocess.call(['wsl', 'osmium', 'extract', '-b', aux, '-o', output_file, '--overwrite', pbf_filepath], shell=True) # TODO: make it not depend on the OS
 
-            loaded = OSM.get_osm(bbox, True, layers, True, output_file)
+            loaded = OSM.get_osm(bbox, True, layers, False, output_file)
         else:
-            loaded = OSM.get_osm(bbox, True, layers, True)
+            loaded = OSM.get_osm(bbox, True, layers, False)
 
         component = UrbanComponent(layers = loaded, bpolygon = bbox, camera = cam)
 
@@ -975,8 +975,8 @@ class OSM:
 
         print("generating building layers (osm_to_building_mesh)")
 
-        layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, -1) #gdf, size
-        # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
+        # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, -1) #gdf, size
+        layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 5) #gdf, size
         # layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, 10) #gdf, size
 
         print("building layers generated (osm_to_building_mesh)")
