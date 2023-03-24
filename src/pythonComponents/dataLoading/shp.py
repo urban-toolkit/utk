@@ -67,6 +67,7 @@ def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
         bpoly_series_4326 = bpoly_series_4326.to_crs(3395)
 
         loaded_shp = gpd.read_file(filepath)
+
         loaded_shp = loaded_shp.to_crs(3395)
         loaded_shp = loaded_shp.clip(bpoly_series_4326)
 

@@ -483,8 +483,8 @@ class UrbanComponent:
                     elif(aggregation == 'count'):
                         left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
 
-        if(id_left_layer+"_joined" not in self.joinedJson):
-            self.joinedJson[id_left_layer+"_joined"] = left_layer_joined_json
+        # if(id_left_layer+"_joined" not in self.joinedJson):
+        self.joinedJson[id_left_layer+"_joined"] = left_layer_joined_json
 
         return join_left_gdf
 
