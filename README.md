@@ -6,7 +6,7 @@
  
 2. Virtual environment  
 
-Tested Python version '3.10.6'  
+Tested Python version '3.10.6'. Tested OS: Windows. pip version: '22.2.2'
 
 - The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
 - After installing anaconda run:
