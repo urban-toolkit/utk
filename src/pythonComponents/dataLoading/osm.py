@@ -222,7 +222,7 @@ class OSM:
 
             loaded = OSM.get_osm(bbox, True, layers, False, output_file)
         else:
-            loaded = OSM.get_osm(bbox, True, layers, False)
+            loaded = OSM.get_osm(bbox, True, layers, True)
 
         component = UrbanComponent(layers = loaded, bpolygon = bbox, camera = cam)
 
@@ -1510,7 +1510,9 @@ class OSM:
         flat_coordinates = geometry[0]['geometry']['coordinates']
         grouped_coordinates = np.reshape(np.array(flat_coordinates), (int(len(flat_coordinates)/3), -1))
 
-        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 5)
+        # coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 5)
+        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 50)
+
 
         mesh = [{
             'geometry': {

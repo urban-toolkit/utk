@@ -361,7 +361,10 @@ class Buildings:
 
         cid = -1
         count = 0
-        for poly in polys:   
+        # for poly in polys:   
+        for i in trange(len(polys)):   
+
+            poly = polys[i]
 
             mrr = poly.minimum_rotated_rectangle
             
@@ -385,7 +388,11 @@ class Buildings:
                         new_cell = box(x0, y0, x1, y1)
                         cells.append(new_cell)
 
+            print("before overlay")
+
             intersection = gpd.overlay(gpd.GeoDataFrame({'geometry': gpd.GeoSeries(poly)}), gpd.GeoDataFrame({'geometry': gpd.GeoSeries(cells)}),how='intersection',keep_geom_type=True)
+
+            print("after overlay")
 
             # # collecting width data while the plane is aligned with x and y
             # for elem in intersection.values:
@@ -406,7 +413,11 @@ class Buildings:
 
             cells = intersection.rotate(-rot, origin=(0,0)).values
 
-            for cell in cells:
+            # for cell in cells:
+            for j in trange(len(cells)):
+
+                cell = cells[j]
+
                 ccell = []
                 if cell.geom_type == 'MultiPolygon':
                     ccell = list(cell)
