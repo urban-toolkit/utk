@@ -428,6 +428,7 @@ class OSM:
             transformed_line = transform(project, invertedLine)
 
             buffer_line = transformed_line.buffer(2) # in meters
+            # buffer_line = transformed_line.buffer(7.5) # in meters
 
             geometries.append(buffer_line)
 
@@ -1510,8 +1511,8 @@ class OSM:
         flat_coordinates = geometry[0]['geometry']['coordinates']
         grouped_coordinates = np.reshape(np.array(flat_coordinates), (int(len(flat_coordinates)/3), -1))
 
-        # coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 5)
-        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 50)
+        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 5)
+        # coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 50)
 
 
         mesh = [{

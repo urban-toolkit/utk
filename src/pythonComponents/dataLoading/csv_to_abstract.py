@@ -11,6 +11,8 @@ def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude
     
     df = pd.read_csv(filepath)
 
+    df = df.drop_duplicates(subset=[latitude_column, longitude_column])
+
     latitude_list = df[latitude_column].tolist()
     longitude_list = df[longitude_column].tolist()
     values_list = df[value_column].tolist()

@@ -45,7 +45,7 @@ def serve_linkLayers():
     maxDistance = None
 
     if("maxDistance" in request.args):
-        maxDistance = request.args.get('maxDistance')
+        maxDistance = float(request.args.get('maxDistance'))
 
     if(maxDistance != None and predicate.upper() != 'NEAREST'):
         abort(400, "Max distance can only be used with the NEAREST predicate")
@@ -53,7 +53,7 @@ def serve_linkLayers():
     defaultValue = 0
 
     if("defaultValue" in request.args):
-        defaultValue = request.args.get('defaultValue')
+        defaultValue = float(request.args.get('defaultValue'))
 
     uc = UrbanComponent()
 
