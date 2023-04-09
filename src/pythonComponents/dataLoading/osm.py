@@ -428,6 +428,7 @@ class OSM:
             transformed_line = transform(project, invertedLine)
 
             buffer_line = transformed_line.buffer(2) # in meters
+            # buffer_line = transformed_line.buffer(7.5) # in meters
 
             geometries.append(buffer_line)
 
