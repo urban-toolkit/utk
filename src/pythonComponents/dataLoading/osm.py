@@ -1511,8 +1511,8 @@ class OSM:
         grouped_coordinates = np.reshape(np.array(flat_coordinates), (int(len(flat_coordinates)/3), -1))
 
         # coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 5)
-        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 50)
-
+        # coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 50)
+        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 4161.57153997)
 
         mesh = [{
             'geometry': {
