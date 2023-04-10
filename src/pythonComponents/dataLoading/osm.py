@@ -232,7 +232,7 @@ class OSM:
         
         cam = utils.get_camera(bpolygon)
 
-        loaded = OSM.get_osm(bpolygon, False, layers, False)
+        loaded = OSM.get_osm(bpolygon, False, layers, True)
 
         component = UrbanComponent(layers = loaded, bpolygon = bpolygon, camera = cam)
 

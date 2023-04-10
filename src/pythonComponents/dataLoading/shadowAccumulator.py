@@ -36,9 +36,11 @@ class ShadowAccumulator:
     coords_per_file = [] # stores the number of coordinates per file to write the shadow data back to the correct files
     coords_before_transformation = []
     per_face_avg_accum = []
+    latitude = 0
+    longitude = 0
 
     # def __init__(self, filespaths, start, end, season):
-    def __init__(self, filespaths, intervals, season):
+    def __init__(self, latitude, longitude, filespaths, intervals, season):
 
         '''
             All meshes must be 3D
@@ -60,6 +62,9 @@ class ShadowAccumulator:
         # self.start = datetime.strptime(start, "%m/%d/%Y %H:%M")
         # self.end = datetime.strptime(end, "%m/%d/%Y %H:%M")
         self.season = season
+
+        self.latitude = latitude
+        self.longitude = longitude
 
     def computeVector(self, alt, azm):
         alt = math.pi*alt/180.0
@@ -332,7 +337,7 @@ class ShadowAccumulator:
         self.flat_coords = [float(elem) for sublist in self.coords_before_transformation for elem in sublist]
 
         for index, interval in enumerate(self.intervals):
-            accum = self.accumulate(interval[0], interval[1], 0, 0, self.coords, self.indices, self.normals, 15)
+            accum = self.accumulate(interval[0], interval[1], self.latitude, self.longitude, self.coords, self.indices, self.normals, 15)
 
             self.per_face_avg_accum = self.per_face_avg(accum, self.indices, self.ids, self.ids_per_structure) # accumulation per triangle
             avg_accumulation_per_coordinates = self.per_coordinates_avg(self.per_face_avg_accum, self.coords, self.indices) # accumulation per vertice

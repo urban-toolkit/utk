@@ -38,11 +38,10 @@ def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude
         coordinates.append(point[1])
         coordinates.append(z_value)
 
-
     abstract_json = {
         "id": layer_id,
         "coordinates": coordinates,
-        "values": values_list
+        "values": [int(elem) for elem in values_list]
     }
 
     json_object = json.dumps(abstract_json)
