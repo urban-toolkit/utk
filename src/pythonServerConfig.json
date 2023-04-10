@@ -2,6 +2,6 @@
     "paramsPythonServer": {
         "environmentIP": "localhost",
         "port": "3002",
-        "environmentDataFolder": "public/data/chicago_timesteps_fixed"
+        "environmentDataFolder": "public/data/wrf"
     }
 }

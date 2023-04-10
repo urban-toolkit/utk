@@ -220,9 +220,9 @@ class OSM:
 
             proc = subprocess.call(['wsl', 'osmium', 'extract', '-b', aux, '-o', output_file, '--overwrite', pbf_filepath], shell=True) # TODO: make it not depend on the OS
 
-            loaded = OSM.get_osm(bbox, True, layers, False, output_file)
+            loaded = OSM.get_osm(bbox, True, layers, output_file)
         else:
-            loaded = OSM.get_osm(bbox, True, layers, True)
+            loaded = OSM.get_osm(bbox, True, layers)
 
         component = UrbanComponent(layers = loaded, bpolygon = bbox, camera = cam)
 
@@ -232,7 +232,7 @@ class OSM:
         
         cam = utils.get_camera(bpolygon)
 
-        loaded = OSM.get_osm(bpolygon, False, layers, True)
+        loaded = OSM.get_osm(bpolygon, False, layers)
 
         component = UrbanComponent(layers = loaded, bpolygon = bpolygon, camera = cam)
 
@@ -252,7 +252,7 @@ class OSM:
         else:
             return OSM.load_from_bbox(bbox, layers)
 
-    def get_osm(bpolygon, bbox=False, layers=['parks','water','roads','buildings'], load_surface = True, pbf_filepath=None):
+    def get_osm(bpolygon, bbox=False, layers=['parks','water','roads','buildings'], pbf_filepath=None):
 
         '''
             Request data to OSM API using overpass and builds meshes for each loaded data from the result
@@ -262,8 +262,6 @@ class OSM:
                 bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
                 layers (string[]): Name of the layers that will be loaded. Possible values: parks, water, costline, roads, buildings. If buildings are used it must be the last layer to ensure correct rendering.
                     (default is ['parks', 'water', 'roads','buildings'])
-                load_surface (boolean): Indicates if the surface should be loaded
-                    (default is True)
                 filepath (string): Location of the pbf file to load. This argument is optional. If provided the data will be loaded from the pbf instead of the OSM API
                     (default is None)
 
@@ -276,7 +274,15 @@ class OSM:
 
         overpass_responses = {}
 
-        for layer in layers:
+        for layer_obj in layers:
+
+            layer = ''
+
+            if isinstance(layer_obj, str):
+                layer = layer_obj
+            else:
+                layer = layer_obj['name']
+
             if layer == 'surface':
                 continue
             
@@ -322,10 +328,41 @@ class OSM:
         renderStyle = []
         selectable = ''
 
-        for layer in layers:
+        for layer_obj in layers:
+
+            layer = ''
+            args = {}
+
+            if isinstance(layer_obj, str):
+                layer = layer_obj
+            else:
+                layer = layer_obj['name']
+                args = layer_obj['args']
+
             if layer == 'surface':
-                continue
-            if layer == 'buildings':
+                print("creating surface")
+
+                nCells = -1
+                sizeCells = -1
+
+                if 'nCells' in args:
+                    nCells = args['nCells']
+                
+                if 'sizeCells' in args:
+                    sizeCells = args['sizeCells']
+
+                layer_geometry = OSM.create_surface_mesh(bpoly, bbox, nCells, sizeCells)
+                print("create_surface_mesh finished")
+                geometry = layer_geometry['data']
+                result_gdf_objects.append(layer_geometry['gdf']['objects'])
+                result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
+                result_gdf_coordinates_3d.append(layer_geometry['gdf']['coordinates'])
+                # result.append({'id': 'surface', 'type': "HEATMAP_LAYER", 'renderStyle': ['FLAT_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
+                ttype = 'HEATMAP_LAYER'
+                styleKey = 'surface'
+                renderStyle = ['FLAT_COLOR']
+                selectable = False
+            elif layer == 'buildings':
                 layer_geometry = OSM.osm_to_building_mesh(overpass_responses[layer], bpoly, bbox)
                 print("osm_to_building_mesh finished")
                 geometry = layer_geometry['data']
@@ -372,16 +409,6 @@ class OSM:
 
             result.append({'id': layer, 'type': ttype, 'renderStyle': renderStyle, 'styleKey': styleKey, 'visible': True, 'selectable': selectable, 'skip': False, 'data': geometry})
         
-        if load_surface:
-            print("creating surface")
-            layer_geometry = OSM.create_surface_mesh(bpoly, bbox)
-            print("create_surface_mesh finished")
-            geometry = layer_geometry['data']
-            result_gdf_objects.insert(0,layer_geometry['gdf']['objects'])
-            result_gdf_coordinates.insert(0, layer_geometry['gdf']['coordinates'])
-            result_gdf_coordinates_3d.insert(0, layer_geometry['gdf']['coordinates'])
-            result.insert(0,{'id': 'surface', 'type': "HEATMAP_LAYER", 'renderStyle': ['FLAT_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
-
         return {'json': result, 'gdf': {'objects': result_gdf_objects, 'coordinates': result_gdf_coordinates, 'coordinates3d': result_gdf_coordinates_3d}}
 
     def osm_to_roads_polyline(osm_elements, bpoly, bbox):
@@ -1478,17 +1505,22 @@ class OSM:
 
         return coordinates, indices, ids, normals
 
-    def create_surface_mesh(bpoly, bbox):
+    def create_surface_mesh(bpoly, bbox, nCells = -1, sizeCells = -1):
         '''
             Creates the surface mesh that covers the bounding box
 
             Args:
                 bpoly (float[]): coordinates of bounding polygon
                 bbox: if bpoly follows the format [minLat, minLng, maxLat, maxLng]
+                sizeCells (number): if sizeCells is not specified and bbox is not a square the size of the cells will be defined according to the biggest side
+                nCells (number): infered from sizeCells if not specified
             Returns:
                 mesh (object): A json object describing the geometry of the layer
         '''
         
+        if(nCells != -1 and sizeCells != -1):
+            raise Exception("It is only possible to specify nCells or sizeCells not both")
+
         if(bbox):
             nodes = [bpoly[0],bpoly[1], bpoly[2],bpoly[1], bpoly[2],bpoly[3], bpoly[0],bpoly[3]]
         else:
@@ -1511,9 +1543,16 @@ class OSM:
         flat_coordinates = geometry[0]['geometry']['coordinates']
         grouped_coordinates = np.reshape(np.array(flat_coordinates), (int(len(flat_coordinates)/3), -1))
 
-        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 5)
-        # coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, 50)
+        finalSize = sizeCells
 
+        if(finalSize == -1):
+            if(nCells == -1):
+                # default are cells of size 5 meters
+                finalSize = 5
+            else:
+                finalSize = max(abs(bbox[2] - bbox[0])/nCells, abs(bbox[3] - bbox[1])/nCells)
+
+        coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, finalSize)
 
         mesh = [{
             'geometry': {
