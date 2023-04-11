@@ -232,6 +232,10 @@ def serve_addRenderStyles():
 
     return ''
 
+@app.route('/writeImpactViewData', methods=['POST'])
+def writeImpactViewData():
+    
+
 
 @app.route('/updateGrammar', methods=['POST'])
 def serve_updateGrammar():

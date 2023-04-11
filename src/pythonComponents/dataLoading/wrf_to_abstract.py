@@ -19,10 +19,10 @@ def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longi
     ncfile = Dataset(filepath)
 
     ## Data coords
-    xlong = ncfile.variables[longitude_variable][0]
-    xlat = ncfile.variables[latitude_variable][0]
+    xlong = ncfile.variables[longitude_variable][12]
+    xlat = ncfile.variables[latitude_variable][12]
     ## Data var
-    temp = ncfile.variables[value_variable][0]
+    temp = ncfile.variables[value_variable][12]
 
     mask_values = []
 
