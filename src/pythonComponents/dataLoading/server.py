@@ -238,7 +238,7 @@ def writeImpactViewData():
     impactData = request.json['data']
 
     with open(os.path.join(workDir,"impactView.json"), "w", encoding="utf-8") as f:
-        f.write(impactData)
+        f.write(json.dumps(impactData))
 
     return ''
 
