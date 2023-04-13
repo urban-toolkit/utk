@@ -235,6 +235,12 @@ def serve_addRenderStyles():
 @app.route('/writeImpactViewData', methods=['POST'])
 def writeImpactViewData():
     
+    impactData = request.json['data']
+
+    with open(os.path.join(workDir,"impactView.json"), "w", encoding="utf-8") as f:
+        f.write(impactData)
+
+    return ''
 
 
 @app.route('/updateGrammar', methods=['POST'])
