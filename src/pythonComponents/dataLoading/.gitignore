@@ -1,11 +1,5 @@
 __pycache__
-osm_pbf_files
 data
-buildings_nyc.pkl.zip
-buildings.pkl.zip
-buildings_nyc_1.pkl.zip
-buildings_nyc_3395.pkl.zip
 uc_data
 urbantk_cache
-buildings_nyc_5.pkl.zip
 .ipynb_checkpoints

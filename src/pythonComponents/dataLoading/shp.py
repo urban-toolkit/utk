@@ -7,7 +7,6 @@ from shapely.geometry import Point, Polygon
 import json
 import mapbox_earcut as earcut
 import numpy as np
-import pandas as pd
 import os
 import struct
 
@@ -71,7 +70,6 @@ def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
         loaded_shp = loaded_shp.to_crs(3395)
         loaded_shp = loaded_shp.clip(bpoly_series_4326)
 
-    zip_code_name = []
     zip_code_coordinates = []
 
     data = []
@@ -111,9 +109,6 @@ def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
                 coordinates_ids.append(coord_id_counter)
                 coord_id_counter += 1
                 coordinates.append(0)
-
-                zip_code_name.append(str(id))
-
 
             count = int(len(coordinates)/3)
         
@@ -168,12 +163,5 @@ def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
     loaded_shp['id'] = objectId
 
     coordinates_gdf = gpd.GeoDataFrame({'geometry': coordinates_geometries, "id": coordinates_ids}, crs=3395)
-
-    output_abstract = {"id": "zipName", "coordinates": [round(item,4) for item in zip_code_coordinates], "values": zip_code_name}
-
-    with open(os.path.join(os.path.dirname(filepath), 'zipName.json') , "w", encoding="utf-8") as f:
-        
-        output_str = str(json.dumps(output_abstract))
-        f.write(output_str)
 
     return {'objects': loaded_shp, 'coordinates': coordinates_gdf, 'coordinates3d': None}

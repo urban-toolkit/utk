@@ -1,10 +1,6 @@
-import math
-import pyproj
-import numpy as np
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point, Polygon, box
-
 
 import lineclipping
 
@@ -18,7 +14,6 @@ def convertProjections(inProj, outProj, geometry, dim2=True):
         * @param {bool} Indicates if the geometry is represented by 2D points or 3D points
         * @returns {List} Returns a list with all geometries transformed
     '''
-
     # transform the flat array into a list of Points
     grouped_geometry = []
 

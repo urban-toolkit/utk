@@ -3,10 +3,7 @@ import { Col } from "react-bootstrap";
 //css file
 import "./WidgetsComponent.css";
 // data and vis widgets components
-import { DataWidget } from "./DataWidget";
-import { VisWidget } from "./VisWidget";
 import { GrammarPanelContainer } from "./GrammarPanel";
-
 
 // value types that are being passed in the function parameter
 type widgetProps = {
@@ -43,16 +40,6 @@ export const WidgetsComponent = ({
 
     return(
         <Col md={5} style={{padding: "0"}}>
-            {/* visualization widget */}
-            {/* <VisWidget 
-                genericScreenPlotToggle = {genericScreenPlotToggle}
-                addGenericPlot = {addGenericPlot}
-                removeGenericPlot = {removeGenericPlot}
-                togglePlotCollection = {togglePlotCollection}
-                listPlots = {listPlots}
-                modifyLabelPlot = {modifyLabelPlot}
-                modifyEditingState = {modifyEditingState}
-            /> */}
             <GrammarPanelContainer 
                 camera = {camera}
                 filterKnots = {filterKnots}
@@ -62,10 +49,6 @@ export const WidgetsComponent = ({
                 applyGrammarButtonId = {applyGrammarButtonId}
                 linkMapAndGrammarId = {linkMapAndGrammarId}
             />
-            {/* data widget */}
-            {/* <DataWidget 
-                onCityRefChange = {onCityRefChange}
-            />      */}
 
         </Col>
     )

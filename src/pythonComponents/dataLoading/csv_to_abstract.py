@@ -48,10 +48,5 @@ def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude
 
     directory = os.path.dirname(filepath)
 
-    # # file name with extension
-    # file_name = os.path.basename(filepath)
-    # # file name without extension
-    # file_name_wo_extension = os.path.splitext(file_name)[0]
-
     with open(os.path.join(directory,layer_id+".json"), "w") as outfile:
         outfile.write(json_object)

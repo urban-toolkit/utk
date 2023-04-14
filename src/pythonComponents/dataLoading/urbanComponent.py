@@ -10,7 +10,6 @@ from ipykernel.comm import Comm
 from shapely.geometry import Polygon, Point
 from scipy.spatial import KDTree
 
-import map
 # import urbantk.io.osm as osm
 
 class UrbanComponent:
@@ -203,10 +202,7 @@ class UrbanComponent:
                     layer_json['data'][i]['geometry']['ids'] = ids[startAndSize[0]:startAndSize[0]+startAndSize[1]]
 
         if(layer_gdf == None):
-            # if(dim != None):
             layer_gdf = self.jsonToGdf(layer_json, None, abstract)
-            # else:
-                # raise Exception("If gdf data is not provided, the coordinates dimensions must be provided so the gdf can be calculated")
 
         self.layers['json'].append(layer_json)
         self.layers['gdf']['objects'].append(layer_gdf['objects'])
@@ -580,15 +576,6 @@ class UrbanComponent:
 
                         self.break_into_binary(filepath, layer['id'], layer, types, dataTypes)
 
-                    # layer_json_str = str(json.dumps(layer))
-                    # with open(os.path.join(filepath,layer['id']+'.json'), "w") as f:
-                    #     f.write(layer_json_str)
-
-                # if(self.camera != None):
-                #     camera_json_str = str(json.dumps(self.camera, indent=4))
-                #     with open(os.path.join(filepath,"camera.json"), "w", encoding="utf-8") as f:
-                #         f.write(camera_json_str)
-
                 if(includeGrammar):
                     grammar_json_str = str(json.dumps(grammar_json, indent=4))
                     with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
@@ -605,60 +592,3 @@ class UrbanComponent:
         else:
             raise Exception("to_file can only be used with separate files")
 
-            # if not os.path.exists(os.path.dirname(filepath)):
-            #     os.makedirs(os.path.dirname(filepath))
-
-            # outjson = {'cid': self.cid, 'style': self.style, 'layers': self.layers['json'], 'camera': self.camera, 'bbox': self.bbox}
-            # outjson_str = str(json.dumps(outjson))
-            # with open(filepath, "w", encoding="utf-8") as f:
-            #     f.write(outjson_str)
-
-    # def from_file(self, filepath):
-    #     with open(filepath, "r", encoding="utf-8") as f:
-    #         injson = json.load(f)
-    #         self.cid = injson['cid']
-    #         self.style = injson['style']
-    #         self.layers['json'] = injson['layers']
-    #         self.camera = injson['camera']
-    #         self.bbox = injson['bbox']
-    
-    async def task(self):
-        data = {}
-        data['layers'] = self.layers['json']
-        data['camera'] = self.camera
-        data['style'] = self.style
-        
-        filepath = os.path.dirname(os.path.realpath(__file__))
-        with open('../../../public/data/bardata.json', 'r') as f:
-            barData = json.load(f)
-
-        with open('../../../public/data/scatterdata.json', 'r') as f:
-            scatterData = json.load(f)
-            
-        with open('../../../public/data/heatData.json', 'r') as f:
-            heatData = json.load(f)
-            
-        visData = {'bar': barData, 'scatter':scatterData, "heat": heatData, "city" : data}
-        
-        comm = Comm(target_name=self.cid+'_initMapView', data={})
-        comm.send(visData)
-        # comm.send(data)
-
-    def view(self, width = '100%', height = '800px'):
-        asyncio.ensure_future(self.task())
-        return map.get_html(self.cid, width, height)
-        
-        # print('here')
-        # await print('here 10')
-        # return '10'
-        # print('here 2')
-        # try:
-        #     return get_html(self.cid, self.layers['json'], self.camera, self.style, width, height)
-        # finally:
-        #     data = {}
-        #     data['layers'] = self.layers['json']
-        #     data['camera'] = self.camera
-        #     data['style'] = self.style
-        #     comm = Comm(target_name=self.cid, data={})
-        #     comm.send(data)
-                

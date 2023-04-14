@@ -2,14 +2,14 @@
 import {Col, Row, Button} from 'react-bootstrap'
 import { VisWidget } from "../Widgets/VisWidget";
 import { LayersWidget } from "../Widgets/LayersWidget";
-import React, {useEffect} from 'react'
+import React from 'react'
 
 // urbantkmap.js
 // import {Environment, MapView as WebMap, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
 import {Environment, MapViewFactory, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
 
 // for jupyter python
-import {MapView as JupyterMap} from '../../utilities/urbantkmap.iife.js';
+// import {MapView as JupyterMap} from '../../utilities/urbantkmap.iife.js';
 
 // jquery
 import $ from 'jquery';
@@ -22,21 +22,17 @@ import './MapView.css';
 
 import {paramsMapView} from '../../params.js';
 
-import {D3AppFactory} from './D3App';
-
-import { FaChartBar, FaEdit, FaRegTrashAlt } from "react-icons/fa";
-
 var app: any;
 
 // Mapview Application Class
 class App {
   _map: any;
-  constructor(div: any, d3App: any | null = null, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null) {
+  constructor(div: any, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null) {
     const mapDiv = document.querySelector(div);
 
-    if(d3App){
+    if(linkedContainerGenerator){
       this._map = MapViewFactory.getInstance();
-      this._map.resetMap(mapDiv, d3App, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
+      this._map.resetMap(mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
     }else{
       this._map = MapViewFactory.getInstance();
       this._map.resetMap(mapDiv);
@@ -66,7 +62,6 @@ class App {
 
 // MapViewer parameter types
 type mapViewDataProps = {
-  dataToView: any,
   divWidth: number,
   systemMessages: {text: string, color: string}[],
   applyGrammarButtonId: string,
@@ -82,7 +77,6 @@ type mapViewDataProps = {
   linkMapAndGrammarId: string,
   frontEndMode?: string, //web is the default
   data?: any,
-  d3App?: any,
   linkedContainerGenerator?: any,
   cameraUpdateCallback?: any,
   filterKnotsUpdateCallback?: any,
@@ -91,7 +85,6 @@ type mapViewDataProps = {
 
 class MapConfig {
   public static frontEndMode: string | undefined;
-  public static d3App: any | undefined;
   public static linkedContainerGenerator: any;
   public static cameraUpdateCallback: any;
   public static filterKnotsUpdateCallback: any;
@@ -102,7 +95,7 @@ export const createAndRunMap = () => {
 
   $('#map').empty();
 
-  app = new App('#map', MapConfig.d3App, MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback, MapConfig.filterKnotsUpdateCallback, MapConfig.listLayersCallback);
+  app = new App('#map', MapConfig.linkedContainerGenerator, MapConfig.cameraUpdateCallback, MapConfig.filterKnotsUpdateCallback, MapConfig.listLayersCallback);
       
   let port;
 
@@ -125,41 +118,13 @@ export const emptyMap = () => {
   $('#map').empty();
 }
  
-export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, listLayers, listLayersCallback, linkMapAndGrammarId, frontEndMode, data, d3App, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, inputId}:mapViewDataProps) => {
+export const MapViewer = ({divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, addGenericPlot, removeGenericPlot, togglePlotCollection, modifyLabelPlot, modifyEditingState, listPlots, listLayers, listLayersCallback, linkMapAndGrammarId, frontEndMode, data, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, inputId}:mapViewDataProps) => {
 
   MapConfig.frontEndMode = frontEndMode;
-  MapConfig.d3App = d3App;
   MapConfig.linkedContainerGenerator = linkedContainerGenerator;
   MapConfig.cameraUpdateCallback = cameraUpdateCallback;
   MapConfig.filterKnotsUpdateCallback = filterKnotsUpdateCallback;
   MapConfig.listLayersCallback = listLayersCallback;
-
-  useEffect(()=> {
-      $('#map').empty();
-
-      // this line checks whether we are rendering the map
-      // in browser or in jupyter notebook
-      if(dataToView === 'none'){ //render map to jupyter notebook
-
-        // get the div
-        // var el = document.getElementById('map')!;
-
-        // create new instance of Mapview from urbanktk.iife.js - jupyter
-        // let map = new JupyterMap(el, false);
-
-        app = new App('#map');
-        app.run(data);
-
-        // render the map in jupyter
-        // map.initMapView(data);
-
-        // map.addLayer(data);
-
-      }else{
-        // createAndRunMap();
-      }   
-
-  }, [dataToView, data])
 
   return(
     <React.Fragment>
@@ -203,12 +168,8 @@ export const MapViewer = ({dataToView, divWidth, systemMessages, applyGrammarBut
                   <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
                     <VisWidget 
                         genericScreenPlotToggle = {genericScreenPlotToggle}
-                        addGenericPlot = {addGenericPlot}
-                        removeGenericPlot = {removeGenericPlot}
-                        togglePlotCollection = {togglePlotCollection}
                         listPlots = {listPlots}
                         modifyLabelPlot = {modifyLabelPlot}
-                        modifyEditingState = {modifyEditingState}
                       />
                   </div>
                 </Col>

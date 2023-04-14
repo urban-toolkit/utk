@@ -1,21 +1,12 @@
 import React, { useState } from "react";
 // bootstrap component
-import { Row, Col, Button, Collapse, Form } from "react-bootstrap";
-// icon
-import { FaChartBar, FaEdit, FaRegTrashAlt } from "react-icons/fa";
-
-import $ from 'jquery';
+import { Form } from "react-bootstrap";
 
 // VisWidget parameter types
 type layersWidProps = {
     listLayers: string[],
     layerToggle: React.Dispatch<React.SetStateAction<any>>
 }
-
-/** 
- * Component creates the VIS menu and handles
- * view or hiding the visualization
-*/
 
 export const LayersWidget = ({
     listLayers,

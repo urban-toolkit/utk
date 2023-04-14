@@ -496,41 +496,6 @@ class OSM:
 
         return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': None}}
 
-        # ============================================
-
-            # ids.append(id)
-
-            # coords = line.coords
-            # coords_duplicated = []
-            # for i in range(1, len(coords)):
-            #     p0 = coords[i-1]
-            #     p1 = coords[i]
-            #     coords_duplicated.append(p0[0])
-            #     coords_duplicated.append(p0[1])
-            #     coords_duplicated.append(p1[0])
-            #     coords_duplicated.append(p1[1])
-
-            # types = ['primary']
-
-            # coords_duplicated = utils.convertProjections("4326", "3395", coords_duplicated)
-
-            # for i in range(int(len(coords_duplicated)/2)):
-            #     geometries_coordinates.append(Point(coords_duplicated[i*2], coords_duplicated[i*2+1]))
-            #     ids_coordinates.append(counter_id_coordinates)
-            #     counter_id_coordinates += 1
-
-            # coords_duplicated = utils.from2dTo3d(coords_duplicated)
-
-            # mesh.append({'type': 'roads', 'geometry': {'coordinates': [round(item,4) for item in coords_duplicated], 'types': types}})
-
-            # geometries.append(transform(project, line))
-
-        # gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395)
-
-        # gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395)
-
-        # return {'data': mesh, 'gdf': {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': None}}
-
     def osm_to_coastline_mesh(osm_elements, bpoly, using_bbox):
 
         '''

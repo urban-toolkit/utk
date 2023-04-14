@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import CodeEditor from '@uiw/react-textarea-code-editor';
 import { createAndRunMap, emptyMap } from "../MapView/MapView";
 import VanillaJSONEditor from "./VanillaJSONEditor";
-import { Col, Row, Button } from "react-bootstrap";
-
 
 import * as d3 from "d3";
 
@@ -52,7 +49,6 @@ export const GrammarPanelContainer = ({
         _setTempGrammar(data);
     };
 
-    const [dirtyTempGrammar, setDirtyTempGrammar] = useState(false);
     const [refresh, setRefresh] = useState(false);
 
     const [showEditor, setShowEditor] = useState(true);
@@ -312,46 +308,30 @@ export const GrammarPanelContainer = ({
 
     const updateGrammarContent = (grammarObj: any) => {
         if(grammarObj.text != undefined){
-            // try{
-            //     setTempGrammar(JSON.stringify(JSON.parse(grammarObj.text), null, 4));
-            // }catch(err){
-            //     setTempGrammar(grammarObj.text);
-            // }
             setTempGrammar(grammarObj.text);
 
         }else{
-            // setCode(JSON.stringify(grammarObj.json));
             setTempGrammar(JSON.stringify(grammarObj.json, null, 4));
         }
 
     }
 
     return(
-
-        // <Row md={6} style={{margin: 0, padding: 0}}>
-            // <Col md={12} style={{padding: "0"}} id={"grammarColumn"}>
-                <React.Fragment>
-                    {/* <div style={{height: "90vh", overflow: "auto"}}> */}
-                    {/* <div style={{height: "90vh"}}> */}
-                        {showEditor && (
-                            <>
-                            <div className="my-editor" style={{height: "100vh", overflow: "auto", fontSize: "24px"}}>
-                            {/* <div className="my-editor"> */}
-                                <VanillaJSONEditor
-                                content={checkIfAddCameraAndFilter(grammar, camera, tempGrammar, filterKnots)}
-                                readOnly={readOnly}
-                                onChange={updateGrammarContent}
-                                mode={'text'}
-                                indentation={4}
-                                />
-                            </div>
-                            </>
-                        )}
-                    {/* </div> */}
-                </React.Fragment>
-            // </Col>
-        // </Row> 
-        
-        
+        <React.Fragment>
+            {showEditor && (
+                <>
+                <div className="my-editor" style={{height: "100vh", overflow: "auto", fontSize: "24px"}}>
+                {/* <div className="my-editor"> */}
+                    <VanillaJSONEditor
+                    content={checkIfAddCameraAndFilter(grammar, camera, tempGrammar, filterKnots)}
+                    readOnly={readOnly}
+                    onChange={updateGrammarContent}
+                    mode={'text'}
+                    indentation={4}
+                    />
+                </div>
+                </>
+            )}
+        </React.Fragment>
     )
 }

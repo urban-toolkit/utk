@@ -14,8 +14,6 @@ import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
 import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
 
-import { D3AppFactory } from './components/MapView/D3App';
-
 import * as d3 from "d3";
 
 // common variables for vis components
@@ -45,9 +43,6 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}});
 
   let inputBarId = "searchBar";
-
-  const d3App = D3AppFactory.getInstance();
-  d3App.resetD3App('#svg_element', "#genericPlotSvg0", plotCollectionList);
 
   const addNewGenericPlot = (n: number = 1) => {
 
@@ -227,8 +222,6 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
             <GenericScreenPlotContainer
               key={item.id}
               disp = {!item.hidden}
-              width={size.width}
-              height={size.height}
               svgId={item.svgId}
             />
         ))

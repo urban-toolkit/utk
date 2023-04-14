@@ -39,7 +39,6 @@ class ShadowAccumulator:
     latitude = 0
     longitude = 0
 
-    # def __init__(self, filespaths, start, end, season):
     def __init__(self, latitude, longitude, filespaths, intervals, season):
 
         '''
@@ -303,30 +302,6 @@ class ShadowAccumulator:
             with open(os.path.join(directory, "shadow"+str(function_index)+'_'+fileName+".json"), "w") as outfile:
                 json.dump(shadow_layer, outfile)
 
-
-
-        # coupled abstract layer
-        # for index, geometries_count in enumerate(self.coords_per_file):
-            
-        #     mesh_file = open(self.filespaths[index],mode='r')
-
-        #     mesh_json = json.loads(mesh_file.read())
-
-        #     mesh_file.close()
-
-        #     for index_geometry, geometry_count in enumerate(geometries_count):
-
-        #         # mesh_json["data"][index_geometry]["geometry"]["function"+str(functionIndex)] = function_values[:geometry_count] 
-        #         if not "function" in mesh_json["data"][index_geometry]["geometry"]:
-        #             mesh_json["data"][index_geometry]["geometry"]["function"] = []
-                
-        #         mesh_json["data"][index_geometry]["geometry"]["function"].append(function_values[:geometry_count])
-
-        #         function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
-
-        #     with open(self.filespaths[index], "w") as outfile:
-        #         json.dump(mesh_json, outfile, indent=4)
-
     def accumulate_shadow(self):
         '''
             Accumulate shadow over a period of time considering the parameters defined in the constructor
@@ -340,7 +315,6 @@ class ShadowAccumulator:
             accum = self.accumulate(interval[0], interval[1], self.latitude, self.longitude, self.coords, self.indices, self.normals, 15)
 
             self.per_face_avg_accum = self.per_face_avg(accum, self.indices, self.ids, self.ids_per_structure) # accumulation per triangle
-            avg_accumulation_per_coordinates = self.per_coordinates_avg(self.per_face_avg_accum, self.coords, self.indices) # accumulation per vertice
 
             max = -1
             min = -1
@@ -359,7 +333,6 @@ class ShadowAccumulator:
                 if elem[0] < min:
                     min = elem[0]
  
-            # self.writeShadowData(avg_accumulation_per_coordinates, index)
             self.writeShadowData([(elem[0] - min) / (max - min) for elem in accum], index)
 
     def loadFiles(self):
@@ -493,25 +466,25 @@ class ShadowAccumulator:
 
         self.coords = self.coords - np.mean(self.coords, axis=0)
 
-    def view(self):
-        # if(max(self.per_face_avg_accum) != 0):
-        #     ccolors = 255*plt.cm.YlOrRd((self.per_face_avg_accum/max(self.per_face_avg_accum)))
-        # else:
-        #     ccolors = 255*plt.cm.YlOrRd(self.per_face_avg_accum)
+    # def view(self):
+    #     # if(max(self.per_face_avg_accum) != 0):
+    #     #     ccolors = 255*plt.cm.YlOrRd((self.per_face_avg_accum/max(self.per_face_avg_accum)))
+    #     # else:
+    #     #     ccolors = 255*plt.cm.YlOrRd(self.per_face_avg_accum)
 
-        vmesh = vedo.Mesh([self.coords, self.indices])
+    #     vmesh = vedo.Mesh([self.coords, self.indices])
 
-        # pts_hit_pos = vedo.Points(not_in_inf, c=(0, 128, 255))
-        # arrows_normals = vedo.Arrows(self.coords, (4*self.normals+self.coords), thickness=2, c="green")
+    #     # pts_hit_pos = vedo.Points(not_in_inf, c=(0, 128, 255))
+    #     # arrows_normals = vedo.Arrows(self.coords, (4*self.normals+self.coords), thickness=2, c="green")
 
-        # arrows_rdir = vedo.Arrows(eye + 1e-1 * normals, (rdir+(eye + 1e-1 * normals)), thickness=2, c="blue")
+    #     # arrows_rdir = vedo.Arrows(eye + 1e-1 * normals, (rdir+(eye + 1e-1 * normals)), thickness=2, c="blue")
 
-        # vmesh.cellIndividualColors(ccolors)
-        vmesh.lineWidth(1.5)
+    #     # vmesh.cellIndividualColors(ccolors)
+    #     vmesh.lineWidth(1.5)
 
-        vplt = vedo.Plotter()
-        vplt += vmesh.clone()
-        # vplt += pts_hit_pos.clone()
-        # vplt += arrows_normals.clone()
-        # vplt += arrows_rdir.clone()
-        vplt.show(viewup='z', zoom=1.3)
+    #     vplt = vedo.Plotter()
+    #     vplt += vmesh.clone()
+    #     # vplt += pts_hit_pos.clone()
+    #     # vplt += arrows_normals.clone()
+    #     # vplt += arrows_rdir.clone()
+    #     vplt.show(viewup='z', zoom=1.3)

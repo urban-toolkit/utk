@@ -66,9 +66,6 @@ def serve_linkLayers():
     uc.addLayerFromJsonFile(os.path.join(workDir, otherLayer+".json"), abstract=abstract)
 
     if(abstract):
-        # if(thisLevel != otherLevel):
-        #     abort(400, "For abstract join the levels of both layers should be the same")
-
         if(maxDistance != None):
             uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, otherLevel, predicate, aggregation, maxDistance, default_value=defaultValue)
         else:
@@ -127,10 +124,6 @@ def serve_solveNominatim():
     text = request.args.get('text')
 
     location = geolocator.geocode(text, timeout=5)
-
-    # try:
-    # except:
-    #     abort(400, "Error while trying to solve nominatim")
 
     convertedProj = utils.convertProjections("4326", "3395", [location.latitude, location.longitude])
 
