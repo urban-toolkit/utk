@@ -1,3 +1,13 @@
+# The Urban Toolkit (UTK)
+
+While cities around the world are looking for smart ways to channel new advances in data collection, management, and
+analysis to address their day-to-day problems, the complex nature of urban issues and the overwhelming amount of available structured
+and unstructured data have posed significant challenges in translating these efforts into actionable insights. In our paper **The Urban Toolkit: A Grammar-based Framework for
+Urban Visual Analytics**, we present the Urban Toolkit, a flexible and extensible visualization framework that enables the easy authoring of web-based visualizations
+through a new high-level grammar specifically built with common urban use cases in mind. In order to facilitate the integration and
+visualization of different urban data, we also propose the concept of knots to merge thematic and physical urban layers. This repository presents the source
+code of the framework as well as documentation containing a gallery of examples, an in-depth description of the grammar and the steps needed to run the code.
+
 # Getting Started with this project
 
 1. Clone the repository, initialize submodule and pull submodule
@@ -47,18 +57,9 @@ Tested Python version '3.10.6'. Tested OS: Windows. pip version: '22.2.2'. Anaco
 - https://developer.nvidia.com/cuda-downloads
 
 
-
 ### Configuration
 
 All important configuration parameters are situated in src/params.js or src/pythonServerConfig.json.  
-
-### Info
-
-Web runs on the 3000 port. VR and CAVE2 runs in the 3001 port.  
-
-When specifying the layers buildings has allways to be the last one.  
-
-The name of the layer file must be equal to the id of the layer.
 
 ### Available start options
 
@@ -79,55 +80,3 @@ The data used in the stages is served through the public folder.
 If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js 
 
 Obs: Currently it is only possible to load public/data/example_mesh_nyc, because it is the only example that uses the projection 3395 instead of lat/lng.
-
-### To load project into the CAVE2
-
-### Package List
-
-1. react-bootstrap - https://www.npmjs.com/package/react-bootstrap
-2. react-draggable - https://www.npmjs.com/package/react-draggable
-3. d3 - https://www.npmjs.com/package/d3
-4. @types/d3 - https://www.npmjs.com/package/@types/d3
-5. react-icons - https://www.npmjs.com/package/react-icons
-6. jquery - https://www.npmjs.com/package/jquery
-7. @types/jquery - https://www.npmjs.com/package/@types/jquery
-8. react-dropdown - https://www.npmjs.com/package/react-dropdown
-9. @types/d3-scale - https://www.npmjs.com/package/@types/d3-scale
-10. axios - https://www.npmjs.com/package/axios
-
-## creating submodule
-git submodule add link_to_the_repository_to_be_added_as_submodule
-
-### submodule cloning
-1. clone the repository as usual
-2. run - git submodule init
-3. run - git submodule update
-
-### to fetch and update submodule
-git submodule update --remote submoduleName
-
-
-### multiple entry points 
-https://stackoverflow.com/questions/55308657/create-react-app-v2-multiple-entry-points
-https://medium.com/swlh/how-to-add-multiple-entry-points-to-your-react-app-ea8bc015d410
-
-## jupyter bundle creation
-
-1. Go to src/urbantk-map/ts
-2. run `npm run build`
-3. Paste in the header of src/urbantk-map/ts/dist/urbantkmap.js:  
-   /* eslint-disable @typescript-eslint/no-empty-function */  
-   /* eslint-disable no-cond-assign */  
-   /* eslint-disable require-yield */  
-3. In terminal urbantk-react/ run `npm run build:bundle:jupyter`
-    it will create a single bundle file in /dist/bundle folder - "bundle.min.js"
-    this bundle can be used to render our project in jupyter notebook
-4. Go to src/pythonComponents/jupyterSupport run `jupyter notebook`
-5. Run the notebook that will open on the web browser
-
-## web bundle creation
-
-1. in terminal run "npm run build:bundle:web"
-    it will create a single bundle file in dist/bundle folder that can be used with basic html file
-    make sure to run the server in port 3000
-    make sure to add the data folder with data
