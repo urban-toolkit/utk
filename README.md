@@ -8,75 +8,56 @@ through a new high-level grammar specifically built with common urban use cases 
 visualization of different urban data, we also propose the concept of knots to merge thematic and physical urban layers. This repository presents the source
 code of the framework as well as documentation containing a gallery of examples, an in-depth description of the grammar and the steps needed to run the code.
 
-# Getting Started with this project
+## Getting started
 
-1. Clone the repository, initialize submodule and pull submodule
+### System Requirements
 
-`git clone --recurse-submodule https://github.com/urban-toolkit/urbantk-react-ts.git`
- 
-2. Virtual environment  
+- Browser: Google Chrome (other browsers were not extensively tested yet, it might not behave as expected)
+- OS: Windows (other OS were not extensively tested yet, it might not behave as expected)
+- For ray tracing computation (optional): check PlotOptix requeriments [here](https://plotoptix.rnd.team/)
+- To load data from PBF files:
+    - Windows with wsl activated is necessary
+    - In the wsl cmd run `apt get install osmium-tool`
 
-Tested Python version '3.10.6'. Tested OS: Windows. pip version: '22.2.2'. Anaconda version: 22.9.0
+### Installation
 
-- The easiest way to install all dependencies is by using an [anaconda](https://www.anaconda.com/) virtual environment
-- After installing anaconda run:
-- `conda create -n urbantk -c conda-forge --file conda-package-list.txt`
-- `conda activate urbantk`
-- go to urbantk-react-ts
-- run `pip install -r requirements_pip.txt` (python scripts requirements)
-- To load data from pbf it is necessary to be in a windows environment and activate wsl. In the wsl cmd run `apt get install osmium-tool`
+1. Clone the repository
 
-3. Backend configuration 
+- `git clone https://github.com/urban-toolkit/utk.git`
+- `cd utk`
 
-   - go to urbantk-react-ts/src/urbantk-map/
-   - git checkout main
-   - git pull origin main
-   - cd ts
-   - run `npm install`
-   - run `npm run build`
+2. Setup virtual environment
 
-4. Frontend configuration
-   - go back to urbantk-react-ts folder
-   - run `npm install --force`
-   - to see web version `npm run start:web`
-   - to see the VR version `npm run start:vr`
-   - to see the CAVE2 version `npm run start:cave`
+While dependencies can be installed without using a virtual environment, we recommend you to do so. Specifically, the Anaconda package manager will be used.  
 
-5. Cuda Installation (for shadow ray tracing)
+- If you do not have Anaconda installed you can follow the instructions [here](https://www.anaconda.com/) (the Anaconda version used in this tutorial is '22.9.0').
+- After installing it, open the Anaconda prompt and run:
+    - `conda create -n utkenv python=3.10.6 -c conda-forge --file requirements_conda.txt`
+    - `conda activate utkenv` (utkenv needs to be activated to run UTK)
+    - `pip install -r requirements_pip.txt`
 
-   - a CUDA-enabled GPU with compute capability 5.0 (Maxwell) to latest (Ampere);
-       - NVIDIA driver >= r515;
-   - Python 3 64-bit
-   - Windows:
-       - Framework .NET >= 4.8 (present in all modern Windows)
-   - Linux:
-       - Mono Common Language Runtime >= 6.6
-       - pythonnet
-       - FFmpeg >= 4.1
+3. Backend setup 
 
-- https://developer.nvidia.com/cuda-downloads
+- `cd src/utk-map/ts`
+- `npm install`
+- `npm run build`
 
+4. Frontend setup
+
+- `cd ../../../` (go back to the root folder)
+- `npm install`
+- to see web version `npm run start:web`
+
+5. Run
+
+- `npm run start:web` (after a couple of seconds the browser will open)
+
+### Data loading
+
+### Example gallery
 
 ### Configuration
 
-All important configuration parameters are situated in src/params.js or src/pythonServerConfig.json.  
+UTK will load data files stored under utk/public/data.  
 
-### Available start options
-
-- "start:web": Starts the web version
-- "build:web": Builds the bundle for web version (broken)
-- "start:vr": Starts the VR version
-- "build:vr": Builds the bundle for the VR version (broken)
-- "start:cave": Starts the CAVE2 version
-- "start:cave:local": Starts the CAVE2 version locally (for testing purposes) (not implemented)
-- "build": Build web version and bundle (broken)
-- "build:bundle": Build webpack bundle
-- "test": Run tests (not implemented)
-
-### About the data
-
-The data used in the stages is served through the public folder.  
-
-If one wants to change which data is being loaded the paramsMapView.environmentDataFolder has to be changed inside src/params.js 
-
-Obs: Currently it is only possible to load public/data/example_mesh_nyc, because it is the only example that uses the projection 3395 instead of lat/lng.
+To choose the loaded datafolder one has to modify utk/src/params.js (environmentDataFolder) and utk/src/pythonServerConfig.json (environmentDataFolder)

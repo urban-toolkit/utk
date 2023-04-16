@@ -1,7 +1,6 @@
 {
-  "name": "@urban-toolkit/urbantk-map",
+  "name": "utk-map",
   "version": "1.0.0",
-  "description": "The urban-toolkit map built using WebGL and OpenStreetMap data.",
   "keywords": [
     "urbtk",
     "data science",
@@ -37,16 +36,18 @@
   ],
   "dependencies": {
     "compute-covariance": "^1.0.1",
-    "d3-scale-chromatic": "^2.0.0",
+    "d3-scale-chromatic": "^3.0.0",
+    "exec-sh": "^0.4.0",
     "gl-matrix": "^3.3.0",
     "mathjs": "^11.4.0",
+    "merge": "^2.1.1",
     "pako": "^2.1.0",
     "stats-lite": "^2.2.0",
     "vega": "^5.22.1",
     "vega-embed": "^6.21.0",
     "vega-lite": "^5.6.0",
     "vega-util": "^1.17.0",
-    "watch": "^1.0.2"
+    "watch": "^0.13.0"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^4.1.0",
