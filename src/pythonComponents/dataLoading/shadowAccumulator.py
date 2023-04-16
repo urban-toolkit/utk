@@ -261,7 +261,7 @@ class ShadowAccumulator:
             * @param {List[float]} accumulation Shadow data accumulated per coordinates
         '''
 
-        # function values are the normalized accumulation values ([0,1]) that are used by the shader of urbantk-map to color the cells
+        # function values are the normalized accumulation values ([0,1]) that are used by the shader of utk-map to color the cells
         if(max(accumulation) != 0):
             function_values = accumulation/max(accumulation)
         else:

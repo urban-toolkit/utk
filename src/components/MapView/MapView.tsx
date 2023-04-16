@@ -5,8 +5,8 @@ import { LayersWidget } from "../Widgets/LayersWidget";
 import React from 'react'
 
 // urbantkmap.js
-// import {Environment, MapView as WebMap, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
-import {Environment, MapViewFactory, DataLoader } from '../../urbantk-map/ts/dist/urbantkmap';
+// import {Environment, MapView as WebMap, DataLoader } from '../../utk-map/ts/dist/urbantkmap';
+import {Environment, MapViewFactory, DataLoader } from '../../utk-map/ts/dist/urbantkmap';
 
 // for jupyter python
 // import {MapView as JupyterMap} from '../../utilities/urbantkmap.iife.js';
