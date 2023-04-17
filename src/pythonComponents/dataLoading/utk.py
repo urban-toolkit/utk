@@ -1,18 +1,41 @@
-'''
-    Converts a wrf file into an abstract layer
-'''
-
-import numpy as np
-
-from netCDF4 import Dataset
-import matplotlib.pyplot as plt
-from matplotlib.cm import get_cmap
-import cartopy.crs as crs
-from cartopy.feature import NaturalEarthFeature
+import pandas as pd
 from pyproj import Transformer
+import os
+import numpy as np
+from netCDF4 import Dataset
 import json
 import os
 
+from osm import *
+from shadowAccumulator import *
+from urbanComponent import *
+from load_physical import *
+from load_thematic import *
+
+# exposes simulations like .shadow
+# loads any kind of data the type is determined by the extension
+# def data
+
+def remove_elements(filepath, ids):
+    file = open(filepath, mode='r')
+    file_content = json.loads(file.read())
+
+    new_data_array = []
+
+    for index,data in enumerate(file_content['data']):
+        if(index not in ids):
+            new_data_array.append(data)
+
+    file_content['data'] = new_data_array
+
+    with open(filepath, "w") as outfile:
+        json.dump(file_content, outfile)
+
+    file.close()
+
+'''
+    Converts a wrf file into an abstract layer
+'''
 def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longitude_variable, coordinates_projection, bbox=[]):
     
     # Open the NetCDF file

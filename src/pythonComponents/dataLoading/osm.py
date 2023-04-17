@@ -185,6 +185,20 @@ class OSMHandler(o.SimpleHandler):
 
 class OSM:
 
+    def load(region, layers=['parks','water','roads','buildings'], pbf_filepath=None):
+        '''
+            Region can be a bounding polygon, a bounding box or an address
+        '''
+
+        if(isinstance(region, str)): # address
+            return OSM.load_from_address(region, layers, pbf_filepath)
+        elif(len(region) == 4 and (isinstance(region[0], float) or isinstance(region[0], int))): # bounding box
+            return OSM.load_from_bbox(region, layers, pbf_filepath)
+        elif(len(region[0]) == 2): # polygon
+            return OSM.load_from_polygon(region, layers)
+        else:
+            raise Exception("Region format "+str(region)+" not supported")
+
     def load_from_bbox(bbox, layers=['parks','water','roads','buildings'], pbf_filepath=None):
         '''
             Load layers inside bounding box to memory storing them into the UrbanComponent

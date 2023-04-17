@@ -1,12 +1,11 @@
-'''
-    Converts a csv file into an abstract layer
-'''
-
-import pandas as pd
 from pyproj import Transformer
+import pandas as pd
 import os
 import json
 
+'''
+    Converts a csv file into an abstract layer
+'''
 def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude_column, coordinates_projection, z_column = None):
     
     df = pd.read_csv(filepath)
