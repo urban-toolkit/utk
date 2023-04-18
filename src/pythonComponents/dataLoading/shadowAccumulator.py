@@ -51,6 +51,8 @@ class ShadowAccumulator:
         '''
 
 
+
+
         for interval in intervals:
             start = datetime.strptime(interval[0], "%m/%d/%Y %H:%M")
             end = datetime.strptime(interval[1], "%m/%d/%Y %H:%M")

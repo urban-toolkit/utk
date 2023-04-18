@@ -23,32 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 #data
-/public/vr/data/data_format
-/public/vr/data/new_sandro
-/public/vr/data/paper
-/public/vr/data/example_mesh_nyc
-/public/data/one_building
-public/data/two_buildings
-public/data/south_manhattan
-public/data/smaller_south_manhattan
-public/data/test_new_one_building
-public/data/north_manhattan
-public/data/downtown_chicago
-public/data/coastline_test
-public/data/one_building_old
-public/data/couple_buildings_manhattan
-public/data/bigger_south_manhattan
-public/data/manhattan
-public/data/manhattan_wo_cells
-public/data/splitted_south_manhattan
-public/data/manhattan_wo_cells_buildings
-public/data/south_manhattan_2
-public/data/removing_elements
-public/data/milan
-public/data/smaller_milan
-public/data/taxi_noise_zip
-public/data/chicago_diff
-public/data/remove_chicago
 public/data/
 
 

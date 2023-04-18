@@ -220,6 +220,7 @@ class OSM:
         loaded = None
 
         if(pbf_filepath != None):
+
             aux = '%f,%f,%f,%f'%(bbox[1],bbox[0],bbox[3],bbox[2])
 
             split_file = pbf_filepath.split('/')
