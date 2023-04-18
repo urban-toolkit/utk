@@ -57,7 +57,7 @@ def serve_linkLayers():
 
     uc = UrbanComponent()
 
-    uc.setWorkDir(workDir)
+    # uc.setWorkDir(workDir)
 
     if(uc.existsJoin(thisLayer, otherLayer, predicate.upper(), thisLevel.upper(), otherLevel.upper(), abstract)):
         return ''

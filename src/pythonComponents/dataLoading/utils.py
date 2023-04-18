@@ -9,6 +9,8 @@ def convertProjections(inProj, outProj, geometry, dim2=True):
         Convert projections from inProj to outPorj. Both values can be anything accepted by pyproj.CRS.from_user_input(), such as an authority string (eg “EPSG:4326”) or a WKT string.
         The functions converts the geometries into a geodataframe to make the conversion faster using geopandas.
 
+        *The input follows the x,y format. For instance, if the input projection 4326 a point [longitude, latitude] is expected*
+
         * @param {string} inProj The current projection of the geometry
         * @param {string} outProj The desired out projection for the geometry
         * @param {bool} Indicates if the geometry is represented by 2D points or 3D points

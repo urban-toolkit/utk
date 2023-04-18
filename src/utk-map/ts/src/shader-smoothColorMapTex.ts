@@ -169,22 +169,22 @@ export class ShaderSmoothColorMapTex extends AuxiliaryShader {
         
         let tempFunction = mesh.getFunctionVBO(knot.id);
 
-        // for(let j = 0; j < tempFunction.length; j++){
+        for(let j = 0; j < tempFunction.length; j++){
 
-        //     let scale = d3.scaleLinear().domain(d3.extent(tempFunction[j])).range([0,1]);
-        //     // console.log("buildings", d3.extent(tempFunction[j]))
-        //     // let scale = d3.scaleLinear().domain([287.61297607421875, 302.7366943359375]).range([0,1]);
-        //     // let scale = d3.scaleLinear().domain([291.54486083984375, 292.5068359375]).range([0,1]);
-        //     // let scale = d3.scaleLinear().domain([0,1]).range([0,1]);
-        //     // let scale = d3.scaleLinear().domain([-2,2]).range([0,1]);
-        //     // let scale = d3.scalePow().exponent(2).domain(d3.extent(tempFunction[j]));
+            let scale = d3.scaleLinear().domain(d3.extent(tempFunction[j])).range([0,1]);
+            // console.log("buildings", d3.extent(tempFunction[j]))
+            // let scale = d3.scaleLinear().domain([287.61297607421875, 302.7366943359375]).range([0,1]);
+            // let scale = d3.scaleLinear().domain([291.54486083984375, 292.5068359375]).range([0,1]);
+            // let scale = d3.scaleLinear().domain([0,1]).range([0,1]);
+            // let scale = d3.scaleLinear().domain([-2,2]).range([0,1]);
+            // let scale = d3.scalePow().exponent(2).domain(d3.extent(tempFunction[j]));
 
-        //     for(let i = 0; i < tempFunction[j].length; i++){
-        //         // tempFunction[j][i] = (tempFunction[j][i] - minFuncValue)/(maxFuncValue - minFuncValue);
-        //         tempFunction[j][i] = scale(tempFunction[j][i]);
-        //         // console.log("tempFunction", tempFunction[j][i]);
-        //     }
-        // }
+            for(let i = 0; i < tempFunction[j].length; i++){
+                // tempFunction[j][i] = (tempFunction[j][i] - minFuncValue)/(maxFuncValue - minFuncValue);
+                tempFunction[j][i] = scale(tempFunction[j][i]);
+                // console.log("tempFunction", tempFunction[j][i]);
+            }
+        }
 
         this._function = [];
         this._unchangedFunction = [];

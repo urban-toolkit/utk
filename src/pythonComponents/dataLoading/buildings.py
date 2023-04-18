@@ -362,7 +362,7 @@ class Buildings:
         cid = -1
         count = 0
         # for poly in polys:   
-        for i in trange(len(polys)):   
+        for i in range(len(polys)):   
 
             poly = polys[i]
 
@@ -388,11 +388,7 @@ class Buildings:
                         new_cell = box(x0, y0, x1, y1)
                         cells.append(new_cell)
 
-            print("before overlay")
-
             intersection = gpd.overlay(gpd.GeoDataFrame({'geometry': gpd.GeoSeries(poly)}), gpd.GeoDataFrame({'geometry': gpd.GeoSeries(cells)}),how='intersection',keep_geom_type=True)
-
-            print("after overlay")
 
             # # collecting width data while the plane is aligned with x and y
             # for elem in intersection.values:
@@ -414,7 +410,7 @@ class Buildings:
             cells = intersection.rotate(-rot, origin=(0,0)).values
 
             # for cell in cells:
-            for j in trange(len(cells)):
+            for j in range(len(cells)):
 
                 cell = cells[j]
 
@@ -801,7 +797,7 @@ class Buildings:
 
         # merge buildings that overlap
         unique_buildings = gdf.index.unique()
-        for i in trange(len(unique_buildings)):
+        for i in range(len(unique_buildings)):
             building_id = unique_buildings[i]
             buildings = gdf[gdf['building_id']==building_id]
             if(len(buildings) > 0):

@@ -355,8 +355,6 @@ class OSM:
                 args = layer_obj['args']
 
             if layer == 'surface':
-                print("creating surface")
-
                 nCells = -1
                 sizeCells = -1
 
@@ -367,7 +365,6 @@ class OSM:
                     sizeCells = args['sizeCells']
 
                 layer_geometry = OSM.create_surface_mesh(bpoly, bbox, nCells, sizeCells)
-                print("create_surface_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -379,13 +376,12 @@ class OSM:
                 selectable = False
             elif layer == 'buildings':
 
-                sizeCells = -1
+                sizeCells = -1 # default cell size for buildings no subdivision
 
                 if 'sizeCells' in args:
                     sizeCells = args['sizeCells']
 
                 layer_geometry = OSM.osm_to_building_mesh(overpass_responses[layer], bpoly, bbox, sizeCells)
-                print("osm_to_building_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -396,7 +392,6 @@ class OSM:
                 selectable = True
             elif layer == 'roads':
                 layer_geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bpoly, bbox)
-                print("osm_to_roads_polyline finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -407,7 +402,6 @@ class OSM:
                 selectable = False
             elif layer == 'coastline':
                 layer_geometry = OSM.osm_to_coastline_mesh(overpass_responses[layer], bpoly, bbox)
-                print("osm_to_coastline_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -418,7 +412,6 @@ class OSM:
                 selectable = False
             else:
                 layer_geometry = OSM.osm_to_generic_mesh(overpass_responses[layer], bpoly, bbox, convert2dto3d=True)
-                print("osm_to_generic_mesh finished")
                 geometry = layer_geometry['data']
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
@@ -582,14 +575,12 @@ class OSM:
                     p1_inside = utils.point_within_bbox(p1,bbox)
                     # entering
                     if not p0_inside and p1_inside:
-                        # print('entering',line.bounds)
                         intersection = test_side(LineString([p0,p1]))
                         enter_side = intersection[0]
                         curline.append(intersection[1])
                         curline.append(p1)
                     # exiting
                     elif p0_inside and not p1_inside:
-                        # print('exiting',line.bounds)
                         intersection = test_side(LineString([p0,p1]))
                         exit_side = intersection[0]
                         curline.append(intersection[1])
@@ -788,7 +779,6 @@ class OSM:
                         else:
                             outernodes.extend(curnodes[::-1])
                         prevnodes = curnodes
-                # print(outernodes)
                 if inserted == False:
                     ways.append({'inner': [], 'outer': outernodes, 'tags': way['tags'], 'type': 'type'})
                 
@@ -810,25 +800,11 @@ class OSM:
                 if inserted == False:
                     ways[lastouter]['inner'] = innernodes
 
-        print("multi ways processed (osm_to_building_mesh)")
-
-        # end = time.time()
-        # print("handling multiways: "+str(end - start))
-
-        # start = time.time()
-
         # single ways
         for wid in osm_elements['ways']:
             way = osm_elements['ways'][wid]
             nodes = way['geometry']
             ways.append({'outer': nodes, 'inner': [], 'tags': way['tags'],'type': 'type'})
-
-        print("single ways processed (osm_to_building_mesh)")
-
-        # end = time.time()
-        # print("handling singleways: "+str(end - start))
-
-        # start = time.time()
 
         # to shapely
         polygons = []
@@ -858,11 +834,6 @@ class OSM:
                     for interior in p.interiors:
                         interiors.append(list(interior.coords))
                     polygons.append({'geom': [exterior, interiors], 'tags': way['tags']})
-
-        print("to shapely processed (osm_to_building_mesh)")
-
-        # end = time.time()
-        # print("to shapely: "+str(end - start))
 
         # https://wiki.openstreetmap.org/wiki/Simple_3D_buildings#Other_roof_tags
         def _feet_to_meters(s):
@@ -935,8 +906,6 @@ class OSM:
         heights = []
         building_id = []
 
-        # start = time.time()
-
         for index_polygon, building_info in enumerate(polygons):
 
             tags.append(building_info['tags'])
@@ -947,9 +916,6 @@ class OSM:
             geometry.append(MultiPolygon(shapely_polygons))
 
             building_id.append(index_polygon)
-
-        # end = time.time()
-        # print("building Polygon and MultiPolygon: "+str(end - start))
 
         geometry = gpd.GeoSeries(geometry, crs='epsg:4326')
         heights = pd.Series(heights, dtype='float')
@@ -974,36 +940,13 @@ class OSM:
         gdf = gdf.set_index('building_id', drop=False)
         gdf = gdf.sort_index()
 
-        # start = time.time()
-
-        print("merging overlapping buildings (osm_to_building_mesh)")
-
         gdf_merged_buildings = Buildings.merge_overlapping_buildings(gdf)
-
-        print("overlapping buildings merged (osm_to_building_mesh)")
-
-        # end = time.time()
-        # print("merge_overlapping_buildings: "+str(end - start))
-
-        # start = time.time()
-
-        print("generating building layers (osm_to_building_mesh)")
 
         layer_dataframes = Buildings.generate_building_layer(gdf_merged_buildings, sizeCells) #gdf, size
 
-        print("building layers generated (osm_to_building_mesh)")
-
-        # end = time.time()
-        # print("generate_building_layer: "+str(end - start))
-
         df_mesh = layer_dataframes['df']
 
-        # start = time.time()
-
         json_mesh = Buildings.df_to_json(df_mesh) # prepares the layer   
-
-        # end = time.time()
-        # print("df_to_json: "+str(end - start))
 
         return {"data": json_mesh['data'], "gdf": {'objects': layer_dataframes['gdf']['objects'], 'coordinates': layer_dataframes['gdf']['coordinates'], "coordinates3d": layer_dataframes['gdf']['coordinates3d']}}
 
@@ -1527,12 +1470,8 @@ class OSM:
 
         finalSize = sizeCells
 
-        if(finalSize == -1):
-            if(nCells == -1):
-                # default are cells of size 5 meters
-                finalSize = 5
-            else:
-                finalSize = max(abs(bbox[2] - bbox[0])/nCells, abs(bbox[3] - bbox[1])/nCells)
+        if(finalSize == -1 and nCells != -1):
+            finalSize = max(abs(bbox[2] - bbox[0])/nCells, abs(bbox[3] - bbox[1])/nCells)
 
         coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, finalSize)
 
@@ -1549,96 +1488,96 @@ class OSM:
 
         gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, "id": ids_coordinates}, crs=3395)
 
-        # mesh = [{
-        #     'geometry': {
-        #         'coordinates': [float(elem) for sublist in coordinates for elem in sublist],
-        #         'indices': [int(elem) for sublist in indices for elem in sublist],
-        #         'ids': [int(elem) for elem in ids],
-        #         'normals': [float(elem) for sublist in normals for elem in sublist],
-        #         "discardFuncInterval": [0, 0.01]
-        #     }
-        # }]
+        mesh = [{
+            'geometry': {
+                'coordinates': [float(elem) for sublist in coordinates for elem in sublist],
+                'indices': [int(elem) for sublist in indices for elem in sublist],
+                'ids': [int(elem) for elem in ids],
+                'normals': [float(elem) for sublist in normals for elem in sublist],
+                "discardFuncInterval": [0, 0.01]
+            }
+        }]
 
         # Temp code to create one object per cell
         # ===========================================================================================
 
-        mesh = []
-        maxId = max(ids)
+        # mesh = []
+        # maxId = max(ids)
 
-        for i in range(maxId+1):
-            mesh.append({
-                'geometry': {
-                    'coordinates': [],
-                    'indices': [],
-                    'ids': [],
-                    'normals': [],
-                    'discardFuncInterval': [0, 0.01]
-                }
-            })            
+        # for i in range(maxId+1):
+        #     mesh.append({
+        #         'geometry': {
+        #             'coordinates': [],
+        #             'indices': [],
+        #             'ids': [],
+        #             'normals': [],
+        #             'discardFuncInterval': [0, 0.01]
+        #         }
+        #     })            
 
-        coordinates_index_translation = {}
+        # coordinates_index_translation = {}
 
-        # each position of ids indicates the cell to which this triangle belong
-        for id_index, id_content in enumerate(ids):
+        # # each position of ids indicates the cell to which this triangle belong
+        # for id_index, id_content in enumerate(ids):
 
-            # adding the coordinates of this triangle
-            if indices[id_index][0] not in mesh[id_content]['geometry']['indices']:
+        #     # adding the coordinates of this triangle
+        #     if indices[id_index][0] not in mesh[id_content]['geometry']['indices']:
 
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][0]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][1]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][2]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][0]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][1]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][2]))
 
-                if indices[id_index][0] not in coordinates_index_translation:
-                    coordinates_index_translation[indices[id_index][0]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
+        #         if indices[id_index][0] not in coordinates_index_translation:
+        #             coordinates_index_translation[indices[id_index][0]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
 
-            if indices[id_index][1] not in mesh[id_content]['geometry']['indices']:
+        #     if indices[id_index][1] not in mesh[id_content]['geometry']['indices']:
 
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][0]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][1]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][2]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][0]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][1]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][2]))
 
-                if indices[id_index][1] not in coordinates_index_translation:
-                    coordinates_index_translation[indices[id_index][1]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
+        #         if indices[id_index][1] not in coordinates_index_translation:
+        #             coordinates_index_translation[indices[id_index][1]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
 
-            if indices[id_index][2] not in mesh[id_content]['geometry']['indices']:
+        #     if indices[id_index][2] not in mesh[id_content]['geometry']['indices']:
 
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][0]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][1]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][2]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][0]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][1]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][2]))
 
-                if indices[id_index][2] not in coordinates_index_translation:
-                    coordinates_index_translation[indices[id_index][2]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
+        #         if indices[id_index][2] not in coordinates_index_translation:
+        #             coordinates_index_translation[indices[id_index][2]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
 
-            # adding the triangle
-            mesh[id_content]['geometry']['indices'].append(int(indices[id_index][0]))
-            mesh[id_content]['geometry']['indices'].append(int(indices[id_index][1]))
-            mesh[id_content]['geometry']['indices'].append(int(indices[id_index][2]))
+        #     # adding the triangle
+        #     mesh[id_content]['geometry']['indices'].append(int(indices[id_index][0]))
+        #     mesh[id_content]['geometry']['indices'].append(int(indices[id_index][1]))
+        #     mesh[id_content]['geometry']['indices'].append(int(indices[id_index][2]))
 
-            #adding the normals of the coordinates
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][0]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][1]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][2]))
+        #     #adding the normals of the coordinates
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][0]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][1]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][2]))
 
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][0]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][1]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][2]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][0]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][1]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][2]))
 
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][0]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][1]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][2]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][0]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][1]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][2]))
 
-            # adding the id of the triangle
-            mesh[id_content]['geometry']['ids'].append(int(ids[id_index]))
+        #     # adding the id of the triangle
+        #     mesh[id_content]['geometry']['ids'].append(int(ids[id_index]))
 
-        for element in mesh:
+        # for element in mesh:
 
-            element['geometry']['indices'] = [int(coordinates_index_translation[value]) for value in element['geometry']['indices']]
+        #     element['geometry']['indices'] = [int(coordinates_index_translation[value]) for value in element['geometry']['indices']]
 
-            # minIndex = min(element['geometry']['indices'])
-            # element['geometry']['indices'] = [value - minIndex for value in element['geometry']['indices']]
+        #     # minIndex = min(element['geometry']['indices'])
+        #     # element['geometry']['indices'] = [value - minIndex for value in element['geometry']['indices']]
 
-            minIds = min(element['geometry']['ids'])
-            element['geometry']['ids'] = [value - minIds for value in element['geometry']['ids']]
+        #     minIds = min(element['geometry']['ids'])
+        #     element['geometry']['ids'] = [value - minIds for value in element['geometry']['ids']]
 
         # ===========================================================================================
 
