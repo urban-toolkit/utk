@@ -5,16 +5,13 @@ import numpy as np
 from netCDF4 import Dataset
 import json
 import os
+import data
 
 from osm import *
-from shadowAccumulator import *
 from urbanComponent import *
 from load_physical import *
 from load_thematic import *
-
-# exposes simulations like .shadow
-# loads any kind of data the type is determined by the extension
-# def data
+from load_utk import *
 
 def remove_elements(filepath, ids):
     file = open(filepath, mode='r')
@@ -105,3 +102,5 @@ def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longi
 
     with open(os.path.join(directory,layer_id+".json"), "w") as outfile:
         outfile.write(json_object)
+
+

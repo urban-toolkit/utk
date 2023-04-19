@@ -25,7 +25,6 @@ class ShadowAccumulator:
     # start = None
     # end = None
     intervals = [] # list of lists containing different time intervals
-    season = ''
 
     flat_coords = []
     coords = np.array([])
@@ -38,8 +37,9 @@ class ShadowAccumulator:
     per_face_avg_accum = []
     latitude = 0
     longitude = 0
+    result_to_write = {} # the result that will be outputed in the files (groupped by interval index)
 
-    def __init__(self, latitude, longitude, filespaths, intervals, season):
+    def __init__(self, latitude, longitude, filespaths, intervals):
 
         '''
             All meshes must be 3D
@@ -47,11 +47,7 @@ class ShadowAccumulator:
             * @param {List[string]} filespaths All the layers containing meshes that have to be considered in the shadow calculation
             * @param {string} start Timestamp of the beginning of the accumulation. Format: "%m/%d/%Y %H:%M". Example: "03/20/2015 10:00"
             * @param {string} end Timestamp of the end of the accumulation. Format: "%m/%d/%Y %H:%M". Example: "03/20/2015 11:01"
-            * @param {string} season The name of the season. Can be: 'spring', 'summer', 'atumn' and 'winter'
         '''
-
-
-
 
         for interval in intervals:
             start = datetime.strptime(interval[0], "%m/%d/%Y %H:%M")
@@ -62,7 +58,6 @@ class ShadowAccumulator:
         self.filespaths = filespaths
         # self.start = datetime.strptime(start, "%m/%d/%Y %H:%M")
         # self.end = datetime.strptime(end, "%m/%d/%Y %H:%M")
-        self.season = season
 
         self.latitude = latitude
         self.longitude = longitude
@@ -130,7 +125,7 @@ class ShadowAccumulator:
         height = camera_plane_dim # camera plane height
 
         accumulation = np.full((coords.shape[0], 1), 0) 
-            
+
         rt = NpOptiX(width=width, height=height)
         rt.set_mesh('buildings', pos=coords, faces=indices, normals=normals)#, c=colors)
         rt.set_float("scene_epsilon", 0.01) # set shader variable with a given name
@@ -256,53 +251,56 @@ class ShadowAccumulator:
 
         return np.array(avg_accumulation_per_coordinates)
 
-    def writeShadowData(self, accumulation, function_index):
+    def save(self):
         '''
             Writes the shadow data back to the mesh files passed to the constructor
-
-            * @param {List[float]} accumulation Shadow data accumulated per coordinates
         '''
 
-        # function values are the normalized accumulation values ([0,1]) that are used by the shader of utk-map to color the cells
-        if(max(accumulation) != 0):
-            function_values = accumulation/max(accumulation)
-        else:
-            function_values = accumulation
+        for index in range(len(self.intervals)):
 
-        function_values = function_values.tolist()
+            accumulation = self.result_to_write[index] # shadow data accumulated per coordinates
+            function_index = index
 
-        flat_coords = self.flat_coords.copy()
+            # function values are the normalized accumulation values ([0,1]) that are used by the shader of utk-map to color the cells
+            if(max(accumulation) != 0):
+                function_values = accumulation/max(accumulation)
+            else:
+                function_values = accumulation
 
-        # decoupled abstract layer
-        # shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': [round(item,4) for item in self.flat_coords], 'values': [round(item,4) for item in function_values]}
+            function_values = function_values.tolist()
 
-        # directory = os.path.dirname(self.filespaths[0])
+            flat_coords = self.flat_coords.copy()
 
-        # with open(os.path.join(directory, "shadow"+str(function_index)+".json"), "w") as outfile:
-        #     json.dump(shadow_layer, outfile)
+            # decoupled abstract layer
+            # shadow_layer = {'id': "shadow"+str(function_index), 'coordinates': [round(item,4) for item in self.flat_coords], 'values': [round(item,4) for item in function_values]}
 
-        for index, geometries_count in enumerate(self.coords_per_file):
-            
-            fileName = os.path.splitext(os.path.basename(self.filespaths[index]))[0]
+            # directory = os.path.dirname(self.filespaths[0])
 
-            directory = os.path.dirname(self.filespaths[index])
+            # with open(os.path.join(directory, "shadow"+str(function_index)+".json"), "w") as outfile:
+            #     json.dump(shadow_layer, outfile)
 
-            function_values_this_file = []
-            flat_coords_this_file = []
+            for index, geometries_count in enumerate(self.coords_per_file):
+                
+                fileName = os.path.splitext(os.path.basename(self.filespaths[index]))[0]
 
-            for geometry_count in geometries_count:
+                directory = os.path.dirname(self.filespaths[index])
 
-                function_values_this_file += function_values[:geometry_count]
+                function_values_this_file = []
+                flat_coords_this_file = []
 
-                flat_coords_this_file += flat_coords[:geometry_count*3]
+                for geometry_count in geometries_count:
 
-                flat_coords = flat_coords[geometry_count*3:] # remove the values that belong to the current mesh
-                function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
+                    function_values_this_file += function_values[:geometry_count]
 
-            shadow_layer = {'id': "shadow"+str(function_index)+'_'+fileName, 'coordinates': [round(item,4) for item in flat_coords_this_file], 'values': [round(item,4) for item in function_values_this_file]}
+                    flat_coords_this_file += flat_coords[:geometry_count*3]
 
-            with open(os.path.join(directory, "shadow"+str(function_index)+'_'+fileName+".json"), "w") as outfile:
-                json.dump(shadow_layer, outfile)
+                    flat_coords = flat_coords[geometry_count*3:] # remove the values that belong to the current mesh
+                    function_values = function_values[geometry_count:] # remove the values that belong to the current mesh
+
+                shadow_layer = {'id': "shadow"+str(function_index)+'_'+fileName, 'coordinates': [round(item,4) for item in flat_coords_this_file], 'values': [round(item,4) for item in function_values_this_file]}
+
+                with open(os.path.join(directory, "shadow"+str(function_index)+'_'+fileName+".json"), "w") as outfile:
+                    json.dump(shadow_layer, outfile)
 
     def accumulate_shadow(self):
         '''
@@ -335,7 +333,7 @@ class ShadowAccumulator:
                 if elem[0] < min:
                     min = elem[0]
  
-            self.writeShadowData([(elem[0] - min) / (max - min) for elem in accum], index)
+            self.result_to_write[index] =  [(elem[0] - min) / (max - min) for elem in accum]
 
     def loadFiles(self):
 

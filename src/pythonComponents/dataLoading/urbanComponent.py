@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 import os
 import struct
+import subprocess
+import webbrowser
 
 from ipykernel.comm import Comm
 from shapely.geometry import Polygon, Point
@@ -36,8 +38,20 @@ class UrbanComponent:
         if bpolygon != None:
             self.bpolygon = bpolygon
 
-    def setWorkDir(self, directory):
-        self.workDir = directory
+        self.setWorkDir()
+
+    def setWorkDir(self, dir):
+
+        self.workDir = os.path.join(os.pardir,os.pardir,os.pardir,'public/data',dir)
+
+        python_config_file = open(os.path.join(os.pardir,os.pardir,'pythonServerConfig.json'), 'r')
+        python_config_json = json.load(python_config_file)
+        python_config_json['paramsPythonServer']['environmentDataFolder'] = os.path.join('public/data', dir)
+        python_config_file.close()
+
+        python_config_file = open(os.path.join(os.pardir,os.pardir,'pythonServerConfig.json'), 'w')
+        python_config_file.write(json.dumps(python_config_json))
+        python_config_file.close()
 
     # TODO: make this function more generic regarding the section footprint
     def jsonToGdf(self, layer_json, dim, abstract=False):
@@ -515,80 +529,81 @@ class UrbanComponent:
             with open(os.path.join(filepath,filename+".json"), "w") as outfile:
                 outfile.write(json_object)
 
-    def to_file(self, filepath, separateFiles=False, includeGrammar=True):
-        '''
-            If separateFiles is true. filepath must be an existing directory.
-            If running with separateFiles = True, this are the resulting files:
-            grammar.json
-            building -> buildings.json
-            camera -> camera.json
-            coastline -> coastline.json
-            water -> water.json
-            surface -> surface.json
-            parks -> parks.json
-            roads -> roads.json
-            routes -> routes.json
-        '''
+    def save(self, dir=None, includeGrammar=True):
 
-        if(separateFiles):
-            if(os.path.isdir(filepath)):
-                grammar_json = {
-                    "views": [
-                        {
-                            "map": {
-                                "camera": self.camera,
-                                "knots": [],
-                                "interactions": []
-                            },
-                            "plots": [],
-                            "knots": []            
-                        }
-                    ],
-                    "arrangement": "LINKED"
-                }
+        if(self.workDir == None and dir == None):
+            raise Exception("Directory not specified")
 
-                for layer in self.layers['json']:
+        workDir = None
 
-                    grammar_json['views'][0]['knots'].append({"id": "pure"+layer['id'], "linkingScheme": [{"thisLayer": layer['id']}], "aggregationScheme": ["NONE"]})
-                    grammar_json['views'][0]['map']['knots'].append("pure"+layer['id'])
-                    grammar_json['views'][0]['map']['interactions'].append("NONE")
+        if(dir != None):
+            workDir = os.path.join(os.pardir,os.pardir,os.pardir,'public/data',dir)
 
-                    if('data' in layer and includeGrammar): # if it is not an abstract layer
-
-                        types = []
-                        dataTypes = []
-
-                        if('coordinates' in layer['data'][0]['geometry']):
-                            types.append("coordinates")
-                            dataTypes.append("d")
-
-                        if('normals' in layer['data'][0]['geometry']):
-                            types.append("normals")
-                            dataTypes.append("f")
-
-                        if('indices' in layer['data'][0]['geometry']):
-                            types.append("indices")
-                            dataTypes.append("I")
-
-                        if('ids' in layer['data'][0]['geometry']):
-                            types.append("ids")
-                            dataTypes.append("I")
-
-                        self.break_into_binary(filepath, layer['id'], layer, types, dataTypes)
-
-                if(includeGrammar):
-                    grammar_json_str = str(json.dumps(grammar_json, indent=4))
-                    with open(os.path.join(filepath,"grammar.json"), "w", encoding="utf-8") as f:
-                        f.write(grammar_json_str)
-
-                for fileName in self.joinedJson:
-                    with open(os.path.join(filepath,fileName+".json"), "w", encoding="utf-8") as f:
-                        joined_json_str = str(json.dumps(self.joinedJson[fileName]))
-                        f.write(joined_json_str)
-
-            else:
-                raise Exception("separateFiles is true but filepath does not point to an existing directory")
-
+            if(self.workDir == None):
+                self.setWorkDir(dir)
         else:
-            raise Exception("to_file can only be used with separate files")
+            workDir = self.workDir
 
+        grammar_json = {
+            "views": [
+                {
+                    "map": {
+                        "camera": self.camera,
+                        "knots": [],
+                        "interactions": []
+                    },
+                    "plots": [],
+                    "knots": []            
+                }
+            ],
+            "arrangement": "LINKED"
+        }
+
+        for layer in self.layers['json']:
+
+            grammar_json['views'][0]['knots'].append({"id": "pure"+layer['id'], "linkingScheme": [{"thisLayer": layer['id']}], "aggregationScheme": ["NONE"]})
+            grammar_json['views'][0]['map']['knots'].append("pure"+layer['id'])
+            grammar_json['views'][0]['map']['interactions'].append("NONE")
+
+            if('data' in layer and includeGrammar): # if it is not an abstract layer
+
+                types = []
+                dataTypes = []
+
+                if('coordinates' in layer['data'][0]['geometry']):
+                    types.append("coordinates")
+                    dataTypes.append("d")
+
+                if('normals' in layer['data'][0]['geometry']):
+                    types.append("normals")
+                    dataTypes.append("f")
+
+                if('indices' in layer['data'][0]['geometry']):
+                    types.append("indices")
+                    dataTypes.append("I")
+
+                if('ids' in layer['data'][0]['geometry']):
+                    types.append("ids")
+                    dataTypes.append("I")
+
+                self.break_into_binary(workDir, layer['id'], layer, types, dataTypes)
+
+        if(includeGrammar):
+            grammar_json_str = str(json.dumps(grammar_json, indent=4))
+            with open(os.path.join(workDir,"grammar.json"), "w", encoding="utf-8") as f:
+                f.write(grammar_json_str)
+
+        for fileName in self.joinedJson:
+            with open(os.path.join(workDir,fileName+".json"), "w", encoding="utf-8") as f:
+                joined_json_str = str(json.dumps(self.joinedJson[fileName]))
+                f.write(joined_json_str)
+
+    def view(self):
+
+        website = "http://localhost:3000/"
+        # Open url in a new window of the default browser, if possible
+        webbrowser.open_new(website)
+
+        # cmd = subprocess.Popen('cmd.exe /K dir') 
+        # subprocess.run('bash -c "conda activate urbantk; python -V"', shell=True)
+        # subprocess.check_call('npm --help', shell=True)
