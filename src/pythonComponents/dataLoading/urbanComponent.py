@@ -38,8 +38,6 @@ class UrbanComponent:
         if bpolygon != None:
             self.bpolygon = bpolygon
 
-        self.setWorkDir()
-
     def setWorkDir(self, dir):
 
         self.workDir = os.path.join(os.pardir,os.pardir,os.pardir,'public/data',dir)
