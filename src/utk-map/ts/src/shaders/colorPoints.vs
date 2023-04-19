@@ -12,6 +12,8 @@ in highp vec3 vertCoords;
 
 in highp float funcValues;
 
+out highp vec2 texCoords;
+
 vec2 latLngToPixel(highp float latitude, highp float longitude){
   highp float sinLatitude = sin(latitude * pi_180);
   highp float pixelY = 256.0-((0.5 - log((1.0 + sinLatitude) / (1.0 - sinLatitude)) / (pi_4)) * 256.0);

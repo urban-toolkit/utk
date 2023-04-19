@@ -57,7 +57,7 @@ def serve_linkLayers():
 
     uc = UrbanComponent()
 
-    # uc.setWorkDir(workDir)
+    uc.setWorkDir(workDir)
 
     if(uc.existsJoin(thisLayer, otherLayer, predicate.upper(), thisLevel.upper(), otherLevel.upper(), abstract)):
         return ''
@@ -76,7 +76,7 @@ def serve_linkLayers():
         else:
             uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel, default_value=defaultValue)
 
-    uc.to_file(workDir, True, False)
+    uc.save(workDir, False)
 
     return ''
 
@@ -218,8 +218,6 @@ def serve_addRenderStyles():
 
         layersInfo[layer]['data']['renderStyle'] = renderStyles
 
-        print(layer, renderStyles)
-
         with open(os.path.join(workDir,layer+".json"), "w", encoding="utf-8") as f:
             f.write(json.dumps(layersInfo[layer]['data']))
 
@@ -255,6 +253,5 @@ if __name__ == '__main__':
         params = params["paramsPythonServer"]
 
     workDir = params["environmentDataFolder"]
-
     
     app.run(debug=True, host=params["environmentIP"], port=params["port"])

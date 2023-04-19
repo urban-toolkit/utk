@@ -61,6 +61,7 @@ export class ShaderColorPoints extends Shader {
         // creathe dhe shader variables
         this.createUniforms(glContext);
         this.createVertexArrayObject(glContext);
+        this.createTextures(glContext);
     }
 
     public updateShaderGeometry(mesh: Mesh) {
@@ -72,6 +73,7 @@ export class ShaderColorPoints extends Shader {
         this._currentKnot = knot;
         this._functionDirty = true;
         this._function = mesh.getFunctionVBO(knot.id);
+
         let scale = d3.scaleLinear().domain(d3.extent(this._function[0])).range([0,1]);
 
         for(let i = 0; i < this._function[0].length; i++){

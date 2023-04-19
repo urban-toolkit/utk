@@ -176,7 +176,7 @@ export class ShaderSmoothColorMap extends AuxiliaryShaderTriangles {
         glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_WRAP_T, glContext.CLAMP_TO_EDGE);
         glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_MIN_FILTER, glContext.NEAREST);
         glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_MAG_FILTER, glContext.NEAREST);
-     
+
         // Upload the image into the texture.
         const texData = ColorMap.getColorMap(this._colorMap, this._colorMapReverse);
 

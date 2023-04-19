@@ -40,16 +40,16 @@ class UrbanComponent:
 
     def setWorkDir(self, dir):
 
-        self.workDir = os.path.join(os.pardir,os.pardir,os.pardir,'public/data',dir)
+        self.workDir = dir
 
-        python_config_file = open(os.path.join(os.pardir,os.pardir,'pythonServerConfig.json'), 'r')
-        python_config_json = json.load(python_config_file)
-        python_config_json['paramsPythonServer']['environmentDataFolder'] = os.path.join('public/data', dir)
-        python_config_file.close()
+        # python_config_file = open(os.path.join(os.pardir,os.pardir,'pythonServerConfig.json'), 'r')
+        # python_config_json = json.load(python_config_file)
+        # python_config_json['paramsPythonServer']['environmentDataFolder'] = os.path.join('public/data', dir)
+        # python_config_file.close()
 
-        python_config_file = open(os.path.join(os.pardir,os.pardir,'pythonServerConfig.json'), 'w')
-        python_config_file.write(json.dumps(python_config_json))
-        python_config_file.close()
+        # python_config_file = open(os.path.join(os.pardir,os.pardir,'pythonServerConfig.json'), 'w')
+        # python_config_file.write(json.dumps(python_config_json))
+        # python_config_file.close()
 
     # TODO: make this function more generic regarding the section footprint
     def jsonToGdf(self, layer_json, dim, abstract=False):
@@ -535,8 +535,8 @@ class UrbanComponent:
         workDir = None
 
         if(dir != None):
-            workDir = os.path.join(os.pardir,os.pardir,os.pardir,'public/data',dir)
-
+            # workDir = os.path.join(os.pardir,os.pardir,os.pardir,'public/data',dir)
+            workDir = dir
             if(self.workDir == None):
                 self.setWorkDir(dir)
         else:

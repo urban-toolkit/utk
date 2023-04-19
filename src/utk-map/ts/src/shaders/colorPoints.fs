@@ -21,4 +21,5 @@ void main() {
 
     // fragColor = vec4(0.6 * shade + 0.4 * uGlobalColor, 1.0);
     fragColor = vec4(texColor, 1.0);
+    // fragColor = vec4(texCoords[0], 0.0, 0.0, 1.0);
 }
