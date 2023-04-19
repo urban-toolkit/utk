@@ -76,17 +76,14 @@ export class LayerManager {
             case LayerType.LINES_3D_LAYER:
                 layer = new LinesLayer(layerInfo, 3, zOrder, centroid);
             break;
-            case LayerType.POINTS_2D_LAYER:
-                layer = new PointsLayer(layerInfo, 2, zOrder, centroid);
-            break;               
-            case LayerType.POINTS_3D_LAYER:
-                layer = new PointsLayer(layerInfo, 3, zOrder, centroid);
-            break;
             case LayerType.BUILDINGS_LAYER:
                 layer = new BuildingsLayer(layerInfo, zOrder, centroid);
             break;
             case LayerType.HEATMAP_LAYER:
                 layer = new HeatmapLayer(layerInfo, zOrder, centroid);
+            break;
+            case LayerType.POINTS_LAYER:
+                layer = new PointsLayer(layerInfo, zOrder, centroid);
             break;
             default:
                 console.error(`File ${layerInfo.id}.json has an unknown layer type: ${layerInfo.type}.`);

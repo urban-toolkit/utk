@@ -389,23 +389,31 @@ export class ShaderSmoothColorMap extends AuxiliaryShaderTriangles {
         // binds data
         this.bindUniforms(glContext, camera);
 
-        glContext.stencilFunc(
-            glContext.GEQUAL,     // the test
-            zOrder,            // reference value
-            0xFF,         // mask
-        );
-
-        glContext.stencilOp(
-            glContext.KEEP,     // what to do if the stencil test fails
-            glContext.KEEP,     // what to do if the depth test fails
-            glContext.REPLACE,     // what to do if both tests pass
-        );
+        if(glPrimitive != glContext.POINTS){
+            glContext.stencilFunc(
+                glContext.GEQUAL,     // the test
+                zOrder,            // reference value
+                0xFF,         // mask
+            );
+    
+            glContext.stencilOp(
+                glContext.KEEP,     // what to do if the stencil test fails
+                glContext.KEEP,     // what to do if the depth test fails
+                glContext.REPLACE,     // what to do if both tests pass
+            );
+        }
 
         this.bindVertexArrayObject(glContext, mesh);
         this.bindTextures(glContext);
 
-        // draw the geometry
-        glContext.drawElements(glPrimitive, this._indices.length, glContext.UNSIGNED_INT, 0);
+        if(glPrimitive == glContext.POINTS){
+            // draw the geometry
+            glContext.drawElements(glPrimitive, this._coords.length/3, glContext.UNSIGNED_INT, 0);
+        }else{
+            // draw the geometry
+            glContext.drawElements(glPrimitive, this._indices.length, glContext.UNSIGNED_INT, 0);
+        }
+
 
         // glContext.disable(glContext.BLEND);
     }

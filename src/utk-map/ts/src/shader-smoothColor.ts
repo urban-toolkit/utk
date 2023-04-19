@@ -204,17 +204,19 @@ export class ShaderSmoothColor extends Shader {
 
         this.bindUniforms(glContext, camera);
 
-        glContext.stencilFunc(
-            glContext.GEQUAL,     // the test
-            zOrder,            // reference value
-            0xFF,         // mask
-        );
+        if(glPrimitive != glContext.POINTS){
+            glContext.stencilFunc(
+                glContext.GEQUAL,     // the test
+                zOrder,            // reference value
+                0xFF,         // mask
+            );
 
-        glContext.stencilOp(
-            glContext.KEEP,     // what to do if the stencil test fails
-            glContext.KEEP,     // what to do if the depth test fails
-            glContext.REPLACE,     // what to do if both tests pass
-        );
+            glContext.stencilOp(
+                glContext.KEEP,     // what to do if the stencil test fails
+                glContext.KEEP,     // what to do if the depth test fails
+                glContext.REPLACE,     // what to do if both tests pass
+            );
+        }
 
         this.bindVertexArrayObject(glContext, mesh);
 
@@ -226,7 +228,8 @@ export class ShaderSmoothColor extends Shader {
                 alreadyDrawn += this._coordsPerComp[i];
 
             }
-
+        }else if(glPrimitive == glContext.POINTS){
+            glContext.drawElements(glPrimitive, this._coords.length/3, glContext.UNSIGNED_INT, 0);
         }else{
             // draw the geometry
             glContext.drawElements(glPrimitive, this._indices.length, glContext.UNSIGNED_INT, 0);
