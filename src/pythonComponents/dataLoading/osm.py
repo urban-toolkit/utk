@@ -306,6 +306,7 @@ class OSM:
                 query = OSM.build_osm_query(bpoly, 'geom', bbox, [layer])
 
                 response = cache._load_osm_from_cache(query)
+
                 if not response:
                     time.sleep(1) # avoiding Overpass 429 Too Many Requests
                     response = api.get(query, build=False)
