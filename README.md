@@ -54,9 +54,31 @@ While dependencies can be installed without using a virtual environment, we reco
 
 ### Data loading
 
+All data loaded into the system must be under `public/data/`
 
+To choose which folder to load one has to modify:  
+- The field environmentDataFolder in `src/pythonServerConfig.js` following the format: `public/data/*folder_name*`.  
+- The field environmentDataFolder in `src/params.js` following the format: `data/test`.
+
+All layers (physical and thematic) are defined using .json files but following different [formats](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/src/pythonComponents/dataLoading/layers_format.md).
+
+<ins>[UTK API (python)](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/src/pythonComponents/dataLoading/README.md)</ins>
+
+The `src/pythonComponents/dataLoading/UTK_API.ipynb` presents several data loading examples using different types of data. In the end all data will be loaded to a folder under `public/data/`.
 
 ### Example gallery
+
+Each example can be download and executed out of the shelf, but jupyter notebooks and the grammar specifications are also provided if one wants to build it from "scratch".
+
+<ins>Loading downtown Manhattan</ins>
+
+**Description**: loading water, parks, street network and buildings for downtown Manhattan. Also raytracing is used for shadow simulation.
+
+**Data**: [download](https://drive.google.com/drive/folders/13PlCVp_k464Xygp4kGsp_ZactGP91KJH?usp=share_link) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/downtown_manhattan/data.ipynb)
+
+**Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/downtown_manhattan/grammar.json)
+
+*To visualize the shadow data it is necessary to change the renderStyle of buildings.json to \['SMOOTH_COLOR_MAP_TEX'\] and renderStyle of surface.json to \['SMOOTH_COLOR_MAP'\]* (TODO: choose shader automatically)
 
 ### Configuration
 

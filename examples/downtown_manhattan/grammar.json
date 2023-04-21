@@ -1,0 +1,97 @@
+{
+    "views": [
+        {
+            "map": {
+                "camera": {
+                    "position": [
+                        -8239611,
+                        4941390.5,
+                        1.811947509765625
+                    ],
+                    "direction": {
+                        "right": [
+                            536.95458984375,
+                            -2519.207275390625,
+                            1811.947509765625
+                        ],
+                        "lookAt": [
+                            552.7074584960938,
+                            -1744.518310546875,
+                            1179.801513671875
+                        ],
+                        "up": [
+                            0.012851359322667122,
+                            0.6320154070854187,
+                            0.7748492360115051
+                        ]
+                    }
+                },
+                "knots": [
+                    "pureparks",
+                    "purewater",
+                    "pureroads",
+                    "shadowToBuildings"
+                ],
+                "interactions": [
+                    "NONE",
+                    "NONE",
+                    "NONE",
+                    "NONE"
+                ]
+            },
+            "plots": [],
+            "knots": [
+                {
+                    "id": "pureparks",
+                    "linkingScheme": [
+                        {
+                            "thisLayer": "parks"
+                        }
+                    ],
+                    "aggregationScheme": [
+                        "NONE"
+                    ]
+                },
+                {
+                    "id": "purewater",
+                    "linkingScheme": [
+                        {
+                            "thisLayer": "water"
+                        }
+                    ],
+                    "aggregationScheme": [
+                        "NONE"
+                    ]
+                },
+                {
+                    "id": "pureroads",
+                    "linkingScheme": [
+                        {
+                            "thisLayer": "roads"
+                        }
+                    ],
+                    "aggregationScheme": [
+                        "NONE"
+                    ]
+                },
+                {
+                    "id": "shadowToBuildings",
+                    "linkingScheme": [
+                        {
+                            "predicate": "NEAREST",
+                            "thisLayer": "buildings",
+                            "otherLayer": "shadow0_buildings",
+                            "thisLevel": "COORDINATES3D",
+                            "otherLevel": "COORDINATES3D",
+                            "abstract": true
+                        }
+                    ],
+                    "aggregationScheme": [
+                        "NONE"
+                    ]
+                }
+            ]
+        }
+    ],
+    "arrangement": "LINKED"
+}

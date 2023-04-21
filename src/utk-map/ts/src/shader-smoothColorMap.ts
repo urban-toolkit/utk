@@ -128,11 +128,8 @@ export class ShaderSmoothColorMap extends AuxiliaryShaderTriangles {
         console.log('surface', d3.extent(this._function[this._functionToUse]));
 
         let scale = d3.scaleLinear().domain(d3.extent(this._function[this._functionToUse])).range([0,1]);
-        // let scale = d3.scaleLinear().domain([-2,2]).range([0,1]);
-        // let scale = d3.scaleLinear().domain([0,1]).range([0,1]);
 
         for(let i = 0; i < this._function[this._functionToUse].length; i++){
-            // this._function[this._functionToUse][i] = (this._function[this._functionToUse][i] - minFuncValue)/(maxFuncValue - minFuncValue);
             this._function[this._functionToUse][i] = scale(this._function[this._functionToUse][i]);
         }
 

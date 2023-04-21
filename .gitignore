@@ -25,4 +25,4 @@ yarn-error.log*
 #data
 public/data/
 
-
+examples/*/urbantk_cache

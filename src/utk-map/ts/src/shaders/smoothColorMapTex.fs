@@ -54,7 +54,8 @@ void main() {
   highp vec3 normal = normalize(fragNormals);
 
   highp float diffuse = max(dot(normal, light) * 0.7, 0.0);
-  highp float ambient = 0.25; 
+  // highp float ambient = 0.25; 
+  highp float ambient = 0.6; 
   
   // highp vec3 shade = vec3(1.0, 1.0, 1.0) * (diffuse + ambient);
   highp vec3 shade = texColor * (diffuse + ambient);

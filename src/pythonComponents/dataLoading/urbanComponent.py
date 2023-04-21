@@ -563,7 +563,7 @@ class UrbanComponent:
             grammar_json['views'][0]['map']['knots'].append("pure"+layer['id'])
             grammar_json['views'][0]['map']['interactions'].append("NONE")
 
-            if('data' in layer and includeGrammar): # if it is not an abstract layer
+            if('data' in layer): # if it is not an abstract layer
 
                 types = []
                 dataTypes = []
