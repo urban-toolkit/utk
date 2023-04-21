@@ -75,8 +75,6 @@ class UrbanComponent:
 
             for id, elem in enumerate(layer_json['data']):
 
-                ids.append(id)
-
                 groupedCoordinates = []
 
                 polygon_coordinates = None
@@ -104,7 +102,9 @@ class UrbanComponent:
                         ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
                         counter_id_tridimensional_coordinates += 1  
 
-                geometries.append(Polygon(groupedCoordinates))
+                if(len(groupedCoordinates) >= 3):
+                    ids.append(id)
+                    geometries.append(Polygon(groupedCoordinates))
         else:
             for i in range(0,int(len(layer_json['coordinates'])/dimensions)):
                 
