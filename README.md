@@ -80,6 +80,10 @@ Each example can be download and executed out of the shelf, but jupyter notebook
 
 *To visualize the shadow data it is necessary to change the renderStyle of buildings.json to \['SMOOTH_COLOR_MAP_TEX'\] and renderStyle of surface.json to \['SMOOTH_COLOR_MAP'\]* (TODO: choose shader automatically)
 
+<p align="center">
+    <img src="./images/example_downtown_manhattan.png"  width="500">
+</p>
+
 ### Configuration
 
 UTK will load data files stored under utk/public/data.  
