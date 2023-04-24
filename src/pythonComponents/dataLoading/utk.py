@@ -33,16 +33,16 @@ def remove_elements(filepath, ids):
 '''
     Converts a wrf file into an abstract layer
 '''
-def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longitude_variable, coordinates_projection, bbox=[]):
+def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longitude_variable, coordinates_projection, timestep, bbox=[]):
     
     # Open the NetCDF file
     ncfile = Dataset(filepath)
 
     ## Data coords
-    xlong = ncfile.variables[longitude_variable][12]
-    xlat = ncfile.variables[latitude_variable][12]
+    xlong = ncfile.variables[longitude_variable][timestep]
+    xlat = ncfile.variables[latitude_variable][timestep]
     ## Data var
-    temp = ncfile.variables[value_variable][12]
+    temp = ncfile.variables[value_variable][timestep]
 
     mask_values = []
 
@@ -53,16 +53,13 @@ def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longi
 
     if(len(bbox) > 0):
 
-        ## Data bounds
-        # longmin, longmax = -87.714582,-87.524081
-        # latmin, latmax = 41.775716,42.02304
-
         longmin, longmax = bbox[1], bbox[3]
         latmin, latmax = bbox[0], bbox[2]
 
         ## Mask coordinates according to bounds
         latmask=np.ma.masked_where(xlat<latmin,xlat).mask+np.ma.masked_where(xlat>latmax,xlat).mask
         lonmask=np.ma.masked_where(xlong<longmin,xlong).mask+np.ma.masked_where(xlong>longmax,xlat).mask
+
         totmask = lonmask + latmask
         ## Apply mask to data
         temp_masked = np.ma.masked_where(totmask,temp)
@@ -75,6 +72,7 @@ def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longi
     points = []
 
     transformer = Transformer.from_crs(coordinates_projection, 3395)
+
 
     for i, line in enumerate(mask_values):
         for j, masked in enumerate(line):

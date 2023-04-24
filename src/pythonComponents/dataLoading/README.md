@@ -30,14 +30,34 @@ Returns:
 
 <a href="#uc_save" name="uc_save">#</a> UrbanComponent.<b>save</b>(dir=None, includeGrammar=True) · [Source](), [Examples]()  
 
+Save layers loaded into the UrbanComponent. Each layer generates a json file that describes the structure of the layer and a set of binary files with the data itself.
+
+- *dir*: string defining the directory where the layer should be saved.
+- *includeGrammar*: boolean that indicates if the grammar template should be generated.
+
 <a href="#uc_setWorkDir" name="uc_setWorkDir">#</a> UrbanComponent.<b>setWorkDir</b>(dir) · [Source](), [Examples]()  
 
-<a href="#uc_view" name="uc_view">#</a> UrbanComponent.<b>view</b>(dir) · [Source](), [Examples]()  
+Define the work directory so it does not need to be specified in every call of functions that require it.
 
-<a href="#uc_view" name="uc_view">#</a> UrbanComponent.<b>view</b>(dir) · [Source](), [Examples]()  
+- *dir*: string defining the work directory.
 
-*To be implemented*
+<a href="#uc_view" name="uc_view">#</a> UrbanComponent.<b>view</b>() · [Source](), [Examples]()  
+
+Opens the application in the web browser. It assumes that the server is already running. 
 
 ### data
 
+<a href="#data_shadow" name="data_shadow">#</a> utk.data.<b>shadow</b>(layers, time_intervals) · [Source](), [Examples]()  
 
+Simulates shadow casting accumulated over different time intervals.
+
+- *layers*: list of strings with the filepaths of layers' .json that should be considered in the ray tracing.
+
+Returns:
+- *ShadowAccumulator*
+
+### ShadowAccumulator
+
+<a href="#shadow_save" name="shadow_save">#</a> ShadowAccumulator.<b>save</b>() · [Source](), [Examples]()  
+
+Save the result of the shadow computation in the same folders of the input layers. Generates one file per layer. 

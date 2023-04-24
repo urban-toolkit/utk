@@ -22,6 +22,8 @@ import { BuildingsLayer } from './layer-buildings';
 
 import { TrianglesLayer } from './layer-triangles';
 
+import { GrammarInterpreterFactory } from './grammarInterpreter';
+
 class MapView {
     // Html div that will host the map
     protected _mapDiv: HTMLElement;
@@ -35,6 +37,8 @@ class MapView {
 
     // Manages the view configuration loaded (including plots and its interactions)
     protected _grammarManager: GrammarManager;
+
+    protected _grammarInterpreter: any;
 
     protected _impactViewManager: ImpactViewManager;
 
@@ -51,10 +55,12 @@ class MapView {
     // keyboard events
     private _keyboard: any;
 
-    private _mapViewData: IGrammar;
+    // private _mapViewData: IGrammar;
 
     protected _embeddedKnots: Set<string>;
     protected _linkedKnots: Set<string>;
+
+    protected _viewId: number; // the view to which this map belongs
 
     resetMap(mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null): void {
         if(this._mapDiv != undefined){
@@ -71,6 +77,9 @@ class MapView {
         this._glContext = <WebGL2RenderingContext>this._canvas.getContext('webgl2', {preserveDrawingBuffer: true, stencil: true}); // preserve drawing buffer is used to generate valid blobs for the cave
         // appends the canvas
         this._mapDiv.appendChild(this._canvas);
+
+        this._viewId = 0; // TODO: should change depending on in what view the map is
+
         // this._mapDiv.appendChild(texCanvas);
         // creates the manager
         this._layerManager = new LayerManager(filterKnotsUpdateCallback);
@@ -148,95 +157,15 @@ class MapView {
             return;
         }
 
-        if(data['views'].length > 1){
-            console.error("More than one view not supported yet");
-        }
+        this._grammarInterpreter = GrammarInterpreterFactory.getInstance();
+        this._grammarInterpreter.resetGrammarInterpreter(data, this);
 
-        this._mapViewData = data;
-
-        let viewsDefinition = data['views'];
-
-        await this.initCamera(viewsDefinition[0].map.camera);
+        await this.initCamera(this._grammarInterpreter.getCamera(this._viewId));
 
         // resizes the canvas
         this.resize();
 
-        let numFootEmbeddedPlots = 0;
-        let numSurEmbeddedPlots = 0;
-
-        for(const plot of viewsDefinition[0].plots){
-            if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED || plot.arrangement == PlotArrangementType.SUR_EMBEDDED){
-
-                if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED){
-                    numFootEmbeddedPlots += 1;
-                }
-
-                if(plot.arrangement == PlotArrangementType.SUR_EMBEDDED){
-                    numSurEmbeddedPlots += 1;
-                }
-            }
-
-            if(plot.bins != undefined && plot.arrangement != PlotArrangementType.FOOT_EMBEDDED){
-                throw Error("bins can only be specified for FOOT_EMBEDDED plots");
-            }
-
-            if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED && plot.bins == undefined){
-                throw Error("bins need to be specified when arrangement FOOT_EMBEDDED is used");
-            }
-        }
-
-        if(numFootEmbeddedPlots > 1 || numSurEmbeddedPlots > 1){
-            throw Error("There can only be one embedded plot of each type");
-        }
-
-        let allKnotsIds: string[] = [];
-
-        for(const knot of viewsDefinition[0].knots){
-            if(allKnotsIds.includes(knot.id)){
-                throw Error("Duplicated knot id");
-            }else{
-                if(knot.knotOp != true)
-                    allKnotsIds.push(knot.id);
-            }
-        }
-
-        for(const knot of viewsDefinition[0].knots){
-            if(knot.knotOp == true){
-                for(const aggScheme of knot.aggregationScheme){
-                    if(aggScheme != AggregationType.NONE){
-                        throw Error("All steps of the aggregation scheme for knots with knotOp = true should be NONE");
-                    }
-                }
-                
-                for(const scheme of knot.linkingScheme){
-                    
-                    if(scheme.otherLayer == undefined){
-                        throw Error("otherLayer must be defined when knotOp = true");
-                    }
-
-                    if(!allKnotsIds.includes(scheme.thisLayer) || !allKnotsIds.includes(scheme.otherLayer)){
-                        throw Error("When using knotOp thisLayer and otherLayer must make reference to the id of other knots (that doesnt have knotOp = true)");
-                    }
-
-                    if(scheme.op == undefined){
-                        throw Error("If knotOp = true each step of the linkingScheme must have a defined op");
-                    }
-
-                    if((scheme.maxDistance != undefined || scheme.defaultValue != undefined) && (scheme.predicate != "NEAREST" || scheme.abstract != true)){
-                        throw Error("The maxDistance and defaultValue fields can only be used with the NEAREST predicate in abstract links");
-                    }
-
-                    if(scheme.maxDistance != undefined && scheme.defaultValue == undefined){
-                        throw Error("If maxDistance is used defaultValue must be specified")
-                    }
-
-                }
-
-            }
-
-        }
-
-        let knotsMap = viewsDefinition[0].map.knots;
+        let knotsMap = this._grammarInterpreter.getMap(this._viewId).knots;
         let layersIds: string[] = [];
         let endOfScheme: boolean[] = [];
         let joinedList: boolean[] = [];
@@ -275,7 +204,6 @@ class MapView {
             }
         }
 
-
         const addLayersFromKnot = (knot: IKnot, colorMap: string | undefined) => {
             for(let i = 0; i < knot.linkingScheme.length; i++){
 
@@ -294,7 +222,7 @@ class MapView {
         }
 
         for(const knotId of knotsMap){
-            for(const knot of viewsDefinition[0].knots){
+            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
                 if(knot.id == knotId){
 
                     if(knot.knotOp != true){
@@ -313,7 +241,6 @@ class MapView {
 
                 }
             }
-
         }
 
         // inits the layers
@@ -329,12 +256,12 @@ class MapView {
 
         this._listLayersCallback(layersToList);
 
-        this.initGrammarManager(data);
+        this.initGrammarManager(this._grammarInterpreter.getInterpretedGrammar());
 
         this._impactViewManager = new ImpactViewManager();
 
-        if(viewsDefinition[0].map.filterKnots != undefined){
-            this._layerManager.filterBbox = viewsDefinition[0].map.filterKnots;
+        if(this._grammarInterpreter.getFilterKnots(this._viewId) != undefined){
+            this._layerManager.filterBbox = this._grammarInterpreter.getFilterKnots(this._viewId);
         }else{
             this._layerManager.filterBbox = [];
         }
@@ -344,7 +271,7 @@ class MapView {
 
         let plotsKnots: string[] = [];
 
-        for(const plotAttributes of this._mapViewData.views[0].plots){
+        for(const plotAttributes of this._grammarInterpreter.getPlots(this._viewId)){
             for(const knotId of plotAttributes.knots){
                 if(!plotsKnots.includes(knotId)){
                     plotsKnots.push(knotId);
@@ -355,7 +282,7 @@ class MapView {
         let plotsKnotData: {knotId: string, elements: {coordinates: number[], abstract: number, highlighted: boolean, index: number}[]}[] = [];
 
         for(const knotId of plotsKnots){
-            for(const knot of this._mapViewData.views[0].knots){
+            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
                 if(knotId == knot.id){
 
                     let lastLink = this.getKnotLastLink(knot);
@@ -533,8 +460,8 @@ class MapView {
 
     private getKnotById(knotId: string){
 
-        for(let i = 0; i < this._mapViewData.views[0].knots.length; i++){
-            let knot = this._mapViewData.views[0].knots[i];
+        for(let i = 0; i < this._grammarInterpreter.getKnots(this._viewId).length; i++){
+            let knot = this._grammarInterpreter.getKnots(this._viewId)[i];
 
             if(knotId == knot.id){
                 return knot;
@@ -580,17 +507,17 @@ class MapView {
     }
 
     private getLayerSchemes(layerId: string): {"knots": IKnot[], "interactions": InteractionType[]}  | null{
-        let mapKnots = this._mapViewData.views[0].map.knots;
+        let mapKnots = this._grammarInterpreter.getMap(this._viewId).knots;
         let lastMapKnot: IKnot | null = null;
         let lastMapKnotInteraction: InteractionType = InteractionType.NONE;
 
-        let allKnots = this._mapViewData.views[0].knots;
+        let allKnots = this._grammarInterpreter.getKnots(this._viewId);
         
         let allLayerKnots = [];
 
         let plotKnots: string[] = [];
 
-        for(const plot of this._mapViewData.views[0].plots){
+        for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
             for(const knotId of plot.knots){
                 if(!plotKnots.includes(knotId)){
                     plotKnots.push(knotId);
@@ -600,11 +527,11 @@ class MapView {
         
         // retrieving last map knot of this layer (that is the one that will be rendered)
         for(const knotId of mapKnots){
-            for(const knot of this._mapViewData.views[0].knots){
+            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
                 if(knot.id == knotId){
                     if(knot.linkingScheme != undefined && knot.aggregationScheme != undefined && this.getKnotOutputLayer(knot) == layerId){
                         lastMapKnot = knot;
-                        lastMapKnotInteraction = this._mapViewData.views[0].map.interactions[mapKnots.indexOf(knot.id)];
+                        lastMapKnotInteraction = this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)];
                     }
                 }
             }
@@ -617,14 +544,14 @@ class MapView {
                 if(lastMapKnot == null){
                     allLayerKnots.push(knot);
                     if(mapKnots.includes(knot.id)){
-                        knotsInteractions.push(this._mapViewData.views[0].map.interactions[mapKnots.indexOf(knot.id)]);
+                        knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
                     }else{
                         knotsInteractions.push(InteractionType.NONE);
                     }                    
                 }else if(knot.id != lastMapKnot.id){
                     allLayerKnots.push(knot);
                     if(mapKnots.includes(knot.id)){
-                        knotsInteractions.push(this._mapViewData.views[0].map.interactions[mapKnots.indexOf(knot.id)]);
+                        knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
                     }else{
                         knotsInteractions.push(InteractionType.NONE);
                     } 
@@ -673,7 +600,7 @@ class MapView {
 
             let plotArrangementsPerKnot: any = {}; // stores in what plot arrangements a specific knot was used
 
-            for(const plot of this._mapViewData.views[0].plots){
+            for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
                 for(const knotId of plot.knots){
                     if(plotArrangementsPerKnot[knotId] == undefined){
                         plotArrangementsPerKnot[knotId] = new Set();
@@ -961,19 +888,6 @@ class MapView {
             layer.render(this._glContext);
         }
 
-        // // the order of rendering is inverted to account for z-fighting problems
-        // for (let i = this._layerManager.layers.length-1; i >= 0; i--) {
-        //     let layer = this._layerManager.layers[i];
-
-        //     // skips based on visibility
-        //     if (!layer.visible) { continue; }
-
-        //     // sends the camera
-        //     layer.camera = this.camera;
-
-        //     // render
-        //     layer.render(this._glContext);
-        // }
     }
 
     /**

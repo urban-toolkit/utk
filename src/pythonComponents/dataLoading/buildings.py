@@ -410,7 +410,7 @@ class Buildings:
             cells = intersection.rotate(-rot, origin=(0,0)).values
 
             # for cell in cells:
-            for j in range(len(cells)):
+            for j in trange(len(cells)):
 
                 cell = cells[j]
 

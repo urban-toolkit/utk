@@ -42,17 +42,17 @@ export interface IGrammar {
 }
 
 export interface IView{
-    map: {camera: ICameraData, knots: string[], interactions: InteractionType[], filterKnots: number[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
-    plots: {name?: string, plot: any, knots: string[], arrangement: PlotArrangementType, interaction?: PlotInteractionType, bins?: number}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
+    map: {camera: ICameraData, knots: (string | IConditionBlock)[], interactions: (InteractionType | IConditionBlock)[], filterKnots: (number | IConditionBlock)[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
+    plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, bins?: number | IConditionBlock}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
     knots: IKnot[]
 }
 
 export interface IKnot {
     id: string,
     knotOp?: boolean,
-    colorMap?: string,
+    colorMap?: string | IConditionBlock,
     linkingScheme: ILinkDescription[],
-    aggregationScheme: AggregationType[]
+    aggregationScheme: (AggregationType | IConditionBlock)[]
 }
 
 export interface ILinkDescription {
@@ -153,4 +153,14 @@ export interface IFeatureGeometry {
     pointsPerSection?: number[]; // number of points in each section of the geometry
     discardFuncInterval?: number[]; // indicates which coordinates of the geometry to discard in the redering process based on the function values
     varyOpByFunc?: number; // if the opacity should vary according to the function value
+}
+
+// The interpreter will replace the block with the end-result of the conditionals
+export interface IConditionBlock{
+    condition: IConditionElement[],
+}
+
+interface IConditionElement{
+    test?: string,
+    value: any
 }
