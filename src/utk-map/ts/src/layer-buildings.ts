@@ -73,7 +73,7 @@ export class BuildingsLayer extends Layer {
         let functionValues: number[] | null = null;
         
         if(knot.linkingScheme != null && knot.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, knot.aggregationScheme)
+            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, <AggregationType[]>knot.aggregationScheme)
         }
         
         let distributedValues = this.distributeFunctionValues(functionValues);

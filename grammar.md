@@ -1,4 +1,4 @@
-### Condition block
+### Condition block (not supported yet)
 
 The user can define a condition block inside almost any field in the grammar specification. The interpreter will replace the block with the end-result of the conditionals.
 
@@ -34,6 +34,87 @@ knots: [
         ]
     }, 
     "buildings"
+]
+```
+The example above is an animation that loop through all frames every 5 seconds.  
+
+PS: This is a more generic and powerful approach to the knots visibility feature.  
+
+### Knot visibility
+
+```js
+map: [
+    camera: {...},
+    knots: [
+        "knot1",
+        "knot2"
+    ],
+    interactions: [...],
+    knotVisibility: [
+        {
+            knot: "knot1",
+            test: "zoom <= 500"
+        },
+        {
+            knot: "knot2",  
+            test: "zoom > 500"
+        }
+    ]
+]
+```
+
+Variables available in the *test* field:
+- *zoom*: stores the current zoom level of the visualization
+- *timeElapsed*: stores the time, in milliseconds, elapsed since the last time the grammar was validated
+
+The *timeElapsed* variable can be used to compose animations:
+```js
+knots: [
+    {
+        condition: [
+            {test: "(timeElapsed/1000)%5 <= 1", value: "frame1"},
+            {test: "(timeElapsed/1000)%5 <= 2", value: "frame2"},
+            {test: "(timeElapsed/1000)%5 <= 3", value: "frame3"},
+            {test: "(timeElapsed/1000)%5 <= 4", value: "frame4"},
+            {test: "(timeElapsed/1000)%5 <= 5", value: "frame5"}
+            {value: "defaultFrame"}
+        ]
+    }, 
+    "buildings"
+]
+
+map: [
+    camera: {...},
+    knots: [
+        "frame1",
+        "frame2",
+        "frame3",
+        "frame4",
+        "frame5"
+    ],
+    interactions: [...],
+    knotVisibility: [
+        {
+            knot: "frame1",
+            test: "(timeElapsed/1000)%5 <= 1"
+        },
+        {
+            knot: "frame2",  
+            test: "(timeElapsed/1000)%5 > 1 && (timeElapsed/1000)%5 <= 2"
+        },
+        {
+            knot: "frame3",  
+            test: "(timeElapsed/1000)%5 > 2 && (timeElapsed/1000)%5 <= 3"
+        },
+        {
+            knot: "frame4",  
+            test: "(timeElapsed/1000)%5 > 3 && (timeElapsed/1000)%5 <= 4"
+        },
+        {
+            knot: "frame5",  
+            test: "(timeElapsed/1000)%5 > 4 && (timeElapsed/1000)%5 <= 5"
+        }
+    ]
 ]
 ```
 The example above is an animation that loop through all frames every 5 seconds.

@@ -1,6 +1,6 @@
 /// <reference types="@types/webgl2" />
 
-import { ICameraData, IConditionBlock, IGrammar } from './interfaces';
+import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot } from './interfaces';
 import { PlotArrangementType, AggregationType} from './constants';
 
 class GrammarInterpreter {
@@ -103,7 +103,8 @@ class GrammarInterpreter {
     }
 
     public processGrammar(){
-        this._processedGrammar = this.processConditionBlocks(JSON.parse(JSON.stringify(this._preProcessedGrammar))); // Making a deep copy of the grammar before processing it
+        // this._processedGrammar = this.processConditionBlocks(JSON.parse(JSON.stringify(this._preProcessedGrammar))); // Making a deep copy of the grammar before processing it
+        this._processedGrammar = this._preProcessedGrammar;
     }
 
     private processConditionBlocks(grammar: IGrammar){
@@ -177,8 +178,70 @@ class GrammarInterpreter {
         return this._processedGrammar['views'][view].map.filterKnots;
     }
 
-    public getInterpretedGrammar(){
+    public getProcessedGrammar(){
         return this._processedGrammar;
+    }
+
+    public evaluateLayerVisibility(layerId: string, view:number): boolean{
+        if(this._processedGrammar['views'][view].map.knotVisibility == undefined)
+            return true;
+
+        let zoom = this._map.camera.getZoomLevel();
+        let timeElapsed = Date.now() - this._lastValidationTimestep;
+
+        let knotId = ''; // TODO: the layer could appear in more than one Knot. Create knot structure
+
+        for(const knot of this._processedGrammar['views'][view].knots){
+            if(this.getKnotOutputLayer(knot, view) == layerId){
+                knotId = knot.id;
+                break;
+            }
+        }
+
+        for(const visibility of <IKnotVisibility[]>this._processedGrammar['views'][view].map.knotVisibility){
+            if(visibility.knot == knotId){
+                let testString = visibility.test;
+
+                testString = testString.replaceAll("zoom", zoom+'');
+                testString = testString.replaceAll("timeElapsed", timeElapsed+'');
+            
+                let testResult = eval(testString);
+
+                return testResult;
+            }
+        }
+
+        return true;
+    }
+
+    private getKnotById(knotId: string, view: number){
+
+        for(let i = 0; i < this.getKnots(view).length; i++){
+            let knot = this.getKnots(view)[i];
+
+            if(knotId == knot.id){
+                return knot;
+            }
+        }
+
+    }
+
+    private getKnotOutputLayer(knot: IKnot, view: number){
+        if(knot.knotOp == true){
+
+            let lastKnotId = knot.linkingScheme[knot.linkingScheme.length-1].thisLayer;
+
+            let lastKnot = this.getKnotById(lastKnotId, view);
+
+            if(lastKnot == undefined){
+                throw Error("Could not process knot "+lastKnotId);
+            }
+
+            return lastKnot.linkingScheme[lastKnot.linkingScheme.length-1].thisLayer;
+
+        }else{
+            return knot.linkingScheme[knot.linkingScheme.length-1].thisLayer;
+        }
     }
 
 }
