@@ -9,6 +9,10 @@ import { ShaderSmoothColor } from "./shader-smoothColor";
 import { ShaderSmoothColorMap } from "./shader-smoothColorMap";
 import { ShaderAbstractSurface } from "./shader-abstractSurface";
 import { LayerManager } from "./layer-manager";
+import { AuxiliaryShader } from './auxiliaryShader';
+import { Shader } from './shader';
+import { ShaderSmoothColorMapTex } from "./shader-smoothColorMapTex";
+import { ShaderPicking } from "./shader-picking";
 
 export class HeatmapLayer extends Layer {
     protected _zOrder: number;
@@ -21,10 +25,9 @@ export class HeatmapLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(knotIdLayer:string, info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
 
         super(
-            knotIdLayer,
             info.id,
             info.type,
             info.styleKey,
@@ -118,11 +121,22 @@ export class HeatmapLayer extends Layer {
         throw Error("It is not possible to highlight a heatmap layer");
     }
 
-    /**
-     * Layer render function signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-    render(glContext: WebGL2RenderingContext): void {
+    render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void {
+
+        for (const shader of shaders){
+            if(shader instanceof ShaderSmoothColorMapTex){
+                throw Error("SMOOTH_COLOR_MAP_TEX shader is not supported for the heatmap layer");
+            }
+
+            if(shader instanceof ShaderPicking){
+                throw Error("PICKING shader is not supported for the heatmap layer");
+            }
+
+            if(shader instanceof ShaderAbstractSurface){
+                throw Error("ABSTRACT_SURFACES shader is not supported for the heatmap layer");
+            }
+        }
+
         // enables the depth test
         glContext.enable(glContext.DEPTH_TEST);
         glContext.depthFunc(glContext.LEQUAL);
@@ -136,13 +150,14 @@ export class HeatmapLayer extends Layer {
         glContext.enable(glContext.STENCIL_TEST);
 
         // the abs surfaces are loaded first to update the stencil
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
+
             if(shader instanceof ShaderAbstractSurface){
                 shader.renderPass(glContext, glContext.TRIANGLES, this._camera, this._mesh, this._zOrder);
             }
         }
 
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             if(shader instanceof ShaderAbstractSurface){
                 continue;
             }else{
@@ -332,53 +347,57 @@ export class HeatmapLayer extends Layer {
         throw Error("The heatmap layer has no highlight attributes");
     }
 
-    /**
-     * Shader load signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
+    // /**
+    //  * Shader load signature
+    //  * @param {WebGL2RenderingContext} glContext WebGL context
+    //  */
+    // loadShaders(glContext: WebGL2RenderingContext): void {
+    //     this._shaders = [];
+    //     const color = MapStyle.getColor(this._styleKey);
+
+    //     const cmap = this._colorMap;
+    //     const revs = this._reverseColorMap;
+
+    //     for (const type of this._renderStyle) {
+    //         let shader = undefined;
+    //         switch (type) {
+    //             case RenderStyle.FLAT_COLOR:
+    //                 shader = new ShaderFlatColor(glContext, color);
+    //             break;
+    //             case RenderStyle.FLAT_COLOR_MAP:
+    //                 shader = new ShaderFlatColorMap(glContext, cmap, revs);
+    //             break;
+    //             case RenderStyle.SMOOTH_COLOR:
+    //                 shader = new ShaderSmoothColor(glContext, color);
+    //             break;
+    //             case RenderStyle.SMOOTH_COLOR_MAP:
+    //                 shader = new ShaderSmoothColorMap(glContext, cmap);
+    //             break;
+    //             case RenderStyle.SMOOTH_COLOR_MAP_TEX:
+    //                 throw Error("SMOOTH_COLOR_MAP_TEX shader is not supported for the heatmap layer")
+    //             break;
+    //             case RenderStyle.PICKING: 
+    //                 throw Error("PICKING shader is not supported for the heatmap layer")
+    //             break;
+    //             case RenderStyle.ABSTRACT_SURFACES:
+    //                 throw Error("ABSTRACT_SURFACES shader is not supported for the heatmap layer")
+    //             break;
+    //             default:
+    //                 shader = new ShaderFlatColor(glContext, color);
+    //             break;
+    //         }
+    //         this._shaders.push(shader);
+
+    //         // load message
+    //         console.log("------------------------------------------------------");
+    //         console.log(`Layer ${this._id} of type ${this._type}.`);
+    //         console.log(`Render styles: ${this._renderStyle.join(", ")}`);
+    //         console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
+    //         console.log("------------------------------------------------------");
+    //     }
+    // }
+    
     loadShaders(glContext: WebGL2RenderingContext): void {
-        this._shaders = [];
-        const color = MapStyle.getColor(this._styleKey);
-
-        const cmap = this._colorMap;
-        const revs = this._reverseColorMap;
-
-        for (const type of this._renderStyle) {
-            let shader = undefined;
-            switch (type) {
-                case RenderStyle.FLAT_COLOR:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-                case RenderStyle.FLAT_COLOR_MAP:
-                    shader = new ShaderFlatColorMap(glContext, cmap, revs);
-                break;
-                case RenderStyle.SMOOTH_COLOR:
-                    shader = new ShaderSmoothColor(glContext, color);
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP:
-                    shader = new ShaderSmoothColorMap(glContext, cmap);
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP_TEX:
-                    throw Error("SMOOTH_COLOR_MAP_TEX shader is not supported for the heatmap layer")
-                break;
-                case RenderStyle.PICKING: 
-                    throw Error("PICKING shader is not supported for the heatmap layer")
-                break;
-                case RenderStyle.ABSTRACT_SURFACES:
-                    throw Error("ABSTRACT_SURFACES shader is not supported for the heatmap layer")
-                break;
-                default:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-            }
-            this._shaders.push(shader);
-
-            // load message
-            console.log("------------------------------------------------------");
-            console.log(`Layer ${this._id} of type ${this._type}.`);
-            console.log(`Render styles: ${this._renderStyle.join(", ")}`);
-            console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
-            console.log("------------------------------------------------------");
-        }
     }
+
 }

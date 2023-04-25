@@ -11,9 +11,8 @@ export class PointsLayer extends Layer {
     // protected _zOrder: number;
     protected _coordsByCOORDINATES3D: number[][] = [];
 
-    constructor(knotIdLayer:string, info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
         super(
-            knotIdLayer,
             info.id,
             info.type,
             info.styleKey,

@@ -167,50 +167,40 @@ class MapView {
 
         let knotsMap = this._grammarInterpreter.getMap(this._viewId).knots;
         let layersIds: string[] = [];
-        let knotIdLayers: string[] = [];
         let endOfScheme: boolean[] = [];
         let joinedList: boolean[] = [];
         let colorMaps: (string | undefined)[] = [];
 
-        function addLayerToList(layer: string, knotIdLayer: string, end: boolean, layersIds: string[], knotIdLayers: string[], endOfScheme: boolean[], joined: boolean, colorMap: string | undefined){
-            // let alreadyIncluded = false;
-            // let endIndex = -1;
+        function addLayerToList(layer: string, end: boolean, layersIds: string[], endOfScheme: boolean[], joined: boolean, colorMap: string | undefined){
+            let alreadyIncluded = false;
+            let endIndex = -1;
 
-            // for(let i = 0; i < layersIds.length; i++){
-            //     if(layersIds[i] == layer){
-            //         alreadyIncluded = true;
-            //         endIndex = i;
-            //         break;
-            //     }
-            // }
+            for(let i = 0; i < layersIds.length; i++){
+                if(layersIds[i] == layer){
+                    alreadyIncluded = true;
+                    endIndex = i;
+                    break;
+                }
+            }
 
-            // if(alreadyIncluded){
-            //     if(end){
-            //         endOfScheme[endIndex] = true;
-            //         colorMaps[endIndex] = colorMap;
-            //     }
+            if(alreadyIncluded){
+                if(end){
+                    endOfScheme[endIndex] = true;
+                    colorMaps[endIndex] = colorMap;
+                }
 
-            //     if(joined){
-            //         joinedList[endIndex] = true;
-            //     }
+                if(joined){
+                    joinedList[endIndex] = true;
+                }
 
-            // }else{
-            //     layersIds.push(layer);
-            //     endOfScheme.push(end);
-            //     joinedList.push(joined);
+            }else{
+                layersIds.push(layer);
+                endOfScheme.push(end);
+                joinedList.push(joined);
 
-            //     if(end){
-            //         colorMaps.push(colorMap);
-            //     }
-            // }
-
-            layersIds.push(layer);
-            knotIdLayers.push(knotIdLayer);
-            endOfScheme.push(end);
-            joinedList.push(joined);
-
-            if(end){
-                colorMaps.push(colorMap);
+                if(end){
+                    colorMaps.push(colorMap);
+                }
             }
         }
 
@@ -224,11 +214,9 @@ class MapView {
                 }
 
                 if(i == knot.linkingScheme.length-1){
-                    // addLayerToList(knot.linkingScheme[i].thisLayer, true, layersIds, endOfScheme, joined, colorMap);
-                    addLayerToList(knot.linkingScheme[i].thisLayer, knot.id, true, layersIds, knotIdLayers, endOfScheme, joined, colorMap);
+                    addLayerToList(knot.linkingScheme[i].thisLayer, true, layersIds, endOfScheme, joined, colorMap);
                 }else{
-                    // addLayerToList(knot.linkingScheme[i].thisLayer, false, layersIds, endOfScheme, joined, colorMap);
-                    addLayerToList(knot.linkingScheme[i].thisLayer, knot.id, false, layersIds, knotIdLayers, endOfScheme, joined, colorMap);
+                    addLayerToList(knot.linkingScheme[i].thisLayer, false, layersIds, endOfScheme, joined, colorMap);
                 }
             }
         }
@@ -256,13 +244,13 @@ class MapView {
         }
 
         // inits the layers
-        await this.initLayers(layersIds, knotIdLayers, endOfScheme, joinedList, this.camera.getWorldOrigin(), colorMaps);
+        await this.initLayers(layersIds, endOfScheme, joinedList, this.camera.getWorldOrigin(), colorMaps);
 
         let layersToList: string[] = [];
 
         for(const layer of this._layerManager.layers){
             if(layer.visible){
-                layersToList.push(layer.knotId);
+                layersToList.push(layer.id);
             }
         }
 
@@ -363,34 +351,30 @@ class MapView {
     }
 
     // if clear == true, elementIndex and level are ignored and all selections are deactivated
-    updateGrammarPlotsHighlight(_this:any, layerId: string, knotIdLayer: string, level: LevelType | null, elementIndex: number | null, clear: boolean = false){
+    updateGrammarPlotsHighlight(_this:any, layerId: string, level: LevelType | null, elementIndex: number | null, clear: boolean = false){
 
         if(!clear){
             let elements: any = {};
         
-            // for(const knot of _this._mapViewData.views[0].knots){
-            //     let lastLink = _this._grammarInterpreter.getKnotLastLink(knot, _this._viewId);
+            for(const knot of _this._mapViewData.views[0].knots){
+                let lastLink = _this._grammarInterpreter.getKnotLastLink(knot, _this._viewId);
     
-            //     if(lastLink.thisLayer == layerId && lastLink.thisLevel == level){
-            //         elements[knot.id] = elementIndex;
-            //     }
-            // }
+                if(lastLink.thisLayer == layerId && lastLink.thisLevel == level){
+                    elements[knot.id] = elementIndex;
+                }
+            }
             
-            elements[knotIdLayer] = elementIndex;
-
             _this.grammarManager.setHighlightElementsLocally(elements, true, true);
         }else{
             let knotsToClear: string[] = [];
 
-            // for(const knot of _this._mapViewData.views[0].knots){
-            //     let lastLink = _this.grammarInterpreter.getKnotLastLink(knot, _this.viewId);
+            for(const knot of _this._mapViewData.views[0].knots){
+                let lastLink = _this.grammarInterpreter.getKnotLastLink(knot, _this.viewId);
     
-            //     if(lastLink.thisLayer == layerId){
-            //         knotsToClear.push(knot.id);
-            //     }
-            // }
-
-            knotsToClear.push(knotIdLayer);
+                if(lastLink.thisLayer == layerId){
+                    knotsToClear.push(knot.id);
+                }
+            }
 
             _this.grammarManager.clearHighlightsLocally(knotsToClear);
         }
@@ -445,7 +429,7 @@ class MapView {
         this._camera.resetCamera(params.position, params.direction.up, params.direction.lookAt, params.direction.right, this._cameraUpdateCallback);
     }
 
-    async initLayers(layers: string[], knotId: string[], endOfScheme: boolean[], joined: boolean[], centroid: number[] | Float32Array, colorMaps: (string | undefined)[]): Promise<void> {
+    async initLayers(layers: string[], endOfScheme: boolean[], joined: boolean[], centroid: number[] | Float32Array, colorMaps: (string | undefined)[]): Promise<void> {
 
         // loop over the index file
         for (let i = 0; i < layers.length; i++) {
@@ -465,85 +449,81 @@ class MapView {
             }
 
             // adds the new layer
-            await this.addLayer(layer, knotId[i], joined[i], centroid, colorMaps[i]);
+            await this.addLayer(layer, joined[i], centroid, colorMaps[i]);
         }
 
     }
 
-    private getLayerSchemes(layerId: string, knotIdLayer: string): {"knots": IKnot[], "interactions": InteractionType[]}  | null{
+    private getLayerSchemes(layerId: string): {"knots": IKnot[], "interactions": InteractionType[]}  | null{
         let mapKnots = this._grammarInterpreter.getMap(this._viewId).knots;
         let lastMapKnot: IKnot | null = null;
         let lastMapKnotInteraction: InteractionType = InteractionType.NONE;
 
-        // let allKnots = this._grammarInterpreter.getKnots(this._viewId);
+        let allKnots = this._grammarInterpreter.getKnots(this._viewId);
         
-        // let allLayerKnots = [];
+        let allLayerKnots = [];
 
-        // let plotKnots: string[] = [];
+        let plotKnots: string[] = [];
 
-        // for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
-        //     for(const knotId of plot.knots){
-        //         if(!plotKnots.includes(knotId)){
-        //             plotKnots.push(knotId);
-        //         }
-        //     }
-        // }
+        for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
+            for(const knotId of plot.knots){
+                if(!plotKnots.includes(knotId)){
+                    plotKnots.push(knotId);
+                }
+            }
+        }
         
         // retrieving last map knot of this layer (that is the one that will be rendered)
-        // for(const knotId of mapKnots){
-        //     for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
-        //         if(knot.id == knotId){
-        //             if(knot.linkingScheme != undefined && knot.aggregationScheme != undefined && this._grammarInterpreter.getKnotOutputLayer(knot, this._viewId) == layerId){
-        //                 lastMapKnot = knot;
-        //                 lastMapKnotInteraction = this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)];
-        //             }
-        //         }
-        //     }
-        // }
-
-        lastMapKnot = this._grammarInterpreter.getKnotById(knotIdLayer);
-        lastMapKnotInteraction = this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knotIdLayer)];
+        for(const knotId of mapKnots){
+            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
+                if(knot.id == knotId){
+                    if(knot.linkingScheme != undefined && knot.aggregationScheme != undefined && this._grammarInterpreter.getKnotOutputLayer(knot, this._viewId) == layerId){
+                        lastMapKnot = knot;
+                        lastMapKnotInteraction = this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)];
+                    }
+                }
+            }
+        }
         
-        // let knotsInteractions: InteractionType[] = [];
+        let knotsInteractions: InteractionType[] = [];
 
-        // for(const knot of allKnots){
-        //     if(knot.linkingScheme != undefined && knot.aggregationScheme != undefined && this._grammarInterpreter.getKnotOutputLayer(knot, this._viewId) == layerId && (mapKnots.includes(knot.id) || plotKnots.includes(knot.id))){
-        //         if(lastMapKnot == null){
-        //             allLayerKnots.push(knot);
-        //             if(mapKnots.includes(knot.id)){
-        //                 knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
-        //             }else{
-        //                 knotsInteractions.push(InteractionType.NONE);
-        //             }                    
-        //         }else if(knot.id != lastMapKnot.id){
-        //             allLayerKnots.push(knot);
-        //             if(mapKnots.includes(knot.id)){
-        //                 knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
-        //             }else{
-        //                 knotsInteractions.push(InteractionType.NONE);
-        //             } 
-        //         }
-        //     }
-        // }
+        for(const knot of allKnots){
+            if(knot.linkingScheme != undefined && knot.aggregationScheme != undefined && this._grammarInterpreter.getKnotOutputLayer(knot, this._viewId) == layerId && (mapKnots.includes(knot.id) || plotKnots.includes(knot.id))){
+                if(lastMapKnot == null){
+                    allLayerKnots.push(knot);
+                    if(mapKnots.includes(knot.id)){
+                        knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
+                    }else{
+                        knotsInteractions.push(InteractionType.NONE);
+                    }                    
+                }else if(knot.id != lastMapKnot.id){
+                    allLayerKnots.push(knot);
+                    if(mapKnots.includes(knot.id)){
+                        knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
+                    }else{
+                        knotsInteractions.push(InteractionType.NONE);
+                    } 
+                }
+            }
+        }
 
-        // if(lastMapKnot != null){
-        //     allLayerKnots.push(lastMapKnot);
-        //     knotsInteractions.push(lastMapKnotInteraction);
-        // }
+        if(lastMapKnot != null){
+            allLayerKnots.push(lastMapKnot);
+            knotsInteractions.push(lastMapKnotInteraction);
+        }
 
-        // if(allLayerKnots.length == 0)
-        //     return null
+        if(allLayerKnots.length == 0)
+            return null
 
-        // return {"knots": allLayerKnots, "interactions": knotsInteractions};
-        return {"knots": [<IKnot>lastMapKnot], "interactions": [lastMapKnotInteraction]};
+        return {"knots": allLayerKnots, "interactions": knotsInteractions};
     }
 
     /**
      * Add layer geometry and function
      */
-    async addLayer(layerData: ILayerData, knotIdLayer: string, joined: boolean, centroid: number[] | Float32Array, colorMap: string | undefined): Promise<void> {
+    async addLayer(layerData: ILayerData, joined: boolean, centroid: number[] | Float32Array, colorMap: string | undefined): Promise<void> {
         // loads the layers data
-        const layer = this._layerManager.createLayer(knotIdLayer, layerData, centroid, colorMap);
+        const layer = this._layerManager.createLayer(layerData, centroid, colorMap);
 
         // not able to create the layer
         if (!layer) { return; }
@@ -562,7 +542,7 @@ class MapView {
         // update the features
         if (features) {
 
-            let knotsAndInteractions = this.getLayerSchemes(layer.id, knotIdLayer);
+            let knotsAndInteractions = this.getLayerSchemes(layer.id);
 
             layer.updateMeshGeometry(features);
 
@@ -697,8 +677,6 @@ class MapView {
 
             layer.updateShaders();
 
-            // layer.updateFeatures(features, knots, this._layerManager);
-            
             if(knotsAndInteractions != null){
                 for(let i = 0; i < knotsAndInteractions.knots.length; i++){
                     if(this._grammarInterpreter.getKnotLastLink(knotsAndInteractions.knots[i], this._viewId).otherLayer != undefined){ // if it is not a pure knot
@@ -711,7 +689,6 @@ class MapView {
 
         // render
         this.render();
-
     }
 
     /**
@@ -727,7 +704,7 @@ class MapView {
         // not found or no data
         if (layer === null || !features) { return; }
 
-        let knotsAndInteractions = this.getLayerSchemes(layer.id, layer.knotId);
+        let knotsAndInteractions = this.getLayerSchemes(layer.id);
 
         if(knotsAndInteractions == null){
             throw Error("Could not retrieve scheme of layer "+layer.id);

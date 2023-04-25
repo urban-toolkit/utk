@@ -46,8 +46,6 @@ export abstract class Layer {
 
     protected _mesh: Mesh;
 
-    protected _knotId: string; // knot that this layer is representing
-
     /**
      * 
      * @param {string} id The Mapview layer Identifier
@@ -64,7 +62,7 @@ export abstract class Layer {
      * @param {number} dimension 
      * @param {number} zOrder 
      */
-    constructor(knotId:string, id: string, type: LayerType, styleKey: keyof IMapStyle, colorMap: string, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], visible = true, selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
+    constructor(id: string, type: LayerType, styleKey: keyof IMapStyle, colorMap: string, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], visible = true, selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
         this._id = id;
         this._type = type;
         this._styleKey = styleKey;
@@ -76,8 +74,6 @@ export abstract class Layer {
         this._selectable = selectable;
 
         this._centroid = centroid;
-
-        this._knotId = knotId;
 
         this._mesh = new Mesh(dimension, zOrder);
     }
@@ -92,10 +88,6 @@ export abstract class Layer {
      */
     get id(): string {
         return this._id;
-    }
-
-    get knotId(): string{
-        return this._knotId;
     }
 
     /**
@@ -117,6 +109,14 @@ export abstract class Layer {
      */
     set visible(visible: boolean) {
         this._visible = visible;
+    }
+
+    get colorMap(){
+        return this._colorMap;
+    }
+
+    get reverseColorMap(){
+        return this._reverseColorMap;
     }
 
     /**
@@ -167,6 +167,10 @@ export abstract class Layer {
         return this._centroid;
     }
 
+    get renderStyle(){
+        return this._renderStyle;
+    }
+
     /**
      * Data update signature
      */
@@ -191,11 +195,7 @@ export abstract class Layer {
      */
     abstract updateStyle(glContext: WebGL2RenderingContext): void;
 
-    /**
-     * Layer render function signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-    abstract render(glContext: WebGL2RenderingContext): void;
+    abstract render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void;
 
     /**
      * Layer picking function signature
