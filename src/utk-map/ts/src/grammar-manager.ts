@@ -260,10 +260,10 @@ export class GrammarManager {
             let elem = linkedPlots[i];
             let plotId = ids[i]; 
             
-            let mergedKnots = processedKnotData[elem.knots[0]];
+            let mergedKnots = processedKnotData[<string>elem.knots[0]];
 
             for(let j = 1; j < elem.knots.length; j++){
-                mergedKnots = mergeKnotData(mergedKnots.values, processedKnotData[elem.knots[j]].values);
+                mergedKnots = mergeKnotData(mergedKnots.values, processedKnotData[<string>elem.knots[j]].values);
             }
 
             console.log("mergedKnots", mergedKnots);
@@ -294,7 +294,7 @@ export class GrammarManager {
                             for(const key of elem.knots){
                                 if(item.datum[key+'_highlight'] == false){
                                     _this._setHighlightElementCallback.function(key, item.datum[key+'_index'], true, _this._setHighlightElementCallback.arg);
-                                    elementsToHighlight[key] = item.datum[key+"_index"];
+                                    elementsToHighlight[<string>key] = item.datum[key+"_index"];
                                 }
                             }
 
@@ -317,7 +317,7 @@ export class GrammarManager {
         
                             for(const key of elem.knots){
                                 _this._setHighlightElementCallback.function(key, item.datum[key+'_index'], false, _this._setHighlightElementCallback.arg);
-                                elementsToUnHighlight[key] = item.datum[key+"_index"];
+                                elementsToUnHighlight[<string>key] = item.datum[key+"_index"];
                             }
 
                             _this.setHighlightElementsLocally(elementsToUnHighlight, false);
@@ -328,7 +328,7 @@ export class GrammarManager {
         
                             for(const key of elem.knots){
                                 _this._setHighlightElementCallback.function(key, highlightedItem.datum[key+'_index'], false, _this._setHighlightElementCallback.arg);
-                                elementsToUnHighlight[key] = highlightedItem.datum[key+"_index"];
+                                elementsToUnHighlight[<string>key] = highlightedItem.datum[key+"_index"];
                             }
 
                             _this.setHighlightElementsLocally(elementsToUnHighlight, false);
@@ -357,7 +357,7 @@ export class GrammarManager {
                                 for(const value of elem.plot.data.values){
                                     if(value[key+'_index'] != undefined){
                                         _this._setHighlightElementCallback.function(key, value[key+'_index'], false, _this._setHighlightElementCallback.arg);
-                                        elementsToUnHighlight[key] = value[key+'_index'];
+                                        elementsToUnHighlight[<string>key] = value[key+'_index'];
                                     }
                                 }
                             }
@@ -381,7 +381,7 @@ export class GrammarManager {
                                 // highlight the clicked element
                                 for(const key of elem.knots){
                                     _this._setHighlightElementCallback.function(key, item.datum[key+'_index'], false, _this._setHighlightElementCallback.arg);
-                                    elementsToUnHighlight[key] = item.datum[key+"_index"];
+                                    elementsToUnHighlight[<string>key] = item.datum[key+"_index"];
                                 }
 
                                 _this.setHighlightElementsLocally(elementsToUnHighlight, false);
@@ -391,7 +391,7 @@ export class GrammarManager {
                                 // highlight the clicked element
                                 for(const key of elem.knots){
                                     _this._setHighlightElementCallback.function(key, item.datum[key+'_index'], true, _this._setHighlightElementCallback.arg);
-                                    elementsToHighlight[key] = item.datum[key+"_index"];
+                                    elementsToHighlight[<string>key] = item.datum[key+"_index"];
                                 }
 
                                 _this.setHighlightElementsLocally(elementsToHighlight, true);

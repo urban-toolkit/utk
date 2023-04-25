@@ -11,8 +11,9 @@ export class PointsLayer extends Layer {
     // protected _zOrder: number;
     protected _coordsByCOORDINATES3D: number[][] = [];
 
-    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(knotIdLayer:string, info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
         super(
+            knotIdLayer,
             info.id,
             info.type,
             info.styleKey,
@@ -109,7 +110,7 @@ export class PointsLayer extends Layer {
         let functionValues: number[] | null = null;
         
         if(knot.linkingScheme != null && knot.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, knot.aggregationScheme)
+            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, <AggregationType[]>knot.aggregationScheme)
         }
 
         let distributedValues = this.distributeFunctionValues(functionValues);

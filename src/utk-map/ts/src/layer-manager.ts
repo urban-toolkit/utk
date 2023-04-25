@@ -54,7 +54,7 @@ export class LayerManager {
     * @param {string} layerId layer identifier
     * @returns {Layer | null} The load layer promise
     */
-    createLayer(layerInfo: ILayerData, centroid: number[] | Float32Array, colorMap: string | undefined): Layer | null {
+    createLayer(knotIdLayer:string, layerInfo: ILayerData, centroid: number[] | Float32Array, colorMap: string | undefined): Layer | null {
         // loaded layer
         let layer = null;
         // z order
@@ -65,25 +65,25 @@ export class LayerManager {
         // loads based on type
         switch (layerInfo.type) {
             case LayerType.TRIANGLES_2D_LAYER:
-                layer = new TrianglesLayer(layerInfo, 2, zOrder, centroid);
+                layer = new TrianglesLayer(knotIdLayer, layerInfo, 2, zOrder, centroid);
             break;
             case LayerType.TRIANGLES_3D_LAYER:
-                layer = new TrianglesLayer(layerInfo, 3, zOrder, centroid);
+                layer = new TrianglesLayer(knotIdLayer, layerInfo, 3, zOrder, centroid);
             break;
             case LayerType.LINES_2D_LAYER:
-                layer = new LinesLayer(layerInfo, 2, zOrder, centroid);
+                layer = new LinesLayer(knotIdLayer, layerInfo, 2, zOrder, centroid);
             break;
             case LayerType.LINES_3D_LAYER:
-                layer = new LinesLayer(layerInfo, 3, zOrder, centroid);
+                layer = new LinesLayer(knotIdLayer, layerInfo, 3, zOrder, centroid);
             break;
             case LayerType.BUILDINGS_LAYER:
-                layer = new BuildingsLayer(layerInfo, zOrder, centroid);
+                layer = new BuildingsLayer(knotIdLayer, layerInfo, zOrder, centroid);
             break;
             case LayerType.HEATMAP_LAYER:
-                layer = new HeatmapLayer(layerInfo, zOrder, centroid);
+                layer = new HeatmapLayer(knotIdLayer, layerInfo, zOrder, centroid);
             break;
             case LayerType.POINTS_LAYER:
-                layer = new PointsLayer(layerInfo, zOrder, centroid);
+                layer = new PointsLayer(knotIdLayer, layerInfo, zOrder, centroid);
             break;
             default:
                 console.error(`File ${layerInfo.id}.json has an unknown layer type: ${layerInfo.type}.`);
@@ -99,9 +99,9 @@ export class LayerManager {
         return layer;
     }
 
-    toggleLayer(id:string){
+    toggleLayer(knotId:string){
         for(const layer of this._layers){
-            if(layer.id == id){
+            if(layer.knotId == knotId){
                 layer.visible = !layer.visible;
             }
         }
@@ -225,7 +225,7 @@ export class LayerManager {
                                 joinedFunctionValues.push([null]);
                             }else{
 
-                                let idsFuncValues = [];
+                                let idsFuncValues: number[] = [];
 
                                 for(const id of idList){
                                     let functionIndex = right_side.getFunctionValueIndexOfId(id, <LevelType>linkScheme[i].otherLevel);

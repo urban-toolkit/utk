@@ -42,7 +42,7 @@ export interface IGrammar {
 }
 
 export interface IView{
-    map: {camera: ICameraData, knots: (string | IConditionBlock)[], interactions: (InteractionType | IConditionBlock)[], filterKnots: (number | IConditionBlock)[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
+    map: {camera: ICameraData, knots: (string | IConditionBlock)[], interactions: (InteractionType | IConditionBlock)[], filterKnots: (number | IConditionBlock)[], knotVisibility?: IKnotVisibility[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
     plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, bins?: number | IConditionBlock}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
     knots: IKnot[]
 }
@@ -163,4 +163,9 @@ export interface IConditionBlock{
 interface IConditionElement{
     test?: string,
     value: any
+}
+
+export interface IKnotVisibility{
+    knot: string,
+    test: string
 }
