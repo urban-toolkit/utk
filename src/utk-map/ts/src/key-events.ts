@@ -94,7 +94,7 @@ class KeyEvents {
           for(let i = 0; i < layersInteracted.length; i++){
             let objectId = layersInteracted[i].getIdLastHighlightedElement();
 
-            this._interactionsCallback(this._interactionsCallbackArg, layersInteracted[i].id, LevelType.OBJECTS, objectId);
+            this._interactionsCallback(this._interactionsCallbackArg, layersInteracted[i].id, layersInteracted[i].knotId, LevelType.OBJECTS, objectId);
           }
         }
 
@@ -137,7 +137,7 @@ class KeyEvents {
           if(interactedLayer != null){
             let buildingId = interactedLayer.getIdLastHighlightedBuilding();
 
-            this._interactionsCallback(this._interactionsCallbackArg, interactedLayer.id, LevelType.OBJECTS, buildingId);
+            this._interactionsCallback(this._interactionsCallbackArg, interactedLayer.id, interactedLayer.knotId, LevelType.OBJECTS, buildingId);
           }
 
         }

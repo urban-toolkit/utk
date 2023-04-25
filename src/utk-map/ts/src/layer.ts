@@ -46,6 +46,8 @@ export abstract class Layer {
 
     protected _mesh: Mesh;
 
+    protected _knotId: string; // knot that this layer is representing
+
     /**
      * 
      * @param {string} id The Mapview layer Identifier
@@ -62,7 +64,7 @@ export abstract class Layer {
      * @param {number} dimension 
      * @param {number} zOrder 
      */
-    constructor(id: string, type: LayerType, styleKey: keyof IMapStyle, colorMap: string, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], visible = true, selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
+    constructor(knotId:string, id: string, type: LayerType, styleKey: keyof IMapStyle, colorMap: string, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], visible = true, selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
         this._id = id;
         this._type = type;
         this._styleKey = styleKey;
@@ -74,6 +76,8 @@ export abstract class Layer {
         this._selectable = selectable;
 
         this._centroid = centroid;
+
+        this._knotId = knotId;
 
         this._mesh = new Mesh(dimension, zOrder);
     }
@@ -88,6 +92,10 @@ export abstract class Layer {
      */
     get id(): string {
         return this._id;
+    }
+
+    get knotId(): string{
+        return this._knotId;
     }
 
     /**

@@ -18,8 +18,9 @@ export class LinesLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, dimensions: number = 2, order: number = 0, centroid: number[] | Float32Array) {
+    constructor(knotIdLayer:string, info: ILayerData, dimensions: number = 2, order: number = 0, centroid: number[] | Float32Array) {
         super(
+            knotIdLayer,
             info.id,
             info.type,
             info.styleKey,

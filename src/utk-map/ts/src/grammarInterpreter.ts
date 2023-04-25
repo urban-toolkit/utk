@@ -244,6 +244,24 @@ class GrammarInterpreter {
         }
     }
 
+    private getKnotLastLink(knot: IKnot, view: number){
+        if(knot.knotOp == true){
+            
+            let lastKnotId = knot.linkingScheme[knot.linkingScheme.length-1].thisLayer;
+
+            let lastKnot = this.getKnotById(lastKnotId, view);
+            
+            if(lastKnot == undefined){
+                throw Error("Could not process knot "+lastKnotId);
+            }
+
+            return lastKnot.linkingScheme[lastKnot.linkingScheme.length-1];
+
+        }else{
+            return knot.linkingScheme[knot.linkingScheme.length-1];
+        }
+    }
+
 }
 
 export var GrammarInterpreterFactory = (function(){
