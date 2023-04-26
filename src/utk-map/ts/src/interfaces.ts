@@ -1,39 +1,6 @@
 import { LayerType, RenderStyle, ColorHEX, AggregationType, ViewArrangementType, PlotArrangementType, PredicateType, LevelType, InteractionType, PlotInteractionType } from "./constants";
 
 /**
- * Interface with the definition of the maprefs format
- */
-// export interface IMapRefs {
-//     cid: string;      // dataset identifier
-//     camera: string;   // location of the camera file (using the ICameraData format)
-//     layers: string[]; // list of layers files locations (using the ILayerData format)
-//     views?: string[]; // list of views files locations (using the IViewData format)
-//     style?: string;   // optional: location of the style file (using the IStyle format.)
-// }
-
-// export interface IViewData{
-//     map: {physical: {data: string, level: string}, camera: ICameraData, interaction: string},
-//     plots: {plot: any, arrangement: string}[], // TODO: define the type of plot
-//     knot: {physical: {data: string, level: string}, abstracts: {data: string, level: string}[], aggregations: {aggFunc: string[], level: string}[]}
-// }
-
-// export interface IViewsData{
-//     views: IViewData[],
-//     arrangement: string
-// }
-
-/**
- * Interface with the definition of the mapdata format
- */
-// export interface IMapData {
-//     cid: string;          // dataset identifier
-//     camera: ICameraData;  // camera data
-//     layers: ILayerData[]; // list of layers data
-//     views?: IViewsData;
-//     style?: IMapStyle;    // optional: style data
-// }
-
-/**
  * Interface for grammar
  */
 export interface IGrammar {

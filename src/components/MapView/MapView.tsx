@@ -178,7 +178,7 @@ export const MapViewer = ({divWidth, systemMessages, applyGrammarButtonId, gener
                   <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
                     <LayersWidget 
                       listLayers = {listLayers}
-                      layerToggle = {(id: string) => app.map.toggleLayer(id)}                      
+                      knotToggle = {(id: string) => app.map.toggleKnot(id)}                      
                     />
                   </div>
                 </Col>

@@ -71,12 +71,11 @@ export class ShaderSmoothColorMap extends AuxiliaryShaderTriangles {
     protected _currentPickedElement: number; // stores the index of the currently picked element
     protected _filtered: number[] = [];
 
-    constructor(glContext: WebGL2RenderingContext, colorMap: string = "interpolateReds", colorMapReverse: boolean = false) {
+    constructor(glContext: WebGL2RenderingContext, colorMap: string = "interpolateReds") {
         super(vsSmoothColorMap, fsSmoothColorMap, glContext);
 
         // saves the layer color
         this._colorMap = colorMap;
-        this._colorMapReverse = colorMapReverse;
 
         // creathe dhe shader variables    
         this.createUniforms(glContext);
@@ -125,7 +124,7 @@ export class ShaderSmoothColorMap extends AuxiliaryShaderTriangles {
         this._colorOrPickedDirty = true;
         this._function = mesh.getFunctionVBO(knot.id);
 
-        console.log('surface', d3.extent(this._function[this._functionToUse]));
+        console.log(this._function);
 
         let scale = d3.scaleLinear().domain(d3.extent(this._function[this._functionToUse])).range([0,1]);
 
@@ -175,7 +174,7 @@ export class ShaderSmoothColorMap extends AuxiliaryShaderTriangles {
         glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_MAG_FILTER, glContext.NEAREST);
 
         // Upload the image into the texture.
-        const texData = ColorMap.getColorMap(this._colorMap, this._colorMapReverse);
+        const texData = ColorMap.getColorMap(this._colorMap);
 
         const size = [256, 1];
         glContext.texImage2D(glContext.TEXTURE_2D, 0, glContext.RGB32F, size[0], size[1], 0, glContext.RGB, glContext.FLOAT, new Float32Array(texData));
@@ -403,14 +402,7 @@ export class ShaderSmoothColorMap extends AuxiliaryShaderTriangles {
         this.bindVertexArrayObject(glContext, mesh);
         this.bindTextures(glContext);
 
-        if(glPrimitive == glContext.POINTS){
-            // draw the geometry
-            glContext.drawElements(glPrimitive, this._coords.length/3, glContext.UNSIGNED_INT, 0);
-        }else{
-            // draw the geometry
-            glContext.drawElements(glPrimitive, this._indices.length, glContext.UNSIGNED_INT, 0);
-        }
-
+        glContext.drawElements(glPrimitive, this._indices.length, glContext.UNSIGNED_INT, 0);
 
         // glContext.disable(glContext.BLEND);
     }

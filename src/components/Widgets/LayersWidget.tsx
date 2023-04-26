@@ -5,17 +5,17 @@ import { Form } from "react-bootstrap";
 // VisWidget parameter types
 type layersWidProps = {
     listLayers: string[],
-    layerToggle: React.Dispatch<React.SetStateAction<any>>
+    knotToggle: React.Dispatch<React.SetStateAction<any>>
 }
 
 export const LayersWidget = ({
     listLayers,
-    layerToggle
+    knotToggle
 }:layersWidProps) =>{
 
     const [layersChecked, setLayersChecked] = useState<any>({});
 
-    const toggleLayerChecked = (id:string) => {
+    const toggleKnotChecked = (id:string) => {
         let newObject:any = {};
         
         let layersCheckedKeys = Object.keys(layersChecked);
@@ -40,7 +40,7 @@ export const LayersWidget = ({
                 {
                     listLayers.map((item) => (
                         // layersChecked[item] can also be undefined
-                        <Form.Check checked={layersChecked[item] == true || layersChecked[item] == undefined ? true : false} key={item} type="checkbox" label={item} id={'layer'+item} onChange={() => {toggleLayerChecked(item);layerToggle(item)}}/> 
+                        <Form.Check checked={layersChecked[item] == true || layersChecked[item] == undefined ? true : false} key={item} type="checkbox" label={item} id={'layer'+item} onChange={() => {toggleKnotChecked(item);knotToggle(item)}}/> 
                     ))
                 }
         </div>

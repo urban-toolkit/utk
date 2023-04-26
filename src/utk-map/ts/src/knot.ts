@@ -16,21 +16,41 @@ import { AuxiliaryShaderTriangles } from "./auxiliaryShaderTriangles";
 
 import { BuildingsLayer } from "./layer-buildings";
 import { TrianglesLayer } from "./layer-triangles";
+import { IKnot } from "./interfaces";
 
 export class Knot {
 
     protected _physicalLayer: Layer; // the physical format the data will assume
     protected _thematicData: number[];
+    protected _knotSpecification: IKnot;
     protected _id: string;
     protected _shaders: (Shader|AuxiliaryShader)[] = [];
+    protected _visible: boolean
 
-    constructor(id: string, physicalLayer: Layer, thematicData: number[]) {
+    constructor(id: string, physicalLayer: Layer, thematicData: number[], knotSpecification: IKnot) {
         this._physicalLayer = physicalLayer;
         this._thematicData = thematicData;
+        this._knotSpecification = knotSpecification;
         this._id = id;
+        this._visible = true;
     }   
 
-    render(glContext: WebGL2RenderingContext): void {
+    get id(){
+        return this._id;
+    }
+
+    get visible(){
+        return this._visible;
+    }
+
+    set visible(visible: boolean){
+        this._visible = visible;
+    }
+
+    render(glContext: WebGL2RenderingContext, camera: any): void {
+        if (!this._visible) { return; } 
+
+        this._physicalLayer.camera = camera;
         this._physicalLayer.render(glContext, this._shaders);
     }
 
@@ -38,8 +58,11 @@ export class Knot {
         this._shaders = [];
         const color = MapStyle.getColor(this._physicalLayer.style);
 
-        const cmap = this._physicalLayer.colorMap;
-        const revs = this._physicalLayer.reverseColorMap;
+        let cmap = 'interpolateReds';
+
+        if(this._knotSpecification['colorMap'] != undefined){
+            cmap = <string>this._knotSpecification['colorMap'];
+        }
 
         for (const type of this._physicalLayer.renderStyle) {
             let shader = undefined;
@@ -48,7 +71,7 @@ export class Knot {
                     shader = new ShaderFlatColor(glContext, color);
                 break;
                 case RenderStyle.FLAT_COLOR_MAP:
-                    shader = new ShaderFlatColorMap(glContext, cmap, revs);
+                    shader = new ShaderFlatColorMap(glContext, cmap);
                 break;
                 case RenderStyle.SMOOTH_COLOR:
                     shader = new ShaderSmoothColor(glContext, color);
@@ -105,6 +128,9 @@ export class Knot {
             // console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
             // console.log("------------------------------------------------------");
         }
+
+        this._physicalLayer.updateShaders(this._shaders); // send mesh data to the shaders
+        this._physicalLayer.updateFunction(this._knotSpecification, this._shaders);
     }
 
 }

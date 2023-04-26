@@ -54,13 +54,11 @@ export class LayerManager {
     * @param {string} layerId layer identifier
     * @returns {Layer | null} The load layer promise
     */
-    createLayer(layerInfo: ILayerData, centroid: number[] | Float32Array, colorMap: string | undefined): Layer | null {
+    createLayer(layerInfo: ILayerData, centroid: number[] | Float32Array): Layer | null {
         // loaded layer
         let layer = null;
         // z order
         let zOrder = this._layers.length+1;
-
-        layerInfo.colorMap = colorMap;
 
         // loads based on type
         switch (layerInfo.type) {
@@ -92,19 +90,11 @@ export class LayerManager {
 
         if (layer) {
             // adds the the list of layers
-            this._layers.push(layer);
+            this._layers.push(<Layer>layer);
         }
 
         // returns the layer
-        return layer;
-    }
-
-    toggleLayer(id:string){
-        for(const layer of this._layers){
-            if(layer.id == id){
-                layer.visible = !layer.visible;
-            }
-        }
+        return <Layer>layer;
     }
 
     getJoinedObjects(layer: Layer, linkDescription: ILinkDescription): IJoinedObjects | null{

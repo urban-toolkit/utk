@@ -10,7 +10,6 @@ export abstract class DataApi {
    */
   static async getMapData(index: string): Promise<IGrammar> {
     const url = `${Environment.backend}/${Environment.dataFolder}/${index}`;
-    console.log(url);
 
     const datasets = await DataLoader.getJsonData(url);
     return <IGrammar> datasets;
@@ -22,7 +21,6 @@ export abstract class DataApi {
    */
   static async getCustomStyle(style: string): Promise<IMapStyle> {
     const url = `${Environment.backend}/${Environment.dataFolder}/${style}.json`;
-    console.log(url);
 
     const custom = <IMapStyle> await DataLoader.getJsonData(url);
     return <IMapStyle> custom;
@@ -34,7 +32,6 @@ export abstract class DataApi {
    */
   static async getCameraParameters(camera: string): Promise<ICameraData> {
     const url = `${Environment.backend}/${Environment.dataFolder}/${camera}.json`;
-    console.log(url);
 
     const params = <ICameraData> await DataLoader.getJsonData(url);
     return params;
@@ -50,8 +47,6 @@ export abstract class DataApi {
     const url_indices = `${Environment.backend}/${Environment.dataFolder}/${layerId}_indices.data`;
     const url_normals = `${Environment.backend}/${Environment.dataFolder}/${layerId}_normals.data`;
     const url_ids = `${Environment.backend}/${Environment.dataFolder}/${layerId}_ids.data`;
-
-    console.log(url_base);
 
     const base_feature = <ILayerData> await DataLoader.getJsonData(url_base);
 
@@ -108,8 +103,6 @@ export abstract class DataApi {
     
     }
 
-    console.log(base_feature);
-
     return base_feature;
   }
 
@@ -120,7 +113,6 @@ export abstract class DataApi {
    */
   static async getLayerFeature(layerId: string): Promise<ILayerFeature[]> {
     const url = `${Environment.backend}/${Environment.dataFolder}/${layerId}.json`;
-    console.log(url);
 
     const feature = <ILayerFeature[]> await DataLoader.getJsonData(url);
     return feature;
@@ -133,7 +125,6 @@ export abstract class DataApi {
    static async getLayerFunction(layerId: string): Promise<ILayerFeature[]> {
     // TODO
     const url = `${Environment.backend}/${Environment.dataFolder}/${layerId}.json`;
-    console.log(url);
 
     const feature = <ILayerFeature[]> await DataLoader.getJsonData(url);
     return feature;
@@ -146,7 +137,6 @@ export abstract class DataApi {
    static async getLayerHighlight(layerId: string): Promise<ILayerFeature[]> {
     // TODO
     const url = `${Environment.backend}/${Environment.dataFolder}/${layerId}.json`;
-    console.log(url);
 
     const feature = <ILayerFeature[]> await DataLoader.getJsonData(url);
     return feature;
@@ -154,10 +144,13 @@ export abstract class DataApi {
 
   static async getJoinedJson(layerId: string){
     const url = `${Environment.backend}/${Environment.dataFolder}/${layerId+"_joined"}.json`;
-    console.log(url);
     
-    const joinedJson = <IJoinedJson> await DataLoader.getJsonData(url);
-    return joinedJson;
+    try{
+      const joinedJson = <IJoinedJson> await DataLoader.getJsonData(url);
+      return joinedJson;
+    }catch(err){
+      return null;
+    }
   }
 
 }

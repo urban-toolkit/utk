@@ -130,13 +130,6 @@ export class PointsLayer extends Layer {
         }
     }
 
-    updateStyle(glContext: WebGL2RenderingContext): void {
-        const color = MapStyle.getColor(this.style);
-        
-        let id = this._renderStyle.indexOf(RenderStyle.FLAT_COLOR)
-        if ( id >= 0 ) { this._shaders[id].updateShaderUniforms(color); }
-    }
-
     render(glContext: WebGL2RenderingContext): void {
         // enables the depth test
         glContext.enable(glContext.DEPTH_TEST);

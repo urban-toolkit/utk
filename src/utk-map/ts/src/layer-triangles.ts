@@ -100,17 +100,6 @@ export class TrianglesLayer extends Layer {
         }
     }
 
-    /**
-     * Layer style update signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-     updateStyle(glContext: WebGL2RenderingContext): void {
-        const color = MapStyle.getColor(this.style);
-        
-        let id = this._renderStyle.indexOf(RenderStyle.FLAT_COLOR)
-        if ( id >= 0 ) { this._shaders[id].updateShaderUniforms(color); }
-    }
-
     setHighlightElements(elements: number[], level: LevelType, value: boolean): void{
 
         let coords = this.getCoordsByLevel(level);

@@ -2,6 +2,7 @@
 
 import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot } from './interfaces';
 import { PlotArrangementType, AggregationType} from './constants';
+import { Knot } from './knot';
 
 class GrammarInterpreter {
 
@@ -200,6 +201,29 @@ class GrammarInterpreter {
 
         for(const visibility of <IKnotVisibility[]>this._processedGrammar['views'][view].map.knotVisibility){
             if(visibility.knot == knotId){
+                let testString = visibility.test;
+
+                testString = testString.replaceAll("zoom", zoom+'');
+                testString = testString.replaceAll("timeElapsed", timeElapsed+'');
+            
+                let testResult = eval(testString);
+
+                return testResult;
+            }
+        }
+
+        return true;
+    }
+
+    public evaluateKnotVisibility(knot: Knot, view:number): boolean{
+        if(this._processedGrammar['views'][view].map.knotVisibility == undefined)
+            return true;
+
+        let zoom = this._map.camera.getZoomLevel();
+        let timeElapsed = Date.now() - this._lastValidationTimestep;
+
+        for(const visibility of <IKnotVisibility[]>this._processedGrammar['views'][view].map.knotVisibility){
+            if(visibility.knot == knot.id){
                 let testString = visibility.test;
 
                 testString = testString.replaceAll("zoom", zoom+'');

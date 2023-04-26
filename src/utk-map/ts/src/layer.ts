@@ -21,7 +21,7 @@ export abstract class Layer {
     protected _styleKey: keyof IMapStyle;
 
     // style key used to color the layer
-    protected _colorMap: string;
+    // protected _colorMap: string;
     // style key used to color the layer
     protected _reverseColorMap: boolean;
 
@@ -46,27 +46,11 @@ export abstract class Layer {
 
     protected _mesh: Mesh;
 
-    /**
-     * 
-     * @param {string} id The Mapview layer Identifier
-     * @param {LayerType} type The type of the layer
-     * @param {keyof IMapStyle} styleKey The layer key on the style definition
-     * @param {string} colorMap 
-     * @param {boolean} reverseColorMap 
-     * @param {RenderStyle} renderStyle Available render styles 
-     * @param {boolean} visible The initial visibility state 
-     * @param {boolean} selectable The initial selectability state 
-     * @param {IJoinedLayer[]} joinedLayers 
-     * @param {IJoinedObjects[]} joinedObjects 
-     * @param {number[]} centroid 
-     * @param {number} dimension 
-     * @param {number} zOrder 
-     */
-    constructor(id: string, type: LayerType, styleKey: keyof IMapStyle, colorMap: string, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], visible = true, selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
+    constructor(id: string, type: LayerType, styleKey: keyof IMapStyle, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], visible = true, selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
         this._id = id;
         this._type = type;
         this._styleKey = styleKey;
-        this._colorMap = colorMap;
+        // this._colorMap = colorMap;
         this._reverseColorMap = reverseColorMap;
         this._renderStyle = renderStyle;
 
@@ -111,9 +95,9 @@ export abstract class Layer {
         this._visible = visible;
     }
 
-    get colorMap(){
-        return this._colorMap;
-    }
+    // get colorMap(){
+    //     return this._colorMap;
+    // }
 
     get reverseColorMap(){
         return this._reverseColorMap;
@@ -174,26 +158,15 @@ export abstract class Layer {
     /**
      * Data update signature
      */
-    abstract updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void;
+    // abstract updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void;
 
     abstract updateMeshGeometry(data: ILayerFeature[]): void;
 
-    abstract updateShaders(): void;
+    abstract updateShaders(shaders: (Shader|AuxiliaryShader)[]): void;
 
     abstract addMeshFunction(knot: IKnot, layerManager: LayerManager): void;
 
-    /**
-     * Function update signature
-     * @param {ILayerFeature[]} data layer data
-     * @param {string} cmap used color map
-     */
-    abstract updateFunction(data: ILayerFeature[], knot: IKnot, cmap?: string): void;
-
-    /**
-     * Layer style update signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-    abstract updateStyle(glContext: WebGL2RenderingContext): void;
+    abstract updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void;
 
     abstract render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void;
 

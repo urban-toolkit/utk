@@ -1,6 +1,8 @@
 /// <reference types="@types/webgl2" />
 
 import { CameraFactory } from './camera';
+import { Layer } from './layer';
+
 import { MapStyle } from './map-style';
 
 import { KeyEventsFactory } from './key-events';
@@ -23,6 +25,7 @@ import { BuildingsLayer } from './layer-buildings';
 import { TrianglesLayer } from './layer-triangles';
 
 import { GrammarInterpreterFactory } from './grammarInterpreter';
+import { KnotManager } from './knotManager';
 
 class MapView {
     // Html div that will host the map
@@ -34,6 +37,7 @@ class MapView {
 
     // Layer manager object
     protected _layerManager: LayerManager;
+    protected _knotManager: KnotManager;
 
     // Manages the view configuration loaded (including plots and its interactions)
     protected _grammarManager: GrammarManager;
@@ -83,6 +87,7 @@ class MapView {
         // this._mapDiv.appendChild(texCanvas);
         // creates the manager
         this._layerManager = new LayerManager(filterKnotsUpdateCallback);
+        this._knotManager = new KnotManager();
 
         this._linkedContainerGenerator = linkedContainerGenerator;
         this._cameraUpdateCallback = cameraUpdateCallback;
@@ -165,96 +170,17 @@ class MapView {
         // resizes the canvas
         this.resize();
 
-        let knotsMap = this._grammarInterpreter.getMap(this._viewId).knots;
-        let layersIds: string[] = [];
-        let endOfScheme: boolean[] = [];
-        let joinedList: boolean[] = [];
-        let colorMaps: (string | undefined)[] = [];
+        await this.initLayers();
 
-        function addLayerToList(layer: string, end: boolean, layersIds: string[], endOfScheme: boolean[], joined: boolean, colorMap: string | undefined){
-            let alreadyIncluded = false;
-            let endIndex = -1;
+        let knotsToList: string[] = [];
 
-            for(let i = 0; i < layersIds.length; i++){
-                if(layersIds[i] == layer){
-                    alreadyIncluded = true;
-                    endIndex = i;
-                    break;
-                }
-            }
-
-            if(alreadyIncluded){
-                if(end){
-                    endOfScheme[endIndex] = true;
-                    colorMaps[endIndex] = colorMap;
-                }
-
-                if(joined){
-                    joinedList[endIndex] = true;
-                }
-
-            }else{
-                layersIds.push(layer);
-                endOfScheme.push(end);
-                joinedList.push(joined);
-
-                if(end){
-                    colorMaps.push(colorMap);
-                }
+        for(const knot of this._knotManager.knots){
+            if(knot.visible){
+                knotsToList.push(knot.id);
             }
         }
 
-        const addLayersFromKnot = (knot: IKnot, colorMap: string | undefined) => {
-            for(let i = 0; i < knot.linkingScheme.length; i++){
-
-                let joined = false;
-
-                if(knot.linkingScheme[i].otherLayer != undefined && knot.linkingScheme[i].thisLayer != knot.linkingScheme[i].otherLayer){
-                    joined = true;
-                }
-
-                if(i == knot.linkingScheme.length-1){
-                    addLayerToList(knot.linkingScheme[i].thisLayer, true, layersIds, endOfScheme, joined, colorMap);
-                }else{
-                    addLayerToList(knot.linkingScheme[i].thisLayer, false, layersIds, endOfScheme, joined, colorMap);
-                }
-            }
-        }
-
-        for(const knotId of knotsMap){
-            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
-                if(knot.id == knotId){
-
-                    if(knot.knotOp != true){
-                        addLayersFromKnot(knot, knot.colorMap);
-                    }else{
-                        let knotLeft = this._grammarInterpreter.getKnotById(knot.linkingScheme[knot.linkingScheme.length-1].thisLayer, this._viewId);
-                        let knotRight = this._grammarInterpreter.getKnotById(<string>knot.linkingScheme[knot.linkingScheme.length-1].otherLayer, this._viewId);
-
-                        if(knotLeft == undefined || knotRight == undefined){
-                            throw Error("Could not find knot");
-                        }
-
-                        addLayersFromKnot(knotLeft, knot.colorMap);
-                        addLayersFromKnot(knotRight, knot.colorMap);
-                    }
-
-                }
-            }
-        }
-
-        // inits the layers
-        await this.initLayers(layersIds, endOfScheme, joinedList, this.camera.getWorldOrigin(), colorMaps);
-
-        let layersToList: string[] = [];
-
-        for(const layer of this._layerManager.layers){
-            if(layer.visible){
-                layersToList.push(layer.id);
-            }
-        }
-
-        this._listLayersCallback(layersToList);
+        this._listLayersCallback(knotsToList);
 
         this.initGrammarManager(this._grammarInterpreter.getProcessedGrammar());
 
@@ -411,8 +337,8 @@ class MapView {
 
     }
 
-    toggleLayer(id:string){
-        this._layerManager.toggleLayer(id);
+    toggleKnot(id:string){
+        this._knotManager.toggleKnot(id);
         this.render();
     }
 
@@ -429,7 +355,21 @@ class MapView {
         this._camera.resetCamera(params.position, params.direction.up, params.direction.lookAt, params.direction.right, this._cameraUpdateCallback);
     }
 
-    async initLayers(layers: string[], endOfScheme: boolean[], joined: boolean[], centroid: number[] | Float32Array, colorMaps: (string | undefined)[]): Promise<void> {
+    async initLayers(): Promise<void> {
+
+        let layers: string[] = [];
+        let centroid = this.camera.getWorldOrigin();
+
+        for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
+            if(!knot.knotOp){
+                // load layers from knots if they dont already exist
+                for(let i = 0; i < knot.linkingScheme.length; i++){
+                    if(!layers.includes(knot.linkingScheme[i].thisLayer)){
+                        layers.push(knot.linkingScheme[i].thisLayer);
+                    }
+                }
+            }
+        }
 
         // loop over the index file
         for (let i = 0; i < layers.length; i++) {
@@ -444,12 +384,12 @@ class MapView {
                 continue;
             }
 
-            if(endOfScheme[i] == false){
-                layer['visible'] = false;
-            }
+            // if(endOfScheme[i] == false){
+            //     layer['visible'] = false;
+            // }
 
             // adds the new layer
-            await this.addLayer(layer, joined[i], centroid, colorMaps[i]);
+            await this.addLayer(layer, centroid);
         }
 
     }
@@ -521,20 +461,20 @@ class MapView {
     /**
      * Add layer geometry and function
      */
-    async addLayer(layerData: ILayerData, joined: boolean, centroid: number[] | Float32Array, colorMap: string | undefined): Promise<void> {
+    async addLayer(layerData: ILayerData, centroid: number[] | Float32Array): Promise<void> {
         // loads the layers data
-        const layer = this._layerManager.createLayer(layerData, centroid, colorMap);
+        const layer = this._layerManager.createLayer(layerData, centroid);
 
         // not able to create the layer
         if (!layer) { return; }
 
-        if(joined){
-            let joinedJson = await DataApi.getJoinedJson(layer.id);
+        let joinedJson = await DataApi.getJoinedJson(layer.id);
+
+        if(joinedJson != null)
             layer.setJoinedJson(joinedJson);
-        }
 
         // loads the shaders
-        await layer.loadShaders(this._glContext);
+        // await layer.loadShaders(this._glContext);
 
         // gets the layer data if available
         const features = 'data' in layerData ? layerData.data : undefined;
@@ -675,16 +615,23 @@ class MapView {
             
             }
 
-            layer.updateShaders();
+            // layer.updateShaders();
 
-            if(knotsAndInteractions != null){
-                for(let i = 0; i < knotsAndInteractions.knots.length; i++){
-                    if(this._grammarInterpreter.getKnotLastLink(knotsAndInteractions.knots[i], this._viewId).otherLayer != undefined){ // if it is not a pure knot
-                        layer.updateFunction(features, knotsAndInteractions.knots[i]);
-                    }
-                }
-            }
+            // if(knotsAndInteractions != null){
+            //     for(let i = 0; i < knotsAndInteractions.knots.length; i++){
+            //         if(this._grammarInterpreter.getKnotLastLink(knotsAndInteractions.knots[i], this._viewId).otherLayer != undefined){ // if it is not a pure knot
+            //             layer.updateFunction(features, knotsAndInteractions.knots[i]);
+            //         }
+            //     }
+            // }
 
+        }
+
+        let knotsLayer = layer.mesh.getAttachedKnots();
+
+        for(const knotId of knotsLayer){
+            let knot = this._knotManager.createKnot(knotId, <Layer>layer, layer.mesh.getFunctionVBO(knotId)[0], this._grammarInterpreter.getKnotById(knotId, this._viewId));
+            knot.loadShaders(this._glContext);
         }
 
         // render
@@ -692,67 +639,32 @@ class MapView {
     }
 
     /**
-     * update layer function function
+     * update layer function
      */
-    async updateLayerFunction(layerInfo: ILayerData): Promise<void> {
-        // searches the layer
-        let layer = this._layerManager.searchByLayerInfo(layerInfo);
+    // async updateLayerFunction(layerInfo: ILayerData): Promise<void> {
+    //     // searches the layer
+    //     let layer = this._layerManager.searchByLayerInfo(layerInfo);
 
-        // gets the layer geometry if available
-        const features = 'data' in layerInfo ? layerInfo['data'] : null;
+    //     // gets the layer geometry if available
+    //     const features = 'data' in layerInfo ? layerInfo['data'] : null;
 
-        // not found or no data
-        if (layer === null || !features) { return; }
+    //     // not found or no data
+    //     if (layer === null || !features) { return; }
 
-        let knotsAndInteractions = this.getLayerSchemes(layer.id);
+    //     let knotsAndInteractions = this.getLayerSchemes(layer.id);
 
-        if(knotsAndInteractions == null){
-            throw Error("Could not retrieve scheme of layer "+layer.id);
-        }
+    //     if(knotsAndInteractions == null){
+    //         throw Error("Could not retrieve scheme of layer "+layer.id);
+    //     }
 
-        // layer.updateFeatures(features, knots, this._layerManager);
-        for(let i = 0; i < knotsAndInteractions.knots.length; i++){
-            layer.updateFunction(features, knotsAndInteractions.knots[i]);
-        }
+    //     // layer.updateFeatures(features, knots, this._layerManager);
+    //     for(let i = 0; i < knotsAndInteractions.knots.length; i++){
+    //         layer.updateFunction(features, knotsAndInteractions.knots[i]);
+    //     }
 
-        // render
-        this.render();
-    }
-
-    /**
-     * apply the current layer color
-     */
-     applyLayerStyle(name: string): void {
-        // searches the layer
-        let layer = this._layerManager.searchByLayerId(name);
-
-        // not found or no data
-        if (layer === null ) { return; }
-
-        // update the function
-        layer.updateStyle(this._glContext);
-
-        // render
-        this.render();
-    }
-
-    /**
-     * Changes the map style.
-     */
-     async changeMapStyle(data: string | IMapStyle): Promise<void> {
-        await MapStyle.setColor(data);
-
-        for (const layer of this._layerManager.layers) {
-            layer.updateStyle(this._glContext);
-        }
-
-        this.render();
-    }    
-
-    activateBirdsEye(){
-        this._camera.activateBirdsEye();
-        this.render();
-    }
+    //     // render
+    //     this.render();
+    // }
 
     /**
      * Inits the mouse events
@@ -821,16 +733,22 @@ class MapView {
 
         this._camera.loadPosition(JSON.stringify(this.camera));
 
-        // render the layers
-        for (const layer of this._layerManager.layers) {
-            // skips based on visibility
-            if (!layer.visible) { continue; }
+        // // render the layers
+        // for (const layer of this._layerManager.layers) {
+        //     // skips based on visibility
+        //     if (!layer.visible) { continue; }
 
-            if(this._grammarInterpreter.evaluateLayerVisibility(layer.id, this._viewId)){
-                // sends the camera
-                layer.camera = this.camera;
-                // render
-                layer.render(this._glContext);
+        //     if(this._grammarInterpreter.evaluateLayerVisibility(layer.id, this._viewId)){
+        //         // sends the camera
+        //         layer.camera = this.camera;
+        //         // render
+        //         // layer.render(this._glContext);
+        //     }
+        // }
+
+        for(const knot of this._knotManager.knots){
+            if(this._grammarInterpreter.evaluateKnotVisibility(knot, this._viewId)){
+                knot.render(this._glContext, this.camera);
             }
         }
 

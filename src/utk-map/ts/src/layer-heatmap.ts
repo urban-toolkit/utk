@@ -31,7 +31,6 @@ export class HeatmapLayer extends Layer {
             info.id,
             info.type,
             info.styleKey,
-            info.colorMap !== undefined ? info.colorMap : "interpolateReds",
             info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
             info.visible !== undefined ? info.visible : true,
@@ -48,22 +47,22 @@ export class HeatmapLayer extends Layer {
      * Data update signature
      * @param {ILayerFeature[]} data layer data
      */
-    updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void {
-        this.updateMeshGeometry(data);
+    // updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void {
+    //     this.updateMeshGeometry(data);
         
-        this.addMeshFunction(knot, layerManager);
+    //     this.addMeshFunction(knot, layerManager);
 
-        this.updateShaders();
-    }
+    //     this.updateShaders();
+    // }
 
     updateMeshGeometry(data: ILayerFeature[]){
         // loads the data
         this._mesh.load(data, false, this._centroid);
     }
 
-    updateShaders(){
+    updateShaders(shaders: (Shader|AuxiliaryShader)[]){
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderGeometry(this._mesh);
         }
     }
@@ -94,27 +93,11 @@ export class HeatmapLayer extends Layer {
         throw Error("Filtering not supported for heatmap layer");
     }
 
-    /**
-     * Function update signature
-     * @param {ILayerFeature[]} data layer data
-     * @param {ColorMapType} cmap used color map
-     */
-     updateFunction(data: ILayerFeature[], knot: IKnot, cmap?: string): void {
+    updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderData(this._mesh, knot);
         }
-    }
-
-    /**
-     * Layer style update signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-     updateStyle(glContext: WebGL2RenderingContext): void {
-        const color = MapStyle.getColor(this.style);
-        
-        let id = this._renderStyle.indexOf(RenderStyle.FLAT_COLOR)
-        if ( id >= 0 ) { this._shaders[id].updateShaderUniforms(color); }
     }
 
     setHighlightElements(elements: number[], level: LevelType, value: boolean): void{

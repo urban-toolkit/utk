@@ -3,10 +3,7 @@ import * as d3 from 'd3-scale-chromatic';
 export abstract class ColorMap {
   protected static interpolator: (t: number) => string;
 
-  public static getColor(value: number, color: string, reverse = false) : number[] {
-    if (reverse) {
-      value = 1 - value;
-    }
+  public static getColor(value: number, color: string) : number[] {
 
     // @ts-ignore
     if(d3[color] == undefined){
@@ -25,13 +22,13 @@ export abstract class ColorMap {
     return rgbStr.map(el => +el / 255);
   }
 
-  public static getColorMap(color: string, reverse = false, res = 256): number [] {
+  public static getColorMap(color: string, res = 256): number [] {
 
       const tex: number[] = []
 
       for (let id = 0; id < res; id++) {
           const val = id / (res - 1);
-          const col = ColorMap.getColor(val, color, reverse);
+          const col = ColorMap.getColor(val, color);
           tex.push(...col);
       }
 

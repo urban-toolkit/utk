@@ -21,7 +21,6 @@ export class ShaderFlatColorMap extends Shader {
 
     // Color map definition
     private _colorMap: string | null = null;
-    private _colorMapReverse: boolean = false;
 
     // Data loaction on GPU
     protected _glCoords:  WebGLBuffer | null = null;
@@ -51,12 +50,11 @@ export class ShaderFlatColorMap extends Shader {
     // Color map texture
     protected _texColorMap: WebGLTexture | null;
 
-    constructor(glContext: WebGL2RenderingContext, colorMap: string = "interpolateReds", colorMapReverse: boolean = false) {
+    constructor(glContext: WebGL2RenderingContext, colorMap: string = "interpolateReds") {
         super(vsFlatColorMap, fsFlatColorMap, glContext);
 
         // saves the layer color
         this._colorMap = colorMap;
-        this._colorMapReverse = colorMapReverse;
 
         // creathe dhe shader variables    
         this.createUniforms(glContext);
@@ -163,7 +161,7 @@ export class ShaderFlatColorMap extends Shader {
         glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_MAG_FILTER, glContext.NEAREST);
      
         // Upload the image into the texture.
-        const texData = ColorMap.getColorMap(this._colorMap, this._colorMapReverse);
+        const texData = ColorMap.getColorMap(this._colorMap);
 
         const size = [256, 1];
         glContext.texImage2D(glContext.TEXTURE_2D, 0, glContext.RGB32F, size[0], size[1], 0, glContext.RGB, glContext.FLOAT, new Float32Array(texData));
