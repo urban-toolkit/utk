@@ -1,4 +1,3 @@
-import { Shader } from "./shader";
 import { Mesh } from "./mesh";
 import { AuxiliaryShader } from "./auxiliaryShader";
 
@@ -10,7 +9,6 @@ import vsSmoothColorMap from './shaders/smoothColorMapTex.vs';
 import fsSmoothColorMap from './shaders/smoothColorMapTex.fs';
 
 import {cross, rotateYMatrix, rotateZMatrix, angle, radians, multiplyMatrices, translateMatrix, normalize, dot, euclideanDistance} from './utils';
-import { TextureComponent } from "./texture";
 
 import { IKnot } from "./interfaces";
 
@@ -236,7 +234,7 @@ export class ShaderSmoothColorMapTex extends AuxiliaryShader {
         glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_MAG_FILTER, glContext.NEAREST);
      
         // Upload the image into the texture.
-        const texData = ColorMap.getColorMap(this._colorMap, this._colorMapReverse);
+        const texData = ColorMap.getColorMap(this._colorMap);
 
         const size = [256, 1];
         glContext.texImage2D(glContext.TEXTURE_2D, 0, glContext.RGB32F, size[0], size[1], 0, glContext.RGB, glContext.FLOAT, new Float32Array(texData));

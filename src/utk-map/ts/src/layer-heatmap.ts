@@ -1,12 +1,7 @@
-import { RenderStyle, AggregationType, LevelType } from "./constants";
+import { AggregationType, LevelType } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 
 import { Layer } from "./layer";
-import { MapStyle } from "./map-style";
-import { ShaderFlatColor } from "./shader-flatColor";
-import { ShaderFlatColorMap } from "./shader-flatColorMap";
-import { ShaderSmoothColor } from "./shader-smoothColor";
-import { ShaderSmoothColorMap } from "./shader-smoothColorMap";
 import { ShaderAbstractSurface } from "./shader-abstractSurface";
 import { LayerManager } from "./layer-manager";
 import { AuxiliaryShader } from './auxiliaryShader';
@@ -55,10 +50,6 @@ export class HeatmapLayer extends Layer {
         }
     }
 
-    addMeshFunction(knot: IKnot, layerManager: LayerManager){
-        
-    }
-
     directAddMeshFunction(functionValues: number[], knotId: string): void{
         let distributedValues = this.distributeFunctionValues(functionValues);
 
@@ -69,10 +60,6 @@ export class HeatmapLayer extends Layer {
         throw Error("Filtering not supported for heatmap layer");
     }
 
-    pickFilter(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-        throw Error("Filtering not supported for heatmap layer");
-    }
-
     updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
         // updates the shader references
         for (const shader of shaders) {
@@ -80,7 +67,11 @@ export class HeatmapLayer extends Layer {
         }
     }
 
-    setHighlightElements(elements: number[], level: LevelType, value: boolean): void{
+    supportInteraction(interaction: string): boolean { // return true to the interactions the layer supports
+        return true;
+    }
+
+    setHighlightElements(elements: number[], level: LevelType, value: boolean, shaders: (Shader|AuxiliaryShader)[]): void{
         throw Error("It is not possible to highlight a heatmap layer");
     }
 
@@ -134,14 +125,6 @@ export class HeatmapLayer extends Layer {
         glContext.disable(glContext.DEPTH_TEST);
         // disables culling
         glContext.disable(glContext.CULL_FACE);
-    }
-
-    pick(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-        throw Error("There is not picking interaction for the heatmap layer");
-    }
-    
-    clearPicking(){
-        throw Error("Cannot clear picking there is not picking interaction for the heatmap layer");
     }
 
     perFaceAvg(functionValues: number[], indices: number[], ids: number[]): number[]{
@@ -308,59 +291,6 @@ export class HeatmapLayer extends Layer {
 
     getHighlightsByLevel(level: LevelType): boolean[] {
         throw Error("The heatmap layer has no highlight attributes");
-    }
-
-    // /**
-    //  * Shader load signature
-    //  * @param {WebGL2RenderingContext} glContext WebGL context
-    //  */
-    // loadShaders(glContext: WebGL2RenderingContext): void {
-    //     this._shaders = [];
-    //     const color = MapStyle.getColor(this._styleKey);
-
-    //     const cmap = this._colorMap;
-    //     const revs = this._reverseColorMap;
-
-    //     for (const type of this._renderStyle) {
-    //         let shader = undefined;
-    //         switch (type) {
-    //             case RenderStyle.FLAT_COLOR:
-    //                 shader = new ShaderFlatColor(glContext, color);
-    //             break;
-    //             case RenderStyle.FLAT_COLOR_MAP:
-    //                 shader = new ShaderFlatColorMap(glContext, cmap, revs);
-    //             break;
-    //             case RenderStyle.SMOOTH_COLOR:
-    //                 shader = new ShaderSmoothColor(glContext, color);
-    //             break;
-    //             case RenderStyle.SMOOTH_COLOR_MAP:
-    //                 shader = new ShaderSmoothColorMap(glContext, cmap);
-    //             break;
-    //             case RenderStyle.SMOOTH_COLOR_MAP_TEX:
-    //                 throw Error("SMOOTH_COLOR_MAP_TEX shader is not supported for the heatmap layer")
-    //             break;
-    //             case RenderStyle.PICKING: 
-    //                 throw Error("PICKING shader is not supported for the heatmap layer")
-    //             break;
-    //             case RenderStyle.ABSTRACT_SURFACES:
-    //                 throw Error("ABSTRACT_SURFACES shader is not supported for the heatmap layer")
-    //             break;
-    //             default:
-    //                 shader = new ShaderFlatColor(glContext, color);
-    //             break;
-    //         }
-    //         this._shaders.push(shader);
-
-    //         // load message
-    //         console.log("------------------------------------------------------");
-    //         console.log(`Layer ${this._id} of type ${this._type}.`);
-    //         console.log(`Render styles: ${this._renderStyle.join(", ")}`);
-    //         console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
-    //         console.log("------------------------------------------------------");
-    //     }
-    // }
-    
-    loadShaders(glContext: WebGL2RenderingContext): void {
     }
 
 }

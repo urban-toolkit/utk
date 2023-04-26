@@ -20,6 +20,8 @@ class GrammarInterpreter {
 
     public validateGrammar(grammar: IGrammar){
 
+        // TODO: checking conflicting types of interactions for the knots. One knot cannot be in plots with different arrangements
+
         this._lastValidationTimestep = Date.now();
 
         for(let viewId = 0; viewId < grammar['views'].length; viewId++){

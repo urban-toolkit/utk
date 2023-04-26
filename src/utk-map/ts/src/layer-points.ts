@@ -1,10 +1,16 @@
 import { AggregationType, LevelType, RenderStyle } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 import { Layer } from "./layer";
-import { LayerManager } from "./layer-manager";
-import { MapStyle } from "./map-style";
 import { ShaderFlatColor } from "./shader-flatColor";
-import { ShaderColorPoints } from "./shader-colorPoints";
+import { Shader } from "./shader";
+import { AuxiliaryShader } from "./auxiliaryShader";
+import { ShaderFlatColorMap } from "./shader-flatColorMap";
+import { ShaderSmoothColor } from "./shader-smoothColor";
+import { ShaderSmoothColorMap } from "./shader-smoothColorMap";
+import { ShaderSmoothColorMapTex } from "./shader-smoothColorMapTex";
+import { ShaderPicking } from "./shader-picking";
+import { ShaderPickingTriangles } from "./shader-picking-triangles";
+import { ShaderAbstractSurface } from "./shader-abstractSurface";
 
 export class PointsLayer extends Layer {
 
@@ -16,10 +22,8 @@ export class PointsLayer extends Layer {
             info.id,
             info.type,
             info.styleKey,
-            info.colorMap !== undefined ? info.colorMap : "interpolateReds",
             info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.visible !== undefined ? info.visible : true,
             info.selectable !== undefined ? info.selectable : false,
             centroid,
             3,
@@ -30,91 +34,23 @@ export class PointsLayer extends Layer {
 
     }
 
-    loadShaders(glContext: WebGL2RenderingContext): void {
-        this._shaders = [];
-        const color = MapStyle.getColor(this._styleKey);
-
-        const cmap = this._colorMap;
-        const revs = this._reverseColorMap;
-
-        for (const type of this._renderStyle) {
-            let shader = undefined;
-            switch (type) {
-                case RenderStyle.FLAT_COLOR:
-                    throw Error("FLAT_COLOR not supported for point cloud layer");
-                break;
-                case RenderStyle.FLAT_COLOR_MAP:
-                    throw Error("FLAT_COLOR_MAP not supported for point cloud layer");
-                break;
-                case RenderStyle.SMOOTH_COLOR:
-                    throw Error("SMOOTH_COLOR not supported for point cloud layer");
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP:
-                    throw Error("SMOOTH_COLOR_MAP not supported for point cloud layer");
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP_TEX:
-                    throw Error("SMOOTH_COLOR_MAP_TEX not supported for point cloud layer");
-                break;
-                case RenderStyle.PICKING: // The picking is associated, by default, with the previous shader in this._renderStyle
-                    throw Error("PICKING not supported for point cloud layer");
-                break;
-                case RenderStyle.ABSTRACT_SURFACES:
-                    throw Error("ABSTRACT_SURFACES not supported for point cloud layer");
-                break;
-                case RenderStyle.COLOR_POINTS:
-                    shader = new ShaderColorPoints(glContext, cmap);
-                break;
-                default:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-            }
-            this._shaders.push(shader);
-
-            // load message
-            console.log("------------------------------------------------------");
-            console.log(`Layer ${this._id} of type ${this._type}.`);
-            console.log(`Render styles: ${this._renderStyle.join(", ")}`);
-            console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
-            console.log("------------------------------------------------------");
-        }
-    }
-
-    updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void {
-        this.updateMeshGeometry(data);
-        
-        this.addMeshFunction(knot, layerManager);
-
-        this.updateShaders();
+    supportInteraction(eventName: string): boolean {
+        return true;
     }
 
     updateMeshGeometry(data: ILayerFeature[]){
         this._mesh.load(data, false, this._centroid);
     }
 
-    updateShaders(){
+    updateShaders(shaders: (Shader|AuxiliaryShader)[]){
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderGeometry(this._mesh);
         }
     }
+    
     getSelectedFiltering(): number[] | null {
         throw Error("Filtering not supported for point layer");
-    }
-
-    pickFilter(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-        throw Error("Filtering not supported for point layer");
-    }
-
-    addMeshFunction(knot: IKnot, layerManager: LayerManager){
-        let functionValues: number[] | null = null;
-        
-        if(knot.linkingScheme != null && knot.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, <AggregationType[]>knot.aggregationScheme)
-        }
-
-        let distributedValues = this.distributeFunctionValues(functionValues);
-
-        this._mesh.loadFunctionData(distributedValues, knot.id);
     }
 
     directAddMeshFunction(functionValues: number[], knotId: string): void{
@@ -123,14 +59,46 @@ export class PointsLayer extends Layer {
         this._mesh.loadFunctionData(distributedValues, knotId);
     }
 
-    updateFunction(data: ILayerFeature[], knot: IKnot, cmap?: string): void {
+    updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderData(this._mesh, knot);
         }
     }
 
-    render(glContext: WebGL2RenderingContext): void {
+    render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void {
+
+        for (const shader of shaders){
+            if(shader instanceof ShaderFlatColor){
+                throw Error("FLAT_COLOR not supported for point cloud layer");
+            }
+
+            if(shader instanceof ShaderFlatColorMap){
+                throw Error("FLAT_COLOR_MAP not supported for point cloud layer");
+            }
+
+            if(shader instanceof ShaderSmoothColor){
+                throw Error("SMOOTH_COLOR not supported for point cloud layer");
+            }
+
+            if(shader instanceof ShaderSmoothColorMap){
+                throw Error("SMOOTH_COLOR_MAP not supported for point cloud layer");
+            }
+
+            if(shader instanceof ShaderSmoothColorMapTex){
+                throw Error("SMOOTH_COLOR_MAP_TEX not supported for point cloud layer");
+            }
+
+            if(shader instanceof ShaderPicking || shader instanceof ShaderPickingTriangles){
+                throw Error("PICKING not supported for point cloud layer");
+            }
+
+            if(shader instanceof ShaderAbstractSurface){
+                throw Error("ABSTRACT_SURFACES not supported for point cloud layer");
+            }
+        }
+
+
         // enables the depth test
         glContext.enable(glContext.DEPTH_TEST);
         glContext.depthFunc(glContext.LEQUAL);
@@ -144,7 +112,7 @@ export class PointsLayer extends Layer {
         // glContext.enable(glContext.STENCIL_TEST);
 
         // the abs surfaces are loaded first to update the stencil
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.renderPass(glContext, glContext.POINTS, this._camera, this._mesh, -1);
         }
 
@@ -161,9 +129,6 @@ export class PointsLayer extends Layer {
         throw new Error("Method not implemented.");
     }
 
-    pick(glContext: WebGL2RenderingContext, x: number, y: number): void {
-        throw new Error("Method not implemented.");
-    }
     distributeFunctionValues(functionValues: number[] | null): number[] | null{
         return functionValues;
     }
@@ -223,9 +188,6 @@ export class PointsLayer extends Layer {
         return functionByLevel;  
     }
 
-    clearPicking(){
-        throw new Error("Method not implemented.");
-    }
     getHighlightsByLevel(level: LevelType): boolean[] {
         throw new Error("Method not implemented.");
     }

@@ -1,3 +1,4 @@
+import { GrammarManager } from "./grammar-manager";
 import { IKnot } from "./interfaces";
 import { Knot } from "./knot";
 import { Layer } from "./layer";
@@ -13,8 +14,8 @@ export class KnotManager {
         return this._knots;
     }
 
-    createKnot(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number): Knot {
-        let knot = new Knot(id, physicalLayer, knotSpecification, grammarInterpreter, viewId);
+    createKnot(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number, map:any): Knot {
+        let knot = new Knot(id, physicalLayer, knotSpecification, grammarInterpreter, viewId, map);
         this._knots.push(knot);
         return knot;
     }

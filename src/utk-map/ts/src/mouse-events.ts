@@ -15,13 +15,6 @@ class MouseEvents {
   private _brushingFilter: boolean; 
   private _brushingFilterPivot: number[];
   private _currentPoint: number[]; // tracks the cursor current point
-  private _embedFootInteraction: boolean;
-  private _highlightCellInteraction: boolean;
-  private _highlightBuildingInteraction: boolean;
-  private _embedSurfaceInteraction: boolean;
-  private _highlightTriangleObject: boolean;
-  private _interactionsCallback: any;
-  private _interactionsCallbackArg: any;
 
   get lastPoint(): number[]{
       return this._lastPoint;
@@ -43,11 +36,6 @@ class MouseEvents {
     this._brushingFilter = false;
     this._brushingFilterPivot = [0, 0];
     this._currentPoint = [];
-    this._embedFootInteraction = false;
-    this._highlightCellInteraction = false;
-    this._highlightBuildingInteraction = false;
-    this._embedSurfaceInteraction = false;
-    this._highlightTriangleObject = false;
   }
 
   /**
@@ -86,38 +74,29 @@ class MouseEvents {
     event.preventDefault();
     event.stopPropagation();
 
-    let interactionHappened = false;
-
     if(event.button == 0 || event.button == 1){ // left click
       this._lastPoint = [event.offsetX, event.offsetY];
 
       if (event.ctrlKey) {
-        // const x = event.offsetX;
-        // const y = (this._map.canvas.height - event.offsetY);
-  
         // mouseX and mouseY are in CSS pixels in display space 
         const rect = this._map.canvas.getBoundingClientRect();
         let mouseX = event.clientX - rect.left;
         let mouseY = event.clientY - rect.top;
-  
-        for (const layer of this._map.layerManager.layers) {
-          if (!layer.selectable) { continue; }
-          layer.clearPicking();
-          interactionHappened = true;
-          if(this._highlightCellInteraction){
-            layer.pick(this._map.glContext, mouseX, mouseY);
-          }
+
+        // left click + ctrlKey
+        for (const knot of this._map.knotManager.knots) {
+          knot.interact(this._map.glContext, "left+ctrl", [mouseX, mouseY]);
         }
+
       } else {
         this._status = MapViewStatu.DRAG;
       }      
     }else if(event.button == 2){ // right click
 
-      if(!event.altKey){
-        for (const layer of this._map.layerManager.layers) {
-          if (!layer.selectable) { continue; }
-          layer.clearPicking();
-          this._interactionsCallback(this._interactionsCallbackArg, layer.id, null, null, true);
+      // right click - altKey
+      if(!event.altKey){  
+        for (const knot of this._map.knotManager.knots) {
+          knot.interact(this._map.glContext, 'right-alt');
         }
       }
 
@@ -142,22 +121,19 @@ class MouseEvents {
     this._currentPoint[0] = event.clientX - rect.left;
     this._currentPoint[1] = event.clientY - rect.top;
 
-    let interactionHappened = false;
-
     // left click drag
     if (this._status === MapViewStatu.DRAG) {
 
-      if(event.altKey && this._highlightCellInteraction){
+      if(event.altKey){
 
         let mouseX = this._currentPoint[0];
         let mouseY = this._currentPoint[1];
 
         if(!this._brushing){
   
-          for (const layer of this._map.layerManager.layers) {
-            if (!layer.selectable) { continue; }
-            layer.pick(this._map.glContext, mouseX, mouseY, mouseX, mouseY);
-            interactionHappened = true;
+          // left click + drag + alt - brushing
+          for (const knot of this._map.knotManager.knots) { 
+            knot.interact(this._map.glContext, "left+drag+alt-brushing", [mouseX, mouseY], [mouseX, mouseY]);
           }
 
           this._brushingPivot[0] = mouseX;
@@ -166,24 +142,19 @@ class MouseEvents {
           this._brushing = true;
         }else{
 
-          for (const layer of this._map.layerManager.layers) {
-            if (!layer.selectable) { continue; }
-
-            layer.pick(this._map.glContext, mouseX, mouseY, this._brushingPivot[0], this._brushingPivot[1]);
-            interactionHappened = true;
+          // left click + drag + alt + brushing
+          for (const knot of this._map.knotManager.knots) { 
+            knot.interact(this._map.glContext, "left+drag+alt+brushing", [mouseX, mouseY], [this._brushingPivot[0], this._brushingPivot[1]]);
           }
         }
 
       }else{
 
         if(this._brushing){
+          // left click + drag - alt + brushing
           // brush ended, need to apply it
-          for (const layer of this._map.layerManager.layers) {
-            if (!layer.selectable) { continue; }
-            if(layer instanceof BuildingsLayer){
-              layer.applyBrushing();
-              interactionHappened = true;
-            }
+          for (const knot of this._map.knotManager.knots) { 
+            knot.interact(this._map.glContext, "left+drag-alt+brushing");
           }
           this._brushing = false;
         }
@@ -205,13 +176,10 @@ class MouseEvents {
 
     }else{
       if(this._brushing){
+        // -drag-alt+brushing
         // brush ended, need to apply it
-        for (const layer of this._map.layerManager.layers) {
-          if (!layer.selectable) { continue; }
-          if(layer instanceof BuildingsLayer){
-            layer.applyBrushing();
-            interactionHappened = true
-          }
+        for (const knot of this._map.knotManager.knots) { 
+          knot.interact(this._map.glContext, "-drag-alt+brushing");
         }
         this._map.render();
 
@@ -227,10 +195,9 @@ class MouseEvents {
 
         if(!this._brushingFilter){
   
-          for (const layer of this._map.layerManager.layers) {
-            if(layer instanceof BuildingsLayer || layer instanceof TrianglesLayer){
-              layer.pickFilter(this._map.glContext, mouseX, mouseY, mouseX, mouseY);
-            }
+          // right click + drag - brushingFilter
+          for (const knot of this._map.knotManager.knots) { 
+            knot.interact(this._map.glContext, "right+drag-brushingFilter", [mouseX, mouseY], [mouseX, mouseY]);
           }
 
           this._brushingFilterPivot[0] = mouseX;
@@ -238,26 +205,19 @@ class MouseEvents {
 
           this._brushingFilter = true;
         }else{
-
-          for (const layer of this._map.layerManager.layers) {
-            if(layer instanceof BuildingsLayer || layer instanceof TrianglesLayer){
-              layer.pickFilter(this._map.glContext, mouseX, mouseY, this._brushingFilterPivot[0], this._brushingFilterPivot[1]);
-            }
+          // right click + drag + brushingFilter
+          for (const knot of this._map.knotManager.knots) { 
+            knot.interact(this._map.glContext, "right+drag+brushingFilter", [mouseX, mouseY], [this._brushingFilterPivot[0], this._brushingFilterPivot[1]]);
           }
         }
       }else{
         if(this._brushingFilter){
-          // // brush ended, need to apply it
-          // for (const layer of this._map.layerManager.layers) {
-          //   if (!layer.selectable) { continue; }
-          //   layer.applyBrushingFilter();
-          // }
 
           let largerBbox: (null | number)[] = [null, null, null, null];
 
-          for (const layer of this._map.layerManager.layers) {
-            if(layer instanceof BuildingsLayer || layer instanceof TrianglesLayer){
-              let bbox = layer.getSelectedFiltering();
+          for (const knot of this._map.knotManager.knots) {
+            if(knot.physicalLayer instanceof BuildingsLayer || knot.physicalLayer instanceof TrianglesLayer){
+              let bbox = knot.physicalLayer.getSelectedFiltering(knot.shaders);
   
               if(bbox != null){
                 if(largerBbox[0] == null){
@@ -299,17 +259,12 @@ class MouseEvents {
 
     }else{
       if(this._brushingFilter){
-        // // brush ended, need to apply it
-        // for (const layer of this._map.layerManager.layers) {
-        //   if (!layer.selectable) { continue; }
-        //   layer.applyBrushingFilter();
-        // }
 
         let largerBbox: (null | number)[] = [null, null, null, null];
 
-        for (const layer of this._map.layerManager.layers) {
-          if(layer instanceof BuildingsLayer || layer instanceof TrianglesLayer){
-            let bbox = layer.getSelectedFiltering();
+        for (const knot of this._map.knotManager.knots) {
+          if(knot.physicalLayer instanceof BuildingsLayer || knot.physicalLayer instanceof TrianglesLayer){
+            let bbox = knot.physicalLayer.getSelectedFiltering(knot.shaders);
 
             if(bbox != null){
               if(largerBbox[0] == null){
@@ -372,19 +327,11 @@ class MouseEvents {
     event.preventDefault();
     event.stopPropagation();
 
-    let interactionHappened = false;
-        
-    if(event.altKey && this._embedFootInteraction){
-      for (const layer of this._map.layerManager.layers) {
-        if (!layer.visible) { continue; } // only interact with visible layers
-        if(layer instanceof BuildingsLayer){
-            let currentPoint = this._currentPoint
-            layer.createFootprintPlot(this._map.glContext, currentPoint[0], currentPoint[1], true);
-            this._map.render();
-            // await layer.updateFootprintPlot(this._map.glContext, this._map.d3Expec, -1, event.deltaY * 0.02, 'd3');
-            await layer.updateFootprintPlot(this._map.glContext, this._map.grammarManager, -1, event.deltaY * 0.02, 'vega');
-            interactionHappened = true
-        }
+    if(event.altKey){
+      // wheel + alt
+      for (const knot of this._map.knotManager.knots) { 
+        let currentPoint = this._currentPoint;
+        knot.interact(this._map.glContext, "wheel+alt", [currentPoint[0], currentPoint[1]], null, event);
       }
       this._map.render();
 
@@ -400,90 +347,6 @@ class MouseEvents {
 
   }
 
-  // addded. Creating custom interaction to be called from manually
-  mouseWheelCustom(offsetX: number, offsetY: number, deltaY: number): void{
-    // changes the values
-    const maxAxisLength = Math.max(this._map.canvas.clientWidth, this._map.canvas.clientHeight);
-    const x = offsetX / maxAxisLength;
-    const y = (this._map.canvas.height - offsetY) / maxAxisLength;
-    this._map.camera.zoom(deltaY * 0.01, x, y);
-    this._map.render();
-  }
-
-  setInteractionConfigBuildings(interactions: InteractionType[], plotArrangements: PlotArrangementType[]){
-    this._embedFootInteraction = false;
-    this._highlightCellInteraction = false;
-    this._highlightBuildingInteraction = false;
-    this._embedSurfaceInteraction = false;
-
-    if(interactions.includes(InteractionType.BRUSHING) && plotArrangements.includes(PlotArrangementType.FOOT_EMBEDDED)){
-      throw Error("Brushing interaction is not compatible with FOOT_EMBEDDED arrangement type");
-    }
-
-    if(interactions.includes(InteractionType.PICKING) && plotArrangements.includes(PlotArrangementType.SUR_EMBEDDED)){
-      throw Error("Picking interaction is not compatible with SUR_EMBEDDED arrangement type");
-    }
-
-    if(plotArrangements.includes(PlotArrangementType.FOOT_EMBEDDED) && plotArrangements.includes(PlotArrangementType.SUR_EMBEDDED)){
-      throw Error("FOOT_EMBEDDED and SUR_EMBEDDED cannot be used for the same layer");
-    }
-
-    if(interactions.includes(InteractionType.BRUSHING) && interactions.includes(InteractionType.PICKING)){
-      throw Error("BRUSHING and PICKING interactions cannot be used at the same time for the same layer");
-    }
-
-    if(interactions.includes(InteractionType.BRUSHING)){
-      this._highlightCellInteraction = true;
-
-      if(plotArrangements.includes(PlotArrangementType.SUR_EMBEDDED)){
-        this._embedSurfaceInteraction = true;
-      }
-    }
-
-    if(interactions.includes(InteractionType.PICKING)){
-      if(plotArrangements.includes(PlotArrangementType.FOOT_EMBEDDED)){
-        this._embedFootInteraction = true;
-      }
-
-      if(plotArrangements.includes(PlotArrangementType.LINKED)){
-        this._highlightBuildingInteraction = true;
-      }
-
-      if(plotArrangements.length == 0){
-        this._highlightBuildingInteraction = true;
-      }
-    }
-
-  }
-
-  setInteractionConfigTriangles(interactions: InteractionType[], plotArrangements: PlotArrangementType[]){
-    this._highlightTriangleObject = false;
-
-    if(interactions.includes(InteractionType.BRUSHING)){
-      throw Error("Brushing interaction is not supported for the triangles layer");
-    }
-
-    if(plotArrangements.includes(PlotArrangementType.SUR_EMBEDDED)){
-      throw Error("SUR_EMBEDDED arrangement type is not supported for the triangles layer");
-    }
-
-    if(plotArrangements.includes(PlotArrangementType.FOOT_EMBEDDED)){
-      throw Error("FOOT_EMBEDDED arrangement type is not supported for the triangles layer");
-    }
-
-    if(interactions.includes(InteractionType.PICKING)){
-      this._highlightTriangleObject = true;
-    }
-  
-  }
-
-  /**
-   * Set the callback called when any interaction is made with the physical layer
-   */
-  setInteractionsCallback(callbackFunction: any, arg: any){
-    this._interactionsCallback = callbackFunction;
-    this._interactionsCallbackArg = arg;
-  }
 }
 
 export var MouseEventsFactory = (function(){

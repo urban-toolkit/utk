@@ -9,8 +9,6 @@ import { LayerType, RenderStyle, AggregationType, LevelType } from './constants'
 import { AuxiliaryShader } from './auxiliaryShader';
 import { LayerManager } from './layer-manager';
 
-import { DataApi } from './data-api';
-
 export abstract class Layer {
     // layer id
     protected _id: string;
@@ -37,8 +35,6 @@ export abstract class Layer {
     // is selectable
     protected _selectable: boolean;
 
-    // layer's shader
-    protected _shaders: (Shader|AuxiliaryShader)[] = [];
     // layer's camera
     protected _camera: any;
 
@@ -131,13 +127,6 @@ export abstract class Layer {
         this._camera = camera;
     }
 
-    /**
-     * Returns list of shaders
-     */
-    get shaders(): Shader[]{
-        return this._shaders;
-    }
-
     get mesh(): Mesh {
         return this._mesh;
     }
@@ -163,34 +152,9 @@ export abstract class Layer {
 
     abstract updateShaders(shaders: (Shader|AuxiliaryShader)[]): void;
 
-    abstract addMeshFunction(knot: IKnot, layerManager: LayerManager): void;
-
     abstract updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void;
 
     abstract render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void;
-
-    /**
-     * Layer picking function signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     * @param {number} x Mouse x coordinate
-     * @param {number} y Mouse y coordinate
-     * @param {number} anchorX Anchor point (for a brushing interaction for instace)
-     * @param {number} anchorY Anchor point (for a brushing interaction for instace)
-     */
-    abstract pick(glContext: WebGL2RenderingContext, x: number, y: number, anchorX?: number, anchorY?: number): void;
-
-    abstract pickFilter(glContext: WebGL2RenderingContext, x: number, y: number, anchorX?: number, anchorY?: number): void;
-
-    /**
-     * Clear picking picking function signature
-     */
-     abstract clearPicking(): void;
-
-    /**
-     * Shader load signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-    abstract loadShaders(glContext: WebGL2RenderingContext): void;
 
     /**
      * Distributes the function values inside the layer according to its semantics so it can be rendered. (i.e. function values of coordinates in building cells are averaged)
@@ -216,67 +180,18 @@ export abstract class Layer {
 
     abstract getFunctionByLevel(level: LevelType, knotId: string): number[][];
 
-    abstract getHighlightsByLevel(level: LevelType): boolean[];
+    abstract getHighlightsByLevel(level: LevelType, shaders: (Shader|AuxiliaryShader)[]): boolean[];
+
+    abstract supportInteraction(eventName: string): boolean;
 
     /**
      * 
      * @param elements array of elements indices (follow the order they appear in the layer json file)
      */
-    abstract setHighlightElements(elements: number[], level: LevelType, value: boolean): void;
+    abstract setHighlightElements(elements: number[], level: LevelType, value: boolean, shaders: (Shader|AuxiliaryShader)[]): void;
 
     // bypass the data extraction from link and data directly into the mesh
     abstract directAddMeshFunction(functionValues: number[], knotId: string): void;
 
-    abstract getSelectedFiltering(): number[] | null;
-
-    protected _brushingAreaCalculation(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): {pixelAnchorX: number, pixelAnchorY: number, width: number, height: number}{
-        if(!glContext.canvas || !(glContext.canvas instanceof HTMLCanvasElement)){
-            return {
-                pixelAnchorX: 0,
-                pixelAnchorY: 0,
-                width: 0,
-                height: 0
-            };
-        }
-        
-        // Converting mouse position in the CSS pixels display into pixel coordinate
-        let pixelX = x * glContext.canvas.width / glContext.canvas.clientWidth;
-        let pixelY = glContext.canvas.height - y * glContext.canvas.height / glContext.canvas.clientHeight - 1;
-
-        let pixelAnchorX = anchorX * glContext.canvas.width / glContext.canvas.clientWidth;
-        let pixelAnchorY = glContext.canvas.height - anchorY * glContext.canvas.height / glContext.canvas.clientHeight - 1;
-
-        let width: number = 0;
-        let height: number = 0;
-
-        if(pixelX - pixelAnchorX > 0 && pixelY - pixelAnchorY < 0){ //bottom right
-            width = Math.abs(pixelX - pixelAnchorX); 
-            height = Math.abs(pixelY - pixelAnchorY);    
-            
-            pixelAnchorY = pixelY; // shift the anchor point for the width and height be always positive
-        }else if(pixelX - pixelAnchorX < 0 && pixelY - pixelAnchorY < 0){ //  bottom left
-            width = Math.abs(pixelX - pixelAnchorX); 
-            height = Math.abs(pixelY - pixelAnchorY); 
-            
-            pixelAnchorY = pixelY; // shift the anchor point for the width and height be always positive
-            pixelAnchorX = pixelX; // shift the anchor point for the width and height be always positive
-        }else if(pixelX - pixelAnchorX > 0 && pixelY - pixelAnchorY > 0){ // top right
-            width = Math.abs(pixelX - pixelAnchorX); 
-            height = Math.abs(pixelY - pixelAnchorY);
-        }else if(pixelX - pixelAnchorX < 0 && pixelY - pixelAnchorY > 0){ // top left
-            width = Math.abs(pixelX - pixelAnchorX); 
-            height = Math.abs(pixelY - pixelAnchorY);
-
-            pixelAnchorX = pixelX; // shift the anchor point for the width and height be always positive
-        }
-
-        return {
-            pixelAnchorX: pixelAnchorX,
-            pixelAnchorY: pixelAnchorY,
-            width: width,
-            height: height
-        }
-
-    }
-
+    abstract getSelectedFiltering(shaders: (Shader|AuxiliaryShader)[]): number[] | null;
 }

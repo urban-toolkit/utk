@@ -19,13 +19,13 @@ import { ShaderPicking } from "./shader-picking";
 import { ShaderPickingTriangles } from "./shader-picking-triangles";
 
 import { GrammarManager } from "./grammar-manager";
-import { ImpactViewManager } from "./impactViewManager";
 import { BuildingsLayer } from './layer-buildings';
 
 import { TrianglesLayer } from './layer-triangles';
 
 import { GrammarInterpreterFactory } from './grammarInterpreter';
 import { KnotManager } from './knotManager';
+import { Knot } from './knot';
 
 class MapView {
     // Html div that will host the map
@@ -43,8 +43,6 @@ class MapView {
     protected _grammarManager: GrammarManager;
 
     protected _grammarInterpreter: any;
-
-    protected _impactViewManager: ImpactViewManager;
 
     // For each time called it returns
     protected _linkedContainerGenerator: any;
@@ -86,7 +84,7 @@ class MapView {
 
         // this._mapDiv.appendChild(texCanvas);
         // creates the manager
-        this._layerManager = new LayerManager(filterKnotsUpdateCallback);
+        this._layerManager = new LayerManager(filterKnotsUpdateCallback, this);
         this._knotManager = new KnotManager();
 
         this._linkedContainerGenerator = linkedContainerGenerator;
@@ -143,12 +141,12 @@ class MapView {
         return this._layerManager;
     }
 
-    get grammarManager(): GrammarManager{
-        return this._grammarManager;
+    get knotManager(): KnotManager{
+        return this._knotManager;
     }
 
-    get impactViewManager(): ImpactViewManager{
-        return this._impactViewManager;
+    get grammarManager(): GrammarManager{
+        return this._grammarManager;
     }
 
     /**
@@ -185,8 +183,6 @@ class MapView {
         this._listLayersCallback(knotsToList);
 
         this.initGrammarManager(this._grammarInterpreter.getProcessedGrammar());
-
-        this._impactViewManager = new ImpactViewManager();
 
         if(this._grammarInterpreter.getFilterKnots(this._viewId) != undefined){
             this._layerManager.filterBbox = this._grammarInterpreter.getFilterKnots(this._viewId);
@@ -233,7 +229,9 @@ class MapView {
 
                     let functionValues = left_layer.getFunctionByLevel(lastLink.thisLevel, knotId);
 
-                    let highlighted = left_layer.getHighlightsByLevel(lastLink.thisLevel);
+                    let knotStructure = this._knotManager.getKnotById(knotId);
+
+                    let highlighted = left_layer.getHighlightsByLevel(lastLink.thisLevel, (<Knot>knotStructure).shaders);
 
                     let readCoords = 0;
 
@@ -279,32 +277,32 @@ class MapView {
     }
 
     // if clear == true, elementIndex and level are ignored and all selections are deactivated
-    updateGrammarPlotsHighlight(_this:any, layerId: string, level: LevelType | null, elementIndex: number | null, clear: boolean = false){
+    updateGrammarPlotsHighlight(layerId: string, level: LevelType | null, elementIndex: number | null, clear: boolean = false){
 
         if(!clear){
             let elements: any = {};
         
-            for(const knot of _this._mapViewData.views[0].knots){
-                let lastLink = _this._grammarInterpreter.getKnotLastLink(knot, _this._viewId);
+            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
+                let lastLink = this._grammarInterpreter.getKnotLastLink(knot, this._viewId);
     
                 if(lastLink.thisLayer == layerId && lastLink.thisLevel == level){
                     elements[knot.id] = elementIndex;
                 }
             }
             
-            _this.grammarManager.setHighlightElementsLocally(elements, true, true);
+            this.grammarManager.setHighlightElementsLocally(elements, true, true);
         }else{
             let knotsToClear: string[] = [];
 
-            for(const knot of _this._mapViewData.views[0].knots){
-                let lastLink = _this.grammarInterpreter.getKnotLastLink(knot, _this.viewId);
+            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
+                let lastLink = this._grammarInterpreter.getKnotLastLink(knot, this._viewId);
     
                 if(lastLink.thisLayer == layerId){
                     knotsToClear.push(knot.id);
                 }
             }
 
-            _this.grammarManager.clearHighlightsLocally(knotsToClear);
+            this.grammarManager.clearHighlightsLocally(knotsToClear);
         }
 
     }
@@ -387,70 +385,6 @@ class MapView {
 
     }
 
-    private getLayerSchemes(layerId: string): {"knots": IKnot[], "interactions": InteractionType[]}  | null{
-        let mapKnots = this._grammarInterpreter.getMap(this._viewId).knots;
-        let lastMapKnot: IKnot | null = null;
-        let lastMapKnotInteraction: InteractionType = InteractionType.NONE;
-
-        let allKnots = this._grammarInterpreter.getKnots(this._viewId);
-        
-        let allLayerKnots = [];
-
-        let plotKnots: string[] = [];
-
-        for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
-            for(const knotId of plot.knots){
-                if(!plotKnots.includes(knotId)){
-                    plotKnots.push(knotId);
-                }
-            }
-        }
-        
-        // retrieving last map knot of this layer (that is the one that will be rendered)
-        for(const knotId of mapKnots){
-            for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
-                if(knot.id == knotId){
-                    if(knot.linkingScheme != undefined && knot.aggregationScheme != undefined && this._grammarInterpreter.getKnotOutputLayer(knot, this._viewId) == layerId){
-                        lastMapKnot = knot;
-                        lastMapKnotInteraction = this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)];
-                    }
-                }
-            }
-        }
-        
-        let knotsInteractions: InteractionType[] = [];
-
-        for(const knot of allKnots){
-            if(knot.linkingScheme != undefined && knot.aggregationScheme != undefined && this._grammarInterpreter.getKnotOutputLayer(knot, this._viewId) == layerId && (mapKnots.includes(knot.id) || plotKnots.includes(knot.id))){
-                if(lastMapKnot == null){
-                    allLayerKnots.push(knot);
-                    if(mapKnots.includes(knot.id)){
-                        knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
-                    }else{
-                        knotsInteractions.push(InteractionType.NONE);
-                    }                    
-                }else if(knot.id != lastMapKnot.id){
-                    allLayerKnots.push(knot);
-                    if(mapKnots.includes(knot.id)){
-                        knotsInteractions.push(this._grammarInterpreter.getMap(this._viewId).interactions[mapKnots.indexOf(knot.id)]);
-                    }else{
-                        knotsInteractions.push(InteractionType.NONE);
-                    } 
-                }
-            }
-        }
-
-        if(lastMapKnot != null){
-            allLayerKnots.push(lastMapKnot);
-            knotsInteractions.push(lastMapKnotInteraction);
-        }
-
-        if(allLayerKnots.length == 0)
-            return null
-
-        return {"knots": allLayerKnots, "interactions": knotsInteractions};
-    }
-
     /**
      * Add layer geometry and function
      */
@@ -471,8 +405,6 @@ class MapView {
         if(joinedJson != null)
             layer.setJoinedJson(joinedJson);
 
-        this.setupLayerInteraction(layer);
-
         // render
         this.render();
     }
@@ -483,72 +415,13 @@ class MapView {
             
             for(const layer of this._layerManager.layers){
                 if(layer.id == layerId){
-                    let knot = this._knotManager.createKnot(knotGrammar.id, <Layer>layer, knotGrammar, this._grammarInterpreter, this._viewId);
+                    let knot = this._knotManager.createKnot(knotGrammar.id, <Layer>layer, knotGrammar, this._grammarInterpreter, this._viewId, this);
                     knot.processThematicData(this._layerManager); // send thematic data to the mesh of the physical layer TODO: put this inside the constructor of Knot
                     knot.loadShaders(this._glContext); // instantiate the shaders inside the knot TODO: put this inside the constructor of Knot
                     break;
                 }
             }
         }
-    }
-
-    // TODO: a more generic approach to the interactions. Maybe Knot can decide what interactions to have and control that by assigning shaders 
-    setupLayerInteraction(layer: Layer){
-
-        let knotsAndInteractions = this.getLayerSchemes(layer.id); // get all knots and interactions that have this layer
-
-        let plotArrangementsPerKnot: any = {}; // stores in what plot arrangements a specific knot was used
-
-        for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
-            for(const knotId of plot.knots){
-                if(plotArrangementsPerKnot[knotId] == undefined){
-                    plotArrangementsPerKnot[knotId] = new Set();
-                    plotArrangementsPerKnot[knotId].add(plot.arrangement);
-                }else{
-                    plotArrangementsPerKnot[knotId].add(plot.arrangement);
-                }
-            }
-        }
-
-        if(knotsAndInteractions != null){
-            let plotArrangementsBuildings: PlotArrangementType[] = [];
-            let interactionsBuildings: InteractionType[] = [];
-
-            let plotArrangementsTriangles: PlotArrangementType[] = [];
-            let interactionsTriangles: InteractionType[] = [];
-
-            for(let i = 0; i < knotsAndInteractions.knots.length; i++){
-
-                if(layer instanceof BuildingsLayer){
-        
-                    if(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id] != undefined){ // the knot is not used in any plots
-                        plotArrangementsBuildings = plotArrangementsBuildings.concat(Array.from(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id]));
-                    }
-    
-                    interactionsBuildings.push(knotsAndInteractions.interactions[i]);
-                    
-                }else if(layer instanceof TrianglesLayer){
-
-                    if(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id] != undefined){ // the knot is not used in any plots
-                        plotArrangementsTriangles = plotArrangementsTriangles.concat(Array.from(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id]));
-                    }
-    
-                    interactionsTriangles.push(knotsAndInteractions.interactions[i]);
-
-                }else if(knotsAndInteractions.interactions[i] != InteractionType.NONE){
-                    throw Error("Interactions are currently only supported for the buildings and triangles layer");
-                }
-
-            }
-
-            this._mouse.setInteractionConfigBuildings(interactionsBuildings, plotArrangementsBuildings);
-            this._keyboard.setInteractionConfigBuildings(interactionsBuildings, plotArrangementsBuildings);
-        
-            this._mouse.setInteractionConfigTriangles(interactionsTriangles, plotArrangementsTriangles);
-            this._keyboard.setInteractionConfigTriangles(interactionsTriangles, plotArrangementsTriangles);
-        
-        }
-
     }
 
     /**
@@ -559,9 +432,6 @@ class MapView {
         this._mouse = MouseEventsFactory.getInstance();
         this._mouse.setMap(this);
 
-        // this._mouse.setInteractionsCallback(this.updateGrammarPlotsData, this);
-        this._mouse.setInteractionsCallback(this.updateGrammarPlotsHighlight, this);
-        
         // binds the mouse events
         this._mouse.bindEvents();
     }
@@ -570,13 +440,9 @@ class MapView {
      * Inits the mouse events
      */
     initKeyboardEvents(): void {
-
         // creates the mouse events manager
         this._keyboard = KeyEventsFactory.getInstance();
         this._keyboard.setMap(this);
-
-        // this._keyboard.setInteractionsCallback(this.updateGrammarPlotsData, this);
-        this._keyboard.setInteractionsCallback(this.updateGrammarPlotsHighlight, this);
     }
 
     /**
@@ -655,10 +521,10 @@ class MapView {
         // stores in the camera
         this._camera.setViewportResolution(targetWidth, targetHeight);
 
-        for (const layer of this._layerManager.layers){
-            if (!layer.visible) { continue; }
+        for (const knot of this._knotManager.knots){
+            if (!knot.visible) { continue; }
 
-            for(const shader of layer.shaders){
+            for(const shader of knot.shaders){
                 if(shader instanceof ShaderPicking){
                     shader.resizeDirty = true;
                 }

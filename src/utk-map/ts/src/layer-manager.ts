@@ -15,9 +15,11 @@ export class LayerManager {
     protected _layers: Layer[] = [];
     protected _filterBbox: number[] = []; // minx, miny, maxx, maxy
     protected _filterKnotsUpdateCallback: any;
+    protected _map: any;
 
-    constructor(filterKnotsCallback: any | null = null) {
+    constructor(filterKnotsCallback: any | null = null, map: any) {
         this._filterKnotsUpdateCallback = filterKnotsCallback;
+        this._map = map;
     }
 
     /**
@@ -33,19 +35,17 @@ export class LayerManager {
         this._filterKnotsUpdateCallback(bbox);
 
         this._filterBbox = bbox;
-        for(const layer of this.layers){
 
-            // if(layer instanceof BuildingsLayer){
-            layer.mesh.setFiltered(bbox);
-            for(const shader of layer.shaders){
-                shader.setFiltered(layer.mesh.filtered);
+        for(const knot of this._map.knotManager.knots){
+            knot.physicalLayer.mesh.setFiltered(bbox);
+            for(const shader of knot.physicalLayer.shaders){
+                shader.setFiltered(knot.physicalLayer.mesh.filtered);
                 if(shader.currentKnot != undefined){ // if layer is being rendered
-                    shader.updateShaderData(layer.mesh, shader.currentKnot); // recalculating normalization
+                    shader.updateShaderData(knot.physicalLayer.mesh, shader.currentKnot); // recalculating normalization
                 }
             }
-            // }
-
         }
+
     }
 
     /**
