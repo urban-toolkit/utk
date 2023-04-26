@@ -1,7 +1,7 @@
 // layers base classes
 import { Layer } from './layer';
 import { LayerType, AggregationType, PredicateType, LevelType } from './constants';
-import { ILayerData, ILinkDescription, IJoinedObjects } from './interfaces';
+import { ILayerData, ILinkDescription, IJoinedObjects, ILayerFeature } from './interfaces';
 
 // layer types
 import { LinesLayer } from './layer-lines';
@@ -54,7 +54,7 @@ export class LayerManager {
     * @param {string} layerId layer identifier
     * @returns {Layer | null} The load layer promise
     */
-    createLayer(layerInfo: ILayerData, centroid: number[] | Float32Array): Layer | null {
+    createLayer(layerInfo: ILayerData, centroid: number[] | Float32Array, features: ILayerFeature[]): Layer | null {
         // loaded layer
         let layer = null;
         // z order
@@ -78,7 +78,7 @@ export class LayerManager {
                 layer = new BuildingsLayer(layerInfo, zOrder, centroid);
             break;
             case LayerType.HEATMAP_LAYER:
-                layer = new HeatmapLayer(layerInfo, zOrder, centroid);
+                layer = new HeatmapLayer(layerInfo, zOrder, centroid, features);
             break;
             case LayerType.POINTS_LAYER:
                 layer = new PointsLayer(layerInfo, zOrder, centroid);

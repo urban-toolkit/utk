@@ -25,7 +25,7 @@ export class HeatmapLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
 
         super(
             info.id,
@@ -33,30 +33,18 @@ export class HeatmapLayer extends Layer {
             info.styleKey,
             info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.visible !== undefined ? info.visible : true,
             info.selectable !== undefined ? info.selectable : false,
             centroid,
             3,
             zOrder
         );
         
+        this.updateMeshGeometry(geometryData);
+
         this._zOrder = zOrder;
     }
 
-    /**
-     * Data update signature
-     * @param {ILayerFeature[]} data layer data
-     */
-    // updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void {
-    //     this.updateMeshGeometry(data);
-        
-    //     this.addMeshFunction(knot, layerManager);
-
-    //     this.updateShaders();
-    // }
-
     updateMeshGeometry(data: ILayerFeature[]){
-        // loads the data
         this._mesh.load(data, false, this._centroid);
     }
 
@@ -68,15 +56,7 @@ export class HeatmapLayer extends Layer {
     }
 
     addMeshFunction(knot: IKnot, layerManager: LayerManager){
-        let functionValues: number[] | null = null;
         
-        if(knot.linkingScheme != null && knot.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, <AggregationType[]>knot.aggregationScheme)
-        }
-
-        let distributedValues = this.distributeFunctionValues(functionValues);
-
-        this._mesh.loadFunctionData(distributedValues, knot.id);
     }
 
     directAddMeshFunction(functionValues: number[], knotId: string): void{

@@ -61,10 +61,7 @@ export interface ILayerData {
     id: string;                  // layer id
     type: LayerType;             // layer type
     styleKey: keyof IMapStyle;   // layer style key
-    colorMap?: string;     // layer colormap
     reverseColorMap?: boolean;   // layer colormap order
-    visible?: boolean;           // is visible boolean
-    skip?: boolean;              // skipe loading boolean 
     selectable?: boolean;        // is selectable boolean 
     data?: ILayerFeature[];      // list of features of the layer 
     renderStyle?: RenderStyle[]; // list of render styles

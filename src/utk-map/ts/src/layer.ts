@@ -46,7 +46,7 @@ export abstract class Layer {
 
     protected _mesh: Mesh;
 
-    constructor(id: string, type: LayerType, styleKey: keyof IMapStyle, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], visible = true, selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
+    constructor(id: string, type: LayerType, styleKey: keyof IMapStyle, reverseColorMap: boolean, renderStyle: RenderStyle[] = [], selectable = false, centroid:number[] | Float32Array = [0,0,0], dimension: number, zOrder: number) {
         this._id = id;
         this._type = type;
         this._styleKey = styleKey;
@@ -54,7 +54,6 @@ export abstract class Layer {
         this._reverseColorMap = reverseColorMap;
         this._renderStyle = renderStyle;
 
-        this._visible = visible;
         this._selectable = selectable;
 
         this._centroid = centroid;

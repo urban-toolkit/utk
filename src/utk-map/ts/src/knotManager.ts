@@ -13,8 +13,8 @@ export class KnotManager {
         return this._knots;
     }
 
-    createKnot(id: string, physicalLayer: Layer, thematicData: number[], knotSpecification: IKnot): Knot {
-        let knot = new Knot(id, physicalLayer, thematicData, knotSpecification);
+    createKnot(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number): Knot {
+        let knot = new Knot(id, physicalLayer, knotSpecification, grammarInterpreter, viewId);
         this._knots.push(knot);
         return knot;
     }
@@ -25,5 +25,15 @@ export class KnotManager {
                 knot.visible = !knot.visible;
             }
         }
+    }
+
+    getKnotById(knotId: string){
+        for(const knot of this._knots){
+            if(knot.id == knotId){
+                return knot;
+            }
+        }
+
+        return null;
     }
 }

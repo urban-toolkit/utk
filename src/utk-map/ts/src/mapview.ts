@@ -11,7 +11,7 @@ import { MouseEventsFactory } from './mouse-events';
 import { DataApi } from './data-api';
 import { LayerManager } from './layer-manager';
 
-import { ICameraData, ILayerData, IMapStyle, IGrammar, IKnot } from './interfaces';
+import { ICameraData, ILayerData, IMapStyle, IGrammar, IKnot, ILayerFeature } from './interfaces';
 
 import { PlotArrangementType, InteractionType, LevelType, AggregationType } from './constants';
 
@@ -171,6 +171,8 @@ class MapView {
         this.resize();
 
         await this.initLayers();
+
+        this.initKnots();
 
         let knotsToList: string[] = [];
 
@@ -379,15 +381,6 @@ class MapView {
             // loads from file if not provided
             const layer = await DataApi.getLayer(element);
 
-            // skips the layer
-            if ('skip' in layer && layer['skip']) {
-                continue;
-            }
-
-            // if(endOfScheme[i] == false){
-            //     layer['visible'] = false;
-            // }
-
             // adds the new layer
             await this.addLayer(layer, centroid);
         }
@@ -462,8 +455,13 @@ class MapView {
      * Add layer geometry and function
      */
     async addLayer(layerData: ILayerData, centroid: number[] | Float32Array): Promise<void> {
+        // gets the layer data if available
+        const features = 'data' in layerData ? layerData.data : undefined;
+
+        if (!features) { return; }
+
         // loads the layers data
-        const layer = this._layerManager.createLayer(layerData, centroid);
+        const layer = this._layerManager.createLayer(layerData, centroid, features);
 
         // not able to create the layer
         if (!layer) { return; }
@@ -473,198 +471,85 @@ class MapView {
         if(joinedJson != null)
             layer.setJoinedJson(joinedJson);
 
-        // loads the shaders
-        // await layer.loadShaders(this._glContext);
-
-        // gets the layer data if available
-        const features = 'data' in layerData ? layerData.data : undefined;
-
-        // update the features
-        if (features) {
-
-            let knotsAndInteractions = this.getLayerSchemes(layer.id);
-
-            layer.updateMeshGeometry(features);
-
-            let plotArrangementsPerKnot: any = {}; // stores in what plot arrangements a specific knot was used
-
-            for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
-                for(const knotId of plot.knots){
-                    if(plotArrangementsPerKnot[knotId] == undefined){
-                        plotArrangementsPerKnot[knotId] = new Set();
-                        plotArrangementsPerKnot[knotId].add(plot.arrangement);
-                    }else{
-                        plotArrangementsPerKnot[knotId].add(plot.arrangement);
-                    }
-                }
-            }
-
-            if(knotsAndInteractions != null){
-                let plotArrangementsBuildings: PlotArrangementType[] = [];
-                let interactionsBuildings: InteractionType[] = [];
-
-                let plotArrangementsTriangles: PlotArrangementType[] = [];
-                let interactionsTriangles: InteractionType[] = [];
-
-                for(let i = 0; i < knotsAndInteractions.knots.length; i++){
-
-                    if(knotsAndInteractions.knots[i].knotOp != true){
-                        layer.addMeshFunction(knotsAndInteractions.knots[i], this._layerManager);
-                    }else{
-                        let functionsPerKnot: any = {};
-
-                        for(const scheme of knotsAndInteractions.knots[i].linkingScheme){
-                            if(functionsPerKnot[scheme.thisLayer] == undefined){
-                                let knot = this._grammarInterpreter.getKnotById(scheme.thisLayer, this._viewId);
-
-                                if(knot == undefined){
-                                    throw Error("Could not retrieve knot that composes knotOp "+knotsAndInteractions.knots[i].id);
-                                }
-
-                                functionsPerKnot[scheme.thisLayer] = this.layerManager.getAbstractDataFromLink(knot.linkingScheme, knot.aggregationScheme);
-                            }
-
-                            if(functionsPerKnot[<string>scheme.otherLayer] == undefined){
-                                let knot = this._grammarInterpreter.getKnotById(<string>scheme.otherLayer, this._viewId);
-
-                                if(knot == undefined){
-                                    throw Error("Could not retrieve knot that composes knotOp "+knotsAndInteractions.knots[i].id);
-                                }
-
-                                functionsPerKnot[<string>scheme.otherLayer] = this.layerManager.getAbstractDataFromLink(knot.linkingScheme, knot.aggregationScheme);
-                            }
-
-                        }
-
-                        let functionSize = -1;
-
-                        let functionsPerKnotsKeys = Object.keys(functionsPerKnot);
-
-                        for(const key of functionsPerKnotsKeys){
-                            if(functionSize == -1){
-                                functionSize = functionsPerKnot[key].length;
-                            }else if(functionSize != functionsPerKnot[key].length){
-                                throw Error("All knots used in knotOp must have the same length");
-                            }
-                        }
-
-                        if(functionSize == -1){
-                            throw Error("Could not retrieve valid function values for knotOp "+knotsAndInteractions.knots[i].id);
-                        }
-
-                        let prevResult: number[] = new Array(functionSize);
-
-                        let linkIndex = 0;
-
-                        for(const scheme of knotsAndInteractions.knots[i].linkingScheme){
-                            if(linkIndex == 0 && (<string>scheme.op).includes("prevResult")){
-                                throw Error("It is not possible to access a previous result (prevResult) for the first link");
-                            }
-
-                            let functionValue0 = functionsPerKnot[scheme.thisLayer];
-                            let functionValue1 = functionsPerKnot[<string>scheme.otherLayer];
-                        
-                            for(let j = 0; j < functionValue0.length; j++){
-
-                                let operation = (<string>scheme.op).replaceAll(scheme.thisLayer, functionValue0[j]+'').replaceAll(<LevelType>scheme.otherLayer, functionValue1[j]+''); 
-                                
-                                if(linkIndex != 0){
-                                    operation = operation.replaceAll("prevResult", prevResult[j]+'');
-                                }
-
-                                prevResult[j] = eval(operation); // TODO deal with security problem
-                            }
-
-                            linkIndex += 1;
-
-                        }
-
-                        console.log("prevResult", prevResult);
-
-                        layer.directAddMeshFunction(prevResult, knotsAndInteractions.knots[i].id);
-
-                    }
-
-                    if(layer instanceof BuildingsLayer){
-            
-                        if(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id] != undefined){ // the knot is not used in any plots
-                            plotArrangementsBuildings = plotArrangementsBuildings.concat(Array.from(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id]));
-                        }
-        
-                        interactionsBuildings.push(knotsAndInteractions.interactions[i]);
-                        
-                    }else if(layer instanceof TrianglesLayer){
-
-                        if(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id] != undefined){ // the knot is not used in any plots
-                            plotArrangementsTriangles = plotArrangementsTriangles.concat(Array.from(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id]));
-                        }
-        
-                        interactionsTriangles.push(knotsAndInteractions.interactions[i]);
-
-                    }else if(knotsAndInteractions.interactions[i] != InteractionType.NONE){
-                        throw Error("Interactions are currently only supported for the buildings and triangles layer");
-                    }
-
-                }
-
-                this._mouse.setInteractionConfigBuildings(interactionsBuildings, plotArrangementsBuildings);
-                this._keyboard.setInteractionConfigBuildings(interactionsBuildings, plotArrangementsBuildings);
-            
-                this._mouse.setInteractionConfigTriangles(interactionsTriangles, plotArrangementsTriangles);
-                this._keyboard.setInteractionConfigTriangles(interactionsTriangles, plotArrangementsTriangles);
-            
-            }
-
-            // layer.updateShaders();
-
-            // if(knotsAndInteractions != null){
-            //     for(let i = 0; i < knotsAndInteractions.knots.length; i++){
-            //         if(this._grammarInterpreter.getKnotLastLink(knotsAndInteractions.knots[i], this._viewId).otherLayer != undefined){ // if it is not a pure knot
-            //             layer.updateFunction(features, knotsAndInteractions.knots[i]);
-            //         }
-            //     }
-            // }
-
-        }
-
-        let knotsLayer = layer.mesh.getAttachedKnots();
-
-        for(const knotId of knotsLayer){
-            let knot = this._knotManager.createKnot(knotId, <Layer>layer, layer.mesh.getFunctionVBO(knotId)[0], this._grammarInterpreter.getKnotById(knotId, this._viewId));
-            knot.loadShaders(this._glContext);
-        }
+        this.setupLayerInteraction(layer);
 
         // render
         this.render();
     }
 
-    /**
-     * update layer function
-     */
-    // async updateLayerFunction(layerInfo: ILayerData): Promise<void> {
-    //     // searches the layer
-    //     let layer = this._layerManager.searchByLayerInfo(layerInfo);
+    initKnots(){
+        for(const knotGrammar of this._grammarInterpreter.getKnots(this._viewId)){
+            let layerId = this._grammarInterpreter.getKnotOutputLayer(knotGrammar, this._viewId);
+            
+            for(const layer of this._layerManager.layers){
+                if(layer.id == layerId){
+                    let knot = this._knotManager.createKnot(knotGrammar.id, <Layer>layer, knotGrammar, this._grammarInterpreter, this._viewId);
+                    knot.processThematicData(this._layerManager); // send thematic data to the mesh of the physical layer TODO: put this inside the constructor of Knot
+                    knot.loadShaders(this._glContext); // instantiate the shaders inside the knot TODO: put this inside the constructor of Knot
+                    break;
+                }
+            }
+        }
+    }
 
-    //     // gets the layer geometry if available
-    //     const features = 'data' in layerInfo ? layerInfo['data'] : null;
+    // TODO: a more generic approach to the interactions. Maybe Knot can decide what interactions to have and control that by assigning shaders 
+    setupLayerInteraction(layer: Layer){
 
-    //     // not found or no data
-    //     if (layer === null || !features) { return; }
+        let knotsAndInteractions = this.getLayerSchemes(layer.id); // get all knots and interactions that have this layer
 
-    //     let knotsAndInteractions = this.getLayerSchemes(layer.id);
+        let plotArrangementsPerKnot: any = {}; // stores in what plot arrangements a specific knot was used
 
-    //     if(knotsAndInteractions == null){
-    //         throw Error("Could not retrieve scheme of layer "+layer.id);
-    //     }
+        for(const plot of this._grammarInterpreter.getPlots(this._viewId)){
+            for(const knotId of plot.knots){
+                if(plotArrangementsPerKnot[knotId] == undefined){
+                    plotArrangementsPerKnot[knotId] = new Set();
+                    plotArrangementsPerKnot[knotId].add(plot.arrangement);
+                }else{
+                    plotArrangementsPerKnot[knotId].add(plot.arrangement);
+                }
+            }
+        }
 
-    //     // layer.updateFeatures(features, knots, this._layerManager);
-    //     for(let i = 0; i < knotsAndInteractions.knots.length; i++){
-    //         layer.updateFunction(features, knotsAndInteractions.knots[i]);
-    //     }
+        if(knotsAndInteractions != null){
+            let plotArrangementsBuildings: PlotArrangementType[] = [];
+            let interactionsBuildings: InteractionType[] = [];
 
-    //     // render
-    //     this.render();
-    // }
+            let plotArrangementsTriangles: PlotArrangementType[] = [];
+            let interactionsTriangles: InteractionType[] = [];
+
+            for(let i = 0; i < knotsAndInteractions.knots.length; i++){
+
+                if(layer instanceof BuildingsLayer){
+        
+                    if(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id] != undefined){ // the knot is not used in any plots
+                        plotArrangementsBuildings = plotArrangementsBuildings.concat(Array.from(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id]));
+                    }
+    
+                    interactionsBuildings.push(knotsAndInteractions.interactions[i]);
+                    
+                }else if(layer instanceof TrianglesLayer){
+
+                    if(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id] != undefined){ // the knot is not used in any plots
+                        plotArrangementsTriangles = plotArrangementsTriangles.concat(Array.from(plotArrangementsPerKnot[knotsAndInteractions.knots[i].id]));
+                    }
+    
+                    interactionsTriangles.push(knotsAndInteractions.interactions[i]);
+
+                }else if(knotsAndInteractions.interactions[i] != InteractionType.NONE){
+                    throw Error("Interactions are currently only supported for the buildings and triangles layer");
+                }
+
+            }
+
+            this._mouse.setInteractionConfigBuildings(interactionsBuildings, plotArrangementsBuildings);
+            this._keyboard.setInteractionConfigBuildings(interactionsBuildings, plotArrangementsBuildings);
+        
+            this._mouse.setInteractionConfigTriangles(interactionsTriangles, plotArrangementsTriangles);
+            this._keyboard.setInteractionConfigTriangles(interactionsTriangles, plotArrangementsTriangles);
+        
+        }
+
+    }
 
     /**
      * Inits the mouse events
