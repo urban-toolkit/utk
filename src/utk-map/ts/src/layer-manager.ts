@@ -38,7 +38,7 @@ export class LayerManager {
 
         for(const knot of this._map.knotManager.knots){
             knot.physicalLayer.mesh.setFiltered(bbox);
-            for(const shader of knot.physicalLayer.shaders){
+            for(const shader of knot.shaders){
                 shader.setFiltered(knot.physicalLayer.mesh.filtered);
                 if(shader.currentKnot != undefined){ // if layer is being rendered
                     shader.updateShaderData(knot.physicalLayer.mesh, shader.currentKnot); // recalculating normalization
@@ -63,25 +63,25 @@ export class LayerManager {
         // loads based on type
         switch (layerInfo.type) {
             case LayerType.TRIANGLES_2D_LAYER:
-                layer = new TrianglesLayer(layerInfo, 2, zOrder, centroid);
+                layer = new TrianglesLayer(layerInfo, 2, zOrder, centroid, features);
             break;
             case LayerType.TRIANGLES_3D_LAYER:
-                layer = new TrianglesLayer(layerInfo, 3, zOrder, centroid);
+                layer = new TrianglesLayer(layerInfo, 3, zOrder, centroid, features);
             break;
             case LayerType.LINES_2D_LAYER:
-                layer = new LinesLayer(layerInfo, 2, zOrder, centroid);
+                layer = new LinesLayer(layerInfo, 2, zOrder, centroid, features);
             break;
             case LayerType.LINES_3D_LAYER:
-                layer = new LinesLayer(layerInfo, 3, zOrder, centroid);
+                layer = new LinesLayer(layerInfo, 3, zOrder, centroid, features);
             break;
             case LayerType.BUILDINGS_LAYER:
-                layer = new BuildingsLayer(layerInfo, zOrder, centroid);
+                layer = new BuildingsLayer(layerInfo, zOrder, centroid, features);
             break;
             case LayerType.HEATMAP_LAYER:
                 layer = new HeatmapLayer(layerInfo, zOrder, centroid, features);
             break;
             case LayerType.POINTS_LAYER:
-                layer = new PointsLayer(layerInfo, zOrder, centroid);
+                layer = new PointsLayer(layerInfo, zOrder, centroid, features);
             break;
             default:
                 console.error(`File ${layerInfo.id}.json has an unknown layer type: ${layerInfo.type}.`);

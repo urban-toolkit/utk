@@ -18,6 +18,8 @@ import { BuildingsLayer } from "./layer-buildings";
 import { TrianglesLayer } from "./layer-triangles";
 import { IKnot } from "./interfaces";
 import { LayerManager } from "./layer-manager";
+import { ShaderColorPoints } from "./shader-colorPoints";
+import { ShaderFlatColorPoints } from "./shader-flatColorPoints";
 
 export class Knot {
 
@@ -132,6 +134,13 @@ export class Knot {
                 case RenderStyle.ABSTRACT_SURFACES:
                     shader = new ShaderAbstractSurface(glContext);
                 break;
+                case RenderStyle.COLOR_POINTS:
+                    shader = new ShaderColorPoints(glContext, cmap);
+                break;
+                case RenderStyle.FLAT_COLOR_POINTS:
+                    shader = new ShaderFlatColorPoints(glContext, color);
+                break;
+                
                 default:
                     shader = new ShaderFlatColor(glContext, color);
                 break;

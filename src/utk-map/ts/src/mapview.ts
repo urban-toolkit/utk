@@ -358,14 +358,25 @@ class MapView {
     async initLayers(): Promise<void> {
 
         let layers: string[] = [];
+        let joinedList: boolean[] = [];
         let centroid = this.camera.getWorldOrigin();
 
         for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
             if(!knot.knotOp){
                 // load layers from knots if they dont already exist
                 for(let i = 0; i < knot.linkingScheme.length; i++){
+
+                    let joined = false // if the layers was joined with another layer
+
+                    if(knot.linkingScheme[i].otherLayer != undefined && knot.linkingScheme[i].otherLayer != knot.linkingScheme[i].thisLayer){
+                        joined = true;
+                    }
+
                     if(!layers.includes(knot.linkingScheme[i].thisLayer)){
                         layers.push(knot.linkingScheme[i].thisLayer);
+                        joinedList.push(joined);
+                    }else if(joined){
+                        joinedList[layers.indexOf(knot.linkingScheme[i].thisLayer)] = joined;
                     }
                 }
             }
@@ -380,7 +391,7 @@ class MapView {
             const layer = await DataApi.getLayer(element);
 
             // adds the new layer
-            await this.addLayer(layer, centroid);
+            await this.addLayer(layer, centroid, joinedList[i]);
         }
 
     }
@@ -388,7 +399,8 @@ class MapView {
     /**
      * Add layer geometry and function
      */
-    async addLayer(layerData: ILayerData, centroid: number[] | Float32Array): Promise<void> {
+    async addLayer(layerData: ILayerData, centroid: number[] | Float32Array, joined: boolean): Promise<void> {
+
         // gets the layer data if available
         const features = 'data' in layerData ? layerData.data : undefined;
 
@@ -400,10 +412,11 @@ class MapView {
         // not able to create the layer
         if (!layer) { return; }
 
-        let joinedJson = await DataApi.getJoinedJson(layer.id);
-
-        if(joinedJson != null)
-            layer.setJoinedJson(joinedJson);
+        if(joined){
+            let joinedJson = await DataApi.getJoinedJson(layer.id);
+            if(joinedJson)
+                layer.setJoinedJson(joinedJson);
+        }
 
         // render
         this.render();

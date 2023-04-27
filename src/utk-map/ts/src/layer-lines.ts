@@ -26,7 +26,7 @@ export class LinesLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, dimensions: number = 2, order: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, dimensions: number = 2, order: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
         super(
             info.id,
             info.type,
@@ -38,6 +38,8 @@ export class LinesLayer extends Layer {
             dimensions,
             order
         );
+
+        this.updateMeshGeometry(geometryData);
 
         // this._mesh = new Mesh(dimensions, order);
         this._zOrder = order;

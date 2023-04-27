@@ -17,7 +17,7 @@ export class PointsLayer extends Layer {
     // protected _zOrder: number;
     protected _coordsByCOORDINATES3D: number[][] = [];
 
-    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
         super(
             info.id,
             info.type,
@@ -29,6 +29,8 @@ export class PointsLayer extends Layer {
             3,
             zOrder
         );
+
+        this.updateMeshGeometry(geometryData);
 
         // this._zOrder = zOrder;
 

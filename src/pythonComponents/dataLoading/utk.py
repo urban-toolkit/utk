@@ -73,7 +73,6 @@ def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longi
 
     transformer = Transformer.from_crs(coordinates_projection, 3395)
 
-
     for i, line in enumerate(mask_values):
         for j, masked in enumerate(line):
             if(not masked): # not masked
@@ -101,4 +100,102 @@ def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longi
     with open(os.path.join(directory,layer_id+".json"), "w") as outfile:
         outfile.write(json_object)
 
+'''
+    coordinates is flattened x,y,z
+    center_around is [x,y,z]
+'''
+def center_coordinates_around(coordinates, center_around, scale_up = 1):
+    xmin = None
+    xmax = None
+    ymin = None
+    ymax = None
+    zmin = None
+    zmax = None
 
+    for i in range(int(len(coordinates)/3)):
+        
+        if(xmin == None or coordinates[i*3] < xmin):
+            xmin = coordinates[i*3]
+
+        if(xmax == None or coordinates[i*3] > xmax):
+            xmax = coordinates[i*3]
+
+        if(ymin == None or coordinates[i*3+1] < ymin):
+            ymin = coordinates[i*3+1]
+
+        if(ymax == None or coordinates[i*3+1] > ymax):
+            ymax = coordinates[i*3+1]
+
+        if(zmin == None or coordinates[i*3+2] < zmin):
+            zmin = coordinates[i*3+2]
+
+        if(zmax == None or coordinates[i*3+2] > zmax):
+            zmax = coordinates[i*3+2]
+
+    current_center = [(xmin+xmax)/2, (ymin+ymax)/2, (zmin+zmax)/2]
+
+    # centering data around 0
+    for i in range(int(len(coordinates)/3)):
+        coordinates[i*3] -= current_center[0]
+        coordinates[i*3] *= scale_up # scalling objects up
+        coordinates[i*3+1] -= current_center[1]
+        coordinates[i*3+1] *= scale_up # scalling objects up
+        coordinates[i*3+2] -= current_center[2]
+        coordinates[i*3+2] *= scale_up # scalling objects up
+
+    # center data around new center
+    for i in range(int(len(coordinates)/3)):
+        coordinates[i*3] += center_around[0]
+        coordinates[i*3+1] += center_around[1]
+        coordinates[i*3+2] += center_around[2]
+        
+    return coordinates
+
+'''
+    coordinates shape: (n,3)
+    values shape: (n,3)
+    Considers that coordinates do not have a coordinates system but are in meters
+'''
+def binary_np_to_thematic(filepath_coordinates, filepath_values, layer_id, center_around=[]):
+
+    coordinates = np.load(filepath_coordinates)
+    values = np.load(filepath_values)
+
+    coordinates = coordinates.flatten()
+
+    if(len(center_around) > 0):
+        coordinates = center_coordinates_around(coordinates, center_around)
+
+    abstract_json = {
+        "id": layer_id,
+        "coordinates": coordinates.tolist(),
+        "values": values.tolist()
+    }
+
+    json_object = json.dumps(abstract_json)
+    
+    directory = os.path.dirname(filepath_coordinates)
+
+    with open(os.path.join(directory,layer_id+".json"), "w") as outfile:
+        outfile.write(json_object)
+
+'''
+    Considers that coordinates do not have a coordinates system but are in meters
+'''
+def binary_np_to_point_cloud(filepath_coordinates, layer_id, center_around=[]):
+        
+    coordinates = np.load(filepath_coordinates)
+    coordinates = coordinates.flatten()
+    
+    if(len(center_around) > 0):
+        coordinates = center_coordinates_around(coordinates, center_around)
+
+    layer = {
+        "id": layer_id,
+        "type": "POINTS_LAYER",
+        "renderStyle": ["FLAT_COLOR_POINTS"],
+        "styleKey": "building",
+        "data": [{'geometry': {'coordinates': [round(item,4) for item in coordinates]}}]
+    }
+
+    break_into_binary(os.path.dirname(filepath_coordinates), layer_id, layer, ["coordinates"], ["d"])

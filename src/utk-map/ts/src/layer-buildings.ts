@@ -19,7 +19,7 @@ export class BuildingsLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
         super(
             info.id,
             info.type,
@@ -31,6 +31,8 @@ export class BuildingsLayer extends Layer {
             3,
             zOrder // TODO: set correct zOrder
         );
+
+        this.updateMeshGeometry(geometryData);
 
         this._zOrder = zOrder;
         // this._zOrder = 10; // TODO: set correct zOrder

@@ -20,7 +20,7 @@ export class TrianglesLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, dimensions: number = 2, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, dimensions: number = 2, zOrder: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
         super(
             info.id,
             info.type,
@@ -33,6 +33,8 @@ export class TrianglesLayer extends Layer {
             zOrder
         );
         
+        this.updateMeshGeometry(geometryData);
+
         this._zOrder = zOrder;
         this._dimensions = dimensions;
     }
