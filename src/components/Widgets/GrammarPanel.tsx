@@ -86,7 +86,7 @@ export const GrammarPanelContainer = ({
         for(const knot of grammarObject.views[0].knots){
             if(knot.knotOp != true){
                 for(let i = 0; i < knot.integration_scheme.length; i++){
-                    if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in.name != undefined){
+                    if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in != undefined){
                         let spatial_relation = knot.integration_scheme[i].spatial_relation.toLowerCase();
                         let out = knot.integration_scheme[i].out.name;
                         let outLevel = knot.integration_scheme[i].out.level.toLowerCase();
