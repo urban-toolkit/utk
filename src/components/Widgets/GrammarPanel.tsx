@@ -85,32 +85,32 @@ export const GrammarPanelContainer = ({
 
         for(const knot of grammarObject.views[0].knots){
             if(knot.knotOp != true){
-                for(let i = 0; i < knot.linkingScheme.length; i++){
-                    if(knot.linkingScheme[i].predicate != 'INNERAGG' && knot.linkingScheme[i].otherLayer != undefined){
-                        let predicate = knot.linkingScheme[i].predicate.toLowerCase();
-                        let thisLayer = knot.linkingScheme[i].thisLayer;
-                        let thisLevel = knot.linkingScheme[i].thisLevel.toLowerCase();
-                        let otherLevel = knot.linkingScheme[i].otherLevel.toLowerCase();
-                        let maxDistance = knot.linkingScheme[i].maxDistance;
-                        let defaultValue = knot.linkingScheme[i].defaultValue;
+                for(let i = 0; i < knot.integration_scheme.length; i++){
+                    if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in.name != undefined){
+                        let spatial_relation = knot.integration_scheme[i].spatial_relation.toLowerCase();
+                        let out = knot.integration_scheme[i].out.name;
+                        let outLevel = knot.integration_scheme[i].out.level.toLowerCase();
+                        let inLevel = knot.integration_scheme[i].in.level.toLowerCase();
+                        let maxDistance = knot.integration_scheme[i].maxDistance;
+                        let defaultValue = knot.integration_scheme[i].defaultValue;
 
-                        let aggregation = knot.aggregationScheme[i].toLowerCase();
+                        let operation = knot.integration_scheme[i].operation.toLowerCase();
 
-                        if(aggregation == 'none'){
-                            aggregation = 'avg'; // there must be an aggregation to solve conflicts in the join
+                        if(operation == 'none'){
+                            operation = 'avg'; // there must be an operation to solve conflicts in the join
                         }
 
-                        let otherLayer = knot.linkingScheme[i].otherLayer;
-                        let abstract = knot.linkingScheme[i].abstract;
+                        let inData = knot.integration_scheme[i].in.name;
+                        let abstract = knot.integration_scheme[i].abstract;
 
-                        addNewMessage("Joining "+thisLayer+" with "+otherLayer, "red");
+                        addNewMessage("Joining "+out+" with "+inData, "red");
 
                         let start = Date.now();
 
                         if(maxDistance != undefined)
-                            await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
+                            await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
                         else
-                            await fetch(url+"/linkLayers?predicate="+predicate+"&thisLayer="+thisLayer+"&aggregation="+aggregation+"&otherLayer="+otherLayer+"&abstract="+abstract+"&thisLevel="+thisLevel+"&otherLevel="+otherLevel);
+                            await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel);
 
                         let end = Date.now();
                         let elapsed = end - start; 

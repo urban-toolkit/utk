@@ -30,7 +30,7 @@ export enum RenderStyle {
 /**
  * Supported aggregations for layer linking
  */
-export enum AggregationType{
+export enum OperationType{
     MAX = "MAX",
     MIN = "MIN",
     AVG = "AVG",
@@ -51,7 +51,7 @@ export enum PlotArrangementType{
     FOOT_EMBEDDED = "FOOT_EMBEDDED"
 }
 
-export enum PredicateType{
+export enum SpatialRelationType{
     INTERSECTS = "INTERSECTS",
     CONTAINS = "CONTAINS",
     WITHIN = "WITHIN",

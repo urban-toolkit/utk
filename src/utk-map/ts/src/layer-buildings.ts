@@ -1,4 +1,4 @@
-import { AggregationType, LevelType } from "./constants";
+import { OperationType, LevelType } from "./constants";
 import { IKnot, ILayerData, ILayerFeature } from "./interfaces";
 
 import { Layer } from "./layer";
@@ -24,9 +24,7 @@ export class BuildingsLayer extends Layer {
             info.id,
             info.type,
             info.styleKey,
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             3,
             zOrder // TODO: set correct zOrder
@@ -355,14 +353,14 @@ export class BuildingsLayer extends Layer {
         return avg_accumulation_per_coordinates;
     }
 
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
 
         if(endLevel != LevelType.OBJECTS || startLevel == LevelType.OBJECTS){
-            throw new Error('Only aggregations that end in the Object level are currently supported for the buildings layer')
+            throw new Error('Only operations that end in the Object level are currently supported for the buildings layer')
         }  
 
         if(startLevel == LevelType.COORDINATES){
-            throw new Error('Aggregations with the COORDINATES level are currently not support for the buildings layer. Since the COORDINATES level refers to the buildings footprints.')
+            throw new Error('Operations with the COORDINATES level are currently not support for the buildings layer. Since the COORDINATES level refers to the buildings footprints.')
         }
 
         if(functionValues == null)
@@ -389,21 +387,21 @@ export class BuildingsLayer extends Layer {
         let agg_functions_per_buildings: number[] = new Array(acc_functions_per_buildings.length).fill(0);
 
         for(let i = 0; i < acc_functions_per_buildings.length; i++){
-            if(aggregation == AggregationType.MAX){
+            if(operation == OperationType.MAX){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].reduce((a: any, b: any) => Math.max(a, b), -Infinity);
-            }else if(aggregation == AggregationType.MIN){
+            }else if(operation == OperationType.MIN){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].reduce((a: any, b: any) => Math.min(a, b), Infinity);
-            }else if(aggregation == AggregationType.AVG){
+            }else if(operation == OperationType.AVG){
                 let sum = acc_functions_per_buildings[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
                 agg_functions_per_buildings[i] = sum/acc_functions_per_buildings[i].length;
-            }else if(aggregation == AggregationType.SUM){
+            }else if(operation == OperationType.SUM){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
-            }else if(aggregation == AggregationType.COUNT){
+            }else if(operation == OperationType.COUNT){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].length;
-            }else if(aggregation == AggregationType.DISCARD){ // keep the first value of the join
+            }else if(operation == OperationType.DISCARD){ // keep the first value of the join
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i][0];
-            }else if(aggregation == AggregationType.NONE){
-                throw new Error('NONE aggregation cannot be used with the predicate INNERAGG in the buildings layer');
+            }else if(operation == OperationType.NONE){
+                throw new Error('NONE operation cannot be used with the spatial_relation INNERAGG in the buildings layer');
             }
         }
 

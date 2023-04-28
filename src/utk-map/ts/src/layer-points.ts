@@ -1,4 +1,4 @@
-import { AggregationType, LevelType, RenderStyle } from "./constants";
+import { OperationType, LevelType, RenderStyle } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 import { Layer } from "./layer";
 import { ShaderFlatColor } from "./shader-flatColor";
@@ -22,9 +22,7 @@ export class PointsLayer extends Layer {
             info.id,
             info.type,
             info.styleKey,
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             3,
             zOrder
@@ -134,7 +132,7 @@ export class PointsLayer extends Layer {
     distributeFunctionValues(functionValues: number[] | null): number[] | null{
         return functionValues;
     }
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
         throw new Error("Method not implemented.");
     }
     getFunctionValueIndexOfId(id: number, level: LevelType): number | null {

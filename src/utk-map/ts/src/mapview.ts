@@ -11,18 +11,14 @@ import { MouseEventsFactory } from './mouse-events';
 import { DataApi } from './data-api';
 import { LayerManager } from './layer-manager';
 
-import { ICameraData, ILayerData, IMapStyle, IGrammar, IKnot, ILayerFeature } from './interfaces';
+import { ICameraData, ILayerData, IGrammar } from './interfaces';
 
-import { PlotArrangementType, InteractionType, LevelType, AggregationType } from './constants';
+import { LevelType } from './constants';
 
 import { ShaderPicking } from "./shader-picking";
 import { ShaderPickingTriangles } from "./shader-picking-triangles";
 
 import { GrammarManager } from "./grammar-manager";
-import { BuildingsLayer } from './layer-buildings';
-
-import { TrianglesLayer } from './layer-triangles';
-
 import { GrammarInterpreterFactory } from './grammarInterpreter';
 import { KnotManager } from './knotManager';
 import { Knot } from './knot';
@@ -213,7 +209,7 @@ class MapView {
 
                     let left_layer = this._layerManager.searchByLayerId(this._grammarInterpreter.getKnotOutputLayer(knot, this._viewId));
 
-                    // let left_layer = this._layerManager.searchByLayerId(lastLink.thisLayer);
+                    // let left_layer = this._layerManager.searchByLayerId(lastLink.out.name);
 
                     if(left_layer == null){
                         throw Error("Layer not found while processing knot");
@@ -221,17 +217,17 @@ class MapView {
 
                     let elements = [];
 
-                    if(lastLink.thisLevel == undefined){ // this is a pure knot
+                    if(lastLink.out.level == undefined){ // this is a pure knot
                         continue;
                     }
 
-                    let coordinates = left_layer.getCoordsByLevel(lastLink.thisLevel);
+                    let coordinates = left_layer.getCoordsByLevel(lastLink.out.level);
 
-                    let functionValues = left_layer.getFunctionByLevel(lastLink.thisLevel, knotId);
+                    let functionValues = left_layer.getFunctionByLevel(lastLink.out.level, knotId);
 
                     let knotStructure = this._knotManager.getKnotById(knotId);
 
-                    let highlighted = left_layer.getHighlightsByLevel(lastLink.thisLevel, (<Knot>knotStructure).shaders);
+                    let highlighted = left_layer.getHighlightsByLevel(lastLink.out.level, (<Knot>knotStructure).shaders);
 
                     let readCoords = 0;
 
@@ -285,7 +281,7 @@ class MapView {
             for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
                 let lastLink = this._grammarInterpreter.getKnotLastLink(knot, this._viewId);
     
-                if(lastLink.thisLayer == layerId && lastLink.thisLevel == level){
+                if(lastLink.out.name == layerId && lastLink.out.level == level){
                     elements[knot.id] = elementIndex;
                 }
             }
@@ -297,7 +293,7 @@ class MapView {
             for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
                 let lastLink = this._grammarInterpreter.getKnotLastLink(knot, this._viewId);
     
-                if(lastLink.thisLayer == layerId){
+                if(lastLink.out.name == layerId){
                     knotsToClear.push(knot.id);
                 }
             }
@@ -323,12 +319,12 @@ class MapView {
 
         let lastLink = _this._grammarInterpreter.getKnotLastLink(knot, _this._viewId);
 
-        if(lastLink.thisLevel == undefined)
+        if(lastLink.out.level == undefined)
             return;
 
         for(const layer of _this._layerManager.layers){
             if(layer.id == layerId){
-                layer.setHighlightElements([elementIndex], <LevelType>lastLink.thisLevel, value);
+                layer.setHighlightElements([elementIndex], <LevelType>lastLink.out.level, value);
                 break;
             }
         }
@@ -364,19 +360,19 @@ class MapView {
         for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
             if(!knot.knotOp){
                 // load layers from knots if they dont already exist
-                for(let i = 0; i < knot.linkingScheme.length; i++){
+                for(let i = 0; i < knot.integration_scheme.length; i++){
 
                     let joined = false // if the layers was joined with another layer
 
-                    if(knot.linkingScheme[i].otherLayer != undefined && knot.linkingScheme[i].otherLayer != knot.linkingScheme[i].thisLayer){
+                    if(knot.integration_scheme[i].in != undefined && knot.integration_scheme[i].in.name != knot.integration_scheme[i].out){
                         joined = true;
                     }
 
-                    if(!layers.includes(knot.linkingScheme[i].thisLayer)){
-                        layers.push(knot.linkingScheme[i].thisLayer);
+                    if(!layers.includes(knot.integration_scheme[i].out.name)){
+                        layers.push(knot.integration_scheme[i].out.name);
                         joinedList.push(joined);
                     }else if(joined){
-                        joinedList[layers.indexOf(knot.linkingScheme[i].thisLayer)] = joined;
+                        joinedList[layers.indexOf(knot.integration_scheme[i].out.name)] = joined;
                     }
                 }
             }

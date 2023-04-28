@@ -533,7 +533,7 @@ export class GrammarManager {
         for(let i = 0; i < this._viewData.plots.length; i++){ // TODO: support multiple embedded plots
             if(this._viewData.plots[i].arrangement == PlotArrangementType.FOOT_EMBEDDED){
 
-                bins = <number>this._viewData.plots[i].bins;
+                bins = <number>this._viewData.plots[i].args.bins;
 
                 selectedPlot = this._viewData.plots[i];
             }

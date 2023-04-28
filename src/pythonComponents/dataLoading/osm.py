@@ -342,7 +342,6 @@ class OSM:
         ttype = ''
         styleKey = ''
         renderStyle = []
-        selectable = ''
 
         for layer_obj in layers:
 
@@ -370,11 +369,9 @@ class OSM:
                 result_gdf_objects.append(layer_geometry['gdf']['objects'])
                 result_gdf_coordinates.append(layer_geometry['gdf']['coordinates'])
                 result_gdf_coordinates_3d.append(layer_geometry['gdf']['coordinates'])
-                # result.append({'id': 'surface', 'type': "HEATMAP_LAYER", 'renderStyle': ['FLAT_COLOR'], 'styleKey': 'surface', 'visible': True, 'selectable': False, 'skip': False, 'data': geometry})
                 ttype = 'HEATMAP_LAYER'
                 styleKey = 'surface'
                 renderStyle = ['FLAT_COLOR']
-                selectable = False
             elif layer == 'buildings':
 
                 sizeCells = -1 # default cell size for buildings no subdivision
@@ -390,7 +387,6 @@ class OSM:
                 ttype = 'BUILDINGS_LAYER'
                 styleKey = 'building'
                 renderStyle = ['SMOOTH_COLOR']
-                selectable = True
             elif layer == 'roads':
                 layer_geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bpoly, bbox)
                 geometry = layer_geometry['data']
@@ -400,7 +396,6 @@ class OSM:
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = 'roads'
                 renderStyle = ['FLAT_COLOR']
-                selectable = False
             elif layer == 'coastline':
                 layer_geometry = OSM.osm_to_coastline_mesh(overpass_responses[layer], bpoly, bbox)
                 geometry = layer_geometry['data']
@@ -410,7 +405,6 @@ class OSM:
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = 'land'
                 renderStyle = ['FLAT_COLOR']
-                selectable = False
             else:
                 layer_geometry = OSM.osm_to_generic_mesh(overpass_responses[layer], bpoly, bbox, convert2dto3d=True)
                 geometry = layer_geometry['data']
@@ -420,9 +414,8 @@ class OSM:
                 ttype = 'TRIANGLES_3D_LAYER'
                 styleKey = layer
                 renderStyle = ['FLAT_COLOR']
-                selectable = True
 
-            result.append({'id': layer, 'type': ttype, 'renderStyle': renderStyle, 'styleKey': styleKey, 'visible': True, 'selectable': selectable, 'skip': False, 'data': geometry})
+            result.append({'id': layer, 'type': ttype, 'renderStyle': renderStyle, 'styleKey': styleKey, 'data': geometry})
         
         return {'json': result, 'gdf': {'objects': result_gdf_objects, 'coordinates': result_gdf_coordinates, 'coordinates3d': result_gdf_coordinates_3d}}
 

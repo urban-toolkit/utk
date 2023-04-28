@@ -2,7 +2,7 @@ import { Layer } from "./layer";
 import { AuxiliaryShader } from './auxiliaryShader';
 import { Shader } from './shader';
 import { MapStyle } from "./map-style";
-import { AggregationType, InteractionType, LevelType, PlotArrangementType, RenderStyle } from './constants';
+import { OperationType, InteractionType, LevelType, PlotArrangementType, RenderStyle } from './constants';
 
 import { ShaderFlatColor } from "./shader-flatColor";
 import { ShaderFlatColorMap } from "./shader-flatColorMap";
@@ -164,8 +164,8 @@ export class Knot {
     addMeshFunction(layerManager: LayerManager){
         let functionValues: number[] | null = null;
         
-        if(this._knotSpecification.linkingScheme != null && this._knotSpecification.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(this._knotSpecification.linkingScheme, <AggregationType[]>this._knotSpecification.aggregationScheme)
+        if(this._knotSpecification.integration_scheme != null){
+            functionValues = layerManager.getAbstractDataFromLink(this._knotSpecification.integration_scheme)
         }
 
         this._thematicData = functionValues;
@@ -182,25 +182,25 @@ export class Knot {
         }else{ // TODO: knot should not have to retrieve the subknots they should be given
             let functionsPerKnot: any = {};
 
-            for(const scheme of this._knotSpecification.linkingScheme){
-                if(functionsPerKnot[scheme.thisLayer] == undefined){
-                    let knot = this._grammarInterpreter.getKnotById(scheme.thisLayer, this._viewId);
+            for(const scheme of this._knotSpecification.integration_scheme){
+                if(functionsPerKnot[scheme.out.name] == undefined){
+                    let knot = this._grammarInterpreter.getKnotById(scheme.out.name, this._viewId);
 
                     if(knot == undefined){
                         throw Error("Could not retrieve knot that composes knotOp "+this._knotSpecification.id);
                     }
 
-                    functionsPerKnot[scheme.thisLayer] = layerManager.getAbstractDataFromLink(knot.linkingScheme, knot.aggregationScheme);
+                    functionsPerKnot[scheme.out.name] = layerManager.getAbstractDataFromLink(knot.integration_scheme);
                 }
 
-                if(functionsPerKnot[<string>scheme.otherLayer] == undefined){
-                    let knot = this._grammarInterpreter.getKnotById(<string>scheme.otherLayer, this._viewId);
+                if(scheme.in != undefined && functionsPerKnot[<string>scheme.in.name] == undefined){
+                    let knot = this._grammarInterpreter.getKnotById(<string>scheme.in.name, this._viewId);
 
                     if(knot == undefined){
                         throw Error("Could not retrieve knot that composes knotOp "+this._knotSpecification.id);
                     }
 
-                    functionsPerKnot[<string>scheme.otherLayer] = layerManager.getAbstractDataFromLink(knot.linkingScheme, knot.aggregationScheme);
+                    functionsPerKnot[<string>scheme.in.name] = layerManager.getAbstractDataFromLink(knot.integration_scheme);
                 }
 
             }
@@ -225,17 +225,17 @@ export class Knot {
 
             let linkIndex = 0;
 
-            for(const scheme of this._knotSpecification.linkingScheme){
+            for(const scheme of this._knotSpecification.integration_scheme){
                 if(linkIndex == 0 && (<string>scheme.op).includes("prevResult")){
                     throw Error("It is not possible to access a previous result (prevResult) for the first link");
                 }
 
-                let functionValue0 = functionsPerKnot[scheme.thisLayer];
-                let functionValue1 = functionsPerKnot[<string>scheme.otherLayer];
+                let functionValue0 = functionsPerKnot[scheme.out.name];
+                let functionValue1 = functionsPerKnot[(<{name: string, level: string}>scheme.in).name];
             
                 for(let j = 0; j < functionValue0.length; j++){
 
-                    let operation = (<string>scheme.op).replaceAll(scheme.thisLayer, functionValue0[j]+'').replaceAll(<LevelType>scheme.otherLayer, functionValue1[j]+''); 
+                    let operation = (<string>scheme.op).replaceAll(scheme.out.name, functionValue0[j]+'').replaceAll((<{name: string, level: string}>scheme.in).name, functionValue1[j]+''); 
                     
                     if(linkIndex != 0){
                         operation = operation.replaceAll("prevResult", prevResult[j]+'');

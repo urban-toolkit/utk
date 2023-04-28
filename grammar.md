@@ -126,7 +126,7 @@ The example above is an animation that loop through all frames every 5 seconds.
 ```js
 {
     id: "knot1", // knot_name
-    integration_scheme: {...}
+    integration_scheme: [...]
 }
 ```
 
@@ -147,7 +147,17 @@ The spatial relation is always applied as a left join where out = left and in = 
     spatial_relation: "INTERSECTS",
     out: "layer1",
     in: "knot2",
-    operation: "AVG"
+    operation: "AVG",
+    abstract: true // get rid of this. If the layer is thematic or not should be encoded in the data itself
+}
+```
+
+### Layer
+
+```js
+{
+    name: "layer1",
+    level: "coordinates"
 }
 ```
 

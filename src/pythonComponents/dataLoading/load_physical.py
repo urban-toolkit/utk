@@ -92,9 +92,6 @@ def layer_from_mesh(filepath, type, renderStyle, styleKey):
         "type": type,
         "renderStyle": renderStyle,
         "styleKey": styleKey,
-        "visible": True,
-        "selectable": True,
-        "skip": False,
         "data": data
     }
 
@@ -238,9 +235,6 @@ def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
             "type": "TRIANGLES_3D_LAYER",
             "renderStyle": ["FLAT_COLOR"],
             "styleKey": styleKey,
-            "visible": True,
-            "selectable": False,
-            "skip": False,
             "data": data
         }
 

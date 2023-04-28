@@ -1,6 +1,6 @@
 // layers base classes
 import { Layer } from './layer';
-import { LayerType, AggregationType, PredicateType, LevelType } from './constants';
+import { LayerType, OperationType, SpatialRelationType, LevelType } from './constants';
 import { ILayerData, ILinkDescription, IJoinedObjects, ILayerFeature } from './interfaces';
 
 // layer types
@@ -102,8 +102,8 @@ export class LayerManager {
         let idCounter = 0;
 
         for(const joinedLayer of layer.joinedLayers){
-            if(joinedLayer.abstract == linkDescription.abstract && joinedLayer.layerId == linkDescription.otherLayer && linkDescription.otherLevel == joinedLayer.otherLevel 
-                && linkDescription.predicate == joinedLayer.predicate && linkDescription.thisLevel == joinedLayer.thisLevel){
+            if(joinedLayer.abstract == linkDescription.abstract && linkDescription.in != undefined && joinedLayer.layerId == linkDescription.in.name && linkDescription.in.level == joinedLayer.inLevel 
+                && linkDescription.spatial_relation == joinedLayer.spatial_relation && linkDescription.out.level == joinedLayer.outLevel){
                     targetLinkId = idCounter;
             }
             idCounter += 1;
@@ -122,19 +122,10 @@ export class LayerManager {
         return null;
     }
 
-    /**
-     * Given a link scheme apply the aggregation functions described in aggregationScheme to recover abstract data
-     * @param linkScheme 
-     * @param aggregationScheme 
-     */
-    getAbstractDataFromLink(linkScheme: ILinkDescription[], aggregationScheme: AggregationType[]): number[] | null{
+    getAbstractDataFromLink(linkScheme: ILinkDescription[]): number[] | null{
         
         if(linkScheme.length < 1){
             throw new Error("Can not get abstract data from link. Link scheme must have at least one element");
-        }
-
-        if(aggregationScheme.length != linkScheme.length){
-            throw new Error("The aggregation scheme must have a function (or NONE) for each link in the link scheme");
         }
 
         let functionValues: number[] | null = null; // always in the coordinate level
@@ -145,36 +136,36 @@ export class LayerManager {
 
         for(let i = 0; i < linkScheme.length; i++){
 
-            let left_side = this.searchByLayerId(linkScheme[i].thisLayer);
+            let left_side = this.searchByLayerId(linkScheme[i].out.name);
 
             if(left_side == null){
-                throw new Error("Layer "+linkScheme[i].thisLayer+" not found while trying to get abstract data from the link");
+                throw new Error("Layer "+linkScheme[i].out.name+" not found while trying to get abstract data from the link");
             }
 
             if(linkScheme[i].abstract == true){
                 let joinedObjects = this.getJoinedObjects(left_side, linkScheme[i]);
 
                 if(joinedObjects == null){
-                    throw new Error("Joined objects not found in "+linkScheme[i].thisLayer);
+                    throw new Error("Joined objects not found in "+linkScheme[i].out.name);
                 }
 
-                if(joinedObjects != null && joinedObjects.otherValues != undefined){
+                if(joinedObjects != null && joinedObjects.inValues != undefined){
                     functionValues = [];
 
-                    if(linkScheme[i].thisLevel == LevelType.COORDINATES || linkScheme[i].thisLevel == LevelType.COORDINATES3D){
-                        for(const value of joinedObjects.otherValues){
+                    if(linkScheme[i].out.level == LevelType.COORDINATES || linkScheme[i].out.level == LevelType.COORDINATES3D){
+                        for(const value of joinedObjects.inValues){
                             functionValues.push(value);
                         }
-                    }else if(linkScheme[i].thisLevel == LevelType.OBJECTS){ // distributing the values to the coordinates of the object
+                    }else if(linkScheme[i].out.level == LevelType.OBJECTS){ // distributing the values to the coordinates of the object
 
                         let coordsPerComp = left_side.mesh.getCoordsPerComp();
 
                         let distributedValues = [];
 
-                        for(let j = 0; j < joinedObjects.otherValues.length; j++){
+                        for(let j = 0; j < joinedObjects.inValues.length; j++){
 
                             for(let k = 0; k < coordsPerComp[j]; k++){
-                                distributedValues.push(joinedObjects.otherValues[j]);
+                                distributedValues.push(joinedObjects.inValues[j]);
                             }
                         }
 
@@ -184,32 +175,32 @@ export class LayerManager {
             }
             
             if(linkScheme[i].abstract == false){
-                // inner aggregation (changing geometry levels inside the same layer)
-                if(linkScheme[i].predicate == PredicateType.INNERAGG && functionValues != null && linkScheme[i].otherLevel != undefined && linkScheme[i].thisLevel != undefined){
-                    functionValues = left_side.innerAggFunc(functionValues, <LevelType>linkScheme[i].otherLevel, <LevelType>linkScheme[i].thisLevel, aggregationScheme[i]);
-                }else if(functionValues != null && linkScheme[i].otherLevel != undefined && linkScheme[i].thisLevel != undefined){ // sjoin with another physical layer
-                    if(linkScheme[i].otherLayer == linkScheme[i].thisLayer){
-                        throw new Error("Only the predicate INNERAGG can be used inside the context of the same layer");
+                // inner operation (changing geometry levels inside the same layer)
+                if(linkScheme[i].spatial_relation == SpatialRelationType.INNERAGG && functionValues != null && linkScheme[i].in != undefined && linkScheme[i].out.level != undefined){
+                    functionValues = left_side.innerAggFunc(functionValues, (<{name: string, level: LevelType}>linkScheme[i].in).level, <LevelType>linkScheme[i].out.level, <OperationType>linkScheme[i].operation);
+                }else if(functionValues != null && linkScheme[i].in != undefined && linkScheme[i].out.level != undefined){ // sjoin with another physical layer
+                    if((<{name: string, level: string}>linkScheme[i].in).name == linkScheme[i].out.name){
+                        throw new Error("Only the spatial_relation INNERAGG can be used inside the context of the same layer");
                     }
 
                     let joinedObjects = this.getJoinedObjects(left_side, linkScheme[i]);
 
                     if(joinedObjects == null){
-                        throw new Error("Joined objects not found in "+linkScheme[i].thisLayer);
+                        throw new Error("Joined objects not found in "+linkScheme[i].out.name);
                     }
 
-                    if(joinedObjects != null && joinedObjects.otherIds != undefined && linkScheme[i].otherLayer != undefined){
+                    if(joinedObjects != null && joinedObjects.inIds != undefined && linkScheme[i].in != undefined){
 
                         let joinedFunctionValues = [];
 
-                        let right_side = this.searchByLayerId(<string>linkScheme[i].otherLayer);
+                        let right_side = this.searchByLayerId((<{name: string, level: string}>linkScheme[i].in).name);
 
                         if(right_side == null){
-                            throw new Error("Layer "+linkScheme[i].otherLayer+" not found while trying to get abstract data from the link");
+                            throw new Error("Layer "+(<{name: string, level: string}>linkScheme[i].in).name+" not found while trying to get abstract data from the link");
                         }
 
-                        for(let j = 0; j < joinedObjects.otherIds.length; j++){
-                            let idList = joinedObjects.otherIds[j];
+                        for(let j = 0; j < joinedObjects.inIds.length; j++){
+                            let idList = joinedObjects.inIds[j];
 
                             if(idList == null){
                                 joinedFunctionValues.push([null]);
@@ -218,7 +209,7 @@ export class LayerManager {
                                 let idsFuncValues: number[] = [];
 
                                 for(const id of idList){
-                                    let functionIndex = right_side.getFunctionValueIndexOfId(id, <LevelType>linkScheme[i].otherLevel);
+                                    let functionIndex = right_side.getFunctionValueIndexOfId(id, (<{name: string, level: LevelType}>linkScheme[i].in).level);
                                     
                                     if(functionIndex == null){
                                         throw Error("Function index not found");
@@ -239,19 +230,19 @@ export class LayerManager {
                         for(let j = 0; j < joinedFunctionValues.length; j++){
                             if(joinedFunctionValues[j][0] != null){
 
-                                if(aggregationScheme[i] == AggregationType.MAX){
+                                if(linkScheme[i].operation == OperationType.MAX){
                                     aggregatedValues.push(Math.max(...<number[]>joinedFunctionValues[j]));
-                                }else if(aggregationScheme[i] == AggregationType.MIN){
+                                }else if(linkScheme[i].operation == OperationType.MIN){
                                     aggregatedValues.push(Math.min(...<number[]>joinedFunctionValues[j]));
-                                }else if(aggregationScheme[i] == AggregationType.AVG){
+                                }else if(linkScheme[i].operation == OperationType.AVG){
                                     let sum = (<number[]>joinedFunctionValues[j]).reduce((partialSum: number, value: number) => partialSum + value, 0);
                                     aggregatedValues.push(sum/joinedFunctionValues[j].length);
-                                }else if(aggregationScheme[i] == AggregationType.SUM){
+                                }else if(linkScheme[i].operation == OperationType.SUM){
                                     aggregatedValues.push((<number[]>joinedFunctionValues[j]).reduce((partialSum: number, value: number) => partialSum + value, 0));
-                                }else if(aggregationScheme[i] == AggregationType.COUNT){
+                                }else if(linkScheme[i].operation == OperationType.COUNT){
                                     aggregatedValues.push((<number[]>joinedFunctionValues[j]).length);
-                                }else if(aggregationScheme[i] == AggregationType.NONE){
-                                    throw new Error('NONE aggregation cannot be used with when linking two physical layers');
+                                }else if(linkScheme[i].operation == OperationType.NONE){
+                                    throw new Error('NONE operation cannot be used with when linking two physical layers');
                                 }
                             }else{
                                 aggregatedValues.push(0); // TODO: which value to use with null joins?
@@ -262,9 +253,9 @@ export class LayerManager {
 
                         let groupedDistributedValues: number[][] = [];
 
-                        if(linkScheme[i].thisLevel == LevelType.COORDINATES || linkScheme[i].thisLevel == LevelType.COORDINATES3D){
+                        if(linkScheme[i].out.level == LevelType.COORDINATES || linkScheme[i].out.level == LevelType.COORDINATES3D){
                             distributedValues = aggregatedValues;
-                        }else if(linkScheme[i].thisLevel == LevelType.OBJECTS){
+                        }else if(linkScheme[i].out.level == LevelType.OBJECTS){
                             let coordsPerComp = left_side.mesh.getCoordsPerComp();
 
                             for(let j = 0; j < aggregatedValues.length; j++){

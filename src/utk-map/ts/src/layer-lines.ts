@@ -1,10 +1,6 @@
-import { RenderStyle, AggregationType, LevelType } from "./constants";
+import { OperationType, LevelType } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 import { Layer } from "./layer";
-import { MapStyle } from "./map-style";
-import { ShaderFlatColor } from "./shader-flatColor";
-import { ShaderSmoothColor } from "./shader-smoothColor";
-import { LayerManager } from "./layer-manager";
 import { Shader } from "./shader";
 import { AuxiliaryShader } from "./auxiliaryShader";
 import { ShaderFlatColorMap } from "./shader-flatColorMap";
@@ -31,9 +27,7 @@ export class LinesLayer extends Layer {
             info.id,
             info.type,
             info.styleKey,
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             dimensions,
             order
@@ -81,7 +75,7 @@ export class LinesLayer extends Layer {
         return functionValues;
     }
 
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
         throw new Error("The layer lines only have the COORDINATES level, so no INNERAGG is possible");
     }
 

@@ -1,4 +1,4 @@
-import { AggregationType, LevelType } from "./constants";
+import { OperationType, LevelType } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 
 import { Layer } from "./layer";
@@ -25,9 +25,7 @@ export class TrianglesLayer extends Layer {
             info.id,
             info.type,
             info.styleKey,
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             dimensions,
             zOrder
@@ -176,7 +174,7 @@ export class TrianglesLayer extends Layer {
         return functionValues;
     }
 
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
         if(startLevel == LevelType.COORDINATES && this._dimensions != 2){
             throw new Error('The start level is COORDINATES but the dimensions of the layer is not 2 (COORDINATES are 2D)');
         }
@@ -187,7 +185,7 @@ export class TrianglesLayer extends Layer {
         }
 
         if(endLevel != LevelType.OBJECTS || startLevel == LevelType.OBJECTS){
-            throw new Error('Only aggregations that end in the Object level are currently supported for the triangle layer');
+            throw new Error('Only operations that end in the Object level are currently supported for the triangle layer');
         }  
 
         if(functionValues == null)
@@ -209,21 +207,21 @@ export class TrianglesLayer extends Layer {
         }
 
         for(let i = 0; i < acc_functions_per_object.length; i++){
-            if(aggregation == AggregationType.MAX){
+            if(operation == OperationType.MAX){
                 acc_functions_per_object[i] = acc_functions_per_object[i].reduce((a: any, b: any) => Math.max(a, b), -Infinity);
-            }else if(aggregation == AggregationType.MIN){
+            }else if(operation == OperationType.MIN){
                 acc_functions_per_object[i] = acc_functions_per_object[i].reduce((a: any, b: any) => Math.min(a, b), Infinity);
-            }else if(aggregation == AggregationType.AVG){
+            }else if(operation == OperationType.AVG){
                 let sum = acc_functions_per_object[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
                 acc_functions_per_object[i] = sum/acc_functions_per_object[i].length;
-            }else if(aggregation == AggregationType.SUM){
+            }else if(operation == OperationType.SUM){
                 acc_functions_per_object[i] = acc_functions_per_object[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
-            }else if(aggregation == AggregationType.COUNT){
+            }else if(operation == OperationType.COUNT){
                 acc_functions_per_object[i] = acc_functions_per_object[i].length;
-            }else if(aggregation == AggregationType.DISCARD){ // keep the first element of the join
+            }else if(operation == OperationType.DISCARD){ // keep the first element of the join
                 acc_functions_per_object[i] = acc_functions_per_object[i][0];
-            }else if(aggregation == AggregationType.NONE){
-                throw new Error('NONE aggregation cannot be used with the predicate INNERAGG in the triangle layer');
+            }else if(operation == OperationType.NONE){
+                throw new Error('NONE operation cannot be used with the spatial_relation INNERAGG in the triangle layer');
             }
         }
 

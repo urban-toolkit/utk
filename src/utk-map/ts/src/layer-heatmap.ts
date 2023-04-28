@@ -1,4 +1,4 @@
-import { AggregationType, LevelType } from "./constants";
+import { OperationType, LevelType } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 
 import { Layer } from "./layer";
@@ -26,9 +26,7 @@ export class HeatmapLayer extends Layer {
             info.id,
             info.type,
             info.styleKey,
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             3,
             zOrder
@@ -212,8 +210,8 @@ export class HeatmapLayer extends Layer {
         return avg_accumulation_per_coordinates;
     }
 
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
-        throw Error("Inner aggregation is not supported for the heatmap layer");
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
+        throw Error("Inner operation is not supported for the heatmap layer");
     }
 
     getFunctionValueIndexOfId(id: number, level: LevelType): number | null {
