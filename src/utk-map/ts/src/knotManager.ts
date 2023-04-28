@@ -14,8 +14,8 @@ export class KnotManager {
         return this._knots;
     }
 
-    createKnot(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number, map:any): Knot {
-        let knot = new Knot(id, physicalLayer, knotSpecification, grammarInterpreter, viewId, map);
+    createKnot(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number, visible: boolean, map:any): Knot {
+        let knot = new Knot(id, physicalLayer, knotSpecification, grammarInterpreter, viewId, visible, map);
         this._knots.push(knot);
         return knot;
     }

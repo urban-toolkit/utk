@@ -148,16 +148,18 @@ The spatial relation is always applied as a left join where out = left and in = 
     out: "layer1",
     in: "knot2",
     operation: "AVG",
-    abstract: true // get rid of this. If the layer is thematic or not should be encoded in the data itself
+    abstract: true // TODO: get rid of this. If the layer is thematic or not should be encoded in the data itself
 }
 ```
 
 ### Layer
 
+`level := OBJECTS | COORDINATES`
+
 ```js
 {
     name: "layer1",
-    level: "coordinates"
+    level: "COORDINATES"
 }
 ```
 

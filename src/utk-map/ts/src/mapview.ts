@@ -53,6 +53,8 @@ class MapView {
     // keyboard events
     private _keyboard: any;
 
+    private _knotVisibilityMonitor: any;
+
     // private _mapViewData: IGrammar;
 
     protected _embeddedKnots: Set<string>;
@@ -88,12 +90,18 @@ class MapView {
         this._filterKnotsUpdateCallback = filterKnotsUpdateCallback;
         this._listLayersCallback = listLayersCallback;
 
+        if(this._knotVisibilityMonitor){
+            clearInterval(this._knotVisibilityMonitor);
+        }
+
         // inits the mouse events
         this.initMouseEvents();
         // bind the window events
         this.initWindowEvents();
         // inits the keyboard events
         this.initKeyboardEvents();
+
+        this.monitorKnotVisibility();
 
         this.render();
     }
@@ -419,17 +427,17 @@ class MapView {
     }
 
     initKnots(){
+
+        let knotsMap = this._grammarInterpreter.getMap(this._viewId).knots;
+
         for(const knotGrammar of this._grammarInterpreter.getKnots(this._viewId)){
             let layerId = this._grammarInterpreter.getKnotOutputLayer(knotGrammar, this._viewId);
             
-            for(const layer of this._layerManager.layers){
-                if(layer.id == layerId){
-                    let knot = this._knotManager.createKnot(knotGrammar.id, <Layer>layer, knotGrammar, this._grammarInterpreter, this._viewId, this);
-                    knot.processThematicData(this._layerManager); // send thematic data to the mesh of the physical layer TODO: put this inside the constructor of Knot
-                    knot.loadShaders(this._glContext); // instantiate the shaders inside the knot TODO: put this inside the constructor of Knot
-                    break;
-                }
-            }
+            let layer = this._layerManager.searchByLayerId(layerId);
+
+            let knot = this._knotManager.createKnot(knotGrammar.id, <Layer>layer, knotGrammar, this._grammarInterpreter, this._viewId, knotsMap.includes(knotGrammar.id), this);
+            knot.processThematicData(this._layerManager); // send thematic data to the mesh of the physical layer TODO: put this inside the constructor of Knot
+            knot.loadShaders(this._glContext); // instantiate the shaders inside the knot TODO: put this inside the constructor of Knot
         }
     }
 
@@ -512,6 +520,29 @@ class MapView {
             }
         }
 
+    }
+
+    private monitorKnotVisibility(){
+        let previousKnotVisibility: boolean[] = [];
+
+        for(const knot of this._knotManager.knots){
+            previousKnotVisibility.push(knot.visible);
+        }
+
+        let _this = this;
+
+        this._knotVisibilityMonitor = window.setInterval(function(){
+            for(let i = 0; i < _this._knotManager.knots.length; i++){
+                let currentVisibility = _this._grammarInterpreter.evaluateKnotVisibility(_this._knotManager.knots[i], _this._viewId);
+
+                // if visibility of some knot changed need to rerender the map
+                if(previousKnotVisibility[i] != currentVisibility){
+                    previousKnotVisibility[i] = currentVisibility;
+                    _this.render();
+                }
+
+            }
+        }, 100);
     }
 
     /**

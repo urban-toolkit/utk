@@ -33,11 +33,11 @@ export class Knot {
     protected _viewId: number;
     protected _map: any
 
-    constructor(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number, map: any) {
+    constructor(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number, visible: boolean, map: any) {
         this._physicalLayer = physicalLayer;
         this._knotSpecification = knotSpecification;
         this._id = id;
-        this._visible = true;
+        this._visible = visible;
         this._grammarInterpreter = grammarInterpreter;
         this._viewId = viewId;
         this._map = map;
