@@ -118,3 +118,38 @@ map: [
 ]
 ```
 The example above is an animation that loop through all frames every 5 seconds.
+
+### Knot
+
+`knot := (knot_name, (integration_scheme)+)`
+
+```js
+{
+    id: "knot1", // knot_name
+    integration_scheme: {...}
+}
+```
+
+### Integration Scheme
+
+`integration_scheme := (spatial_relation?, (layer_in | knot_in), (layer_out | knot_out), operation?)`  
+
+`spatial_relation := INTERSECTS | CONTAINS | WITHIN | TOUCHES | CROSSES | OVERLAPS | NEAREST | DIRECT`  
+
+The spatial relation is always applied as a left join where out = left and in = right.  
+
+`operation := (aggregation | *Custom function*)`  
+
+`aggregation := MAX | MIN | AVG | SUM | COUNT | NONE | DISCARD`  
+
+```js
+{
+    spatial_relation: "INTERSECTS",
+    out: "layer1",
+    in: "knot2",
+    operation: "AVG"
+}
+```
+
+### Knot filtering
+
