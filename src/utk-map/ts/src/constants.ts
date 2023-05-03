@@ -81,6 +81,11 @@ export enum PlotInteractionType{
     BRUSH = "BRUSH"
 }
 
+export enum GrammarVisibilityType{
+    VISIBLE = "VISIBLE",
+    HIDDEN = "HIDDEN"
+}
+
 /**
  * Mapview interaction status
  */

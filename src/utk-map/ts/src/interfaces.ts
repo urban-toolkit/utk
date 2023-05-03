@@ -1,11 +1,12 @@
-import { LayerType, RenderStyle, ColorHEX, OperationType, ViewArrangementType, PlotArrangementType, SpatialRelationType, LevelType, InteractionType, PlotInteractionType } from "./constants";
+import { LayerType, RenderStyle, ColorHEX, OperationType, GrammarVisibilityType, ViewArrangementType, PlotArrangementType, SpatialRelationType, LevelType, InteractionType, PlotInteractionType } from "./constants";
 
 /**
  * Interface for grammar
  */
 export interface IGrammar {
     views: IView[],
-    arrangement: ViewArrangementType
+    arrangement: ViewArrangementType,
+    grammar_visibility: GrammarVisibilityType
 }
 
 export interface IView{

@@ -3,6 +3,7 @@
 import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot } from './interfaces';
 import { PlotArrangementType, OperationType} from './constants';
 import { Knot } from './knot';
+import { MapViewFactory } from './mapview';
 
 class GrammarInterpreter {
 
@@ -10,12 +11,34 @@ class GrammarInterpreter {
     protected _processedGrammar: IGrammar;
     protected _lastValidationTimestep: number;
     protected _map: any;
+    protected _frontEndCallback: any;
 
-    resetGrammarInterpreter(grammar: IGrammar, map: any): void {
+    resetGrammarInterpreter(grammar: IGrammar, mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null): void {
         this._preProcessedGrammar = grammar;
-        this._map = map;
+        
+        this._frontEndCallback = null;
         this.validateGrammar(grammar);
         this.processGrammar();
+
+        this.initViews(grammar, mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
+    }
+
+    // TODO: the interpreter should create one object (map, plot, text, ...) for each view in the grammar
+    public initViews(grammar: IGrammar, mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null){
+        this._map = MapViewFactory.getInstance();
+
+        if(linkedContainerGenerator){
+            this._map.resetMap(mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
+        }else{
+            this._map.resetMap(mapDiv);
+        }
+
+        this._map.setGrammarInterpreter(this);
+
+        this._map.initMapView(grammar).then(() => {
+            this._map.render();
+        });
+
     }
 
     public validateGrammar(grammar: IGrammar){
@@ -289,6 +312,24 @@ class GrammarInterpreter {
         }else{
             return knot.integration_scheme[knot.integration_scheme.length-1];
         }
+    }
+
+    /**
+     * The callback is called everytime some data that can impact the front end changes
+     */
+    private setFrontEndCallback(frontEndCallback: any){
+        this._frontEndCallback = frontEndCallback;
+    }
+
+    /**
+     * The state of the data in the back end changed. Need to propagate change to the front-end
+     */
+    private stateChanged(){
+
+        let states: any[] = [];
+
+
+
     }
 
 }

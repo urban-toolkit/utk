@@ -19,7 +19,6 @@ import { ShaderPicking } from "./shader-picking";
 import { ShaderPickingTriangles } from "./shader-picking-triangles";
 
 import { GrammarManager } from "./grammar-manager";
-import { GrammarInterpreterFactory } from './grammarInterpreter';
 import { KnotManager } from './knotManager';
 import { Knot } from './knot';
 
@@ -153,6 +152,10 @@ class MapView {
         return this._grammarManager;
     }
 
+    setGrammarInterpreter(grammarInterpreter: any){
+        this._grammarInterpreter = grammarInterpreter;
+    }
+
     /**
      * Map initialization function
      * @param {IGrammar} data grammar object containing the views definitions
@@ -164,8 +167,8 @@ class MapView {
             return;
         }
 
-        this._grammarInterpreter = GrammarInterpreterFactory.getInstance();
-        this._grammarInterpreter.resetGrammarInterpreter(data, this);
+        // this._grammarInterpreter = GrammarInterpreterFactory.getInstance();
+        // this._grammarInterpreter.resetGrammarInterpreter(data, this);
 
         await this.initCamera(this._grammarInterpreter.getCamera(this._viewId));
 

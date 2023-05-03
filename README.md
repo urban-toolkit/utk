@@ -94,6 +94,8 @@ To choose the loaded datafolder one has to modify utk/src/params.js (environment
 
 Open ports: 80, 3000 and 3002  
 
+Edit /src/param.js (environmentIP) and /src/pythonServerConfig.json (environmentIP)
+
 Run (on the project root):
 
 - python src/pythonComponents/dataLoading/webserver/webserver.py (Python server that handles switching examples)
