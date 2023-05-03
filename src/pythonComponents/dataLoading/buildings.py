@@ -3,7 +3,7 @@ import geopandas as gpd
 import numpy as np
 import math
 import mapbox_earcut as earcut
-import vedo
+# import vedo
 import time
 import os
 import matplotlib.pyplot as plt 

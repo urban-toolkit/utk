@@ -5,7 +5,7 @@ import struct
 
 import timezonefinder
 import math
-import vedo
+# import vedo
 import numpy as np
 from plotoptix import NpOptiX
 from plotoptix.geometry import PinnedBuffer
