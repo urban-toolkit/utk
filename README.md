@@ -89,3 +89,13 @@ Each example can be download and executed out of the shelf, but jupyter notebook
 UTK will load data files stored under utk/public/data.  
 
 To choose the loaded datafolder one has to modify utk/src/params.js (environmentDataFolder) and utk/src/pythonServerConfig.json (environmentDataFolder)
+
+### Deploy (Linux server)
+
+Open ports: 80, 3000 and 3002  
+
+Run (on the project root):
+
+- python src/pythonComponents/dataLoading/webserver/webserver.py (Python server that handles switching examples)
+- python src/pythonComponents/dataLoading/server.py (Python server that handles data files)
+- npm run deploy:web
