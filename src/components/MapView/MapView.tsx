@@ -6,7 +6,7 @@ import React from 'react'
 
 // urbantkmap.js
 // import {Environment, MapView as WebMap, DataLoader } from '../../utk-map/ts/dist/urbantkmap';
-import {Environment, MapViewFactory, DataLoader } from '../../utk-map/ts/dist/urbantkmap';
+import {Environment, DataLoader, GrammarInterpreterFactory } from '../../utk-map/ts/dist/urbantkmap';
 
 // for jupyter python
 // import {MapView as JupyterMap} from '../../utilities/urbantkmap.iife.js';
@@ -27,24 +27,27 @@ var app: any;
 // Mapview Application Class
 class App {
   _map: any;
+  _grammarInterpreter: any;
+  _linkedContainerGenerator: any | null = null;
+  _cameraUpdateCallback: any | null = null;
+  _filterKnotsUpdateCallback: any | null = null;
+  _listLayersCallback: any | null = null;
+  _mapDiv: any;
+
   constructor(div: any, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null) {
-    const mapDiv = document.querySelector(div);
+    this._mapDiv = document.querySelector(div);
 
-    if(linkedContainerGenerator){
-      this._map = MapViewFactory.getInstance();
-      this._map.resetMap(mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
-    }else{
-      this._map = MapViewFactory.getInstance();
-      this._map.resetMap(mapDiv);
-    }
+    this._linkedContainerGenerator = linkedContainerGenerator;
+    this._cameraUpdateCallback = cameraUpdateCallback;
+    this._filterKnotsUpdateCallback = filterKnotsUpdateCallback;
+    this._listLayersCallback = listLayersCallback;
 
+    this._grammarInterpreter = GrammarInterpreterFactory.getInstance();
   }
 
   run(data:any) {
 
-    this._map.initMapView(data).then(() => {
-      this._map.render();
-    });
+    this._grammarInterpreter.resetGrammarInterpreter(data, this._mapDiv, this._linkedContainerGenerator, this._cameraUpdateCallback, this._filterKnotsUpdateCallback, this._listLayersCallback);
     
     // cave connection
     // initializeConnection(this._map);

@@ -1,17 +1,12 @@
-import { RenderStyle, AggregationType, LevelType } from "./constants";
+import { OperationType, LevelType } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 
 import { Layer } from "./layer";
-import { MapStyle } from "./map-style";
-import { ShaderFlatColor } from "./shader-flatColor";
-import { ShaderFlatColorMap } from "./shader-flatColorMap";
-import { ShaderSmoothColor } from "./shader-smoothColor";
 import { ShaderSmoothColorMap } from "./shader-smoothColorMap";
-import { ShaderSmoothColorMapTex } from "./shader-smoothColorMapTex";
 import { ShaderPickingTriangles } from "./shader-picking-triangles";
-import { AuxiliaryShaderTriangles } from "./auxiliaryShaderTriangles";
 import { ShaderAbstractSurface } from "./shader-abstractSurface";
-import { LayerManager } from "./layer-manager";
+import { AuxiliaryShader } from "./auxiliaryShader";
+import { Shader } from "./shader";
 
 export class TrianglesLayer extends Layer {
     // protected _mesh: Mesh;
@@ -25,35 +20,25 @@ export class TrianglesLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, dimensions: number = 2, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, dimensions: number = 2, zOrder: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
         super(
             info.id,
             info.type,
             info.styleKey,
-            info.colorMap !== undefined ? info.colorMap : "interpolateReds",
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.visible !== undefined ? info.visible : true,
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             dimensions,
             zOrder
         );
         
+        this.updateMeshGeometry(geometryData);
+
         this._zOrder = zOrder;
         this._dimensions = dimensions;
     }
 
-    /**
-     * Data update signature
-     * @param {ILayerFeature[]} data layer data
-     */
-    updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void {
-        this.updateMeshGeometry(data);
-        
-        this.addMeshFunction(knot, layerManager);
-
-        this.updateShaders();
+    supportInteraction(eventName: string): boolean {
+        return true;
     }
 
     updateMeshGeometry(data: ILayerFeature[]){
@@ -61,25 +46,11 @@ export class TrianglesLayer extends Layer {
         this._mesh.load(data, false, this._centroid);
     }
 
-    updateShaders(){
+    updateShaders(shaders: (Shader|AuxiliaryShader)[]){
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderGeometry(this._mesh);
         }
-    }
-
-    addMeshFunction(knot: IKnot, layerManager: LayerManager){
-
-        let functionValues: number[] | null = null;
-        
-        if(knot.linkingScheme != null && knot.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, <AggregationType[]>knot.aggregationScheme)
-        }
-
-        let distributedValues = this.distributeFunctionValues(functionValues);
-
-        this._mesh.loadFunctionData(distributedValues, knot.id);
-
     }
 
     directAddMeshFunction(functionValues: number[], knotId: string): void{
@@ -88,19 +59,14 @@ export class TrianglesLayer extends Layer {
         this._mesh.loadFunctionData(distributedValues, knotId);
     }
 
-    /**
-     * Function update signature
-     * @param {ILayerFeature[]} data layer data
-     * @param {ColorMapType} cmap used color map
-     */
-     updateFunction(data: ILayerFeature[], knot: IKnot, cmap?: string): void {
+    updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderData(this._mesh, knot);
         }
     }
 
-    setHighlightElements(elements: number[], level: LevelType, value: boolean): void{
+    setHighlightElements(elements: number[], level: LevelType, value: boolean, shaders: (Shader|AuxiliaryShader)[]): void{
 
         let coords = this.getCoordsByLevel(level);
         
@@ -117,7 +83,7 @@ export class TrianglesLayer extends Layer {
                 coordsIndex.push(offsetCoords+k);
             }
 
-            for(const shader of this._shaders){
+            for(const shader of shaders){
                 if(shader instanceof ShaderPickingTriangles){
                     shader.setHighlightElements(coordsIndex, value);
                 }
@@ -126,8 +92,8 @@ export class TrianglesLayer extends Layer {
         }
     }
 
-    getSelectedFiltering(): number[] | null {
-        for(const shader of this._shaders){
+    getSelectedFiltering(shaders: (Shader|AuxiliaryShader)[]): number[] | null {
+        for(const shader of shaders){
             if(shader instanceof ShaderPickingTriangles){
                 return shader.getBboxFiltered(this._mesh);
             }
@@ -140,7 +106,8 @@ export class TrianglesLayer extends Layer {
      * Layer render function signature
      * @param {WebGL2RenderingContext} glContext WebGL context
      */
-    render(glContext: WebGL2RenderingContext): void {
+    render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void {
+
         // enables the depth test
         glContext.enable(glContext.DEPTH_TEST);
         glContext.depthFunc(glContext.LEQUAL);
@@ -154,13 +121,13 @@ export class TrianglesLayer extends Layer {
         glContext.enable(glContext.STENCIL_TEST);
 
         // the abs surfaces are loaded first to update the stencil
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             if(shader instanceof ShaderAbstractSurface){
                 shader.renderPass(glContext, glContext.TRIANGLES, this._camera, this._mesh, this._zOrder);
             }
         }
 
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             if(shader instanceof ShaderAbstractSurface){
                 continue;
             }else{
@@ -180,38 +147,7 @@ export class TrianglesLayer extends Layer {
         glContext.disable(glContext.CULL_FACE);
     }
 
-    pick(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-
-        let result = this._brushingAreaCalculation(glContext, x, y, anchorX, anchorY);
-
-        for(const shader of this._shaders){
-            if(shader instanceof ShaderPickingTriangles){
-                shader.updatePickPosition(result.pixelAnchorX, result.pixelAnchorY, result.width, result.height);
-            }
-        }
-
-    }
-
-    pickFilter(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-        let result = this._brushingAreaCalculation(glContext, x, y, anchorX, anchorY);
-        
-        for(const shader of this._shaders){
-            if(shader instanceof ShaderPickingTriangles){
-                shader.updatePickFilterPosition(result.pixelAnchorX, result.pixelAnchorY, result.width, result.height);
-            }
-        }
-    }
-    
-    clearPicking(){
-
-        for(const shader of this._shaders){
-            if(shader instanceof ShaderPickingTriangles){
-                shader.clearPicking();
-            }
-        }
-    }
-
-    highlightElement(glContext: WebGL2RenderingContext, x: number, y: number){
+    highlightElement(glContext: WebGL2RenderingContext, x: number, y: number, shaders: (Shader|AuxiliaryShader)[]){
         if(!glContext.canvas || !(glContext.canvas instanceof HTMLCanvasElement)){
             return;
         }
@@ -219,15 +155,15 @@ export class TrianglesLayer extends Layer {
         let pixelX = x * glContext.canvas.width / glContext.canvas.clientWidth;
         let pixelY = glContext.canvas.height - y * glContext.canvas.height / glContext.canvas.clientHeight - 1;
 
-        for(const shader of this._shaders){
+        for(const shader of shaders){
             if(shader instanceof ShaderPickingTriangles){
                 shader.updatePickObjectPosition(pixelX, pixelY);
             }
         }
     }
 
-    getIdLastHighlightedElement(){
-        for(const shader of this._shaders){
+    getIdLastHighlightedElement(shaders: (Shader|AuxiliaryShader)[]){
+        for(const shader of shaders){
             if(shader instanceof ShaderSmoothColorMap){
                 return shader.currentPickedElement;
             }
@@ -238,7 +174,7 @@ export class TrianglesLayer extends Layer {
         return functionValues;
     }
 
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
         if(startLevel == LevelType.COORDINATES && this._dimensions != 2){
             throw new Error('The start level is COORDINATES but the dimensions of the layer is not 2 (COORDINATES are 2D)');
         }
@@ -249,7 +185,7 @@ export class TrianglesLayer extends Layer {
         }
 
         if(endLevel != LevelType.OBJECTS || startLevel == LevelType.OBJECTS){
-            throw new Error('Only aggregations that end in the Object level are currently supported for the triangle layer');
+            throw new Error('Only operations that end in the Object level are currently supported for the triangle layer');
         }  
 
         if(functionValues == null)
@@ -271,21 +207,21 @@ export class TrianglesLayer extends Layer {
         }
 
         for(let i = 0; i < acc_functions_per_object.length; i++){
-            if(aggregation == AggregationType.MAX){
+            if(operation == OperationType.MAX){
                 acc_functions_per_object[i] = acc_functions_per_object[i].reduce((a: any, b: any) => Math.max(a, b), -Infinity);
-            }else if(aggregation == AggregationType.MIN){
+            }else if(operation == OperationType.MIN){
                 acc_functions_per_object[i] = acc_functions_per_object[i].reduce((a: any, b: any) => Math.min(a, b), Infinity);
-            }else if(aggregation == AggregationType.AVG){
+            }else if(operation == OperationType.AVG){
                 let sum = acc_functions_per_object[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
                 acc_functions_per_object[i] = sum/acc_functions_per_object[i].length;
-            }else if(aggregation == AggregationType.SUM){
+            }else if(operation == OperationType.SUM){
                 acc_functions_per_object[i] = acc_functions_per_object[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
-            }else if(aggregation == AggregationType.COUNT){
+            }else if(operation == OperationType.COUNT){
                 acc_functions_per_object[i] = acc_functions_per_object[i].length;
-            }else if(aggregation == AggregationType.DISCARD){ // keep the first element of the join
+            }else if(operation == OperationType.DISCARD){ // keep the first element of the join
                 acc_functions_per_object[i] = acc_functions_per_object[i][0];
-            }else if(aggregation == AggregationType.NONE){
-                throw new Error('NONE aggregation cannot be used with the predicate INNERAGG in the triangle layer');
+            }else if(operation == OperationType.NONE){
+                throw new Error('NONE operation cannot be used with the spatial_relation INNERAGG in the triangle layer');
             }
         }
 
@@ -550,63 +486,4 @@ export class TrianglesLayer extends Layer {
         return flattenedHighlights;
     }
 
-    /**
-     * Shader load signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-    loadShaders(glContext: WebGL2RenderingContext): void {
-        this._shaders = [];
-        const color = MapStyle.getColor(this._styleKey);
-
-        const cmap = this._colorMap;
-        const revs = this._reverseColorMap;
-
-        for (const type of this._renderStyle) {
-            let shader = undefined;
-            switch (type) {
-                case RenderStyle.FLAT_COLOR:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-                case RenderStyle.FLAT_COLOR_MAP:
-                    shader = new ShaderFlatColorMap(glContext, cmap, revs);
-                break;
-                case RenderStyle.SMOOTH_COLOR:
-                    shader = new ShaderSmoothColor(glContext, color);
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP:
-                    shader = new ShaderSmoothColorMap(glContext, cmap);
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP_TEX:
-                    shader = new ShaderSmoothColorMapTex(glContext, cmap);
-                break;
-                case RenderStyle.PICKING: // The picking is associated, by default, with the previous shader in this._renderStyle
-                    let auxShader = undefined;
-
-                    if(this._shaders.length > 0){
-                        auxShader = this._shaders[this._shaders.length-1];
-                    }
-
-                    if(auxShader && auxShader instanceof AuxiliaryShaderTriangles){
-                        shader = new ShaderPickingTriangles(glContext, auxShader);
-                    }else{
-                        throw new Error("The shader picking needs an auxiliary shader. The auxiliary shader is the one right before (order matters) shader picking in renderStyle array. SMOOTH_COLOR_MAP can be used as an auxiliary array");
-                    }
-                break;
-                case RenderStyle.ABSTRACT_SURFACES:
-                    shader = new ShaderAbstractSurface(glContext);
-                break;
-                default:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-            }
-            this._shaders.push(shader);
-
-            // load message
-            console.log("------------------------------------------------------");
-            console.log(`Layer ${this._id} of type ${this._type}.`);
-            console.log(`Render styles: ${this._renderStyle.join(", ")}`);
-            console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
-            console.log("------------------------------------------------------");
-        }
-    }
 }

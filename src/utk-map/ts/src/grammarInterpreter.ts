@@ -1,8 +1,9 @@
 /// <reference types="@types/webgl2" />
 
 import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot } from './interfaces';
-import { PlotArrangementType, AggregationType} from './constants';
+import { PlotArrangementType, OperationType} from './constants';
 import { Knot } from './knot';
+import { MapViewFactory } from './mapview';
 
 class GrammarInterpreter {
 
@@ -10,15 +11,39 @@ class GrammarInterpreter {
     protected _processedGrammar: IGrammar;
     protected _lastValidationTimestep: number;
     protected _map: any;
+    protected _frontEndCallback: any;
 
-    resetGrammarInterpreter(grammar: IGrammar, map: any): void {
+    resetGrammarInterpreter(grammar: IGrammar, mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null): void {
         this._preProcessedGrammar = grammar;
-        this._map = map;
+        
+        this._frontEndCallback = null;
         this.validateGrammar(grammar);
         this.processGrammar();
+
+        this.initViews(grammar, mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
+    }
+
+    // TODO: the interpreter should create one object (map, plot, text, ...) for each view in the grammar
+    public initViews(grammar: IGrammar, mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null){
+        this._map = MapViewFactory.getInstance();
+
+        if(linkedContainerGenerator){
+            this._map.resetMap(mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
+        }else{
+            this._map.resetMap(mapDiv);
+        }
+
+        this._map.setGrammarInterpreter(this);
+
+        this._map.initMapView(grammar).then(() => {
+            this._map.render();
+        });
+
     }
 
     public validateGrammar(grammar: IGrammar){
+
+        // TODO: checking conflicting types of interactions for the knots. One knot cannot be in plots with different arrangements
 
         this._lastValidationTimestep = Date.now();
 
@@ -39,11 +64,11 @@ class GrammarInterpreter {
                     }
                 }
 
-                if(plot.bins != undefined && plot.arrangement != PlotArrangementType.FOOT_EMBEDDED){
+                if(plot.args.bins != undefined && plot.arrangement != PlotArrangementType.FOOT_EMBEDDED){
                     throw Error("bins can only be specified for FOOT_EMBEDDED plots");
                 }
 
-                if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED && plot.bins == undefined){
+                if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED && plot.args.bins == undefined){
                     throw Error("bins need to be specified when arrangement FOOT_EMBEDDED is used");
                 }
             }
@@ -65,28 +90,31 @@ class GrammarInterpreter {
 
             for(const knot of this._preProcessedGrammar.views[viewId].knots){
                 if(knot.knotOp == true){
-                    for(const aggScheme of knot.aggregationScheme){
-                        if(aggScheme != AggregationType.NONE){
-                            throw Error("All steps of the aggregation scheme for knots with knotOp = true should be NONE");
+                    for(const integration_scheme of knot.integration_scheme){
+
+                        let operation = integration_scheme.operation;
+
+                        if(operation != OperationType.NONE){
+                            throw Error("All operation for knots with knotOp = true should be NONE");
                         }
                     }
                     
-                    for(const scheme of knot.linkingScheme){
+                    for(const scheme of knot.integration_scheme){
                         
-                        if(scheme.otherLayer == undefined){
-                            throw Error("otherLayer must be defined when knotOp = true");
+                        if(scheme.in == undefined){
+                            throw Error("in must be defined when knotOp = true");
                         }
     
-                        if(!allKnotsIds.includes(scheme.thisLayer) || !allKnotsIds.includes(scheme.otherLayer)){
-                            throw Error("When using knotOp thisLayer and otherLayer must make reference to the id of other knots (that doesnt have knotOp = true)");
+                        if(!allKnotsIds.includes(scheme.out.name) || !allKnotsIds.includes(scheme.in.name)){
+                            throw Error("When using knotOp out and in must make reference to the id of other knots (that doesnt have knotOp = true)");
                         }
     
                         if(scheme.op == undefined){
-                            throw Error("If knotOp = true each step of the linkingScheme must have a defined op");
+                            throw Error("If knotOp = true each step of the integration_scheme must have a defined op");
                         }
     
-                        if((scheme.maxDistance != undefined || scheme.defaultValue != undefined) && (scheme.predicate != "NEAREST" || scheme.abstract != true)){
-                            throw Error("The maxDistance and defaultValue fields can only be used with the NEAREST predicate in abstract links");
+                        if((scheme.maxDistance != undefined || scheme.defaultValue != undefined) && (scheme.spatial_relation != "NEAREST" || scheme.abstract != true)){
+                            throw Error("The maxDistance and defaultValue fields can only be used with the NEAREST spatial_relation in abstract links");
                         }
     
                         if(scheme.maxDistance != undefined && scheme.defaultValue == undefined){
@@ -253,7 +281,7 @@ class GrammarInterpreter {
     private getKnotOutputLayer(knot: IKnot, view: number){
         if(knot.knotOp == true){
 
-            let lastKnotId = knot.linkingScheme[knot.linkingScheme.length-1].thisLayer;
+            let lastKnotId = knot.integration_scheme[knot.integration_scheme.length-1].out.name;
 
             let lastKnot = this.getKnotById(lastKnotId, view);
 
@@ -261,17 +289,17 @@ class GrammarInterpreter {
                 throw Error("Could not process knot "+lastKnotId);
             }
 
-            return lastKnot.linkingScheme[lastKnot.linkingScheme.length-1].thisLayer;
+            return lastKnot.integration_scheme[lastKnot.integration_scheme.length-1].out.name;
 
         }else{
-            return knot.linkingScheme[knot.linkingScheme.length-1].thisLayer;
+            return knot.integration_scheme[knot.integration_scheme.length-1].out.name;
         }
     }
 
     private getKnotLastLink(knot: IKnot, view: number){
         if(knot.knotOp == true){
             
-            let lastKnotId = knot.linkingScheme[knot.linkingScheme.length-1].thisLayer;
+            let lastKnotId = knot.integration_scheme[knot.integration_scheme.length-1].out.name;
 
             let lastKnot = this.getKnotById(lastKnotId, view);
             
@@ -279,11 +307,29 @@ class GrammarInterpreter {
                 throw Error("Could not process knot "+lastKnotId);
             }
 
-            return lastKnot.linkingScheme[lastKnot.linkingScheme.length-1];
+            return lastKnot.integration_scheme[lastKnot.integration_scheme.length-1];
 
         }else{
-            return knot.linkingScheme[knot.linkingScheme.length-1];
+            return knot.integration_scheme[knot.integration_scheme.length-1];
         }
+    }
+
+    /**
+     * The callback is called everytime some data that can impact the front end changes
+     */
+    private setFrontEndCallback(frontEndCallback: any){
+        this._frontEndCallback = frontEndCallback;
+    }
+
+    /**
+     * The state of the data in the back end changed. Need to propagate change to the front-end
+     */
+    private stateChanged(){
+
+        let states: any[] = [];
+
+
+
     }
 
 }

@@ -145,12 +145,8 @@ export abstract class DataApi {
   static async getJoinedJson(layerId: string){
     const url = `${Environment.backend}/${Environment.dataFolder}/${layerId+"_joined"}.json`;
     
-    try{
-      const joinedJson = <IJoinedJson> await DataLoader.getJsonData(url);
-      return joinedJson;
-    }catch(err){
-      return null;
-    }
+    const joinedJson = <IJoinedJson> await DataLoader.getJsonData(url);
+    return joinedJson;
   }
 
 }

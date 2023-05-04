@@ -1,10 +1,14 @@
-import { RenderStyle, AggregationType, LevelType } from "./constants";
+import { OperationType, LevelType } from "./constants";
 import { ILayerData, ILayerFeature, IKnot } from "./interfaces";
 import { Layer } from "./layer";
-import { MapStyle } from "./map-style";
-import { ShaderFlatColor } from "./shader-flatColor";
-import { ShaderSmoothColor } from "./shader-smoothColor";
-import { LayerManager } from "./layer-manager";
+import { Shader } from "./shader";
+import { AuxiliaryShader } from "./auxiliaryShader";
+import { ShaderFlatColorMap } from "./shader-flatColorMap";
+import { ShaderSmoothColorMap } from "./shader-smoothColorMap";
+import { ShaderSmoothColorMapTex } from "./shader-smoothColorMapTex";
+import { ShaderPicking } from "./shader-picking";
+import { ShaderPickingTriangles } from "./shader-picking-triangles";
+import { ShaderAbstractSurface } from "./shader-abstractSurface";
 
 export class LinesLayer extends Layer {
 
@@ -18,74 +22,40 @@ export class LinesLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, dimensions: number = 2, order: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, dimensions: number = 2, order: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
         super(
             info.id,
             info.type,
             info.styleKey,
-            info.colorMap !== undefined ? info.colorMap : "interpolateReds",
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.visible !== undefined ? info.visible : true,
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             dimensions,
             order
         );
 
+        this.updateMeshGeometry(geometryData);
+
         // this._mesh = new Mesh(dimensions, order);
         this._zOrder = order;
     }
-    pick(glContext: WebGL2RenderingContext, x: number, y: number): void {
-        throw new Error("Method not implemented.");
-    }
-    clearPicking(){
-        throw new Error("Method not implemented.");
-    }
 
-    /**
-     * Data update signature
-     * @param {ILayerFeature[]} data layer data
-     */
-    updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void {
-        this.updateMeshGeometry(data);
-        
-        this.addMeshFunction(knot, layerManager);
-
-        this.updateShaders();
+    supportInteraction(eventName: string): boolean {
+        return true;
     }
 
     updateMeshGeometry(data: ILayerFeature[]){
-        // loads the data
         this._mesh.load(data, false, this._centroid);
     }
 
     getSelectedFiltering(): number[] | null {
         throw Error("Filtering not supported for line layer");
     }
-
-    pickFilter(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-        throw Error("Filtering not supported for line layer");
-    }
-
-
-    updateShaders(){
+    
+    updateShaders(shaders: (Shader|AuxiliaryShader)[]){
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderGeometry(this._mesh);
         }
-    }
-
-    addMeshFunction(knot: IKnot, layerManager: LayerManager){
-        let functionValues: number[] | null = null;
-        
-        if(knot.linkingScheme != null && knot.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, <AggregationType[]>knot.aggregationScheme)
-        }
-
-        let distributedValues = this.distributeFunctionValues(functionValues);
-
-        this._mesh.loadFunctionData(distributedValues, knot.id);
     }
 
     directAddMeshFunction(functionValues: number[], knotId: string): void{
@@ -94,14 +64,9 @@ export class LinesLayer extends Layer {
         this._mesh.loadFunctionData(distributedValues, knotId);
     }
 
-    /**
-     * Function update signature
-     * @param {ILayerFeature[]} data layer data
-     * @param {ColorMapType} cmap used color map
-     */
-    updateFunction(data: ILayerFeature[], knot: IKnot, cmap?: string): void {
+    updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderData(this._mesh, knot);
         }
     }
@@ -110,7 +75,7 @@ export class LinesLayer extends Layer {
         return functionValues;
     }
 
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
         throw new Error("The layer lines only have the COORDINATES level, so no INNERAGG is possible");
     }
 
@@ -314,7 +279,30 @@ export class LinesLayer extends Layer {
      * Layer render function signature
      * @param {WebGL2RenderingContext} glContext WebGL context
      */
-    render(glContext: WebGL2RenderingContext): void {
+    render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void {
+       
+        for (const shader of shaders){
+            if(shader instanceof ShaderFlatColorMap){
+                throw new Error("FLAT_COLOR_MAP is not suitable for line layers");
+            }
+
+            if(shader instanceof ShaderSmoothColorMap){
+                throw new Error("SMOOTH_COLOR_MAP is not suitable for line layers");
+            }
+
+            if(shader instanceof ShaderSmoothColorMapTex){
+                throw new Error("SMOOTH_COLOR_MAP_TEX is not suitable for line layers");
+            }
+
+            if(shader instanceof ShaderPicking || shader instanceof ShaderPickingTriangles){
+                throw new Error("PICKING is not suitable for line layers");
+            }
+
+            if(shader instanceof ShaderAbstractSurface){
+                throw new Error("ABSTRACT_SURFACES is not suitable for line layers");
+            }
+        }
+
         // enables the depth test
         glContext.enable(glContext.DEPTH_TEST);
         glContext.depthFunc(glContext.LEQUAL);
@@ -327,7 +315,7 @@ export class LinesLayer extends Layer {
         // enables stencil
         glContext.enable(glContext.STENCIL_TEST);
 
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.renderPass(glContext, glContext.LINE_STRIP, this._camera, this._mesh, this._zOrder);
         }
 
@@ -339,54 +327,4 @@ export class LinesLayer extends Layer {
         glContext.disable(glContext.CULL_FACE);
     }
 
-    /**
-     * Shader load signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-    loadShaders(glContext: WebGL2RenderingContext): void {
-        this._shaders = [];
-        
-        const color = MapStyle.getColor(this._styleKey);
-
-        const cmap = this._colorMap;
-        const revs = this._reverseColorMap;
-
-        for (const type of this._renderStyle) {
-            let shader = undefined;
-            switch (type) {
-                case RenderStyle.FLAT_COLOR:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-                case RenderStyle.FLAT_COLOR_MAP:
-                    throw new Error("FLAT_COLOR_MAP is not suitable for line layers");
-                break;
-                case RenderStyle.SMOOTH_COLOR:
-                    shader = new ShaderSmoothColor(glContext, color);
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP:
-                    throw new Error("SMOOTH_COLOR_MAP is not suitable for line layers");
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP_TEX:
-                    throw new Error("SMOOTH_COLOR_MAP_TEX is not suitable for line layers");
-                break;
-                case RenderStyle.PICKING: // The picking is associated, by default, with the previous shader in this._renderStyle
-                    throw new Error("PICKING is not suitable for line layers");
-                break;
-                case RenderStyle.ABSTRACT_SURFACES:
-                    throw new Error("ABSTRACT_SURFACES is not suitable for line layers");
-                break;
-                default:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-            }
-            this._shaders.push(shader);
-
-            // load message
-            console.log("------------------------------------------------------");
-            console.log(`Layer ${this._id} of type ${this._type}.`);
-            console.log(`Render styles: ${this._renderStyle.join(", ")}`);
-            console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
-            console.log("------------------------------------------------------");
-        }
-    }
 }

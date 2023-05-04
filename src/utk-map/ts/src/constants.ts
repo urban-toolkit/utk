@@ -17,6 +17,7 @@ export enum LayerType {
 export enum RenderStyle {
     FLAT_COLOR = "FLAT_COLOR",
     FLAT_COLOR_MAP = "FLAT_COLOR_MAP",
+    FLAT_COLOR_POINTS = "FLAT_COLOR_POINTS",
     SMOOTH_COLOR = "SMOOTH_COLOR",
     SMOOTH_COLOR_MAP = "SMOOTH_COLOR_MAP",
     SMOOTH_COLOR_MAP_TEX = "SMOOTH_COLOR_MAP_TEX",
@@ -29,7 +30,7 @@ export enum RenderStyle {
 /**
  * Supported aggregations for layer linking
  */
-export enum AggregationType{
+export enum OperationType{
     MAX = "MAX",
     MIN = "MIN",
     AVG = "AVG",
@@ -50,7 +51,7 @@ export enum PlotArrangementType{
     FOOT_EMBEDDED = "FOOT_EMBEDDED"
 }
 
-export enum PredicateType{
+export enum SpatialRelationType{
     INTERSECTS = "INTERSECTS",
     CONTAINS = "CONTAINS",
     WITHIN = "WITHIN",
@@ -78,6 +79,11 @@ export enum PlotInteractionType{
     CLICK = "CLICK",
     HOVER = "HOVER",
     BRUSH = "BRUSH"
+}
+
+export enum GrammarVisibilityType{
+    VISIBLE = "VISIBLE",
+    HIDDEN = "HIDDEN"
 }
 
 /**

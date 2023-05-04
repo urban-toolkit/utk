@@ -235,28 +235,28 @@ class UrbanComponent:
         self.layers['gdf']['coordinates'].append(layer_gdf['coordinates'])
         self.layers['gdf']['coordinates3d'].append(layer_gdf['coordinates3d'])
 
-    def attachAbstractToPhysical(self, id_physical_layer, id_abstract_layer, left_level='coordinates3d', right_level='coordinates3d', predicate='nearest', aggregation='avg', max_distance=-1, default_value=0):
+    def attachAbstractToPhysical(self, id_physical_layer, id_abstract_layer, left_level='coordinates3d', right_level='coordinates3d', spatial_relation='nearest', operation='avg', max_distance=-1, default_value=0):
         '''
-            Link one abstract layer to a physical layer considering a specific predicate: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates) 
+            Link one abstract layer to a physical layer considering a specific spatial_relation: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates) 
             or direct (attach following the order)
         
-            An aggregation function must be specified: avg, max, min, sum. The aggregation function will only be used when there is more than one match
+            An operation function must be specified: avg, max, min, sum. The operation function will only be used when there is more than one match
 
             When an abstract layer is merged with a physical layer the joinedObjects are the attribute values and not ids of joined elements
         '''
 
-        return self.attachLayers(id_physical_layer, id_abstract_layer, predicate, left_level=left_level, right_level=right_level, abstract=True, aggregation=aggregation, max_distance=max_distance, default_value=default_value)
+        return self.attachLayers(id_physical_layer, id_abstract_layer, spatial_relation, left_level=left_level, right_level=right_level, abstract=True, operation=operation, max_distance=max_distance, default_value=default_value)
 
-    def attachPhysicalLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', max_distance=-1, default_value=0):
+    def attachPhysicalLayers(self, id_left_layer, id_right_layer, spatial_relation='intersects', left_level='objects', right_level='objects', max_distance=-1, default_value=0):
         '''
-            The predicates can be: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
+            The spatial_relation can be: intersects, contains, within, touches, crosses, overlaps, nearest (geopandas predicates)
 
             The levels can be: coordinates, coordinates3d, objects.
 
-            The attaching include the ids of the geometries of the right layer into the left layer considering the specified predicate
+            The attaching include the ids of the geometries of the right layer into the left layer considering the specified spatial_relation
         '''
         
-        return self.attachLayers(id_left_layer, id_right_layer, predicate, left_level, right_level, max_distance=max_distance, default_value=default_value)
+        return self.attachLayers(id_left_layer, id_right_layer, spatial_relation, left_level, right_level, max_distance=max_distance, default_value=default_value)
 
     def loadJoinedJson(self, id_layer):
         '''
@@ -280,11 +280,11 @@ class UrbanComponent:
 
         return joinedJson
 
-    def existsJoin(self, thisLayer, otherLayer, predicate, thisLevel, otherLevel, abstract):
+    def existsJoin(self, out, inData, spatial_relation, outLevel, inLevel, abstract):
         if(self.workDir == None):
             raise Exception("Error checking existance of join workDir not configure")
 
-        joinedJson = self.loadJoinedJson(thisLayer)
+        joinedJson = self.loadJoinedJson(out)
 
         if("joinedLayers" not in joinedJson):
             return False
@@ -292,16 +292,16 @@ class UrbanComponent:
         for link in joinedJson["joinedLayers"]:
             found = True
 
-            if("predicate" not in link or link["predicate"] != predicate):
+            if("spatial_relation" not in link or link["spatial_relation"] != spatial_relation):
                 found = False
                 continue
-            if("layerId" not in link or link["layerId"] != otherLayer):
+            if("layerId" not in link or link["layerId"] != inData):
                 found = False
                 continue
-            if("thisLevel" not in link or link["thisLevel"] != thisLevel):
+            if("outLevel" not in link or link["outLevel"] != outLevel):
                 found = False
                 continue
-            if("otherLevel" not in link or link["otherLevel"] != otherLevel):
+            if("inLevel" not in link or link["inLevel"] != inLevel):
                 found = False
                 continue
             if("abstract" not in link or link["abstract"] != abstract):
@@ -313,7 +313,7 @@ class UrbanComponent:
 
         return False
 
-    def attachLayers(self, id_left_layer, id_right_layer, predicate='intersects', left_level='objects', right_level='objects', abstract=False, aggregation='avg', max_distance=-1, default_value=0):
+    def attachLayers(self, id_left_layer, id_right_layer, spatial_relation='intersects', left_level='objects', right_level='objects', abstract=False, operation='avg', max_distance=-1, default_value=0):
         '''
             Tridimensional indicates if the attaching should be done considering 3D geometries.
         '''
@@ -321,11 +321,11 @@ class UrbanComponent:
         if((left_level == 'coordinates3d' and right_level != 'coordinates3d') or (left_level != 'coordinates3d' and right_level == 'coordinates3d')):
             raise Exception("3d coordinates can only be attached to 3d coordinates")
             
-        if(left_level == 'coordinates3d' and (predicate != 'nearest' and predicate != 'direct')):
-            raise Exception("The predicate "+predicate+" is not supported for tridimensional geometries yet")
+        if(left_level == 'coordinates3d' and (spatial_relation != 'nearest' and spatial_relation != 'direct')):
+            raise Exception("The spatial_relation "+spatial_relation+" is not supported for tridimensional geometries yet")
 
-        if(predicate != "nearest" and max_distance != -1):
-            raise Exception("The max_distance field can only be used with the nearest predicate")
+        if(spatial_relation != "nearest" and max_distance != -1):
+            raise Exception("The max_distance field can only be used with the nearest spatial_relation")
 
         left_layer_json = {}
 
@@ -355,13 +355,13 @@ class UrbanComponent:
 
         if('joinedLayers' in left_layer_joined_json):
             for index, join in enumerate(left_layer_joined_json['joinedLayers']):
-                if(join['predicate'] == predicate.upper() and join['layerId'] == id_right_layer and join['thisLevel'] == left_level.upper() and join['otherLevel'] == right_level.upper() and join['abstract'] == abstract): # if this attachment was already made
+                if(join['spatial_relation'] == spatial_relation.upper() and join['layerId'] == id_right_layer and join['outLevel'] == left_level.upper() and join['inLevel'] == right_level.upper() and join['abstract'] == abstract): # if this attachment was already made
                     alreadyExistingJoinedIndex = index
                     break
 
         join_left_gdf = {}
 
-        if(predicate == 'direct'):
+        if(spatial_relation == 'direct'):
 
             join_left_gdf = left_layer_gdf.copy(deep=True)
 
@@ -377,15 +377,15 @@ class UrbanComponent:
                     join_left_gdf.loc[index, 'id_right'] = right_layer_gdf.loc[index, 'id']
         else:
             if(left_level != 'coordinates3d'): # if it is not tridimensional geopandas can be used
-                if(predicate == 'nearest'):
+                if(spatial_relation == 'nearest'):
                     if(max_distance == -1):
                         join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left')
                     else:
                         join_left_gdf = gpd.sjoin_nearest(left_layer_gdf, right_layer_gdf, how='left', max_distance=max_distance)
-                elif(predicate == 'direct'):
+                elif(spatial_relation == 'direct'):
                     join_left_gdf = left_layer_gdf.copy(deep=True)
                 else:
-                    join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=predicate)
+                    join_left_gdf = left_layer_gdf.sjoin(right_layer_gdf, how='left', predicate=spatial_relation)
             else: 
 
                 join_left_gdf = left_layer_gdf.copy(deep=True)
@@ -421,9 +421,9 @@ class UrbanComponent:
 
         if(alreadyExistingJoinedIndex == -1): # if it is a new join
             if('joinedLayers' in left_layer_joined_json):
-                left_layer_joined_json['joinedLayers'].append({"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract})
+                left_layer_joined_json['joinedLayers'].append({"spatial_relation": spatial_relation.upper(), "layerId": id_right_layer, "outLevel": left_level.upper(), "inLevel": right_level.upper(), "abstract": abstract})
             else:
-                left_layer_joined_json['joinedLayers'] = [{"predicate": predicate.upper(), "layerId": id_right_layer, "thisLevel": left_level.upper(), "otherLevel": right_level.upper(), "abstract": abstract}]
+                left_layer_joined_json['joinedLayers'] = [{"spatial_relation": spatial_relation.upper(), "layerId": id_right_layer, "outLevel": left_level.upper(), "inLevel": right_level.upper(), "abstract": abstract}]
 
         joined_objects_entry = {}
 
@@ -431,9 +431,9 @@ class UrbanComponent:
             alreadyExistingJoinedIndex = len(left_layer_joined_json['joinedLayers'])-1
 
         if(not abstract):
-            joined_objects_entry = {"joinedLayerIndex": alreadyExistingJoinedIndex, "otherIds": [None]*len(left_layer_gdf.index)}
+            joined_objects_entry = {"joinedLayerIndex": alreadyExistingJoinedIndex, "inIds": [None]*len(left_layer_gdf.index)}
         else: # the join with abstract layers carry values, not ids
-            joined_objects_entry = {"joinedLayerIndex": alreadyExistingJoinedIndex, "otherValues": [None]*len(left_layer_gdf.index)}
+            joined_objects_entry = {"joinedLayerIndex": alreadyExistingJoinedIndex, "inValues": [None]*len(left_layer_gdf.index)}
 
         replace = -1
 
@@ -460,36 +460,36 @@ class UrbanComponent:
 
             if(not abstract):
                 if(not pd.isna(elem['id_right'])):
-                    if(left_layer_joined_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] == None):
-                        left_layer_joined_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])] = []
+                    if(left_layer_joined_json['joinedObjects'][replace]['inIds'][int(elem['id_left'])] == None):
+                        left_layer_joined_json['joinedObjects'][replace]['inIds'][int(elem['id_left'])] = []
 
-                    left_layer_joined_json['joinedObjects'][replace]['otherIds'][int(elem['id_left'])].append(int(elem['id_right']))
+                    left_layer_joined_json['joinedObjects'][replace]['inIds'][int(elem['id_left'])].append(int(elem['id_right']))
             else:
                 if(not pd.isna(elem['value_right'])):
-                    if(left_layer_joined_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] == None):
-                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])] = []
+                    if(left_layer_joined_json['joinedObjects'][replace]['inValues'][int(elem['id_left'])] == None):
+                        left_layer_joined_json['joinedObjects'][replace]['inValues'][int(elem['id_left'])] = []
 
-                    left_layer_joined_json['joinedObjects'][replace]['otherValues'][int(elem['id_left'])].append(elem['value_right'])
+                    left_layer_joined_json['joinedObjects'][replace]['inValues'][int(elem['id_left'])].append(elem['value_right'])
 
         if(abstract): # agregate values
-            for i in range(len(left_layer_joined_json['joinedObjects'][replace]['otherValues'])):
+            for i in range(len(left_layer_joined_json['joinedObjects'][replace]['inValues'])):
 
-                if(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] == None):
-                    left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = [0] # TODO: let the user defined default value
+                if(left_layer_joined_json['joinedObjects'][replace]['inValues'][i] == None):
+                    left_layer_joined_json['joinedObjects'][replace]['inValues'][i] = [0] # TODO: let the user defined default value
 
-                if(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] != None):
-                    if(aggregation == 'discard'):
-                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = left_layer_joined_json['joinedObjects'][replace]['otherValues'][i][0]
-                    elif(aggregation == 'max'):
-                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = max(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
-                    elif(aggregation == 'min'):
-                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = min(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
-                    elif(aggregation == 'sum'):
-                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
-                    elif(aggregation == 'avg'):
-                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])/len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
-                    elif(aggregation == 'count'):
-                        left_layer_joined_json['joinedObjects'][replace]['otherValues'][i] = len(left_layer_joined_json['joinedObjects'][replace]['otherValues'][i])
+                if(left_layer_joined_json['joinedObjects'][replace]['inValues'][i] != None):
+                    if(operation == 'discard'):
+                        left_layer_joined_json['joinedObjects'][replace]['inValues'][i] = left_layer_joined_json['joinedObjects'][replace]['inValues'][i][0]
+                    elif(operation == 'max'):
+                        left_layer_joined_json['joinedObjects'][replace]['inValues'][i] = max(left_layer_joined_json['joinedObjects'][replace]['inValues'][i])
+                    elif(operation == 'min'):
+                        left_layer_joined_json['joinedObjects'][replace]['inValues'][i] = min(left_layer_joined_json['joinedObjects'][replace]['inValues'][i])
+                    elif(operation == 'sum'):
+                        left_layer_joined_json['joinedObjects'][replace]['inValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['inValues'][i])
+                    elif(operation == 'avg'):
+                        left_layer_joined_json['joinedObjects'][replace]['inValues'][i] = sum(left_layer_joined_json['joinedObjects'][replace]['inValues'][i])/len(left_layer_joined_json['joinedObjects'][replace]['inValues'][i])
+                    elif(operation == 'count'):
+                        left_layer_joined_json['joinedObjects'][replace]['inValues'][i] = len(left_layer_joined_json['joinedObjects'][replace]['inValues'][i])
 
         # if(id_left_layer+"_joined" not in self.joinedJson):
         self.joinedJson[id_left_layer+"_joined"] = left_layer_joined_json
@@ -559,7 +559,7 @@ class UrbanComponent:
 
         for layer in self.layers['json']:
 
-            grammar_json['views'][0]['knots'].append({"id": "pure"+layer['id'], "linkingScheme": [{"thisLayer": layer['id']}], "aggregationScheme": ["NONE"]})
+            grammar_json['views'][0]['knots'].append({"id": "pure"+layer['id'], "integration_scheme": [{"out": layer['id']}], "operation": ["NONE"]})
             grammar_json['views'][0]['map']['knots'].append("pure"+layer['id'])
             grammar_json['views'][0]['map']['interactions'].append("NONE")
 

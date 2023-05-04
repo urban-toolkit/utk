@@ -22,14 +22,14 @@ def add_cors_headers(response):
 @app.route('/linkLayers', methods=['GET'])
 def serve_linkLayers():
 
-    if("otherLayer" not in request.args or "predicate" not in request.args or "thisLayer" not in request.args or "thisLevel" not in request.args or "otherLevel" not in request.args or "abstract" not in request.args):
-        abort(400, "Missing one or more parameters of: otherLayer, predicate, thisLayer, thisLevel, otherLevel, abstract")
+    if("in" not in request.args or "spatial_relation" not in request.args or "out" not in request.args or "outLevel" not in request.args or "inLevel" not in request.args or "abstract" not in request.args):
+        abort(400, "Missing one or more parameters of: in, spatial_relation, out, outLevel, inLevel, abstract")
 
-    predicate = request.args.get('predicate')
-    thisLayer = request.args.get('thisLayer')
-    otherLayer = request.args.get('otherLayer')
-    thisLevel = request.args.get('thisLevel')
-    otherLevel = request.args.get('otherLevel')
+    spatial_relation = request.args.get('spatial_relation')
+    out = request.args.get('out')
+    inData = request.args.get('in')
+    outLevel = request.args.get('outLevel')
+    inLevel = request.args.get('inLevel')
     abstract = request.args.get('abstract')
 
     if(abstract == "true"):
@@ -37,18 +37,18 @@ def serve_linkLayers():
     else:
         abstract = False
 
-    aggregation = 'avg'
+    operation = 'avg'
 
-    if("aggregation" in request.args):
-        aggregation = request.args.get('aggregation')
+    if("operation" in request.args):
+        operation = request.args.get('operation')
 
     maxDistance = None
 
     if("maxDistance" in request.args):
         maxDistance = float(request.args.get('maxDistance'))
 
-    if(maxDistance != None and predicate.upper() != 'NEAREST'):
-        abort(400, "Max distance can only be used with the NEAREST predicate")
+    if(maxDistance != None and spatial_relation.upper() != 'NEAREST'):
+        abort(400, "Max distance can only be used with the NEAREST spatial_relation")
 
     defaultValue = 0
 
@@ -59,22 +59,22 @@ def serve_linkLayers():
 
     uc.setWorkDir(workDir)
 
-    if(uc.existsJoin(thisLayer, otherLayer, predicate.upper(), thisLevel.upper(), otherLevel.upper(), abstract)):
+    if(uc.existsJoin(out, inData, spatial_relation.upper(), outLevel.upper(), inLevel.upper(), abstract)):
         return ''
 
-    uc.addLayerFromJsonFile(os.path.join(workDir, thisLayer+".json"))
-    uc.addLayerFromJsonFile(os.path.join(workDir, otherLayer+".json"), abstract=abstract)
+    uc.addLayerFromJsonFile(os.path.join(workDir, out+".json"))
+    uc.addLayerFromJsonFile(os.path.join(workDir, inData+".json"), abstract=abstract)
 
     if(abstract):
         if(maxDistance != None):
-            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, otherLevel, predicate, aggregation, maxDistance, default_value=defaultValue)
+            uc.attachAbstractToPhysical(out, inData, outLevel, inLevel, spatial_relation, operation, maxDistance, default_value=defaultValue)
         else:
-            uc.attachAbstractToPhysical(thisLayer, otherLayer, thisLevel, otherLevel, predicate, aggregation, default_value=defaultValue)
+            uc.attachAbstractToPhysical(out, inData, outLevel, inLevel, spatial_relation, operation, default_value=defaultValue)
     else:
         if(maxDistance != None):
-            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel, maxDistance, default_value=defaultValue)
+            uc.attachPhysicalLayers(out, inData, spatial_relation, outLevel, inLevel, maxDistance, default_value=defaultValue)
         else:
-            uc.attachPhysicalLayers(thisLayer, otherLayer, predicate, thisLevel, otherLevel, default_value=defaultValue)
+            uc.attachPhysicalLayers(out, inData, spatial_relation, outLevel, inLevel, default_value=defaultValue)
 
     uc.save(workDir, False)
 
@@ -149,14 +149,14 @@ def serve_addRenderStyles():
     for knot in grammar["views"][0]["knots"]:
         if('knotOp' not in knot or knot['knotOp'] != True):
             
-            for index, link in enumerate(knot['linkingScheme']):
+            for index, link in enumerate(knot['integration_scheme']):
 
-                layer = link['thisLayer']
+                layer = link['out']
                 buildings = False
                 triangles = False
                 interactions = False
                 embeddedPlots = False
-                abstract = 'otherLayer' in link
+                abstract = 'in' in link
                 data = {}
 
                 if(layer not in layersInfo):
@@ -173,7 +173,7 @@ def serve_addRenderStyles():
 
                 for i in range(len(grammar["views"][0]['map']["knots"])):
                     if(grammar["views"][0]['map']["knots"][i] == knot["id"] and grammar["views"][0]["map"]["interactions"][i] != "NONE"):
-                        if(index == len(knot['linkingScheme'])-1): # only the layers that will be rendered can be interacted with
+                        if(index == len(knot['integration_scheme'])-1): # only the layers that will be rendered can be interacted with
                             interactions = True
                         break
 

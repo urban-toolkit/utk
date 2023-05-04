@@ -1,36 +1,39 @@
-import { LayerType, RenderStyle, ColorHEX, AggregationType, ViewArrangementType, PlotArrangementType, PredicateType, LevelType, InteractionType, PlotInteractionType } from "./constants";
+import { LayerType, RenderStyle, ColorHEX, OperationType, GrammarVisibilityType, ViewArrangementType, PlotArrangementType, SpatialRelationType, LevelType, InteractionType, PlotInteractionType } from "./constants";
 
 /**
  * Interface for grammar
  */
 export interface IGrammar {
     views: IView[],
-    arrangement: ViewArrangementType
+    arrangement: ViewArrangementType,
+    grammar_visibility: GrammarVisibilityType
 }
 
 export interface IView{
     map: {camera: ICameraData, knots: (string | IConditionBlock)[], interactions: (InteractionType | IConditionBlock)[], filterKnots: (number | IConditionBlock)[], knotVisibility?: IKnotVisibility[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
-    plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, bins?: number | IConditionBlock}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
+    plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, args: IPlotArgs}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
     knots: IKnot[]
+}
+
+export interface IPlotArgs{
+    bins?: number | IConditionBlock
 }
 
 export interface IKnot {
     id: string,
     knotOp?: boolean,
     colorMap?: string | IConditionBlock,
-    linkingScheme: ILinkDescription[],
-    aggregationScheme: (AggregationType | IConditionBlock)[]
+    integration_scheme: ILinkDescription[],
 }
 
 export interface ILinkDescription {
-    predicate?: PredicateType;
-    thisLayer: string;
-    otherLayer?: string;
-    thisLevel?: LevelType; // coordinates, objects, coordinates3d 
-    otherLevel?: LevelType; 
+    spatial_relation?: SpatialRelationType;
+    out: {name: string, level: LevelType};
+    in?: {name: string, level: LevelType};
+    operation: OperationType | IConditionBlock; 
     abstract?: boolean; // if this is a link with an abstract layer
-    op?: string;
-    maxDistance?: number; // max distance for the nearest predicate (meters considering that the CRS of the layers is 3395)
+    op?: string; // TODO: the determination if it is a knot operation or not should be done dinamically
+    maxDistance?: number; // max distance for the nearest spatial_relation (meters considering that the CRS of the layers is 3395)
     defaultValue?: number; // default value used in Nearest abstract join in case right side is null
 }
 
@@ -61,8 +64,6 @@ export interface ILayerData {
     id: string;                  // layer id
     type: LayerType;             // layer type
     styleKey: keyof IMapStyle;   // layer style key
-    reverseColorMap?: boolean;   // layer colormap order
-    selectable?: boolean;        // is selectable boolean 
     data?: ILayerFeature[];      // list of features of the layer 
     renderStyle?: RenderStyle[]; // list of render styles
 }
@@ -74,15 +75,15 @@ export interface IJoinedJson {
 
 export interface IJoinedObjects {
     joinedLayerIndex: number; // index pointing to a IJoinedLayer in ILayerData.joinedLayers
-    otherValues?: number[]; // used if the linked layer is an abstract layer
-    otherIds?: number[][]; // used if the other layer is a physical layer
+    inValues?: number[]; // used if the linked layer is an abstract layer
+    inIds?: number[][]; // used if the other layer is a physical layer
 }
 
 export interface IJoinedLayer {
-    predicate: string; // intersects, contains, within, touches, crosses, overlaps, nearest
+    spatial_relation: string; // intersects, contains, within, touches, crosses, overlaps, nearest
     layerId: string;
-    thisLevel: string; // coordinates, objects, coordinates3d (geometry level used in this layer)
-    otherLevel: string; // coordinates, objects, coordinates3d (geometry level used in the other layer)
+    outLevel: string; // coordinates, objects (geometry level used in this layer)
+    inLevel: string; // coordinates, objects (geometry level used in the other layer)
     abstract: boolean; // if this is a link with an abstract layer
 }
 

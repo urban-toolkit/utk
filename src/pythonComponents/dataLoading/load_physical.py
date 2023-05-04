@@ -13,37 +13,6 @@ import struct
 from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 
-def break_into_binary(filepath, filename, data, types, dataTypes):
-
-    for index, type in enumerate(types):
-
-        readCoords = 0
-
-        floatList = []
-
-        for i in range(len(data)):
-            geometry = data[i]['geometry']
-
-            newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
-
-            readCoords += len(geometry[type])
-
-            floatList += geometry[type].copy()
-
-            geometry[type] = newValue
-
-        fout = open(os.path.join(filepath,filename+'_'+type+'.data'), 'wb')
-
-        buf = struct.pack(str(len(floatList))+dataTypes[index], *floatList)
-
-        fout.write(buf)
-        fout.close()
-
-        json_object = json.dumps(data)
-
-        with open(os.path.join(filepath,filename+".json"), "w") as outfile:
-            outfile.write(json_object)
-
 def mesh_from_csv(filepath, geometry_column='geometry', crs='4326'):
     
     df = pd.read_csv(filepath)
@@ -123,9 +92,6 @@ def layer_from_mesh(filepath, type, renderStyle, styleKey):
         "type": type,
         "renderStyle": renderStyle,
         "styleKey": styleKey,
-        "visible": True,
-        "selectable": True,
-        "skip": False,
         "data": data
     }
 
@@ -142,16 +108,28 @@ def break_into_binary(filepath, filename, data, types, dataTypes):
 
         floatList = []
 
-        for i in range(len(data['data'])):
-            geometry = data['data'][i]['geometry']
+        if('data' in data):
+            for i in range(len(data['data'])):
+                geometry = data['data'][i]['geometry']
 
-            newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
+                newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
 
-            readCoords += len(geometry[type])
+                readCoords += len(geometry[type])
 
-            floatList += geometry[type].copy()
+                floatList += geometry[type].copy()
 
-            geometry[type] = newValue
+                geometry[type] = newValue
+        else:
+            for i in range(len(data)):
+                geometry = data[i]['geometry']
+
+                newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
+
+                readCoords += len(geometry[type])
+
+                floatList += geometry[type].copy()
+
+                geometry[type] = newValue
 
         fout = open(os.path.join(filepath,filename+'_'+type+'.data'), 'wb')
 
@@ -257,9 +235,6 @@ def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
             "type": "TRIANGLES_3D_LAYER",
             "renderStyle": ["FLAT_COLOR"],
             "styleKey": styleKey,
-            "visible": True,
-            "selectable": False,
-            "skip": False,
             "data": data
         }
 

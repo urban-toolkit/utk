@@ -49,8 +49,9 @@ export abstract class DataLoader {
       }
     });
 
-    if(!response.ok)
-      throw Error("Loading json failed");
+    if(!response.ok){
+      return null;
+    }
 
     let json = {};
     let jsonString = '';
@@ -77,6 +78,7 @@ export abstract class DataLoader {
     }
 
     return json;
+  
   }
 
   static async getBinaryData(url: string, type: string): Promise<unknown> {

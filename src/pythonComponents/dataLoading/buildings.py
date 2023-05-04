@@ -3,7 +3,7 @@ import geopandas as gpd
 import numpy as np
 import math
 import mapbox_earcut as earcut
-import vedo
+# import vedo
 import time
 import os
 import matplotlib.pyplot as plt 
@@ -726,7 +726,7 @@ class Buildings:
         
         return coords_all, indices_all, ids_all, colors_all
     
-    def df_to_json(df, layer_id = "buildings", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building", visible = True, selectable = True, skip = False):
+    def df_to_json(df, layer_id = "buildings", layer_type = 'BUILDINGS_LAYER', renderStyle = ["SMOOTH_COLOR"], styleKey = "building"):
 
         json_new = {}
 
@@ -735,9 +735,6 @@ class Buildings:
         json_new["type"] = layer_type
         json_new["renderStyle"] = renderStyle
         json_new["styleKey"] = styleKey
-        json_new["visible"] = visible
-        json_new["selectable"] = selectable
-        json_new["skip"] = skip
 
         json_new["data"] = []
 

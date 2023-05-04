@@ -1,18 +1,13 @@
-import { RenderStyle, AggregationType, LevelType } from "./constants";
+import { OperationType, LevelType } from "./constants";
 import { IKnot, ILayerData, ILayerFeature } from "./interfaces";
 
 import { Layer } from "./layer";
-import { MapStyle } from "./map-style";
-import { ShaderFlatColor } from "./shader-flatColor";
-import { ShaderFlatColorMap } from "./shader-flatColorMap";
-import { ShaderSmoothColor } from "./shader-smoothColor";
-import { ShaderSmoothColorMap } from "./shader-smoothColorMap";
 import { ShaderSmoothColorMapTex } from "./shader-smoothColorMapTex";
 import { ShaderAbstractSurface } from "./shader-abstractSurface";
 import { ShaderPicking } from "./shader-picking";
 import { ShaderOutline } from "./shader-outline";
 import { AuxiliaryShader } from "./auxiliaryShader";
-import { LayerManager } from "./layer-manager";
+import { Shader } from "./shader";
 
 export class BuildingsLayer extends Layer {
     protected _zOrder: number;
@@ -24,37 +19,26 @@ export class BuildingsLayer extends Layer {
     protected _highlightByCOORDINATES3D: boolean[][] = [];
     protected _highlightByOBJECTS: boolean[][] = [];
 
-    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array) {
+    constructor(info: ILayerData, zOrder: number = 0, centroid: number[] | Float32Array, geometryData: ILayerFeature[]) {
         super(
             info.id,
             info.type,
             info.styleKey,
-            info.colorMap !== undefined ? info.colorMap : "interpolateReds",
-            info.reverseColorMap !== undefined ? info.reverseColorMap : false,
             info.renderStyle !== undefined ? info.renderStyle : [],
-            info.visible !== undefined ? info.visible : true,
-            info.selectable !== undefined ? info.selectable : false,
             centroid,
             3,
             zOrder // TODO: set correct zOrder
         );
+
+        this.updateMeshGeometry(geometryData);
 
         this._zOrder = zOrder;
         // this._zOrder = 10; // TODO: set correct zOrder
 
     }
 
-    /**
-     * Data update signature
-     * @param {ILayerFeature[]} data layer data
-     */
-     updateFeatures(data: ILayerFeature[], knot: IKnot, layerManager: LayerManager): void {
-         
-        this.updateMeshGeometry(data);
-        
-        this.addMeshFunction(knot, layerManager);
-
-        this.updateShaders();
+    supportInteraction(eventName: string): boolean {
+        return true;
     }
 
     updateMeshGeometry(data: ILayerFeature[]){
@@ -62,48 +46,28 @@ export class BuildingsLayer extends Layer {
         this._mesh.load(data, false, this._centroid);
     }
 
-    updateShaders(){
+    updateShaders(shaders: (Shader|AuxiliaryShader)[]){
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderGeometry(this._mesh);
         }
     }
 
-    addMeshFunction(knot: IKnot, layerManager: LayerManager){
-        let functionValues: number[] | null = null;
-        
-        if(knot.linkingScheme != null && knot.aggregationScheme != null){
-            functionValues = layerManager.getAbstractDataFromLink(knot.linkingScheme, <AggregationType[]>knot.aggregationScheme)
-        }
-        
-        let distributedValues = this.distributeFunctionValues(functionValues);
-
-        this._mesh.loadFunctionData(distributedValues, knot.id);
-    }
-
     // bypass the data extraction from link and injects it directly
     directAddMeshFunction(functionValues: number[], knotId: string){
-        
         let distributedValues = this.distributeFunctionValues(functionValues);
 
         this._mesh.loadFunctionData(distributedValues, knotId);
     }
 
-    /**
-     * Function update signature
-     * @param {ILayerFeature[]} data layer data
-     * @param {ColorMapType} cmap used color map
-     */
-     updateFunction(data: ILayerFeature[], knot: IKnot, cmap?: string): void {
-
+     updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
         // updates the shader references
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             shader.updateShaderData(this._mesh, knot);
         }
-
     }
 
-    setHighlightElements(elements: number[], level: LevelType, value: boolean): void{
+    setHighlightElements(elements: number[], level: LevelType, value: boolean, shaders: (Shader|AuxiliaryShader)[]): void{
 
         let coords = this.getCoordsByLevel(level);
         
@@ -120,7 +84,7 @@ export class BuildingsLayer extends Layer {
                 coordsIndex.push(offsetCoords+k);
             }
 
-            for(const shader of this._shaders){
+            for(const shader of shaders){
                 if(shader instanceof ShaderPicking){
                     shader.setHighlightElements(coordsIndex, value);
                 }
@@ -130,8 +94,8 @@ export class BuildingsLayer extends Layer {
 
     }
 
-    getSelectedFiltering(): number[] | null {
-        for(const shader of this._shaders){
+    getSelectedFiltering(shaders: (Shader|AuxiliaryShader)[]): number[] | null {
+        for(const shader of shaders){
             if(shader instanceof ShaderPicking){
                 return shader.getBboxFiltered(this._mesh);
             }
@@ -144,7 +108,7 @@ export class BuildingsLayer extends Layer {
      * Layer render function signature
      * @param {WebGL2RenderingContext} glContext WebGL context
      */
-    render(glContext: WebGL2RenderingContext): void {
+    render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void {
         
         // enables the depth test
         glContext.enable(glContext.DEPTH_TEST);
@@ -163,13 +127,13 @@ export class BuildingsLayer extends Layer {
         glContext.clear(glContext.STENCIL_BUFFER_BIT);
 
         // the abs surfaces are loaded first to update the stencil
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             if(shader instanceof ShaderAbstractSurface){
                 shader.renderPass(glContext, glContext.TRIANGLES, this._camera, this._mesh, this._zOrder);
             }
         }
 
-        for (const shader of this._shaders) {
+        for (const shader of shaders) {
             if(shader instanceof ShaderAbstractSurface || shader instanceof ShaderOutline){
                 continue;
             }else{
@@ -177,7 +141,7 @@ export class BuildingsLayer extends Layer {
             }
         }
         
-        // for (const shader of this._shaders) {
+        // for (const shader of shaders) {
         //     if(shader instanceof ShaderOutline){
         //         shader.renderPass(glContext, glContext.TRIANGLES, this._camera, this._mesh, this._zOrder);
         //     }
@@ -195,51 +159,14 @@ export class BuildingsLayer extends Layer {
         glContext.disable(glContext.CULL_FACE);
     }
 
-    pick(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-        let result = this._brushingAreaCalculation(glContext, x, y, anchorX, anchorY);
+    async applyTexSelectedCells(glContext: WebGL2RenderingContext, spec: any, specType: string, shaders: (Shader|AuxiliaryShader)[]){
 
-        for(const shader of this._shaders){
-            if(shader instanceof ShaderPicking){
-                shader.updatePickPosition(result.pixelAnchorX, result.pixelAnchorY, result.width, result.height);
-            }
-        }
-
-    }
-
-    pickFilter(glContext: WebGL2RenderingContext, x: number, y: number, anchorX: number, anchorY: number): void {
-        let result = this._brushingAreaCalculation(glContext, x, y, anchorX, anchorY);
-        
-        for(const shader of this._shaders){
-            if(shader instanceof ShaderPicking){
-                shader.updatePickFilterPosition(result.pixelAnchorX, result.pixelAnchorY, result.width, result.height);
-            }
-        }
-    }
-
-    applyBrushing(){
-        for(const shader of this._shaders){
-            if(shader instanceof ShaderPicking){
-                shader.applyBrushing();
-            }
-        }
-    }
-
-    clearPicking(){
-        for(const shader of this._shaders){
-            if(shader instanceof ShaderPicking){
-                shader.clearPicking();
-            }
-        }
-    }
-
-    async applyTexSelectedCells(glContext: WebGL2RenderingContext, spec: any, specType: string){
-
-        for(const shader of this._shaders){
+        for(const shader of shaders){
             if(shader instanceof ShaderSmoothColorMapTex){
                 let meshAbsSurfaces = await shader.applyTexSelectedCells(this._camera, spec, specType);
                 
                 if(meshAbsSurfaces != undefined){
-                    for(const secondShader of this._shaders){
+                    for(const secondShader of shaders){
                         if(secondShader instanceof ShaderAbstractSurface && meshAbsSurfaces){
                             if(!meshAbsSurfaces.code){
                                 meshAbsSurfaces.code = -1;
@@ -254,8 +181,8 @@ export class BuildingsLayer extends Layer {
         }
     }
 
-    clearAbsSurface(){
-        for(const shader of this._shaders){
+    clearAbsSurface(shaders: (Shader|AuxiliaryShader)[]){
+        for(const shader of shaders){
             if(shader instanceof ShaderAbstractSurface){
                 shader.clearSurfaces();
             }
@@ -266,7 +193,7 @@ export class BuildingsLayer extends Layer {
         }
     }
 
-    createFootprintPlot(glContext: WebGL2RenderingContext, x: number, y: number, update: boolean){
+    createFootprintPlot(glContext: WebGL2RenderingContext, x: number, y: number, update: boolean, shaders: (Shader|AuxiliaryShader)[]){
         
         if(!glContext.canvas || !(glContext.canvas instanceof HTMLCanvasElement)){
             return;
@@ -275,7 +202,7 @@ export class BuildingsLayer extends Layer {
         let pixelX = x * glContext.canvas.width / glContext.canvas.clientWidth;
         let pixelY = glContext.canvas.height - y * glContext.canvas.height / glContext.canvas.clientHeight - 1;
         
-        for(const shader of this._shaders){
+        for(const shader of shaders){
             if(shader instanceof ShaderPicking){
                 shader.updateFootPosition(pixelX, pixelY, update);
             }
@@ -283,12 +210,12 @@ export class BuildingsLayer extends Layer {
 
     }
 
-    async applyFootprintPlot(glContext: WebGL2RenderingContext, spec: any, plotNumber: number, specType: string){
+    async applyFootprintPlot(glContext: WebGL2RenderingContext, spec: any, plotNumber: number, specType: string, shaders: (Shader|AuxiliaryShader)[]){
         const startTime: any = new Date();
         
         let buildingId: number = -1;
 
-        for(const shader of this._shaders){
+        for(const shader of shaders){
             if(shader instanceof ShaderSmoothColorMapTex){
                 let footPrintMesh = await shader.applyFootprintPlot(spec, false, plotNumber, 0, specType);
 
@@ -301,7 +228,7 @@ export class BuildingsLayer extends Layer {
                     continue;
                 }
 
-                for(const secondShader of this._shaders){
+                for(const secondShader of shaders){
                     if(secondShader instanceof ShaderAbstractSurface && footPrintMesh){
                         if(footPrintMesh.code != undefined)
                             secondShader.addSurface(glContext, footPrintMesh.image, footPrintMesh.coords, footPrintMesh.indices, footPrintMesh.functionValues, "foot", footPrintMesh.code);
@@ -317,9 +244,9 @@ export class BuildingsLayer extends Layer {
         return buildingId;
     }
 
-    async updateFootprintPlot(glContext: WebGL2RenderingContext, d3Expec: any, plotNumber: number, deltaHeight: number, specType: string){
+    async updateFootprintPlot(glContext: WebGL2RenderingContext, d3Expec: any, plotNumber: number, deltaHeight: number, specType: string, shaders: (Shader|AuxiliaryShader)[]){
 
-        for(const shader of this._shaders){
+        for(const shader of shaders){
             if(shader instanceof ShaderSmoothColorMapTex){
                 let footPrintMesh = await shader.applyFootprintPlot(d3Expec, true, plotNumber, deltaHeight, specType);
 
@@ -330,7 +257,7 @@ export class BuildingsLayer extends Layer {
                     continue;
                 }
 
-                for(const secondShader of this._shaders){
+                for(const secondShader of shaders){
                     if(secondShader instanceof ShaderAbstractSurface && footPrintMesh){
                         if(footPrintMesh.code != undefined)
                             secondShader.updateSurface(glContext, footPrintMesh.image, footPrintMesh.coords, footPrintMesh.indices, footPrintMesh.functionValues, "foot", footPrintMesh.code);
@@ -426,14 +353,14 @@ export class BuildingsLayer extends Layer {
         return avg_accumulation_per_coordinates;
     }
 
-    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, aggregation: AggregationType): number[] | null {
+    innerAggFunc(functionValues: number[] | null, startLevel: LevelType, endLevel: LevelType, operation: OperationType): number[] | null {
 
         if(endLevel != LevelType.OBJECTS || startLevel == LevelType.OBJECTS){
-            throw new Error('Only aggregations that end in the Object level are currently supported for the buildings layer')
+            throw new Error('Only operations that end in the Object level are currently supported for the buildings layer')
         }  
 
         if(startLevel == LevelType.COORDINATES){
-            throw new Error('Aggregations with the COORDINATES level are currently not support for the buildings layer. Since the COORDINATES level refers to the buildings footprints.')
+            throw new Error('Operations with the COORDINATES level are currently not support for the buildings layer. Since the COORDINATES level refers to the buildings footprints.')
         }
 
         if(functionValues == null)
@@ -460,21 +387,21 @@ export class BuildingsLayer extends Layer {
         let agg_functions_per_buildings: number[] = new Array(acc_functions_per_buildings.length).fill(0);
 
         for(let i = 0; i < acc_functions_per_buildings.length; i++){
-            if(aggregation == AggregationType.MAX){
+            if(operation == OperationType.MAX){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].reduce((a: any, b: any) => Math.max(a, b), -Infinity);
-            }else if(aggregation == AggregationType.MIN){
+            }else if(operation == OperationType.MIN){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].reduce((a: any, b: any) => Math.min(a, b), Infinity);
-            }else if(aggregation == AggregationType.AVG){
+            }else if(operation == OperationType.AVG){
                 let sum = acc_functions_per_buildings[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
                 agg_functions_per_buildings[i] = sum/acc_functions_per_buildings[i].length;
-            }else if(aggregation == AggregationType.SUM){
+            }else if(operation == OperationType.SUM){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].reduce((partialSum: number, value: number) => partialSum + value, 0);
-            }else if(aggregation == AggregationType.COUNT){
+            }else if(operation == OperationType.COUNT){
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i].length;
-            }else if(aggregation == AggregationType.DISCARD){ // keep the first value of the join
+            }else if(operation == OperationType.DISCARD){ // keep the first value of the join
                 agg_functions_per_buildings[i] = acc_functions_per_buildings[i][0];
-            }else if(aggregation == AggregationType.NONE){
-                throw new Error('NONE aggregation cannot be used with the predicate INNERAGG in the buildings layer');
+            }else if(operation == OperationType.NONE){
+                throw new Error('NONE operation cannot be used with the spatial_relation INNERAGG in the buildings layer');
             }
         }
 
@@ -622,7 +549,7 @@ export class BuildingsLayer extends Layer {
         return functionByLevel;  
     }
 
-    getHighlightsByLevel(level: LevelType): boolean[] {
+    getHighlightsByLevel(level: LevelType, shaders: (Shader|AuxiliaryShader)[]): boolean[] {
         let highlightArray: number[] = [];
         let booleanHighlights: boolean[] = [];
         let highlightsByLevel: boolean[][] = [];
@@ -631,7 +558,7 @@ export class BuildingsLayer extends Layer {
             throw Error("It is not possible to highlight COORDINATES in the building layer");
         }
 
-        for(const shader of this._shaders){
+        for(const shader of shaders){
             if(shader instanceof ShaderSmoothColorMapTex){
                 highlightArray = shader.colorOrPicked;
             }
@@ -705,15 +632,15 @@ export class BuildingsLayer extends Layer {
         return flattenedHighlights;
     }
 
-    getIdLastHighlightedBuilding(){
-        for(const shader of this._shaders){
+    getIdLastHighlightedBuilding(shaders: (Shader|AuxiliaryShader)[]){
+        for(const shader of shaders){
             if(shader instanceof ShaderSmoothColorMapTex){
                 return shader.currentPickedBuildingId;
             }
         }
     }
 
-    highlightBuilding(glContext: WebGL2RenderingContext, x: number, y: number){
+    highlightBuilding(glContext: WebGL2RenderingContext, x: number, y: number, shaders: (Shader|AuxiliaryShader)[]){
         if(!glContext.canvas || !(glContext.canvas instanceof HTMLCanvasElement)){
             return;
         }
@@ -721,76 +648,11 @@ export class BuildingsLayer extends Layer {
         let pixelX = x * glContext.canvas.width / glContext.canvas.clientWidth;
         let pixelY = glContext.canvas.height - y * glContext.canvas.height / glContext.canvas.clientHeight - 1;
 
-        for(const shader of this._shaders){
+        for(const shader of shaders){
             if(shader instanceof ShaderPicking){
                 shader.updatePickObjectPosition(pixelX, pixelY);
             }
         }
-    }
-
-    /**
-     * Shader load signature
-     * @param {WebGL2RenderingContext} glContext WebGL context
-     */
-    loadShaders(glContext: WebGL2RenderingContext): void {
-        this._shaders = [];
-        const color = MapStyle.getColor(this._styleKey);
-
-        const cmap = this._colorMap;
-        const revs = this._reverseColorMap;
-
-        for (const type of this._renderStyle) {
-            let shader = undefined;
-            switch (type) {
-                case RenderStyle.FLAT_COLOR:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-                case RenderStyle.FLAT_COLOR_MAP:
-                    shader = new ShaderFlatColorMap(glContext, cmap, revs);
-                break;
-                case RenderStyle.SMOOTH_COLOR:
-                    shader = new ShaderSmoothColor(glContext, color);
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP:
-                    shader = new ShaderSmoothColorMap(glContext, cmap);
-                break;
-                case RenderStyle.SMOOTH_COLOR_MAP_TEX:
-                    shader = new ShaderSmoothColorMapTex(glContext, cmap);
-                break;
-                case RenderStyle.PICKING: // The picking is associated, by default, with the previous shader in this._renderStyle
-                    let auxShader = undefined;
-
-                    if(this._shaders.length > 0){
-                        auxShader = this._shaders[this._shaders.length-1];
-                    }
-
-                    if(auxShader && auxShader instanceof AuxiliaryShader){
-                        shader = new ShaderPicking(glContext, auxShader);
-                    }else{
-                        throw new Error("The shader picking needs an auxiliary shader. The auxiliary shader is the one right before (order matters) shader picking in renderStyle array.");
-                    }
-                break;
-                case RenderStyle.ABSTRACT_SURFACES:
-                    shader = new ShaderAbstractSurface(glContext);
-                break;
-                case RenderStyle.OUTLINE:
-                    shader = new ShaderOutline(glContext);
-                break;
-                default:
-                    shader = new ShaderFlatColor(glContext, color);
-                break;
-            }
-
-            this._shaders.push(shader);
-
-            // load message
-            console.log("------------------------------------------------------");
-            console.log(`Layer ${this._id} of type ${this._type}.`);
-            console.log(`Render styles: ${this._renderStyle.join(", ")}`);
-            console.log(`Successfully loaded ${this._shaders.length} shader(s).`);
-            console.log("------------------------------------------------------");
-        }
-
     }
 
 }
