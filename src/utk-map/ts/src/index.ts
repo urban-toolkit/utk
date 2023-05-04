@@ -22,3 +22,4 @@ export * from './pointset';
 export * from './polyline';
 export * from './shader';
 export * from './shader-flatColor';
+export * from './TestRollup';
