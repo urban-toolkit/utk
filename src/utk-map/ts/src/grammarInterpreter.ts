@@ -4,6 +4,9 @@ import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot } from '
 import { PlotArrangementType, OperationType} from './constants';
 import { Knot } from './knot';
 import { MapViewFactory } from './mapview';
+import { MapRendererContainer } from './reactComponents/MapRenderer';
+import React from 'react';
+import {createRoot} from 'react-dom/client';
 
 class GrammarInterpreter {
 
@@ -12,6 +15,7 @@ class GrammarInterpreter {
     protected _lastValidationTimestep: number;
     protected _map: any;
     protected _frontEndCallback: any;
+    protected _mapDiv: HTMLElement;
 
     resetGrammarInterpreter(grammar: IGrammar, mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null): void {
         this._preProcessedGrammar = grammar;
@@ -39,6 +43,7 @@ class GrammarInterpreter {
             this._map.render();
         });
 
+        this.renderViews();
     }
 
     public validateGrammar(grammar: IGrammar){
@@ -314,22 +319,26 @@ class GrammarInterpreter {
         }
     }
 
-    /**
-     * The callback is called everytime some data that can impact the front end changes
-     */
-    private setFrontEndCallback(frontEndCallback: any){
-        this._frontEndCallback = frontEndCallback;
-    }
+    // /**
+    //  * The callback is called everytime some data that can impact the front end changes
+    //  */
+    // private setFrontEndCallback(frontEndCallback: any){
+    //     this._frontEndCallback = frontEndCallback;
+    // }
 
-    /**
-     * The state of the data in the back end changed. Need to propagate change to the front-end
-     */
-    private stateChanged(){
+    // /**
+    //  * The state of the data in the back end changed. Need to propagate change to the front-end
+    //  */
+    // private stateChanged(){
 
-        let states: any[] = [];
+    //     let states: any[] = [];
 
+    // }
 
-
+    // TODO: more than one view should be rendered but inside a single div provided by the front end
+    private renderViews(){
+        const root = createRoot(this._mapDiv);
+        root.render(React.createElement(MapRendererContainer, {divWidth: 7, systemMessages: [{text: "Map Loaded", color: "red"}], applyGrammarButtonId: "#", genericScreenPlotToggle: null, modifyLabelPlot: console.log("modify label plot"), listPlots: [], listLayers: [], listLayersCallback: console.log("listLayersCallback"), linkMapAndGrammarId: "#"}));
     }
 
 }

@@ -206,7 +206,7 @@ function App() {
         />
         {/* map view */}
         <Col md={7} style={{padding: 0}}>
-          <MapViewer 
+          {/* <MapViewer 
           // variable contains which city data to load
             divWidth = {7}
             linkedContainerGenerator = {linkedContainerGenerator}
@@ -225,7 +225,7 @@ function App() {
             linkMapAndGrammarId = {"linkMapAndGrammar"}
             listLayersCallback = {listLayersCallback}
             listLayers = {layersIds}
-          />
+          /> */}
         </Col>
 
       </Row>
