@@ -2,7 +2,7 @@ import React, { useState } from "react";
 // bootstrap component
 import { Form } from "react-bootstrap";
 
-// import './VisWidget.css';
+import './VisWidget.css';
 
 // VisWidget parameter types
 type visWidProps = {

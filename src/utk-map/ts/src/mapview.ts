@@ -40,10 +40,12 @@ class MapView {
     protected _grammarInterpreter: any;
 
     // For each time called it returns
-    protected _linkedContainerGenerator: any;
-    protected _cameraUpdateCallback: any;
-    protected _filterKnotsUpdateCallback: any;
-    protected _listLayersCallback: any;
+    // protected _linkedContainerGenerator: any;
+    // protected _cameraUpdateCallback: any;
+    // protected _filterKnotsUpdateCallback: any;
+    // protected _listLayersCallback: any;
+
+    protected _updateStatusCallback: any;
 
     // interaction variables
     private _camera: any;
@@ -61,7 +63,7 @@ class MapView {
 
     public _viewId: number; // the view to which this map belongs
 
-    resetMap(mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null): void {
+    resetMap(mapDiv: HTMLElement, filterKnotsUpdateCallback: any | null = null): void {
         if(this._mapDiv != undefined){
             this._mapDiv.innerHTML = "";
         }
@@ -84,10 +86,10 @@ class MapView {
         this._layerManager = new LayerManager(filterKnotsUpdateCallback, this);
         this._knotManager = new KnotManager();
 
-        this._linkedContainerGenerator = linkedContainerGenerator;
-        this._cameraUpdateCallback = cameraUpdateCallback;
-        this._filterKnotsUpdateCallback = filterKnotsUpdateCallback;
-        this._listLayersCallback = listLayersCallback;
+        // this._linkedContainerGenerator = linkedContainerGenerator;
+        // this._cameraUpdateCallback = cameraUpdateCallback;
+        // this._filterKnotsUpdateCallback = filterKnotsUpdateCallback;
+        // this._listLayersCallback = listLayersCallback;
 
         if(this._knotVisibilityMonitor){
             clearInterval(this._knotVisibilityMonitor);
@@ -103,6 +105,10 @@ class MapView {
         this.monitorKnotVisibility();
 
         this.render();
+    }
+
+    setUpdateStatusCallback(updateStatusCallback: any){
+        this._updateStatusCallback = updateStatusCallback;
     }
 
     get mouse(): any{
@@ -187,7 +193,7 @@ class MapView {
             }
         }
 
-        this._listLayersCallback(knotsToList);
+        this._updateStatusCallback("layersIds", knotsToList);
 
         this.initGrammarManager(this._grammarInterpreter.getProcessedGrammar());
 
@@ -196,6 +202,8 @@ class MapView {
         }else{
             this._layerManager.filterBbox = [];
         }
+    
+        this.render();
     }
 
     parsePlotsKnotData(){
@@ -315,7 +323,7 @@ class MapView {
     }
 
     initGrammarManager(grammar: IGrammar){
-        this._grammarManager = new GrammarManager(grammar, this._linkedContainerGenerator, this.parsePlotsKnotData(), {"function": this.setHighlightElement, "arg": this});
+        this._grammarManager = new GrammarManager(grammar, this._updateStatusCallback, this.parsePlotsKnotData(), {"function": this.setHighlightElement, "arg": this});
     }
 
     setHighlightElement(knotId: string, elementIndex: number, value: boolean, _this: any){
@@ -359,7 +367,7 @@ class MapView {
 
         // sets the camera
         this._camera = CameraFactory.getInstance();
-        this._camera.resetCamera(params.position, params.direction.up, params.direction.lookAt, params.direction.right, this._cameraUpdateCallback);
+        this._camera.resetCamera(params.position, params.direction.up, params.direction.lookAt, params.direction.right, this._updateStatusCallback);
     }
 
     async initLayers(): Promise<void> {

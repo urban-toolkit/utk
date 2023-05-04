@@ -29,7 +29,7 @@ export class GrammarManager {
 
     protected _viewData: IView; // TODO: only one active view is currently supported
     protected _grammarSpec: string;
-    protected _getContainers: any;
+    protected _updateStatusCallback: any;
     protected _setGrammarUpdateCallback: any;
     protected _plotsKnotsData: {knotId: string, elements: {coordinates: number[], abstract: number, highlighted: boolean, index: number}[]}[];
     protected _setHighlightElementCallback: {function: any, arg: any};
@@ -40,12 +40,11 @@ export class GrammarManager {
     /**
      * 
      * @param viewData 
-     * @param getContainers Function that returns a promisse that resolves to the id of an available container each time it is called
      * @param setGrammarUpdateCallback Function that sets the callback that will be called in the frontend to update the grammar
      */
-    constructor(grammar: IGrammar, getContainers: any, plotsKnotsData: {knotId: string, elements: {coordinates: number[], abstract: number, highlighted: boolean, index: number}[]}[], setHighlightElementCallback: {function: any, arg: any}) {
+    constructor(grammar: IGrammar, updateStatusCallback: any, plotsKnotsData: {knotId: string, elements: {coordinates: number[], abstract: number, highlighted: boolean, index: number}[]}[], setHighlightElementCallback: {function: any, arg: any}) {
         this._viewData = grammar['views'][0];
-        this._getContainers = getContainers;
+        this._updateStatusCallback = updateStatusCallback;
         this._setHighlightElementCallback = setHighlightElementCallback;
         this._plotsReferences = new Array(this._viewData.plots.length);
         this._needToUnHighlight = false;
@@ -248,7 +247,7 @@ export class GrammarManager {
             }
         }
 
-        let ids = await this._getContainers(linkedPlots.length, names); 
+        let ids = await this._updateStatusCallback("containerGenerator", linkedPlots.length, names); 
 
         for(let i = 0; i < linkedPlots.length; i++){
 

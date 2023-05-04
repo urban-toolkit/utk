@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { createAndRunMap, emptyMap } from "../MapView/MapView";
+// import { createAndRunMap, emptyMainDiv } from "../../../../App";
 import VanillaJSONEditor from "./VanillaJSONEditor";
 
 import * as d3 from "d3";
@@ -7,9 +7,11 @@ import * as d3 from "d3";
 // jquery
 import $ from 'jquery';
 
-import './GrammarPanel.css';
+// import './GrammarPanel.css';
 
-const params = require('../../pythonServerConfig.json');
+// const params = require('./pythonServerConfig.json');
+
+import params from './pythonServerConfig.json';
 
 // declaring the types of the props
 type GrammarPanelProps = {
@@ -72,13 +74,13 @@ export const GrammarPanelContainer = ({
         try{
             grammarObject = JSON.parse(grammarString);
         }catch(err){
-            emptyMap();
+            // emptyMainDiv();
             addNewMessage("Invalid grammar specification", "red");
             return;
         }
         
         if(grammarObject.views == undefined){
-            emptyMap();
+            // emptyMainDiv();
             addNewMessage("Invalid/Empty grammar specification", "red");
             return;
         }
@@ -128,7 +130,7 @@ export const GrammarPanelContainer = ({
         // addNewMessage("Render Styles added", "red");
 
         addNewMessage("Loading map", "red");
-        createAndRunMap();
+        // createAndRunMap();
         addNewMessage("Map loaded", "green");
     }
 

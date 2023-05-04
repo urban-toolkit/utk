@@ -7,6 +7,7 @@ import { MapViewFactory } from './mapview';
 import { MapRendererContainer } from './reactComponents/MapRenderer';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
+import Views from './reactComponents/Views';
 
 class GrammarInterpreter {
 
@@ -15,26 +16,36 @@ class GrammarInterpreter {
     protected _lastValidationTimestep: number;
     protected _map: any;
     protected _frontEndCallback: any;
-    protected _mapDiv: HTMLElement;
+    protected _mainDiv: HTMLElement;
 
-    resetGrammarInterpreter(grammar: IGrammar, mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null): void {
+    protected _cameraUpdateCallback: any;
+
+    resetGrammarInterpreter(grammar: IGrammar, mainDiv: HTMLElement): void {
+        
+        let linkedContainerGenerator = null; 
+        let cameraUpdateCallback = null;
+        let filterKnotsUpdateCallback = null; 
+        let listLayersCallback = null
+        
         this._preProcessedGrammar = grammar;
         
         this._frontEndCallback = null;
         this.validateGrammar(grammar);
         this.processGrammar();
 
-        this.initViews(grammar, mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
+        this.initViews(grammar, mainDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
     }
 
     // TODO: the interpreter should create one object (map, plot, text, ...) for each view in the grammar
-    public initViews(grammar: IGrammar, mapDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null){
+    public initViews(grammar: IGrammar, mainDiv: HTMLElement, linkedContainerGenerator: any | null = null, cameraUpdateCallback: any | null = null, filterKnotsUpdateCallback: any | null = null, listLayersCallback: any | null = null){
         this._map = MapViewFactory.getInstance();
 
+        this.renderViews(mainDiv);
+
         if(linkedContainerGenerator){
-            this._map.resetMap(mapDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
+            this._map.resetMap(mainDiv, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, listLayersCallback);
         }else{
-            this._map.resetMap(mapDiv);
+            this._map.resetMap(mainDiv);
         }
 
         this._map.setGrammarInterpreter(this);
@@ -42,8 +53,6 @@ class GrammarInterpreter {
         this._map.initMapView(grammar).then(() => {
             this._map.render();
         });
-
-        this.renderViews();
     }
 
     public validateGrammar(grammar: IGrammar){
@@ -336,9 +345,10 @@ class GrammarInterpreter {
     // }
 
     // TODO: more than one view should be rendered but inside a single div provided by the front end
-    private renderViews(){
-        const root = createRoot(this._mapDiv);
-        root.render(React.createElement(MapRendererContainer, {divWidth: 7, systemMessages: [{text: "Map Loaded", color: "red"}], applyGrammarButtonId: "#", genericScreenPlotToggle: null, modifyLabelPlot: console.log("modify label plot"), listPlots: [], listLayers: [], listLayersCallback: console.log("listLayersCallback"), linkMapAndGrammarId: "#"}));
+    private renderViews(mainDiv: HTMLElement){
+        const root = createRoot(mainDiv);
+        root.render(React.createElement(Views, {viewObjs: [this._map]}));
+        // root.render(React.createElement(MapRendererContainer, {divWidth: 7, systemMessages: [{text: "Map Loaded", color: "red"}], applyGrammarButtonId: "#", genericScreenPlotToggle: null, modifyLabelPlot: console.log("modify label plot"), listPlots: [], listLayers: [], listLayersCallback: console.log("listLayersCallback"), linkMapAndGrammarId: "#", cameraUpdateCallback: console.log("cameraCallback")}));
     }
 
 }

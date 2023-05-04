@@ -15,8 +15,10 @@
     "no-cond-assign": "off",
     "@typescript-eslint/adjacent-overload-signatures": "off",
     "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-loss-of-precision": "off",
     "no-case-declarations": "off",
     "no-prototype-builtins": "off",
+    "no-mixed-spaces-and-tabs": "off",
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-var-requires": "off"
   },

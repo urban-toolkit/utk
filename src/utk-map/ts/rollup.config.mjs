@@ -4,7 +4,7 @@ import glsl from 'rollup-plugin-glsl';
 import json from '@rollup/plugin-json';
 import commonjs from '@rollup/plugin-commonjs';
 
-import * as meta from './package.json';
+import * as meta from './package.json' assert {type: "json"};
 
 const config = {
   input: "src/index.ts",
@@ -31,7 +31,7 @@ export default [
     output: {
       ...config.output,
       name: 'urbantkmap',
-      file: meta.main,
+      file: meta.default.main,
       format: "esm",
     }  
   },

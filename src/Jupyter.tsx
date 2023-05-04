@@ -9,8 +9,8 @@ import './App.css';
 // bootstrap elememts
 import {Container, Row} from 'react-bootstrap'
 // componentns
-import { MapViewer, setCameraPosMap } from './components/MapView/MapView';
-import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
+// import { MapViewer, setCameraPosMap } from './components/MapView/MapView';
+// import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
 import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
 

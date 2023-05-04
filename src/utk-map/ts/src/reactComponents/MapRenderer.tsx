@@ -5,45 +5,25 @@ import { LayersWidget } from "./LayersWidget";
 
 // declaring the types of the props
 type MapRendererProps = {
+    viewId: number,
     divWidth: number,
     systemMessages: {text: string, color: string}[],
     applyGrammarButtonId: string,
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>> | null,
-    modifyLabelPlot: any,
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
     listLayers: string[],
-    listLayersCallback: any,
     linkMapAndGrammarId: string,
-    frontEndMode?: string, //web is the default
-    data?: any,
-    linkedContainerGenerator?: any,
-    cameraUpdateCallback?: any,
-    filterKnotsUpdateCallback?: any,
-    inputId?: string
+    inputId: string
 }
 
-class MapConfig {
-    public static frontEndMode: string | undefined;
-    public static linkedContainerGenerator: any;
-    public static cameraUpdateCallback: any;
-    public static filterKnotsUpdateCallback: any;
-    public static listLayersCallback: any;
-}
+export const MapRendererContainer = ({viewId, divWidth, systemMessages, applyGrammarButtonId, listLayers, linkMapAndGrammarId, inputId}:MapRendererProps) =>{
 
-export const MapRendererContainer = ({divWidth, systemMessages, applyGrammarButtonId, genericScreenPlotToggle, modifyLabelPlot, listPlots, listLayers, listLayersCallback, linkMapAndGrammarId, frontEndMode, data, linkedContainerGenerator, cameraUpdateCallback, filterKnotsUpdateCallback, inputId}:MapRendererProps) =>{
-
-    MapConfig.frontEndMode = frontEndMode;
-    MapConfig.linkedContainerGenerator = linkedContainerGenerator;
-    MapConfig.cameraUpdateCallback = cameraUpdateCallback;
-    MapConfig.filterKnotsUpdateCallback = filterKnotsUpdateCallback;
-    MapConfig.listLayersCallback = listLayersCallback;
-  
     return(
       <React.Fragment>
         
         <Row style={{padding: 0, margin: 0}}>
           <div style={{padding: 0}}>
-            <div id='map'>
+            <div id={'map'+viewId}>
             </div>
             <div id='svg_div'>
               <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>

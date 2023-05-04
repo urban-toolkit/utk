@@ -9,7 +9,7 @@ import './App.css';
 // bootstrap elememts
 import {Container} from 'react-bootstrap'
 // componentns
-import { MapViewer } from './components/MapView/MapView';
+// import { MapViewer } from './components/MapView/MapView';
 
 
 const VR = () => {  
