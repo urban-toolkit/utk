@@ -3,7 +3,7 @@ import { useRef } from "react";
 import Draggable from "react-draggable";
 
 // drag box css
-import '../Dragbox.css'
+import './Dragbox.css'
 // import the bar component to draw bars
 
 // declaring the types of the props

@@ -12,7 +12,7 @@ import {Container, Row} from 'react-bootstrap'
 // import { MapViewer, setCameraPosMap } from './components/MapView/MapView';
 // import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
-import { GenericScreenPlotContainer } from './components/VisComponent/GenericScreenPlot/GenericScreenPlotContainer';
+import { GenericScreenPlotContainer } from './utk-map/ts/src/reactComponents/GenericScreenPlotContainer';
 
 import * as d3 from "d3";
 

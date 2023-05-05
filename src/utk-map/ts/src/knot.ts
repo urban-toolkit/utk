@@ -83,7 +83,7 @@ export class Knot {
         if(this._knotSpecification['colorMap'] != undefined){
             cmap = <string>this._knotSpecification['colorMap'];
         }
-
+        
         for (const type of this._physicalLayer.renderStyle) {
             let shader = undefined;
             switch (type) {
@@ -140,7 +140,6 @@ export class Knot {
                 case RenderStyle.FLAT_COLOR_POINTS:
                     shader = new ShaderFlatColorPoints(glContext, color);
                 break;
-                
                 default:
                     shader = new ShaderFlatColor(glContext, color);
                 break;

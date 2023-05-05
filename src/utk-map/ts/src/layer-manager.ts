@@ -14,11 +14,11 @@ export class LayerManager {
     // Loaded layers
     protected _layers: Layer[] = [];
     protected _filterBbox: number[] = []; // minx, miny, maxx, maxy
-    protected _filterKnotsUpdateCallback: any;
+    protected _updateStatusCallback: any;
     protected _map: any;
 
-    constructor(filterKnotsCallback: any | null = null, map: any) {
-        this._filterKnotsUpdateCallback = filterKnotsCallback;
+    constructor(updateStatusCallback: any | null = null, map: any) {
+        this._updateStatusCallback = updateStatusCallback;
         this._map = map;
     }
 
@@ -32,7 +32,7 @@ export class LayerManager {
 
     set filterBbox(bbox: number[]){
 
-        this._filterKnotsUpdateCallback(bbox);
+        this._updateStatusCallback("filterKnots", bbox);
 
         this._filterBbox = bbox;
 

@@ -3,9 +3,11 @@ import {Col, Row, Button} from 'react-bootstrap'
 import { VisWidget } from "./VisWidget";
 import { LayersWidget } from "./LayersWidget";
 
+import './MapRenderer.css';
+
 // declaring the types of the props
 type MapRendererProps = {
-    viewId: number,
+    viewId: string,
     divWidth: number,
     systemMessages: {text: string, color: string}[],
     applyGrammarButtonId: string,
@@ -23,7 +25,7 @@ export const MapRendererContainer = ({viewId, divWidth, systemMessages, applyGra
         
         <Row style={{padding: 0, margin: 0}}>
           <div style={{padding: 0}}>
-            <div id={'map'+viewId}>
+            <div id={viewId} className="mapView">
             </div>
             <div id='svg_div'>
               <svg id='svg_element' xmlns="http://www.w3.org/2000/svg" style={{"display": "none"}}>
@@ -50,7 +52,7 @@ export const MapRendererContainer = ({viewId, divWidth, systemMessages, applyGra
                     ))
                   } 
                 <div className="d-flex flex-column align-items-center justify-content-center" style={{height: "160px"}}>
-                  <input type="text" id={inputId} name="searchBar" placeholder='Search place' style={{width: "100%"}}></input>
+                  <input type="text" className={inputId} name="searchBar" placeholder='Search place' style={{width: "100%"}}></input>
                 </div>
               </Col>
   

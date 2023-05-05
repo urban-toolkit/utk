@@ -4,6 +4,7 @@ import React, {useEffect} from 'react';
 import './App.css';
 
 import {Environment, DataLoader, GrammarInterpreterFactory } from './utk-map/ts/dist/urbantkmap';
+import './utk-map/ts/dist/urbantkmap.css';
 import {paramsMapView} from './params.js';
 
 import $ from 'jquery';

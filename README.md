@@ -57,7 +57,7 @@ While dependencies can be installed without using a virtual environment, we reco
 All data loaded into the system must be under `public/data/`
 
 To choose which folder to load one has to modify:  
-- The field environmentDataFolder in `src/pythonServerConfig.js` following the format: `public/data/*folder_name*`.  
+- The field environmentDataFolder in `src/utk-map/ts/pythonServerConfig.js` following the format: `public/data/*folder_name*`.  
 - The field environmentDataFolder in `src/params.js` following the format: `data/test`.
 
 All layers (physical and thematic) are defined using .json files but following different [formats](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/src/pythonComponents/dataLoading/layers_format.md).
@@ -88,13 +88,13 @@ Each example can be download and executed out of the shelf, but jupyter notebook
 
 UTK will load data files stored under utk/public/data.  
 
-To choose the loaded datafolder one has to modify utk/src/params.js (environmentDataFolder) and utk/src/pythonServerConfig.json (environmentDataFolder)
+To choose the loaded datafolder one has to modify /src/params.js (environmentDataFolder) and utk/src/pythonServerConfig.json (environmentDataFolder)
 
 ### Deploy (Linux server)
 
 Open ports: 80, 3000 and 3002  
 
-Edit /src/param.js (environmentIP) and /src/pythonServerConfig.json (environmentIP)
+Edit /src/param.js (environmentIP) and /src/utk-map/ts/pythonServerConfig.json (environmentIP)
 
 Run (on the project root):
 

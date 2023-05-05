@@ -7,11 +7,11 @@ import * as d3 from "d3";
 // jquery
 import $ from 'jquery';
 
-// import './GrammarPanel.css';
+import './GrammarPanel.css';
 
 // const params = require('./pythonServerConfig.json');
 
-import params from './pythonServerConfig.json';
+import params from '../../pythonServerConfig.json';
 
 // declaring the types of the props
 type GrammarPanelProps = {

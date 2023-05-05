@@ -39,12 +39,6 @@ class MapView {
 
     protected _grammarInterpreter: any;
 
-    // For each time called it returns
-    // protected _linkedContainerGenerator: any;
-    // protected _cameraUpdateCallback: any;
-    // protected _filterKnotsUpdateCallback: any;
-    // protected _listLayersCallback: any;
-
     protected _updateStatusCallback: any;
 
     // interaction variables
@@ -63,52 +57,10 @@ class MapView {
 
     public _viewId: number; // the view to which this map belongs
 
-    resetMap(mapDiv: HTMLElement, filterKnotsUpdateCallback: any | null = null): void {
-        if(this._mapDiv != undefined){
-            this._mapDiv.innerHTML = "";
-        }
+    resetMap(mapDiv: HTMLElement, grammarInterpreter: any): void {
 
-        // stores the map div
-        this._mapDiv = mapDiv;
-        // creates the new canvas element
-        this._canvas = document.createElement('canvas');
-        // setting the id
-        this._canvas.id = "mapCanvas";
-        // gets the webgl context
-        this._glContext = <WebGL2RenderingContext>this._canvas.getContext('webgl2', {preserveDrawingBuffer: true, stencil: true}); // preserve drawing buffer is used to generate valid blobs for the cave
-        // appends the canvas
-        this._mapDiv.appendChild(this._canvas);
+        this._grammarInterpreter = grammarInterpreter;
 
-        this._viewId = 0; // TODO: should change depending on in what view the map is
-
-        // this._mapDiv.appendChild(texCanvas);
-        // creates the manager
-        this._layerManager = new LayerManager(filterKnotsUpdateCallback, this);
-        this._knotManager = new KnotManager();
-
-        // this._linkedContainerGenerator = linkedContainerGenerator;
-        // this._cameraUpdateCallback = cameraUpdateCallback;
-        // this._filterKnotsUpdateCallback = filterKnotsUpdateCallback;
-        // this._listLayersCallback = listLayersCallback;
-
-        if(this._knotVisibilityMonitor){
-            clearInterval(this._knotVisibilityMonitor);
-        }
-
-        // inits the mouse events
-        this.initMouseEvents();
-        // bind the window events
-        this.initWindowEvents();
-        // inits the keyboard events
-        this.initKeyboardEvents();
-
-        this.monitorKnotVisibility();
-
-        this.render();
-    }
-
-    setUpdateStatusCallback(updateStatusCallback: any){
-        this._updateStatusCallback = updateStatusCallback;
     }
 
     get mouse(): any{
@@ -158,23 +110,41 @@ class MapView {
         return this._grammarManager;
     }
 
-    setGrammarInterpreter(grammarInterpreter: any){
-        this._grammarInterpreter = grammarInterpreter;
-    }
-
     /**
      * Map initialization function
-     * @param {IGrammar} data grammar object containing the views definitions
      */
-    async initMapView(data: IGrammar): Promise<void> {
+    async init(mapDiv: HTMLElement, updateStatusCallback: any): Promise<void> {
 
-        if (data === null) {
-            console.error('Map data not provided.');
-            return;
+        if(this._mapDiv != undefined){
+            this._mapDiv.innerHTML = "";
         }
 
-        // this._grammarInterpreter = GrammarInterpreterFactory.getInstance();
-        // this._grammarInterpreter.resetGrammarInterpreter(data, this);
+        this._mapDiv = mapDiv;
+        this._canvas = document.createElement('canvas');
+        this._canvas.id = mapDiv.id+"_mapCanvas";
+        this._canvas.className = "mapView";
+        this._glContext = <WebGL2RenderingContext>this._canvas.getContext('webgl2', {preserveDrawingBuffer: true, stencil: true}); // preserve drawing buffer is used to generate valid blobs for the cave
+        this._mapDiv.appendChild(this._canvas);
+
+        this._viewId = 0; // TODO: should change depending on in what view the map is
+
+        this._updateStatusCallback = updateStatusCallback;
+
+        this._layerManager = new LayerManager(this._updateStatusCallback, this);
+        this._knotManager = new KnotManager();
+
+        if(this._knotVisibilityMonitor){
+            clearInterval(this._knotVisibilityMonitor);
+        }
+
+        // inits the mouse events
+        this.initMouseEvents();
+        // bind the window events
+        this.initWindowEvents();
+        // inits the keyboard events
+        this.initKeyboardEvents();
+
+        this.monitorKnotVisibility();
 
         await this.initCamera(this._grammarInterpreter.getCamera(this._viewId));
 
@@ -594,10 +564,11 @@ export var MapViewFactory = (function(){
     var instance: MapView;
   
     return {
-      getInstance: function(){
+      getInstance: function(mapDiv: HTMLElement, grammarInterpreter: any){
           if (instance == null) {
               instance = new MapView();
           }
+          instance.resetMap(mapDiv, grammarInterpreter);
           return instance;
       }
     };

@@ -248,7 +248,7 @@ if __name__ == '__main__':
 
     params = {}
 
-    with open('src/utk-map/ts/src/reactComponents/pythonServerConfig.json', "r", encoding="utf-8") as f:
+    with open('src/utk-map/ts/pythonServerConfig.json', "r", encoding="utf-8") as f:
         params = json.load(f)
         params = params["paramsPythonServer"]
 
