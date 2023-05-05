@@ -7,6 +7,7 @@ import './MapRenderer.css';
 
 // declaring the types of the props
 type MapRendererProps = {
+    obj: any,
     viewId: string,
     divWidth: number,
     systemMessages: {text: string, color: string}[],
@@ -18,7 +19,7 @@ type MapRendererProps = {
     inputId: string
 }
 
-export const MapRendererContainer = ({viewId, divWidth, systemMessages, applyGrammarButtonId, listLayers, linkMapAndGrammarId, inputId}:MapRendererProps) =>{
+export const MapRendererContainer = ({obj, viewId, divWidth, systemMessages, applyGrammarButtonId, listLayers, linkMapAndGrammarId, inputId}:MapRendererProps) =>{
 
     return(
       <React.Fragment>

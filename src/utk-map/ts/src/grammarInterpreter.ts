@@ -1,13 +1,14 @@
 /// <reference types="@types/webgl2" />
 
 import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot } from './interfaces';
-import { PlotArrangementType, OperationType} from './constants';
+import { PlotArrangementType, OperationType, SpatialRelationType, LevelType} from './constants';
 import { Knot } from './knot';
 import { MapViewFactory } from './mapview';
 import { MapRendererContainer } from './reactComponents/MapRenderer';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import Views from './reactComponents/Views';
+import params from '../pythonServerConfig.json';
 
 class GrammarInterpreter {
 
@@ -17,25 +18,25 @@ class GrammarInterpreter {
     protected _map: any;
     protected _frontEndCallback: any;
     protected _mainDiv: HTMLElement;
+    protected _url: string;
 
     protected _cameraUpdateCallback: any;
 
-    resetGrammarInterpreter(grammar: IGrammar, mainDiv: HTMLElement): void {
+    resetGrammarInterpreter(grammar: IGrammar, mainDiv: HTMLElement) {
         
-        this._preProcessedGrammar = grammar;
-        
-        this._frontEndCallback = null;
-        this.validateGrammar(grammar);
-        this.processGrammar();
+        this._url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
 
-        this.initViews(mainDiv);
+        this._frontEndCallback = null;
+        this._mainDiv = mainDiv;
+        this.validateGrammar(grammar);
+        this.processGrammar(grammar);
     }
 
     // TODO: the interpreter should create one object (map, plot, text, ...) for each view in the grammar
-    public initViews(mainDiv: HTMLElement){
+    public initViews(mainDiv: HTMLElement, grammar: IGrammar){
         this._map = MapViewFactory.getInstance(mainDiv, this);
 
-        this.renderViews(mainDiv);
+        this.renderViews(mainDiv, grammar);
     }
 
     public validateGrammar(grammar: IGrammar){
@@ -49,7 +50,7 @@ class GrammarInterpreter {
             let numFootEmbeddedPlots = 0;
             let numSurEmbeddedPlots = 0;
 
-            for(const plot of this._preProcessedGrammar.views[viewId].plots){
+            for(const plot of grammar.views[viewId].plots){
                 if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED || plot.arrangement == PlotArrangementType.SUR_EMBEDDED){
 
                     if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED){
@@ -61,11 +62,7 @@ class GrammarInterpreter {
                     }
                 }
 
-                if(plot.args.bins != undefined && plot.arrangement != PlotArrangementType.FOOT_EMBEDDED){
-                    throw Error("bins can only be specified for FOOT_EMBEDDED plots");
-                }
-
-                if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED && plot.args.bins == undefined){
+                if(plot.arrangement == PlotArrangementType.FOOT_EMBEDDED && plot.args == undefined){
                     throw Error("bins need to be specified when arrangement FOOT_EMBEDDED is used");
                 }
             }
@@ -76,7 +73,7 @@ class GrammarInterpreter {
 
             let allKnotsIds: string[] = [];
 
-            for(const knot of this._preProcessedGrammar.views[viewId].knots){
+            for(const knot of grammar.views[viewId].knots){
                 if(allKnotsIds.includes(knot.id)){
                     throw Error("Duplicated knot id");
                 }else{
@@ -85,7 +82,7 @@ class GrammarInterpreter {
                 }
             }
 
-            for(const knot of this._preProcessedGrammar.views[viewId].knots){
+            for(const knot of grammar.views[viewId].knots){
                 if(knot.knotOp == true){
                     for(const integration_scheme of knot.integration_scheme){
 
@@ -128,61 +125,158 @@ class GrammarInterpreter {
     
     }
 
-    public processGrammar(){
+    public async processGrammar(grammar: IGrammar){
+        this._preProcessedGrammar = grammar;
         // this._processedGrammar = this.processConditionBlocks(JSON.parse(JSON.stringify(this._preProcessedGrammar))); // Making a deep copy of the grammar before processing it
+        await this.createSpatialJoins(this._url, this._preProcessedGrammar);
         this._processedGrammar = this._preProcessedGrammar;
+        this.initViews(this._mainDiv, this._processedGrammar);
     }
 
-    private processConditionBlocks(grammar: IGrammar){
+    // Called by views
+    public init(id: string, updateStatus: any){
+        return;
+    }
 
-        let _this = this;
-
-        const replaceConditionBlocks = (obj: any) => {
-            const recursiveSearch = (obj: any) => {
-                if (!obj || typeof obj !== 'object') {return};
-                
-                Object.keys(obj).forEach(function (k) {
-                    if(obj && typeof obj === 'object' && obj[k].condition != undefined){ // it is a condition block
-                        obj[k] = _this.processConditionBlock(obj[k]); // replace the condition block with its evaluation
-                    }else{
-                        recursiveSearch(obj[k]);
+    private createSpatialJoins = async (url: string, grammar: IGrammar) => {
+        for(const view of grammar.views){
+            for(const knot of view.knots){
+                if(knot.knotOp != true){
+                    for(let i = 0; i < knot.integration_scheme.length; i++){
+                        if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in != undefined){
+                            let spatial_relation = (<SpatialRelationType>knot.integration_scheme[i].spatial_relation).toLowerCase();
+                            let out = knot.integration_scheme[i].out.name;
+                            let outLevel = knot.integration_scheme[i].out.level.toLowerCase();
+                            let inLevel = (<{name: string, level: LevelType}>knot.integration_scheme[i].in).level.toLowerCase();
+                            let maxDistance = knot.integration_scheme[i].maxDistance;
+                            let defaultValue = knot.integration_scheme[i].defaultValue;
+    
+                            let operation = (<OperationType>knot.integration_scheme[i].operation).toLowerCase();
+    
+                            if(operation == 'none'){
+                                operation = 'avg'; // there must be an operation to solve conflicts in the join
+                            }
+    
+                            let inData = (<{name: string, level: LevelType}>knot.integration_scheme[i].in).name;
+                            let abstract = knot.integration_scheme[i].abstract;
+    
+                            // addNewMessage("Joining "+out+" with "+inData, "red");
+    
+                            if(maxDistance != undefined)
+                                await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
+                            else
+                                await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel);
+    
+                            // addNewMessage("Join finished in " +(elapsed/1000)+" seconds", "green");
+    
+                        }
                     }
-                });
-            } 
-            recursiveSearch(obj);
-        } 
-        
-        replaceConditionBlocks(grammar);
-
-        return grammar;
-    }
-
-    private processConditionBlock(conditionBlock: IConditionBlock){
-        
-        let zoom = this._map.camera.getZoomLevel();
-        let timeElapsed = Date.now() - this._lastValidationTimestep;
-
-        for(let i = 0; i < conditionBlock.condition.length; i++){
-            let conditionElement = conditionBlock.condition[i];
-
-            if(conditionElement.test == undefined) // there is no test to evaluate
-                return conditionElement.value
-
-            let testString = conditionElement.test;
-
-            testString = testString.replaceAll("zoom", zoom+'');
-            testString = testString.replaceAll("timeElapsed", timeElapsed+'');
-
-            let testResult = eval(testString);
-
-            if(testResult == true){
-                return conditionElement.value;
+                }
             }
         }
-
-        throw Error("Condition block does not have a default value");
-
     }
+
+    // const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
+        
+    //     for(const knot of grammarObject.views[0].knots){
+    //         if(knot.knotOp != true){
+    //             for(let i = 0; i < knot.integration_scheme.length; i++){
+    //                 if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in != undefined){
+    //                     let spatial_relation = knot.integration_scheme[i].spatial_relation.toLowerCase();
+    //                     let out = knot.integration_scheme[i].out.name;
+    //                     let outLevel = knot.integration_scheme[i].out.level.toLowerCase();
+    //                     let inLevel = knot.integration_scheme[i].in.level.toLowerCase();
+    //                     let maxDistance = knot.integration_scheme[i].maxDistance;
+    //                     let defaultValue = knot.integration_scheme[i].defaultValue;
+
+    //                     let operation = knot.integration_scheme[i].operation.toLowerCase();
+
+    //                     if(operation == 'none'){
+    //                         operation = 'avg'; // there must be an operation to solve conflicts in the join
+    //                     }
+
+    //                     let inData = knot.integration_scheme[i].in.name;
+    //                     let abstract = knot.integration_scheme[i].abstract;
+
+    //                     addNewMessage("Joining "+out+" with "+inData, "red");
+
+    //                     let start = Date.now();
+
+    //                     if(maxDistance != undefined)
+    //                         await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
+    //                     else
+    //                         await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel);
+
+    //                     let end = Date.now();
+    //                     let elapsed = end - start; 
+
+    //                     addNewMessage("Join finished in " +(elapsed/1000)+" seconds", "green");
+
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // TODO: make the calculation of render styles more efficient
+    //     // addNewMessage("Adding render styles", "red");
+    //     // await fetch(url+"/addRenderStyles");
+    //     // addNewMessage("Render Styles added", "red");
+
+    //     addNewMessage("Loading map", "red");
+    //     // createAndRunMap();
+    //     addNewMessage("Map loaded", "green");
+    // }
+
+    // private processConditionBlocks(grammar: IGrammar){
+
+    //     let _this = this;
+
+    //     const replaceConditionBlocks = (obj: any) => {
+    //         const recursiveSearch = (obj: any) => {
+    //             if (!obj || typeof obj !== 'object') {return};
+                
+    //             Object.keys(obj).forEach(function (k) {
+    //                 if(obj && typeof obj === 'object' && obj[k].condition != undefined){ // it is a condition block
+    //                     obj[k] = _this.processConditionBlock(obj[k]); // replace the condition block with its evaluation
+    //                 }else{
+    //                     recursiveSearch(obj[k]);
+    //                 }
+    //             });
+    //         } 
+    //         recursiveSearch(obj);
+    //     } 
+        
+    //     replaceConditionBlocks(grammar);
+
+    //     return grammar;
+    // }
+
+    // private processConditionBlock(conditionBlock: IConditionBlock){
+        
+    //     let zoom = this._map.camera.getZoomLevel();
+    //     let timeElapsed = Date.now() - this._lastValidationTimestep;
+
+    //     for(let i = 0; i < conditionBlock.condition.length; i++){
+    //         let conditionElement = conditionBlock.condition[i];
+
+    //         if(conditionElement.test == undefined) // there is no test to evaluate
+    //             return conditionElement.value
+
+    //         let testString = conditionElement.test;
+
+    //         testString = testString.replaceAll("zoom", zoom+'');
+    //         testString = testString.replaceAll("timeElapsed", timeElapsed+'');
+
+    //         let testResult = eval(testString);
+
+    //         if(testResult == true){
+    //             return conditionElement.value;
+    //         }
+    //     }
+
+    //     throw Error("Condition block does not have a default value");
+
+    // }
     
     public getCamera(view: number = 0): ICameraData{
         return this._processedGrammar['views'][view].map.camera;
@@ -293,23 +387,23 @@ class GrammarInterpreter {
         }
     }
 
-    private getKnotLastLink(knot: IKnot, view: number){
-        if(knot.knotOp == true){
+    // private getKnotLastLink(knot: IKnot, view: number){
+    //     if(knot.knotOp == true){
             
-            let lastKnotId = knot.integration_scheme[knot.integration_scheme.length-1].out.name;
+    //         let lastKnotId = knot.integration_scheme[knot.integration_scheme.length-1].out.name;
 
-            let lastKnot = this.getKnotById(lastKnotId, view);
+    //         let lastKnot = this.getKnotById(lastKnotId, view);
             
-            if(lastKnot == undefined){
-                throw Error("Could not process knot "+lastKnotId);
-            }
+    //         if(lastKnot == undefined){
+    //             throw Error("Could not process knot "+lastKnotId);
+    //         }
 
-            return lastKnot.integration_scheme[lastKnot.integration_scheme.length-1];
+    //         return lastKnot.integration_scheme[lastKnot.integration_scheme.length-1];
 
-        }else{
-            return knot.integration_scheme[knot.integration_scheme.length-1];
-        }
-    }
+    //     }else{
+    //         return knot.integration_scheme[knot.integration_scheme.length-1];
+    //     }
+    // }
 
     // /**
     //  * The callback is called everytime some data that can impact the front end changes
@@ -328,9 +422,11 @@ class GrammarInterpreter {
     // }
 
     // TODO: more than one view should be rendered but inside a single div provided by the front end
-    private renderViews(mainDiv: HTMLElement){
+    private renderViews(mainDiv: HTMLElement, grammar: IGrammar){
+        mainDiv.innerHTML = ""; // empty all content
+
         const root = createRoot(mainDiv);
-        root.render(React.createElement(Views, {viewObjs: [this._map], viewIds: ['map0']}));
+        root.render(React.createElement(Views, {viewObjs: [this._map, this], viewIds: ['map0'], grammar: grammar}));
         // root.render(React.createElement(MapRendererContainer, {divWidth: 7, systemMessages: [{text: "Map Loaded", color: "red"}], applyGrammarButtonId: "#", genericScreenPlotToggle: null, modifyLabelPlot: console.log("modify label plot"), listPlots: [], listLayers: [], listLayersCallback: console.log("listLayersCallback"), linkMapAndGrammarId: "#", cameraUpdateCallback: console.log("cameraCallback")}));
     }
 

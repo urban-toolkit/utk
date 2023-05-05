@@ -5,14 +5,16 @@ import { MapRendererContainer } from './MapRenderer';
 import { GenericScreenPlotContainer } from './GenericScreenPlotContainer';
 
 import * as d3 from "d3";
+import { IGrammar } from '../interfaces';
 
 // declaring the types of the props
 type ViewProps = {
   viewObjs: any[] // each view has a an object representing its logic
   viewIds: string[]
+  grammar: IGrammar
 }
 
-function Views({viewObjs, viewIds}: ViewProps) {
+function Views({viewObjs, viewIds, grammar}: ViewProps) {
 
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}}); // TODO: if we have multiple map instances we have multiple cameras
   const [filterKnots, setFilterKnots] = useState<number[]>([]);
@@ -133,6 +135,8 @@ function Views({viewObjs, viewIds}: ViewProps) {
       <Row style={{margin: 0}}>
         <Col md={5} style={{padding: "0"}}>
           <GrammarPanelContainer 
+            obj = {viewObjs[1]}
+            initialGrammar={grammar}
             camera = {camera}
             filterKnots = {filterKnots}
             inputId = {inputBarId}
@@ -144,6 +148,7 @@ function Views({viewObjs, viewIds}: ViewProps) {
         </Col>
         <Col md={7} style={{padding: 0}}>
           <MapRendererContainer
+            obj = {viewObjs[0]}
             viewId={viewIds[0]}
             divWidth = {7}
             inputId = {inputBarId}

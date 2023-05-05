@@ -12,9 +12,12 @@ import './GrammarPanel.css';
 // const params = require('./pythonServerConfig.json');
 
 import params from '../../pythonServerConfig.json';
+import { IGrammar } from "../interfaces";
 
 // declaring the types of the props
 type GrammarPanelProps = {
+    obj: any,
+    initialGrammar: IGrammar,
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
     filterKnots: number[],
     inputId: string,
@@ -25,6 +28,8 @@ type GrammarPanelProps = {
 }
 
 export const GrammarPanelContainer = ({
+    obj,
+    initialGrammar,
     camera,
     filterKnots,
     inputId,
@@ -58,81 +63,81 @@ export const GrammarPanelContainer = ({
 
     const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
 
-    const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
+    // const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
         
-        let grammarString = grammarStateRef.current;
+    //     let grammarString = grammarStateRef.current;
 
-        if(grammarString == ''){
-            grammarString = tempGrammar;
-        }
+    //     if(grammarString == ''){
+    //         grammarString = tempGrammar;
+    //     }
 
-        if(grammarString == '')
-            return
+    //     if(grammarString == '')
+    //         return
 
-        let grammarObject;
+    //     let grammarObject;
 
-        try{
-            grammarObject = JSON.parse(grammarString);
-        }catch(err){
-            // emptyMainDiv();
-            addNewMessage("Invalid grammar specification", "red");
-            return;
-        }
+    //     try{
+    //         grammarObject = JSON.parse(grammarString);
+    //     }catch(err){
+    //         // emptyMainDiv();
+    //         addNewMessage("Invalid grammar specification", "red");
+    //         return;
+    //     }
         
-        if(grammarObject.views == undefined){
-            // emptyMainDiv();
-            addNewMessage("Invalid/Empty grammar specification", "red");
-            return;
-        }
+    //     if(grammarObject.views == undefined){
+    //         // emptyMainDiv();
+    //         addNewMessage("Invalid/Empty grammar specification", "red");
+    //         return;
+    //     }
 
-        for(const knot of grammarObject.views[0].knots){
-            if(knot.knotOp != true){
-                for(let i = 0; i < knot.integration_scheme.length; i++){
-                    if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in != undefined){
-                        let spatial_relation = knot.integration_scheme[i].spatial_relation.toLowerCase();
-                        let out = knot.integration_scheme[i].out.name;
-                        let outLevel = knot.integration_scheme[i].out.level.toLowerCase();
-                        let inLevel = knot.integration_scheme[i].in.level.toLowerCase();
-                        let maxDistance = knot.integration_scheme[i].maxDistance;
-                        let defaultValue = knot.integration_scheme[i].defaultValue;
+    //     for(const knot of grammarObject.views[0].knots){
+    //         if(knot.knotOp != true){
+    //             for(let i = 0; i < knot.integration_scheme.length; i++){
+    //                 if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in != undefined){
+    //                     let spatial_relation = knot.integration_scheme[i].spatial_relation.toLowerCase();
+    //                     let out = knot.integration_scheme[i].out.name;
+    //                     let outLevel = knot.integration_scheme[i].out.level.toLowerCase();
+    //                     let inLevel = knot.integration_scheme[i].in.level.toLowerCase();
+    //                     let maxDistance = knot.integration_scheme[i].maxDistance;
+    //                     let defaultValue = knot.integration_scheme[i].defaultValue;
 
-                        let operation = knot.integration_scheme[i].operation.toLowerCase();
+    //                     let operation = knot.integration_scheme[i].operation.toLowerCase();
 
-                        if(operation == 'none'){
-                            operation = 'avg'; // there must be an operation to solve conflicts in the join
-                        }
+    //                     if(operation == 'none'){
+    //                         operation = 'avg'; // there must be an operation to solve conflicts in the join
+    //                     }
 
-                        let inData = knot.integration_scheme[i].in.name;
-                        let abstract = knot.integration_scheme[i].abstract;
+    //                     let inData = knot.integration_scheme[i].in.name;
+    //                     let abstract = knot.integration_scheme[i].abstract;
 
-                        addNewMessage("Joining "+out+" with "+inData, "red");
+    //                     addNewMessage("Joining "+out+" with "+inData, "red");
 
-                        let start = Date.now();
+    //                     let start = Date.now();
 
-                        if(maxDistance != undefined)
-                            await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
-                        else
-                            await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel);
+    //                     if(maxDistance != undefined)
+    //                         await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
+    //                     else
+    //                         await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel);
 
-                        let end = Date.now();
-                        let elapsed = end - start; 
+    //                     let end = Date.now();
+    //                     let elapsed = end - start; 
 
-                        addNewMessage("Join finished in " +(elapsed/1000)+" seconds", "green");
+    //                     addNewMessage("Join finished in " +(elapsed/1000)+" seconds", "green");
 
-                    }
-                }
-            }
-        }
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        // TODO: make the calculation of render styles more efficient
-        // addNewMessage("Adding render styles", "red");
-        // await fetch(url+"/addRenderStyles");
-        // addNewMessage("Render Styles added", "red");
+    //     // TODO: make the calculation of render styles more efficient
+    //     // addNewMessage("Adding render styles", "red");
+    //     // await fetch(url+"/addRenderStyles");
+    //     // addNewMessage("Render Styles added", "red");
 
-        addNewMessage("Loading map", "red");
-        // createAndRunMap();
-        addNewMessage("Map loaded", "green");
-    }
+    //     addNewMessage("Loading map", "red");
+    //     // createAndRunMap();
+    //     addNewMessage("Map loaded", "green");
+    // }
 
     const applyGrammar = async () => {
 
@@ -174,7 +179,8 @@ export const GrammarPanelContainer = ({
             body: JSON.stringify(data)
         })
         .then(async (response) => {
-            await createLinksAndRenderStyles(url);
+            // await createLinksAndRenderStyles(url);
+            await obj.processGrammar(JSON.parse(grammarStateRef.current));
         })
         .catch(error => {
             console.error('Request to update grammar failed: ', error);
@@ -229,16 +235,20 @@ export const GrammarPanelContainer = ({
 
     // run only once to load the initial data
     useEffect(() => {
-        async function getInitialGrammar(url: string){
-            let response = await fetch(url+"/getGrammar");
-            let data = await response.json();
-            let stringData = JSON.stringify(data, null, 4);
 
-            setCode(stringData);
-            createLinksAndRenderStyles(url, stringData);
-        }
+        // async function getInitialGrammar(url: string){
+        //     let response = await fetch(url+"/getGrammar");
+        //     let data = await response.json();
+        //     let stringData = JSON.stringify(data, null, 4);
 
-        getInitialGrammar(url);
+        //     setCode(stringData);
+        //     createLinksAndRenderStyles(url, stringData);
+        // }
+
+        // getInitialGrammar(url);
+
+        let stringData = JSON.stringify(initialGrammar, null, 4);
+        setCode(stringData);
 
         $('#'+inputId).on("keydown", function(e: any) {
             if(e.key == 'Enter'){

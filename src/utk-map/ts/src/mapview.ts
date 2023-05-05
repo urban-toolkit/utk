@@ -367,7 +367,6 @@ class MapView {
             }
         }
 
-        // loop over the index file
         for (let i = 0; i < layers.length; i++) {
 
             let element = layers[i];
@@ -398,6 +397,7 @@ class MapView {
         if (!layer) { return; }
 
         if(joined){
+            console.log("requesting join");
             let joinedJson = await DataApi.getJoinedJson(layer.id);
             if(joinedJson)
                 layer.setJoinedJson(joinedJson);

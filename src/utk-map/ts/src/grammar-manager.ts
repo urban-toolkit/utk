@@ -1,4 +1,4 @@
-import { IGrammar, IView } from './interfaces';
+import { IGrammar, IPlotArgs, IView } from './interfaces';
 import { PlotInteractionType, PlotArrangementType } from './constants';
 import {radians} from './utils';
 
@@ -532,7 +532,9 @@ export class GrammarManager {
         for(let i = 0; i < this._viewData.plots.length; i++){ // TODO: support multiple embedded plots
             if(this._viewData.plots[i].arrangement == PlotArrangementType.FOOT_EMBEDDED){
 
-                bins = <number>this._viewData.plots[i].args.bins;
+                if(this._viewData.plots[i].args != undefined){
+                    bins = <number>(<IPlotArgs>this._viewData.plots[i].args).bins;
+                }
 
                 selectedPlot = this._viewData.plots[i];
             }

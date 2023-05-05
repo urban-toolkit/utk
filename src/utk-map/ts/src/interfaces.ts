@@ -11,7 +11,7 @@ export interface IGrammar {
 
 export interface IView{
     map: {camera: ICameraData, knots: (string | IConditionBlock)[], interactions: (InteractionType | IConditionBlock)[], filterKnots: (number | IConditionBlock)[], knotVisibility?: IKnotVisibility[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
-    plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, args: IPlotArgs}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
+    plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, args?: IPlotArgs}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
     knots: IKnot[]
 }
 
