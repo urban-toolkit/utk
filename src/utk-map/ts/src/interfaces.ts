@@ -1,18 +1,35 @@
-import { LayerType, RenderStyle, ColorHEX, OperationType, GrammarVisibilityType, ViewArrangementType, PlotArrangementType, SpatialRelationType, LevelType, InteractionType, PlotInteractionType } from "./constants";
+import { LayerType, RenderStyle, ColorHEX, OperationType, ViewArrangementType, PlotArrangementType, SpatialRelationType, LevelType, InteractionType, PlotInteractionType } from "./constants";
 
 /**
  * Interface for grammar
  */
 export interface IGrammar {
-    views: IView[],
+    components: (IView | IGrammarView)[],
     arrangement: ViewArrangementType,
-    grammar_visibility: GrammarVisibilityType
+    grid: IGrid
+}
+
+export interface IGrid{
+    width: number, // number of horizontal cells
+    height: number // number of vertical cells
 }
 
 export interface IView{
     map: {camera: ICameraData, knots: (string | IConditionBlock)[], interactions: (InteractionType | IConditionBlock)[], filterKnots: (number | IConditionBlock)[], knotVisibility?: IKnotVisibility[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
     plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, args?: IPlotArgs}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
-    knots: IKnot[]
+    knots: IKnot[],
+    position: IComponentPosition
+}
+
+export interface IGrammarView{
+    grammar_editor: {
+        position: IComponentPosition
+    }
+}
+
+export interface IComponentPosition{
+    width: number[],
+    height: number[]
 }
 
 export interface IPlotArgs{

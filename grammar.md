@@ -165,16 +165,5 @@ The spatial relation is always applied as a left join where out = left and in = 
 
 ### Knot filtering
 
-### Grammar visibility 
 
-Determines if the grammar editor will be available in the interface.
-
-`grammar_visibility := VISIBLE | HIDDEN`
-
-```js
-{
-    views: [...],
-    arrangement: ...,
-    grammar_visibility: "VISIBLE" 
-}
-```
+### Grid System

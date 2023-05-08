@@ -14,8 +14,7 @@ import $ from 'jquery';
 // ======================================================================================
 
 // TODO: get rid of this initializer
-
-var initializer: any;
+let initializer: any;
 
 class Initializer {
   _map: any;
@@ -48,7 +47,7 @@ export const createAndRunMap = () => {
 
   initializer = new Initializer('#mainDiv');
       
-  let port = 3000; // TODO: enable vr mode
+  const port = 3000; // TODO: enable vr mode
 
   // if(MapConfig.frontEndMode == 'vr'){
   //   port = '3001';
@@ -80,7 +79,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <div id='mainDiv'>
+      <div id='mainDiv' style={{height: "100%", width: "100%"}}>
       </div>
     </React.Fragment>
   );

@@ -81,9 +81,9 @@ export enum PlotInteractionType{
     BRUSH = "BRUSH"
 }
 
-export enum GrammarVisibilityType{
-    VISIBLE = "VISIBLE",
-    HIDDEN = "HIDDEN"
+export enum ComponentIdentifier{
+    MAP = "MAP",
+    GRAMMAR = "GRAMMAR"
 }
 
 /**

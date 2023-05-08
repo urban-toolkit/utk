@@ -113,7 +113,9 @@ class MapView {
     /**
      * Map initialization function
      */
-    async init(mapDiv: HTMLElement, updateStatusCallback: any): Promise<void> {
+    async init(mapDivId: string, updateStatusCallback: any): Promise<void> {
+
+        let mapDiv: any = <HTMLElement>document.getElementById(mapDivId)
 
         if(this._mapDiv != undefined){
             this._mapDiv.innerHTML = "";
@@ -397,7 +399,6 @@ class MapView {
         if (!layer) { return; }
 
         if(joined){
-            console.log("requesting join");
             let joinedJson = await DataApi.getJoinedJson(layer.id);
             if(joinedJson)
                 layer.setJoinedJson(joinedJson);

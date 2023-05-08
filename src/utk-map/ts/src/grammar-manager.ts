@@ -1,4 +1,4 @@
-import { IGrammar, IPlotArgs, IView } from './interfaces';
+import { IGrammar, IGrammarView, IPlotArgs, IView } from './interfaces';
 import { PlotInteractionType, PlotArrangementType } from './constants';
 import {radians} from './utils';
 
@@ -25,6 +25,7 @@ class LockFlag {
   
 }
 
+// TODO: Generalize grammar manager to work with several components
 export class GrammarManager {
 
     protected _viewData: IView; // TODO: only one active view is currently supported
@@ -43,7 +44,13 @@ export class GrammarManager {
      * @param setGrammarUpdateCallback Function that sets the callback that will be called in the frontend to update the grammar
      */
     constructor(grammar: IGrammar, updateStatusCallback: any, plotsKnotsData: {knotId: string, elements: {coordinates: number[], abstract: number, highlighted: boolean, index: number}[]}[], setHighlightElementCallback: {function: any, arg: any}) {
-        this._viewData = grammar['views'][0];
+        
+        for(const component of grammar['components']){
+            if("map" in component){
+                this._viewData = component;                
+            }
+        }
+
         this._updateStatusCallback = updateStatusCallback;
         this._setHighlightElementCallback = setHighlightElementCallback;
         this._plotsReferences = new Array(this._viewData.plots.length);

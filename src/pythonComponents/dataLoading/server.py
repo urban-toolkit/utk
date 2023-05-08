@@ -146,7 +146,7 @@ def serve_addRenderStyles():
 
     layersInfo = {}
 
-    for knot in grammar["views"][0]["knots"]:
+    for knot in grammar["components"][0]["knots"]:
         if('knotOp' not in knot or knot['knotOp'] != True):
             
             for index, link in enumerate(knot['integration_scheme']):
@@ -171,14 +171,14 @@ def serve_addRenderStyles():
                 if(data["type"] == "BUILDINGS_LAYER"):
                     buildings = True
 
-                for i in range(len(grammar["views"][0]['map']["knots"])):
-                    if(grammar["views"][0]['map']["knots"][i] == knot["id"] and grammar["views"][0]["map"]["interactions"][i] != "NONE"):
+                for i in range(len(grammar["components"][0]['map']["knots"])):
+                    if(grammar["components"][0]['map']["knots"][i] == knot["id"] and grammar["components"][0]["map"]["interactions"][i] != "NONE"):
                         if(index == len(knot['integration_scheme'])-1): # only the layers that will be rendered can be interacted with
                             interactions = True
                         break
 
-                for i in range(len(grammar["views"][0]["plots"])):
-                    if(knot["id"] in grammar["views"][0]["plots"][i]["knots"] and grammar["views"][0]["plots"][i]["arrangement"] == "SUR_EMBEDDED" or grammar["views"][0]["plots"][i]["arrangement"] == "FOOT_EMBEDDED"):
+                for i in range(len(grammar["components"][0]["plots"])):
+                    if(knot["id"] in grammar["components"][0]["plots"][i]["knots"] and grammar["components"][0]["plots"][i]["arrangement"] == "SUR_EMBEDDED" or grammar["components"][0]["plots"][i]["arrangement"] == "FOOT_EMBEDDED"):
                         embeddedPlots = True
                         break
 

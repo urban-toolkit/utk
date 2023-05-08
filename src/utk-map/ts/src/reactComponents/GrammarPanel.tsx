@@ -17,6 +17,7 @@ import { IGrammar } from "../interfaces";
 // declaring the types of the props
 type GrammarPanelProps = {
     obj: any,
+    viewId: string,
     initialGrammar: IGrammar,
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}},
     filterKnots: number[],
@@ -29,6 +30,7 @@ type GrammarPanelProps = {
 
 export const GrammarPanelContainer = ({
     obj,
+    viewId,
     initialGrammar,
     camera,
     filterKnots,
@@ -62,82 +64,6 @@ export const GrammarPanelContainer = ({
     const [readOnly, setReadOnly] = useState(false);
 
     const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
-
-    // const createLinksAndRenderStyles = async (url: string, tempGrammar: string = '') => {
-        
-    //     let grammarString = grammarStateRef.current;
-
-    //     if(grammarString == ''){
-    //         grammarString = tempGrammar;
-    //     }
-
-    //     if(grammarString == '')
-    //         return
-
-    //     let grammarObject;
-
-    //     try{
-    //         grammarObject = JSON.parse(grammarString);
-    //     }catch(err){
-    //         // emptyMainDiv();
-    //         addNewMessage("Invalid grammar specification", "red");
-    //         return;
-    //     }
-        
-    //     if(grammarObject.views == undefined){
-    //         // emptyMainDiv();
-    //         addNewMessage("Invalid/Empty grammar specification", "red");
-    //         return;
-    //     }
-
-    //     for(const knot of grammarObject.views[0].knots){
-    //         if(knot.knotOp != true){
-    //             for(let i = 0; i < knot.integration_scheme.length; i++){
-    //                 if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in != undefined){
-    //                     let spatial_relation = knot.integration_scheme[i].spatial_relation.toLowerCase();
-    //                     let out = knot.integration_scheme[i].out.name;
-    //                     let outLevel = knot.integration_scheme[i].out.level.toLowerCase();
-    //                     let inLevel = knot.integration_scheme[i].in.level.toLowerCase();
-    //                     let maxDistance = knot.integration_scheme[i].maxDistance;
-    //                     let defaultValue = knot.integration_scheme[i].defaultValue;
-
-    //                     let operation = knot.integration_scheme[i].operation.toLowerCase();
-
-    //                     if(operation == 'none'){
-    //                         operation = 'avg'; // there must be an operation to solve conflicts in the join
-    //                     }
-
-    //                     let inData = knot.integration_scheme[i].in.name;
-    //                     let abstract = knot.integration_scheme[i].abstract;
-
-    //                     addNewMessage("Joining "+out+" with "+inData, "red");
-
-    //                     let start = Date.now();
-
-    //                     if(maxDistance != undefined)
-    //                         await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
-    //                     else
-    //                         await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel);
-
-    //                     let end = Date.now();
-    //                     let elapsed = end - start; 
-
-    //                     addNewMessage("Join finished in " +(elapsed/1000)+" seconds", "green");
-
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     // TODO: make the calculation of render styles more efficient
-    //     // addNewMessage("Adding render styles", "red");
-    //     // await fetch(url+"/addRenderStyles");
-    //     // addNewMessage("Render Styles added", "red");
-
-    //     addNewMessage("Loading map", "red");
-    //     // createAndRunMap();
-    //     addNewMessage("Map loaded", "green");
-    // }
 
     const applyGrammar = async () => {
 
@@ -200,13 +126,17 @@ export const GrammarPanelContainer = ({
 
         let parsedGrammar = JSON.parse(grammar);
 
-        if(camera.position.length != 0)
-            parsedGrammar.views[0].map.camera = camera;
-
-        if(filterKnots.length != 0)
-            parsedGrammar.views[0].map.filterKnots = filterKnots;
-        else if(parsedGrammar.views[0].map.filterKnots != undefined)
-            delete parsedGrammar.views[0].map.filterKnots
+        for(const component of parsedGrammar.components){ // Grammar camera is the same for all map views
+            if("map" in component){
+                if(camera.position.length != 0)
+                    component.map.camera = camera;
+        
+                if(filterKnots.length != 0)
+                    component.map.filterKnots = filterKnots;
+                else if(component.map.filterKnots != undefined)
+                    delete component.map.filterKnots
+            }
+        }
 
         return JSON.stringify(parsedGrammar, null, 4);
     }
@@ -226,7 +156,7 @@ export const GrammarPanelContainer = ({
 
             updateLocalNominatim(responseJson, filterKnots);
             setCamera(responseJson);
-            d3.select("#linkMapAndGrammar").property("checked", true);
+            d3.select('#'+linkMapAndGrammarId).property("checked", true);
         })
         .catch(error => {
             console.error('Error trying to resolve nominatim: ', error);
@@ -236,24 +166,13 @@ export const GrammarPanelContainer = ({
     // run only once to load the initial data
     useEffect(() => {
 
-        // async function getInitialGrammar(url: string){
-        //     let response = await fetch(url+"/getGrammar");
-        //     let data = await response.json();
-        //     let stringData = JSON.stringify(data, null, 4);
-
-        //     setCode(stringData);
-        //     createLinksAndRenderStyles(url, stringData);
-        // }
-
-        // getInitialGrammar(url);
-
         let stringData = JSON.stringify(initialGrammar, null, 4);
         setCode(stringData);
 
         $('#'+inputId).on("keydown", function(e: any) {
             if(e.key == 'Enter'){
 
-                d3.select("#linkMapAndGrammar").property("checked", false);
+                d3.select('#'+linkMapAndGrammarId).property("checked", false);
 
                 let inputValue = $(this).val();
                 
@@ -278,7 +197,7 @@ export const GrammarPanelContainer = ({
 
     const checkIfAddCameraAndFilter = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, tempGrammar: string, filterKnots: number[]) => {
 
-        let inputLink = d3.select("#linkMapAndGrammar")
+        let inputLink = d3.select('#'+linkMapAndGrammarId)
         
         let returnedGrammar: any = {};
 

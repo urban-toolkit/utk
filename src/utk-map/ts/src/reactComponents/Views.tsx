@@ -3,18 +3,20 @@ import {Container, Row, Col} from 'react-bootstrap'
 import { GrammarPanelContainer } from './GrammarPanel';
 import { MapRendererContainer } from './MapRenderer';
 import { GenericScreenPlotContainer } from './GenericScreenPlotContainer';
+import { ComponentIdentifier} from '../constants';
 
 import * as d3 from "d3";
-import { IGrammar } from '../interfaces';
+import { IComponentPosition, IGrammar, IGrid } from '../interfaces';
 
 // declaring the types of the props
 type ViewProps = {
-  viewObjs: any[] // each view has a an object representing its logic
+  viewObjs: {type: ComponentIdentifier, obj: any, position: IComponentPosition}[] // each view has a an object representing its logic
   viewIds: string[]
   grammar: IGrammar
+  mainDivSize: {width: number, height: number}
 }
 
-function Views({viewObjs, viewIds, grammar}: ViewProps) {
+function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
 
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}}); // TODO: if we have multiple map instances we have multiple cameras
   const [filterKnots, setFilterKnots] = useState<number[]>([]);
@@ -121,19 +123,74 @@ function Views({viewObjs, viewIds, grammar}: ViewProps) {
     }
   }
 
+  const getSizes = (position: IComponentPosition) => {
+    let widthPercentage = (position.width[1]+1-position.width[0])/grammar.grid.width;
+    let heightPercentage = (position.height[1]+1-position.height[0])/grammar.grid.height;
+
+    return {width: widthPercentage*mainDivSize.width, height: heightPercentage*mainDivSize.height};
+  }
+
+  const getTopLeft = (position: IComponentPosition) => {
+
+    let leftPercentange = (position.width[0]-1)/grammar.grid.width;
+    let topPercentange = (position.height[0]-1)/grammar.grid.height;
+
+    return {top: topPercentange*mainDivSize.height, left: leftPercentange*mainDivSize.width}
+  }
+
   useEffect(() => {
     for(let i = 0; i < viewObjs.length; i++){
-      let viewObj = viewObjs[i];
+      let viewObj = viewObjs[i].obj;
       let viewId = viewIds[i];
 
-      viewObj.init(document.getElementById(viewId), updateStatus);
+      viewObj.init(viewId, updateStatus);
     }
   }, []);
 
   return (
     <React.Fragment>
       <Row style={{margin: 0}}>
-        <Col md={5} style={{padding: "0"}}>
+        {
+          viewObjs.map((component, index) => {
+          if (component.type == ComponentIdentifier.MAP) {
+            return <React.Fragment key={viewIds[index]}>
+              <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <MapRendererContainer
+                  obj = {component.obj}
+                  viewId={viewIds[index]}
+                  divWidth = {7}
+                  inputId = {inputBarId}
+                  systemMessages = {systemMessages}
+                  applyGrammarButtonId = {"applyGrammarButton"}
+                  genericScreenPlotToggle ={toggleGenericPlot}
+                  listPlots = {genericPlots}
+                  linkMapAndGrammarId = {"linkMapAndGrammar"}
+                  listLayers = {layersIds}
+                />
+              </div>
+            </React.Fragment>
+          } else if(component.type == ComponentIdentifier.GRAMMAR) {
+            return <React.Fragment key={viewIds[index]}>
+              <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <GrammarPanelContainer 
+                  obj = {component.obj}
+                  viewId={viewIds[index]}
+                  initialGrammar={grammar}
+                  camera = {camera}
+                  filterKnots = {filterKnots}
+                  inputId = {inputBarId}
+                  setCamera = {setCamera}
+                  addNewMessage = {addNewMessage}
+                  applyGrammarButtonId = {"applyGrammarButton"}
+                  linkMapAndGrammarId = {"linkMapAndGrammar"}
+                />
+              </div>
+            </React.Fragment>
+          }
+          })
+        }
+
+        {/* <Col md={5} style={{padding: "0"}}>
           <GrammarPanelContainer 
             obj = {viewObjs[1]}
             initialGrammar={grammar}
@@ -145,8 +202,8 @@ function Views({viewObjs, viewIds, grammar}: ViewProps) {
             applyGrammarButtonId = {"applyGrammarButton"}
             linkMapAndGrammarId = {"linkMapAndGrammar"}
           />
-        </Col>
-        <Col md={7} style={{padding: 0}}>
+        </Col> */}
+        {/* <Col md={7} style={{padding: 0}}>
           <MapRendererContainer
             obj = {viewObjs[0]}
             viewId={viewIds[0]}
@@ -159,7 +216,7 @@ function Views({viewObjs, viewIds, grammar}: ViewProps) {
             linkMapAndGrammarId = {"linkMapAndGrammar"}
             listLayers = {layersIds}
           />
-        </Col>
+        </Col> */}
         {/* {
         genericPlots.map((item) => (
             <GenericScreenPlotContainer
