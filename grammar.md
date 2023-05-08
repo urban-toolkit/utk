@@ -167,3 +167,41 @@ The spatial relation is always applied as a left join where out = left and in = 
 
 
 ### Grid System
+
+UTK is divided in components and each component can be positioned in the screen using a grid system. The user can define the dimensions of the grid and how the components will ocupy this grid:
+
+```js
+{
+    components: [
+        {
+            map: {...},
+            plots: [...],
+            knots: [...],
+            position: {
+                width: [6,13],
+                height: [1,1]
+            }
+        },
+        {
+            grammar_editor: {
+                position: {
+                    width: [1,5],
+                    height: [1,1]
+                }
+            }
+        }
+    ],
+    arrangement: "LINKED",
+    grid:{
+        width: 13,
+        height: 1
+    }
+}
+```
+
+In this example there are two components: a map and a grammar editor. The grid is divided in 13 sections horizontally and 1 section vertically. The map component, for example, occupies sections 6 to 13 horizontally and 1 section vertically. 
+
+### Grammar editor
+
+
+### Toggle Knots Widget

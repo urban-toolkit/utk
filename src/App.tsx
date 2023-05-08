@@ -79,7 +79,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <div id='mainDiv' style={{height: "100%", width: "100%"}}>
+      <div id='mainDiv' style={{height: "100vh", width: "100%"}}>
       </div>
     </React.Fragment>
   );

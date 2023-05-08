@@ -43,6 +43,13 @@ class GrammarInterpreter {
             }
         }
 
+        // toggle_knots_widget depends on maps
+        for(const component of grammar.components){
+            if("toggle_knots_widget" in component){
+                this._components.push({type: ComponentIdentifier.TOGGLE_KNOT, obj: this._components[component.toggle_knots_widget.map_id].obj, position: component.toggle_knots_widget.position});
+            }
+        }
+       
         this.renderViews(mainDiv, grammar);
     }
 

@@ -4,7 +4,7 @@ import { LayerType, RenderStyle, ColorHEX, OperationType, ViewArrangementType, P
  * Interface for grammar
  */
 export interface IGrammar {
-    components: (IView | IGrammarView)[],
+    components: (IView | IGrammarView | IToggleKnotsWidget)[],
     arrangement: ViewArrangementType,
     grid: IGrid
 }
@@ -19,6 +19,13 @@ export interface IView{
     plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, args?: IPlotArgs}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
     knots: IKnot[],
     position: IComponentPosition
+}
+
+export interface IToggleKnotsWidget{
+    toggle_knots_widget: {
+        map_id: number,
+        position: IComponentPosition
+    }
 }
 
 export interface IGrammarView{

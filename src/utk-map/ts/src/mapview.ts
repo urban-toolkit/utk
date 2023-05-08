@@ -117,9 +117,11 @@ class MapView {
 
         let mapDiv: any = <HTMLElement>document.getElementById(mapDivId)
 
-        if(this._mapDiv != undefined){
-            this._mapDiv.innerHTML = "";
+        if(mapDiv == null){
+            return;
         }
+
+        mapDiv.innerHTML = "";
 
         this._mapDiv = mapDiv;
         this._canvas = document.createElement('canvas');

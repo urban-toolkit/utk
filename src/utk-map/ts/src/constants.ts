@@ -83,7 +83,8 @@ export enum PlotInteractionType{
 
 export enum ComponentIdentifier{
     MAP = "MAP",
-    GRAMMAR = "GRAMMAR"
+    GRAMMAR = "GRAMMAR",
+    TOGGLE_KNOT = "TOGGLE_KNOT"
 }
 
 /**

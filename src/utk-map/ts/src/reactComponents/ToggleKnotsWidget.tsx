@@ -1,18 +1,14 @@
-import React, { useState } from "react";
-// bootstrap component
+import React, { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 
-// VisWidget parameter types
-type layersWidProps = {
-    listLayers: string[],
-    knotToggle: React.Dispatch<React.SetStateAction<any>>
+// declaring the types of the props
+type ToggleKnotsWidgetProps = {
+    listLayers: string[]
+    obj: any // map 
 }
 
-export const LayersWidget = ({
-    listLayers,
-    knotToggle
-}:layersWidProps) =>{
-
+export const ToggleKnotsWidget = ({listLayers, obj}:ToggleKnotsWidgetProps) =>{
+   
     const [layersChecked, setLayersChecked] = useState<any>({});
 
     const toggleKnotChecked = (id:string) => {
@@ -35,14 +31,18 @@ export const LayersWidget = ({
         setLayersChecked(newObject);
     }   
 
-    return (
-        <div style={{maxHeight: "60%", overflowY: "auto", padding: "5px"}}>
+    return(
+      <React.Fragment>
+        <div className="d-flex align-items-center justify-content-center">
+            <div style={{overflowY: "auto", padding: "5px"}}>
                 {
                     listLayers.map((item) => (
                         // layersChecked[item] can also be undefined
-                        <Form.Check checked={layersChecked[item] == true || layersChecked[item] == undefined ? true : false} key={item} type="checkbox" label={item} id={'layer'+item} onChange={() => {toggleKnotChecked(item);knotToggle(item)}}/> 
+                        <Form.Check checked={layersChecked[item] == true || layersChecked[item] == undefined ? true : false} key={item} type="checkbox" label={item} id={'layer'+item} onChange={() => {toggleKnotChecked(item);obj.toggleKnot(item)}}/> 
                     ))
                 }
+            </div>
         </div>
-    );
+      </React.Fragment>
+    )
 }

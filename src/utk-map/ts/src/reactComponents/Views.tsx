@@ -3,6 +3,7 @@ import {Container, Row, Col} from 'react-bootstrap'
 import { GrammarPanelContainer } from './GrammarPanel';
 import { MapRendererContainer } from './MapRenderer';
 import { GenericScreenPlotContainer } from './GenericScreenPlotContainer';
+import { ToggleKnotsWidget } from './ToggleKnotsWidget';
 import { ComponentIdentifier} from '../constants';
 
 import * as d3 from "d3";
@@ -138,6 +139,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
     return {top: topPercentange*mainDivSize.height, left: leftPercentange*mainDivSize.width}
   }
 
+  // Executes after component rendered
   useEffect(() => {
     for(let i = 0; i < viewObjs.length; i++){
       let viewObj = viewObjs[i].obj;
@@ -152,71 +154,52 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
       <Row style={{margin: 0}}>
         {
           viewObjs.map((component, index) => {
-          if (component.type == ComponentIdentifier.MAP) {
-            return <React.Fragment key={viewIds[index]}>
-              <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
-                <MapRendererContainer
-                  obj = {component.obj}
-                  viewId={viewIds[index]}
-                  divWidth = {7}
-                  inputId = {inputBarId}
-                  systemMessages = {systemMessages}
-                  applyGrammarButtonId = {"applyGrammarButton"}
-                  genericScreenPlotToggle ={toggleGenericPlot}
-                  listPlots = {genericPlots}
-                  linkMapAndGrammarId = {"linkMapAndGrammar"}
-                  listLayers = {layersIds}
-                />
-              </div>
-            </React.Fragment>
-          } else if(component.type == ComponentIdentifier.GRAMMAR) {
-            return <React.Fragment key={viewIds[index]}>
-              <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
-                <GrammarPanelContainer 
-                  obj = {component.obj}
-                  viewId={viewIds[index]}
-                  initialGrammar={grammar}
-                  camera = {camera}
-                  filterKnots = {filterKnots}
-                  inputId = {inputBarId}
-                  setCamera = {setCamera}
-                  addNewMessage = {addNewMessage}
-                  applyGrammarButtonId = {"applyGrammarButton"}
-                  linkMapAndGrammarId = {"linkMapAndGrammar"}
-                />
-              </div>
-            </React.Fragment>
+            if (component.type == ComponentIdentifier.MAP) {
+              return <React.Fragment key={viewIds[index]}>
+                <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                  <MapRendererContainer
+                    obj = {component.obj}
+                    viewId={viewIds[index]}
+                    divWidth = {7}
+                    inputId = {inputBarId}
+                    systemMessages = {systemMessages}
+                    applyGrammarButtonId = {"applyGrammarButton"}
+                    genericScreenPlotToggle ={toggleGenericPlot}
+                    listPlots = {genericPlots}
+                    linkMapAndGrammarId = {"linkMapAndGrammar"}
+                  />
+                </div>
+              </React.Fragment>
+            } else if(component.type == ComponentIdentifier.GRAMMAR) {
+              return <React.Fragment key={viewIds[index]}>
+                <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                  <GrammarPanelContainer 
+                    obj = {component.obj}
+                    viewId={viewIds[index]}
+                    initialGrammar={grammar}
+                    camera = {camera}
+                    filterKnots = {filterKnots}
+                    inputId = {inputBarId}
+                    setCamera = {setCamera}
+                    addNewMessage = {addNewMessage}
+                    applyGrammarButtonId = {"applyGrammarButton"}
+                    linkMapAndGrammarId = {"linkMapAndGrammar"}
+                  />
+                </div>
+              </React.Fragment>
+            } else if(component.type == ComponentIdentifier.TOGGLE_KNOT){
+              return <React.Fragment key={viewIds[index]}>
+                <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                  <ToggleKnotsWidget
+                    obj = {component.obj}
+                    listLayers = {layersIds}
+                  />
+                </div>
+              </React.Fragment>
           }
           })
         }
 
-        {/* <Col md={5} style={{padding: "0"}}>
-          <GrammarPanelContainer 
-            obj = {viewObjs[1]}
-            initialGrammar={grammar}
-            camera = {camera}
-            filterKnots = {filterKnots}
-            inputId = {inputBarId}
-            setCamera = {setCamera}
-            addNewMessage = {addNewMessage}
-            applyGrammarButtonId = {"applyGrammarButton"}
-            linkMapAndGrammarId = {"linkMapAndGrammar"}
-          />
-        </Col> */}
-        {/* <Col md={7} style={{padding: 0}}>
-          <MapRendererContainer
-            obj = {viewObjs[0]}
-            viewId={viewIds[0]}
-            divWidth = {7}
-            inputId = {inputBarId}
-            systemMessages = {systemMessages}
-            applyGrammarButtonId = {"applyGrammarButton"}
-            genericScreenPlotToggle ={toggleGenericPlot}
-            listPlots = {genericPlots}
-            linkMapAndGrammarId = {"linkMapAndGrammar"}
-            listLayers = {layersIds}
-          />
-        </Col> */}
         {/* {
         genericPlots.map((item) => (
             <GenericScreenPlotContainer

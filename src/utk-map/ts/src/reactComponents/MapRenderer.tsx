@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {Col, Row, Button} from 'react-bootstrap'
 import { VisWidget } from "./VisWidget";
-import { LayersWidget } from "./LayersWidget";
 
 import './MapRenderer.css';
 
@@ -14,12 +13,11 @@ type MapRendererProps = {
     applyGrammarButtonId: string,
     genericScreenPlotToggle: React.Dispatch<React.SetStateAction<any>> | null,
     listPlots: {id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[],
-    listLayers: string[],
     linkMapAndGrammarId: string,
     inputId: string
 }
 
-export const MapRendererContainer = ({obj, viewId, divWidth, systemMessages, applyGrammarButtonId, listLayers, linkMapAndGrammarId, inputId}:MapRendererProps) =>{
+export const MapRendererContainer = ({obj, viewId, divWidth, systemMessages, applyGrammarButtonId, linkMapAndGrammarId, inputId}:MapRendererProps) =>{
 
     return(
       <React.Fragment>
@@ -58,26 +56,13 @@ export const MapRendererContainer = ({obj, viewId, divWidth, systemMessages, app
               </Col>
   
               <Col md={4} style={{padding: 0, margin: 0, height: "160px"}}>
-                <Row style={{padding: 0, margin: 0}}>
-                  <Col md={6} style={{padding: 0, margin: 0}}>
-                    <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
-                      {/* <VisWidget 
-                          genericScreenPlotToggle = {genericScreenPlotToggle}
-                          listPlots = {listPlots}
-                          modifyLabelPlot = {modifyLabelPlot}
-                        /> */}
-                    </div>
-                  </Col>
-                  
-                  <Col md={6} style={{padding: 0, margin: 0}}> 
-                    <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
-                      <LayersWidget 
-                        listLayers = {listLayers}
-                        knotToggle = {(id: string) => console.log(id)}                      
-                      />
-                    </div>
-                  </Col>
-                </Row>
+                <div className="d-flex align-items-center justify-content-center" style={{height: "160px"}}>
+                  {/* <VisWidget 
+                      genericScreenPlotToggle = {genericScreenPlotToggle}
+                      listPlots = {listPlots}
+                      modifyLabelPlot = {modifyLabelPlot}
+                    /> */}
+                </div>
               </Col>
   
             </Row>

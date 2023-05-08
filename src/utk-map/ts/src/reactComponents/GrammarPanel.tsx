@@ -251,7 +251,7 @@ export const GrammarPanelContainer = ({
         <React.Fragment>
             {showEditor && (
                 <>
-                <div className="my-editor" style={{height: "100vh", overflow: "auto", fontSize: "24px"}}>
+                <div className="my-editor" style={{overflow: "auto", fontSize: "24px"}}>
                 {/* <div className="my-editor"> */}
                     <VanillaJSONEditor
                     content={checkIfAddCameraAndFilter(grammar, camera, tempGrammar, filterKnots)}
