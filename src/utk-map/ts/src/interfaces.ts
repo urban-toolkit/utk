@@ -1,10 +1,10 @@
-import { LayerType, RenderStyle, ColorHEX, OperationType, ViewArrangementType, PlotArrangementType, SpatialRelationType, LevelType, InteractionType, PlotInteractionType } from "./constants";
+import { LayerType, RenderStyle, ColorHEX, OperationType, ViewArrangementType, PlotArrangementType, SpatialRelationType, LevelType, InteractionType, PlotInteractionType, WidgetType } from "./constants";
 
 /**
  * Interface for grammar
  */
 export interface IGrammar {
-    components: (IView | IGrammarView | IToggleKnotsWidget)[],
+    components: (IView | IGrammarView | IGenericWidget)[],
     arrangement: ViewArrangementType,
     grid: IGrid
 }
@@ -21,11 +21,17 @@ export interface IView{
     position: IComponentPosition
 }
 
-export interface IToggleKnotsWidget{
-    toggle_knots_widget: {
-        map_id: number,
-        position: IComponentPosition
-    }
+// export interface IToggleKnotsWidget{
+//     toggle_knots_widget: {
+//         map_id: number,
+//         position: IComponentPosition
+//     }
+// }
+
+export interface IGenericWidget{
+    type: WidgetType,
+    map_id?: number, // required to some widgets like toggle knots
+    position: IComponentPosition
 }
 
 export interface IGrammarView{

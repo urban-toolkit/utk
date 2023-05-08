@@ -326,8 +326,8 @@ class MapView {
 
     }
 
-    toggleKnot(id:string){
-        this._knotManager.toggleKnot(id);
+    toggleKnot(id:string, value: boolean | null = null){
+        this._knotManager.toggleKnot(id, value);
         this.render();
     }
 

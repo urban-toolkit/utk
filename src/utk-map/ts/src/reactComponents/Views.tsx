@@ -3,15 +3,16 @@ import {Container, Row, Col} from 'react-bootstrap'
 import { GrammarPanelContainer } from './GrammarPanel';
 import { MapRendererContainer } from './MapRenderer';
 import { GenericScreenPlotContainer } from './GenericScreenPlotContainer';
+import { AnimationWidget } from './AnimationWidget';
 import { ToggleKnotsWidget } from './ToggleKnotsWidget';
-import { ComponentIdentifier} from '../constants';
+import { ComponentIdentifier, WidgetType} from '../constants';
 
 import * as d3 from "d3";
 import { IComponentPosition, IGrammar, IGrid } from '../interfaces';
 
 // declaring the types of the props
 type ViewProps = {
-  viewObjs: {type: ComponentIdentifier, obj: any, position: IComponentPosition}[] // each view has a an object representing its logic
+  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition}[] // each view has a an object representing its logic
   viewIds: string[]
   grammar: IGrammar
   mainDivSize: {width: number, height: number}
@@ -149,6 +150,17 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
     }
   }, []);
 
+
+  const formatLayers = (layers: string[]) => {
+    let newObject:any = {};
+
+    for(const key of layers){
+        newObject[key] = true;  
+    }
+
+    return newObject;
+  }
+
   return (
     <React.Fragment>
       <Row style={{margin: 0}}>
@@ -187,16 +199,26 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                   />
                 </div>
               </React.Fragment>
-            } else if(component.type == ComponentIdentifier.TOGGLE_KNOT){
+            } else if(component.type == WidgetType.TOGGLE_KNOT){
               return <React.Fragment key={viewIds[index]}>
-                <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <div style={{backgroundColor: "#ffbfbf", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <ToggleKnotsWidget
                     obj = {component.obj}
                     listLayers = {layersIds}
                   />
                 </div>
               </React.Fragment>
-          }
+            }else if(component.type == WidgetType.ANIMATION){
+              return <React.Fragment key={viewIds[index]}>
+                <div style={{backgroundColor: "#bfffe5", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                  <AnimationWidget 
+                    listLayers = {formatLayers(layersIds)}
+                    fps = {5}
+                    obj = {component.obj}
+                  />
+                </div>
+              </React.Fragment>
+            }
           })
         }
 

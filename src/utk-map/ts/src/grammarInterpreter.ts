@@ -1,7 +1,7 @@
 /// <reference types="@types/webgl2" />
 
 import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot, IView, IComponentPosition } from './interfaces';
-import { PlotArrangementType, OperationType, SpatialRelationType, LevelType, ComponentIdentifier} from './constants';
+import { PlotArrangementType, OperationType, SpatialRelationType, LevelType, ComponentIdentifier, WidgetType} from './constants';
 import { Knot } from './knot';
 import { MapViewFactory } from './mapview';
 import { MapRendererContainer } from './reactComponents/MapRenderer';
@@ -15,7 +15,7 @@ class GrammarInterpreter {
     protected _preProcessedGrammar: IGrammar;
     protected _processedGrammar: IGrammar;
     protected _lastValidationTimestep: number;
-    protected _components: {type: ComponentIdentifier, obj: any, position: IComponentPosition}[] = [];
+    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition}[] = [];
     protected _frontEndCallback: any;
     protected _mainDiv: HTMLElement;
     protected _url: string;
@@ -45,8 +45,12 @@ class GrammarInterpreter {
 
         // toggle_knots_widget depends on maps
         for(const component of grammar.components){
-            if("toggle_knots_widget" in component){
-                this._components.push({type: ComponentIdentifier.TOGGLE_KNOT, obj: this._components[component.toggle_knots_widget.map_id].obj, position: component.toggle_knots_widget.position});
+            if("type" in component){
+                if(component.type == WidgetType.TOGGLE_KNOT){
+                    this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position});
+                }else if(component.type == WidgetType.ANIMATION){
+                    this._components.push({type: WidgetType.ANIMATION, obj: this._components[<number>component.map_id].obj, position: component.position});
+                }
             }
         }
        
@@ -56,6 +60,8 @@ class GrammarInterpreter {
     public validateGrammar(grammar: IGrammar){
 
         // TODO: checking conflicting types of interactions for the knots. One knot cannot be in plots with different arrangements
+
+        // TODO: ensure that the widgets have all the attributes they should have
 
         this._lastValidationTimestep = Date.now();
 

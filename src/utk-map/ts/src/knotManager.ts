@@ -20,10 +20,14 @@ export class KnotManager {
         return knot;
     }
 
-    toggleKnot(id: string){
+    toggleKnot(id: string, value: boolean | null = null){
         for(const knot of this._knots){
             if(knot.id == id){
-                knot.visible = !knot.visible;
+                if(value != null){
+                    knot.visible = value;
+                }else{
+                    knot.visible = !knot.visible;
+                }
             }
         }
     }
