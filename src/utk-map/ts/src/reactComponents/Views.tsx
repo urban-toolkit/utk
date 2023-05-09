@@ -150,7 +150,6 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
     }
   }, []);
 
-
   const formatLayers = (layers: string[]) => {
     let newObject:any = {};
 
@@ -215,6 +214,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                     listLayers = {formatLayers(layersIds)}
                     fps = {5}
                     obj = {component.obj}
+                    viewId = {viewIds[index]}
                   />
                 </div>
               </React.Fragment>
