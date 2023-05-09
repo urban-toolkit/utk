@@ -43,54 +43,42 @@ export const AnimationWidget = ({obj, listLayers, fps, viewId}:AnimationWidgetPr
 
             let children = div.childNodes;
 
-            console.log("children", children);
+            let knotsToConsider = [];
+            let allKnots = [];
 
             for (let i = 0; i < children.length; i++) {
                 const child = children[i] as HTMLElement;
             
                 let input = child.querySelectorAll("div input")[0] as HTMLInputElement;
+            
+                if(input.checked){
+                    knotsToConsider.push(input.id);
+                }
+
+                allKnots.push(input.id);
+
             }
 
-            // let layersCheckedKeys = Object.keys(listLayers);
+            let elapsedTime = Date.now() - initialTime;
+            let changeEvery = 1000/fps;
 
-            // if(layersCheckedKeys.length == 0){
-            //     layersCheckedKeys = Object.keys(listLayers);
-            // }
+            let layerToShow = '0';
 
-            // // console.log("layersCheckedKeys (interval)", layersCheckedKeys);
+            if(knotsToConsider.length-1 > 0){
+                layerToShow = knotsToConsider[Math.round((elapsedTime%(changeEvery*(knotsToConsider.length-1)))/changeEvery)];
+            }else{ // there is only one knot selected
+                layerToShow = knotsToConsider[0];
+            }
 
-            // let layersToConsider = [];
+            for(let i = 0; i < allKnots.length; i++){
+                let key = allKnots[i];
 
-            // for(let i = 0; i < layersCheckedKeys.length; i++){
-            //     let key = layersCheckedKeys[i];
-
-            //     if(Object.keys(layersChecked).length == 0){
-            //         if(listLayers[key]){
-            //             layersToConsider.push(key);
-            //         }
-            //     }else{
-            //         if(layersChecked[key]){
-            //             layersToConsider.push(key);
-            //         }
-            //     }
-
-            // }
-
-            // let elapsedTime = Date.now() - initialTime;
-            // let changeEvery = 1000/fps;
-
-            // let layerToShow = layersToConsider[Math.round((elapsedTime%(changeEvery*(layersToConsider.length-1)))/changeEvery)];
-
-            // for(let i = 0; i < layersCheckedKeys.length; i++){
-            //     let key = layersCheckedKeys[i];
-
-            //     if(key == layerToShow){
-            //         obj.toggleKnot(layerToShow, true);
-
-            //     }else{
-            //         obj.toggleKnot(key, false);
-            //     }
-            // }
+                if(key == layerToShow){
+                    obj.toggleKnot(layerToShow, true);
+                }else{
+                    obj.toggleKnot(key, false);
+                }
+            }
                 
         }, 100));
 
@@ -104,7 +92,7 @@ export const AnimationWidget = ({obj, listLayers, fps, viewId}:AnimationWidgetPr
                 {
                     Object.keys(listLayers).map((item: any) => (
                         // layersChecked[item] can also be undefined
-                        <Form.Check key={item} type="checkbox" label={item} id={'widget_'+viewId+'_layer_'+item} onChange={() => {toggleKnotChecked(item, listLayers);}}/> 
+                        <Form.Check key={item} type="checkbox" label={item} id={item} onChange={() => {toggleKnotChecked(item, listLayers);}}/> 
                     ))
                 }
             </div>
