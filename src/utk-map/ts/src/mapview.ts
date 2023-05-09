@@ -135,7 +135,7 @@ class MapView {
         this._updateStatusCallback = updateStatusCallback;
 
         this._layerManager = new LayerManager(this._updateStatusCallback, this);
-        this._knotManager = new KnotManager();
+        this._knotManager = new KnotManager(this._updateStatusCallback);
 
         if(this._knotVisibilityMonitor){
             clearInterval(this._knotVisibilityMonitor);

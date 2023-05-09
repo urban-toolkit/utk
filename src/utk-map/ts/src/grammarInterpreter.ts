@@ -43,13 +43,15 @@ class GrammarInterpreter {
             }
         }
 
-        // toggle_knots_widget depends on maps
+        // widgets that depend on maps
         for(const component of grammar.components){
             if("type" in component){
                 if(component.type == WidgetType.TOGGLE_KNOT){
                     this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position});
                 }else if(component.type == WidgetType.ANIMATION){
                     this._components.push({type: WidgetType.ANIMATION, obj: this._components[<number>component.map_id].obj, position: component.position});
+                } else if(component.type == WidgetType.RESOLUTION){
+                    this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position});
                 }
             }
         }

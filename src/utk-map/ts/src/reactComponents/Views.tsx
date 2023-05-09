@@ -5,6 +5,7 @@ import { MapRendererContainer } from './MapRenderer';
 import { GenericScreenPlotContainer } from './GenericScreenPlotContainer';
 import { AnimationWidget } from './AnimationWidget';
 import { ToggleKnotsWidget } from './ToggleKnotsWidget';
+import { ResolutionWidget } from './ResolutionWidget';
 import { ComponentIdentifier, WidgetType} from '../constants';
 
 import * as d3 from "d3";
@@ -24,6 +25,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
   const [filterKnots, setFilterKnots] = useState<number[]>([]);
   const [systemMessages, setSystemMessages] = useState<{text: string, color: string}[]>([]);
   const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
+  const [knotVisibility, setKnotVisibility] = useState<any>({});
   const [currentPlotId, setCurrentPlotId] = useState(0);
   const [layersIds, setLayersIds] = useState<string[]>([]);
   let inputBarId = "searchBar";
@@ -120,6 +122,8 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
       setGenericPlots(value);
     }else if(state == "layersIds"){
       setLayersIds(value);
+    }else if(state == "knotVisibility"){
+      setKnotVisibility(value);
     }else if(state == "containerGenerator"){
       return linkedContainerGenerator(value.n, value.names);
     }
@@ -203,7 +207,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                 <div style={{backgroundColor: "#ffbfbf", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <ToggleKnotsWidget
                     obj = {component.obj}
-                    listLayers = {layersIds}
+                    knotVisibility = {knotVisibility}
                   />
                 </div>
               </React.Fragment>
@@ -212,9 +216,19 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                 <div style={{backgroundColor: "#bfffe5", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <AnimationWidget 
                     listLayers = {formatLayers(layersIds)}
-                    fps = {5}
                     obj = {component.obj}
                     viewId = {viewIds[index]}
+                  />
+                </div>
+              </React.Fragment>
+            }else if(component.type == WidgetType.RESOLUTION){
+              return <React.Fragment key={viewIds[index]}>
+                <div style={{backgroundColor: "#cebfff", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                  <ResolutionWidget 
+                    listLayers = {layersIds}
+                    obj = {component.obj}
+                    viewId = {viewIds[index]}
+                    camera = {camera}
                   />
                 </div>
               </React.Fragment>

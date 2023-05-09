@@ -3,15 +3,22 @@ import { Form } from "react-bootstrap";
 
 type AnimationWidgetProps = {
     listLayers: any
-    fps: number
     obj: any // map 
     viewId: string
 }
 
-export const AnimationWidget = ({obj, listLayers, fps, viewId}:AnimationWidgetProps) =>{
+export const AnimationWidget = ({obj, listLayers, viewId}:AnimationWidgetProps) =>{
 
     const [initialTime, setInitialTime] = useState<number>(Date.now());
     const [knotVisibilityMonitor, setKnotVisibilityMonitor] = useState<any>();
+
+    const [fps, _setFps] = useState<number>(5);
+
+    const fpsRef = useRef(fps);
+    const setFps = (data: any) => {
+        fpsRef.current = data;
+        _setFps(data);
+    };
 
     const toggleKnotChecked = (id:string, values: any) => {
         let newObject:any = {};
@@ -59,16 +66,18 @@ export const AnimationWidget = ({obj, listLayers, fps, viewId}:AnimationWidgetPr
 
             }
 
+            if(knotsToConsider.length == 0) // should not do any animation
+                return
+
             let elapsedTime = Date.now() - initialTime;
-            let changeEvery = 1000/fps;
 
-            let layerToShow = '0';
+            let changeEvery = 1000/fpsRef.current;
 
-            if(knotsToConsider.length-1 > 0){
-                layerToShow = knotsToConsider[Math.round((elapsedTime%(changeEvery*(knotsToConsider.length-1)))/changeEvery)];
-            }else{ // there is only one knot selected
-                layerToShow = knotsToConsider[0];
+            let indexLayer = Math.round((elapsedTime%(changeEvery*(knotsToConsider.length)))/changeEvery);
+            if(indexLayer > knotsToConsider.length-1){
+                indexLayer = 0;
             }
+            let layerToShow = knotsToConsider[indexLayer];
 
             for(let i = 0; i < allKnots.length; i++){
                 let key = allKnots[i];
@@ -80,7 +89,7 @@ export const AnimationWidget = ({obj, listLayers, fps, viewId}:AnimationWidgetPr
                 }
             }
                 
-        }, 100));
+        }, 50));
 
     }, []);
 
@@ -91,10 +100,13 @@ export const AnimationWidget = ({obj, listLayers, fps, viewId}:AnimationWidgetPr
             <div id={"animation_widget_"+viewId} style={{overflowY: "auto", padding: "5px"}}>
                 {
                     Object.keys(listLayers).map((item: any) => (
-                        // layersChecked[item] can also be undefined
                         <Form.Check key={item} type="checkbox" label={item} id={item} onChange={() => {toggleKnotChecked(item, listLayers);}}/> 
                     ))
                 }
+                <Form.Group>
+                    <Form.Label>FPS</Form.Label>
+                    <Form.Control type="number" onChange={(e) => {if(e.target.value != ''){setFps(parseInt(e.target.value))}}}/>
+                </Form.Group>
             </div>
         </div>
       </React.Fragment>

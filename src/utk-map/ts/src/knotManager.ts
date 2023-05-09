@@ -6,8 +6,11 @@ import { Layer } from "./layer";
 export class KnotManager {
 
     protected _knots: Knot[] = [];
+    protected _updateStatusCallback: any;
 
-    constructor() {
+
+    constructor(updateStatusCallback: any) {
+        this._updateStatusCallback = updateStatusCallback;
     }
 
     get knots(): Knot[] {
@@ -17,10 +20,14 @@ export class KnotManager {
     createKnot(id: string, physicalLayer: Layer, knotSpecification: IKnot, grammarInterpreter: any, viewId: number, visible: boolean, map:any): Knot {
         let knot = new Knot(id, physicalLayer, knotSpecification, grammarInterpreter, viewId, visible, map);
         this._knots.push(knot);
+        this.toggleKnot(""); // just to update the knots in the view
         return knot;
     }
 
     toggleKnot(id: string, value: boolean | null = null){
+
+        let knotVisibility: any = {};
+
         for(const knot of this._knots){
             if(knot.id == id){
                 if(value != null){
@@ -29,7 +36,10 @@ export class KnotManager {
                     knot.visible = !knot.visible;
                 }
             }
+            knotVisibility[knot.id] = knot.visible;
         }
+
+        this._updateStatusCallback("knotVisibility", knotVisibility);
     }
 
     getKnotById(knotId: string){
