@@ -185,7 +185,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                   />
                 </div>
               </React.Fragment>
-            } else if(component.type == ComponentIdentifier.GRAMMAR) {
+            } else if(component.type == WidgetType.GRAMMAR) {
               return <React.Fragment key={viewIds[index]}>
                 <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <GrammarPanelContainer 

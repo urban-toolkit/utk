@@ -327,6 +327,7 @@ class MapView {
     }
 
     toggleKnot(id:string, value: boolean | null = null){
+        console.log("toggle", id, value);
         this._knotManager.toggleKnot(id, value);
         this.render();
     }

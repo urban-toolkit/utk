@@ -4,7 +4,7 @@ import { LayerType, RenderStyle, ColorHEX, OperationType, ViewArrangementType, P
  * Interface for grammar
  */
 export interface IGrammar {
-    components: (IView | IGrammarView | IGenericWidget)[],
+    components: (IView | IGenericWidget)[],
     arrangement: ViewArrangementType,
     grid: IGrid
 }
@@ -32,12 +32,6 @@ export interface IGenericWidget{
     type: WidgetType,
     map_id?: number, // required to some widgets like toggle knots
     position: IComponentPosition
-}
-
-export interface IGrammarView{
-    grammar_editor: {
-        position: IComponentPosition
-    }
 }
 
 export interface IComponentPosition{

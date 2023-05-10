@@ -38,8 +38,8 @@ class GrammarInterpreter {
         for(const component of grammar.components){
             if("map" in component){ // It is a map view
                 this._components.push({type: ComponentIdentifier.MAP, obj: MapViewFactory.getInstance(mainDiv, this), position: component.position});
-            }else if("grammar_editor" in component){ // It is a grammar editor
-                this._components.push({type: ComponentIdentifier.GRAMMAR, obj: this, position: component.grammar_editor.position});
+            }else if("type" in component && component.type == WidgetType.GRAMMAR){ // It is a grammar editor
+                this._components.push({type: WidgetType.GRAMMAR, obj: this, position: component.position});
             }
         }
 

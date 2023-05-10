@@ -1,4 +1,4 @@
-import { IGrammar, IGrammarView, IPlotArgs, IView } from './interfaces';
+import { IGrammar, IPlotArgs, IView } from './interfaces';
 import { PlotInteractionType, PlotArrangementType } from './constants';
 import {radians} from './utils';
 
