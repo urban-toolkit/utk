@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
+import {Container, Row, Col} from 'react-bootstrap'
 
 import './ResolutionWidget.css';
 
@@ -12,11 +13,44 @@ type ResolutionWidgetProps = {
 
 export const ResolutionWidget = ({obj, listLayers, viewId, camera}:ResolutionWidgetProps) =>{
 
-    return(
-      <React.Fragment>
-        <div className="d-flex align-items-center justify-content-center">
-            <p>Resolution</p>
+  const [checkedLayers, setCheckedLayers] = useState<string[]>([]);
+
+  const updateCheckedLayers = (id: string) => {
+
+    let newCheckedLayers = [];
+
+    for(const layer of checkedLayers){
+      if(layer != id){
+        newCheckedLayers.push(layer);
+      }
+    }
+
+    if(!checkedLayers.includes(id)){ // add
+      newCheckedLayers.push(id);
+    }
+
+    setCheckedLayers(newCheckedLayers);
+  }
+
+  return(
+    <React.Fragment>
+      <Row style={{margin: 0}}>
+        <div style={{height: "60px", overflowY: "auto", padding: "5px"}} id={"resolution_widget_"+viewId}>
+            {
+                listLayers.map((item) => (
+                    <Form.Check key={item} type="checkbox" label={item} id={'resolution_'+item} onChange={() => {updateCheckedLayers(item)}}/> 
+                ))
+            }
+            
         </div>
-      </React.Fragment>
-    )
+        <ul>
+          {
+              checkedLayers.map((item) => (
+                <li key={item}>{item}</li>
+              ))
+          }
+        </ul>
+      </Row>
+    </React.Fragment>
+  )
 }
