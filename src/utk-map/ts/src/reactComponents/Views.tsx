@@ -6,14 +6,16 @@ import { GenericScreenPlotContainer } from './GenericScreenPlotContainer';
 import { AnimationWidget } from './AnimationWidget';
 import { ToggleKnotsWidget } from './ToggleKnotsWidget';
 import { ResolutionWidget } from './ResolutionWidget';
+import { SearchWidget } from './SearchWidget';
 import { ComponentIdentifier, WidgetType} from '../constants';
 
 import * as d3 from "d3";
 import { IComponentPosition, IGrammar, IGrid } from '../interfaces';
+import './View.css';
 
 // declaring the types of the props
 type ViewProps = {
-  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition}[] // each view has a an object representing its logic
+  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined}[] // each view has a an object representing its logic
   viewIds: string[]
   grammar: IGrammar
   mainDivSize: {width: number, height: number}
@@ -133,7 +135,9 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
     let widthPercentage = (position.width[1]+1-position.width[0])/grammar.grid.width;
     let heightPercentage = (position.height[1]+1-position.height[0])/grammar.grid.height;
 
-    return {width: widthPercentage*mainDivSize.width, height: heightPercentage*mainDivSize.height};
+    let margin = 14;
+
+    return {width: widthPercentage*mainDivSize.width-margin, height: heightPercentage*mainDivSize.height-margin};
   }
 
   const getTopLeft = (position: IComponentPosition) => {
@@ -141,7 +145,9 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
     let leftPercentange = (position.width[0]-1)/grammar.grid.width;
     let topPercentange = (position.height[0]-1)/grammar.grid.height;
 
-    return {top: topPercentange*mainDivSize.height, left: leftPercentange*mainDivSize.width}
+    let margin = 14;
+
+    return {top: topPercentange*mainDivSize.height+(margin/2), left: leftPercentange*mainDivSize.width+(margin/2)}
   }
 
   // Executes after component rendered
@@ -166,28 +172,21 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
 
   return (
     <React.Fragment>
-      <Row style={{margin: 0}}>
+      <div style={{backgroundColor: "#EAEAEA", height: "100%", width: "100%"}}>
         {
           viewObjs.map((component, index) => {
             if (component.type == ComponentIdentifier.MAP) {
               return <React.Fragment key={viewIds[index]}>
-                <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <div className='component' style={{padding: 0, position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <MapRendererContainer
                     obj = {component.obj}
                     viewId={viewIds[index]}
-                    divWidth = {7}
-                    inputId = {inputBarId}
-                    systemMessages = {systemMessages}
-                    applyGrammarButtonId = {"applyGrammarButton"}
-                    genericScreenPlotToggle ={toggleGenericPlot}
-                    listPlots = {genericPlots}
-                    linkMapAndGrammarId = {"linkMapAndGrammar"}
                   />
                 </div>
               </React.Fragment>
             } else if(component.type == WidgetType.GRAMMAR) {
               return <React.Fragment key={viewIds[index]}>
-                <div style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <GrammarPanelContainer 
                     obj = {component.obj}
                     viewId={viewIds[index]}
@@ -204,7 +203,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
               </React.Fragment>
             } else if(component.type == WidgetType.TOGGLE_KNOT){
               return <React.Fragment key={viewIds[index]}>
-                <div style={{backgroundColor: "#ffbfbf", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <ToggleKnotsWidget
                     obj = {component.obj}
                     knotVisibility = {knotVisibility}
@@ -213,7 +212,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
               </React.Fragment>
             }else if(component.type == WidgetType.ANIMATION){
               return <React.Fragment key={viewIds[index]}>
-                <div style={{backgroundColor: "#bfffe5", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <AnimationWidget 
                     listLayers = {formatLayers(layersIds)}
                     obj = {component.obj}
@@ -223,7 +222,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
               </React.Fragment>
             }else if(component.type == WidgetType.RESOLUTION){
               return <React.Fragment key={viewIds[index]}>
-                <div style={{backgroundColor: "#cebfff", position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <ResolutionWidget 
                     listLayers = {layersIds}
                     obj = {component.obj}
@@ -232,10 +231,20 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                   />
                 </div>
               </React.Fragment>
+            }else if(component.type == WidgetType.SEARCH){
+              return <React.Fragment key={viewIds[index]}>
+                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+                  <SearchWidget 
+                    obj = {component.obj}
+                    viewId = {viewIds[index]}
+                    inputId = {inputBarId}
+                  />
+                </div>
+              </React.Fragment>
             }
           })
         }
-
+      </div>
         {/* {
         genericPlots.map((item) => (
             <GenericScreenPlotContainer
@@ -245,7 +254,6 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
             />
         ))
         } */}
-      </Row>
     </React.Fragment>
   );
 }

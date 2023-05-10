@@ -15,7 +15,7 @@ class GrammarInterpreter {
     protected _preProcessedGrammar: IGrammar;
     protected _processedGrammar: IGrammar;
     protected _lastValidationTimestep: number;
-    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition}[] = [];
+    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title:string | undefined, subtitle: string | undefined}[] = [];
     protected _frontEndCallback: any;
     protected _mainDiv: HTMLElement;
     protected _url: string;
@@ -37,9 +37,9 @@ class GrammarInterpreter {
 
         for(const component of grammar.components){
             if("map" in component){ // It is a map view
-                this._components.push({type: ComponentIdentifier.MAP, obj: MapViewFactory.getInstance(mainDiv, this), position: component.position});
+                this._components.push({type: ComponentIdentifier.MAP, obj: MapViewFactory.getInstance(mainDiv, this), position: component.position, title: undefined, subtitle: undefined});
             }else if("type" in component && component.type == WidgetType.GRAMMAR){ // It is a grammar editor
-                this._components.push({type: WidgetType.GRAMMAR, obj: this, position: component.position});
+                this._components.push({type: WidgetType.GRAMMAR, obj: this, position: component.position, title: component.title, subtitle: component.subtitle});
             }
         }
 
@@ -47,11 +47,13 @@ class GrammarInterpreter {
         for(const component of grammar.components){
             if("type" in component){
                 if(component.type == WidgetType.TOGGLE_KNOT){
-                    this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position});
+                    this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
                 }else if(component.type == WidgetType.ANIMATION){
-                    this._components.push({type: WidgetType.ANIMATION, obj: this._components[<number>component.map_id].obj, position: component.position});
+                    this._components.push({type: WidgetType.ANIMATION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
                 } else if(component.type == WidgetType.RESOLUTION){
-                    this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position});
+                    this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
+                }else if(component.type == WidgetType.SEARCH){
+                    this._components.push({type: WidgetType.SEARCH, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
                 }
             }
         }

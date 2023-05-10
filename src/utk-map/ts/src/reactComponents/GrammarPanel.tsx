@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 // import { createAndRunMap, emptyMainDiv } from "../../../../App";
 import VanillaJSONEditor from "./VanillaJSONEditor";
+import {Col, Row, Button} from 'react-bootstrap';
 
 import * as d3 from "d3";
 
@@ -251,7 +252,7 @@ export const GrammarPanelContainer = ({
         <React.Fragment>
             {showEditor && (
                 <>
-                <div className="my-editor" style={{overflow: "auto", fontSize: "24px"}}>
+                <div className="my-editor" style={{overflow: "auto", fontSize: "24px", height: "max(90%,calc(100% - 40px))"}}>
                 {/* <div className="my-editor"> */}
                     <VanillaJSONEditor
                     content={checkIfAddCameraAndFilter(grammar, camera, tempGrammar, filterKnots)}
@@ -260,6 +261,12 @@ export const GrammarPanelContainer = ({
                     mode={'text'}
                     indentation={4}
                     />
+                    
+                </div>
+                <div className="d-flex align-items-center justify-content-center" style={{overflow: "auto", height: "min(10%, 40px)"}}>
+                    <Button variant="secondary" id={applyGrammarButtonId} style={{marginRight: "10px"}}>Apply Grammar</Button>
+                    <input name="linkMapAndGrammar" type="checkbox" id={linkMapAndGrammarId} style={{marginRight: "5px"}}></input>
+                    <label htmlFor="linkMapAndGrammar">Link</label>
                 </div>
                 </>
             )}

@@ -90,7 +90,8 @@ export enum WidgetType{
     TOGGLE_KNOT = "TOGGLE_KNOT",
     ANIMATION = "ANIMATION",
     RESOLUTION = "RESOLUTION",
-    GRAMMAR = "GRAMMAR"
+    GRAMMAR = "GRAMMAR",
+    SEARCH = "SEARCH"
 }
 
 /**

@@ -31,6 +31,8 @@ export interface IView{
 export interface IGenericWidget{
     type: WidgetType,
     map_id?: number, // required to some widgets like toggle knots
+    title?: string,
+    subtitle?: string,
     position: IComponentPosition
 }
 
