@@ -59,6 +59,10 @@ export class Knot {
         return this._physicalLayer;
     }
 
+    get knotSpecification(){
+        return this._knotSpecification;
+    }
+
     set visible(visible: boolean){
         this._visible = visible;
     }

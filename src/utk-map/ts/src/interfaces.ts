@@ -47,9 +47,15 @@ export interface IPlotArgs{
 
 export interface IKnot {
     id: string,
+    group?: IKnotGroup,
     knotOp?: boolean,
     colorMap?: string | IConditionBlock,
     integration_scheme: ILinkDescription[],
+}
+
+export interface IKnotGroup{
+    group_name: string,
+    position: number
 }
 
 export interface ILinkDescription {

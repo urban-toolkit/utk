@@ -5,13 +5,15 @@ import {Container, Row, Col} from 'react-bootstrap'
 import './ResolutionWidget.css';
 
 type ResolutionWidgetProps = {
-    listLayers: string[]
     obj: any // map 
+    listLayers: string[]
     viewId: string
     camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}
+    title: string | undefined
+    subtitle: string | undefined
 }
 
-export const ResolutionWidget = ({obj, listLayers, viewId, camera}:ResolutionWidgetProps) =>{
+export const ResolutionWidget = ({obj, listLayers, viewId, camera, title, subtitle}:ResolutionWidgetProps) =>{
 
   const [checkedLayers, setCheckedLayers] = useState<string[]>([]);
   const [knotVisibilityMonitor, setKnotVisibilityMonitor] = useState<any>();
@@ -138,6 +140,8 @@ export const ResolutionWidget = ({obj, listLayers, viewId, camera}:ResolutionWid
 
   return(
     <React.Fragment>
+      {title != undefined ? <p>{title}</p> : <></>}
+      {subtitle != undefined ? <p>{subtitle}</p> : <></>}
       <Row style={{margin: 0}}>
         <div style={{height: "60px", overflowY: "auto", padding: "5px"}} id={"resolution_widget_"+viewId}>
             {
@@ -145,7 +149,6 @@ export const ResolutionWidget = ({obj, listLayers, viewId, camera}:ResolutionWid
                     <Form.Check key={item} type="checkbox" label={item} id={'resolution_'+item} onChange={() => {updateCheckedLayers(item)}}/> 
                 ))
             }
-            
         </div>
         <ul>
           {

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {Container, Row, Col} from 'react-bootstrap'
 import { GrammarPanelContainer } from './GrammarPanel';
 import { MapRendererContainer } from './MapRenderer';
@@ -8,6 +8,9 @@ import { ToggleKnotsWidget } from './ToggleKnotsWidget';
 import { ResolutionWidget } from './ResolutionWidget';
 import { SearchWidget } from './SearchWidget';
 import { ComponentIdentifier, WidgetType} from '../constants';
+
+import Draggable from "react-draggable";
+import './Dragbox.css'
 
 import * as d3 from "d3";
 import { IComponentPosition, IGrammar, IGrid } from '../interfaces';
@@ -29,8 +32,10 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
   const [genericPlots, setGenericPlots] = useState<{id: number, hidden: boolean, svgId: string, label: string, checked: boolean, edit: boolean}[]>([]);
   const [knotVisibility, setKnotVisibility] = useState<any>({});
   const [currentPlotId, setCurrentPlotId] = useState(0);
-  const [layersIds, setLayersIds] = useState<string[]>([]);
+  const [layersIds, setLayersIds] = useState<any>({});
   let inputBarId = "searchBar";
+
+  const nodeRef = useRef(null);
 
   const addNewMessage = (msg: string, color: string) => {
     setSystemMessages([{text: msg, color: color}]);
@@ -206,41 +211,50 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                 <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <ToggleKnotsWidget
                     obj = {component.obj}
+                    listLayers = {layersIds}
                     knotVisibility = {knotVisibility}
+                    title = {component.title}
+                    subtitle = {component.subtitle}
                   />
                 </div>
               </React.Fragment>
             }else if(component.type == WidgetType.ANIMATION){
-              return <React.Fragment key={viewIds[index]}>
-                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
-                  <AnimationWidget 
-                    listLayers = {formatLayers(layersIds)}
-                    obj = {component.obj}
-                    viewId = {viewIds[index]}
-                  />
-                </div>
-              </React.Fragment>
+              // return <React.Fragment key={viewIds[index]}>
+              //   <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+              //     <AnimationWidget 
+              //       listLayers = {formatLayers(layersIds)}
+              //       obj = {component.obj}
+              //       viewId = {viewIds[index]}
+              //       title = {component.title}
+              //       subtitle = {component.subtitle}
+              //     />
+              //   </div>
+              // </React.Fragment>
             }else if(component.type == WidgetType.RESOLUTION){
-              return <React.Fragment key={viewIds[index]}>
-                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
-                  <ResolutionWidget 
-                    listLayers = {layersIds}
-                    obj = {component.obj}
-                    viewId = {viewIds[index]}
-                    camera = {camera}
-                  />
-                </div>
-              </React.Fragment>
+              // return <React.Fragment key={viewIds[index]}>
+              //   <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+              //     <ResolutionWidget 
+              //       listLayers = {layersIds}
+              //       obj = {component.obj}
+              //       viewId = {viewIds[index]}
+              //       camera = {camera}
+              //       title = {component.title}
+              //       subtitle = {component.subtitle}
+              //     />
+              //   </div>
+              // </React.Fragment>
             }else if(component.type == WidgetType.SEARCH){
-              return <React.Fragment key={viewIds[index]}>
-                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
+              return <Draggable nodeRef={nodeRef} key={viewIds[index]} defaultPosition={{x: getTopLeft(component.position).left+15, y: getTopLeft(component.position).top+15}}>
+                <div ref={nodeRef} className="drag-box">
                   <SearchWidget 
                     obj = {component.obj}
                     viewId = {viewIds[index]}
                     inputId = {inputBarId}
+                    title = {component.title}
+                    subtitle = {component.subtitle}
                   />
                 </div>
-              </React.Fragment>
+              </Draggable>
             }
           })
         }

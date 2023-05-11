@@ -53,7 +53,7 @@ class GrammarInterpreter {
                 } else if(component.type == WidgetType.RESOLUTION){
                     this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
                 }else if(component.type == WidgetType.SEARCH){
-                    this._components.push({type: WidgetType.SEARCH, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
+                    this._components.push({type: WidgetType.SEARCH, obj: this._components[<number>component.map_id].obj, position: this._components[<number>component.map_id].position, title: component.title, subtitle: component.subtitle});
                 }
             }
         }

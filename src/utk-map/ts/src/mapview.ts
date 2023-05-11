@@ -159,15 +159,42 @@ class MapView {
 
         this.initKnots();
 
-        let knotsToList: string[] = [];
+        let knotsGroups: any = {};
 
         for(const knot of this._knotManager.knots){
-            if(knot.visible){
-                knotsToList.push(knot.id);
+
+            let knotSpecification = knot.knotSpecification;
+
+            if(knotSpecification.group != undefined){
+                if(!(knotSpecification.group.group_name in knotsGroups)){
+                    knotsGroups[knotSpecification.group.group_name] = [{
+                        id: knot.id,
+                        position: knotSpecification.group.position
+                    }];
+                }else{
+                    knotsGroups[knotSpecification.group.group_name].push({
+                        id: knot.id,
+                        position: knotSpecification.group.position
+                    });
+                }
+            }else{
+                knotsGroups[knot.id] = [knot.id]; // group of single knot
+            }
+
+        }
+
+        for(const group of Object.keys(knotsGroups)){
+            if(knotsGroups[group].length > 1){
+                knotsGroups[group].sort((a: any,b: any) => {a.position - b.position});
+                let ids = [];
+                for(const element of knotsGroups[group]){
+                    ids.push(element.id);
+                }
+                knotsGroups[group] = ids;
             }
         }
 
-        this._updateStatusCallback("layersIds", knotsToList);
+        this._updateStatusCallback("layersIds", knotsGroups);
 
         this.initGrammarManager(this._grammarInterpreter.getProcessedGrammar());
 

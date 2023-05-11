@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 
 type AnimationWidgetProps = {
-    listLayers: any
     obj: any // map 
+    listLayers: any
     viewId: string
+    title: string | undefined
+    subtitle: string | undefined
 }
 
-export const AnimationWidget = ({obj, listLayers, viewId}:AnimationWidgetProps) =>{
+export const AnimationWidget = ({obj, listLayers, viewId, title, subtitle}:AnimationWidgetProps) =>{
 
     const [initialTime, setInitialTime] = useState<number>(Date.now());
     const [knotVisibilityMonitor, setKnotVisibilityMonitor] = useState<any>();
@@ -95,6 +97,8 @@ export const AnimationWidget = ({obj, listLayers, viewId}:AnimationWidgetProps) 
 
     return(
       <React.Fragment>
+        {title != undefined ? <p>{title}</p> : <></>}
+        {subtitle != undefined ? <p>{subtitle}</p> : <></>}
         <div className="d-flex align-items-center justify-content-center">
             <p>Animation</p>
             <div id={"animation_widget_"+viewId} style={{overflowY: "auto", padding: "5px"}}>

@@ -205,3 +205,30 @@ In this example there are two components: a map and a grammar editor. The grid i
 
 
 ### Toggle Knots Widget
+
+### Groupping knots
+
+Knots can be groupped by assigning a group name and a position of the knot inside the group.
+
+{
+    "id": "wrfToSurface_d02_2016-07-01_t0",
+    "group": {
+        "group_name": "wrf",
+        "position": 0 
+    },
+    "integration_scheme": [
+        {
+            "spatial_relation": "NEAREST",
+            "out": {
+                "name": "surface_wrf_d02_2016-07-01_t0",
+                "level": "COORDINATES"
+            },
+            "in": {
+                "name": "wrf_d02_2016-07-01_t0",
+                "level": "COORDINATES"
+            },
+            "operation": "NONE",
+            "abstract": true
+        }
+    ]
+},
