@@ -166,7 +166,7 @@ class Camera {
     
         this._updateStatusCallback("camera", {position: [this.wOrigin[0], this.wOrigin[1], this.wEye[2]/1000], direction: {right: [this.wEye[0], this.wEye[1], this.wEye[2]], lookAt: [this.wLookAt[0], this.wLookAt[1], this.wLookAt[2]], up: [this.wUp[0], this.wUp[1], this.wUp[2]]}});
     }
-
+    
     getZoomLevel(){
         return this.wEye[2]/1000;
     }

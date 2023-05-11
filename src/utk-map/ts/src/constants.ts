@@ -88,7 +88,6 @@ export enum ComponentIdentifier{
 
 export enum WidgetType{
     TOGGLE_KNOT = "TOGGLE_KNOT",
-    ANIMATION = "ANIMATION",
     RESOLUTION = "RESOLUTION",
     GRAMMAR = "GRAMMAR",
     SEARCH = "SEARCH"

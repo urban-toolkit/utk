@@ -3,7 +3,6 @@ import {Container, Row, Col} from 'react-bootstrap'
 import { GrammarPanelContainer } from './GrammarPanel';
 import { MapRendererContainer } from './MapRenderer';
 import { GenericScreenPlotContainer } from './GenericScreenPlotContainer';
-import { AnimationWidget } from './AnimationWidget';
 import { ToggleKnotsWidget } from './ToggleKnotsWidget';
 import { ResolutionWidget } from './ResolutionWidget';
 import { SearchWidget } from './SearchWidget';
@@ -219,18 +218,6 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                   />
                 </div>
               </React.Fragment>
-            }else if(component.type == WidgetType.ANIMATION){
-              // return <React.Fragment key={viewIds[index]}>
-              //   <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
-              //     <AnimationWidget 
-              //       listLayers = {formatLayers(layersIds)}
-              //       obj = {component.obj}
-              //       viewId = {viewIds[index]}
-              //       title = {component.title}
-              //       subtitle = {component.subtitle}
-              //     />
-              //   </div>
-              // </React.Fragment>
             }else if(component.type == WidgetType.RESOLUTION){
               // return <React.Fragment key={viewIds[index]}>
               //   <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
@@ -246,7 +233,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
               // </React.Fragment>
             }else if(component.type == WidgetType.SEARCH){
               return <Draggable nodeRef={nodeRef} key={viewIds[index]} defaultPosition={{x: getTopLeft(component.position).left+15, y: getTopLeft(component.position).top+15}}>
-                <div ref={nodeRef} className="drag-box">
+                <div ref={nodeRef} className="drag-box" style={{borderRadius: "8px 8px 8px 8px"}}>
                   <SearchWidget 
                     obj = {component.obj}
                     viewId = {viewIds[index]}

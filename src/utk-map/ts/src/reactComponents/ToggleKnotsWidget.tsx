@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 import Slider from '@mui/material/Slider';
-import Box from "@mui/material/Box";
+import {Row, Col} from 'react-bootstrap';
 
 // declaring the types of the props
 type ToggleKnotsWidgetProps = {
@@ -199,32 +199,43 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
 
     return(
       <React.Fragment>
-        {title != undefined ? <p>{title}</p> : <></>}
-        {subtitle != undefined ? <p>{subtitle}</p> : <></>}
-        <div className="d-flex align-items-center justify-content-center">
-            <div style={{overflowY: "auto", padding: "5px"}} id={"toggle_widget_"+viewId}>
-                {
-                    Object.keys(listLayers).map((item) => (
-                        <React.Fragment key={item+"_fragment"}>
-                            <Form.Check key={item+"_check"} checked={groupVisibility(listLayers, knotVisibility, item)} type="checkbox" label={item} id={item} onChange={() => {toggleGroup(listLayers, knotVisibility, item)}}/> 
+        {title != undefined ? <div style={{margin: "4px", height: "13%", display: "flex", alignItems: "center"}}><p style={{fontWeight: "bold", fontSize: "20px"}}>{title}</p></div> : <></>}
+        {subtitle != undefined ? <div style={{marginBottom: "4px", height: "5%"}}><p style={{color: "#bfbec2", fontSize: "16px", fontWeight: "bold"}}>{subtitle}</p></div> : <></>}
+        {/* <div className="d-flex align-items-center justify-content-center"> */}
+        <div style={{overflowY: "auto", overflowX: "clip", height: "73%", padding: "10px"}} id={"toggle_widget_"+viewId}>
+            {
+                Object.keys(listLayers).map((item, index) => (
+                    <React.Fragment key={item+"_fragment"}>
+                        <Row style={{paddingTop: "10px", paddingBottom: "10px", borderBottom: '1px solid #e2e1e6'}} className="align-items-center">
+                            <Col>
+                                <Form.Check key={item+"_check"} checked={groupVisibility(listLayers, knotVisibility, item)} type="checkbox" label={item} id={item} onChange={() => {toggleGroup(listLayers, knotVisibility, item)}}/> 
+                            </Col>
                             {
                                 listLayers[item].length > 1 ?
-                                <Slider
-                                    key={item+"_slider"}
-                                    defaultValue={0}
-                                    valueLabelDisplay="off"
-                                    step={Math.round((1/listLayers[item].length)*100)}
-                                    marks = {getMarks(listLayers[item])}
-                                    onChange={(e) => {handleChangeSlides(e, item, Math.round((1/listLayers[item].length)*100))}}
-                                    disabled = {!groupVisibility(listLayers, knotVisibility, item)}
-                                /> : <></>
+                                <Col>
+                                    <Row style={{padding: 0}} className="align-items-center">
+                                        <Col md={9}>
+                                            <Slider
+                                                key={item+"_slider"}
+                                                defaultValue={0}
+                                                valueLabelDisplay="off"
+                                                step={Math.round((1/listLayers[item].length)*100)}
+                                                marks = {getMarks(listLayers[item])}
+                                                onChange={(e) => {handleChangeSlides(e, item, Math.round((1/listLayers[item].length)*100))}}
+                                                disabled = {!groupVisibility(listLayers, knotVisibility, item)}
+                                            />
+                                        </Col>
+                                        <Col md={3} style={{paddingLeft: 0}}>
+                                            <Form.Control placeholder="FPS" type="text" onChange={(e) => {if(e.target.value != ''){setFps(parseInt(e.target.value))}}}/>
+                                        </Col>
+                                </Row></Col> : <></>
                             }
-                        </React.Fragment>
-                    ))
-                }
-            </div>
-            
+                        </Row>
+                    </React.Fragment>
+                ))
+            }
         </div>
+            
       </React.Fragment>
     )
 }

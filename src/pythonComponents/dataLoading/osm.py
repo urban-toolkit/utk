@@ -8,7 +8,7 @@ import errors
 import re
 import time
 import cache
-# import vedo
+import vedo
 import osmium as o
 import subprocess
 import pyproj

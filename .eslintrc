@@ -3,7 +3,8 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint",
-    "jsx-a11y"
+    "jsx-a11y",
+    "react-hooks"
   ],
   "extends": [
     "eslint:recommended",
@@ -37,7 +38,9 @@
     "no-prototype-builtins": "off",
     "no-mixed-spaces-and-tabs": "off",
     "@typescript-eslint/no-this-alias": "off",
-    "@typescript-eslint/no-var-requires": "off"
+    "@typescript-eslint/no-var-requires": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   },
   "env": {
     "browser": true,

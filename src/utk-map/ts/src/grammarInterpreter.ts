@@ -48,9 +48,7 @@ class GrammarInterpreter {
             if("type" in component){
                 if(component.type == WidgetType.TOGGLE_KNOT){
                     this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
-                }else if(component.type == WidgetType.ANIMATION){
-                    this._components.push({type: WidgetType.ANIMATION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
-                } else if(component.type == WidgetType.RESOLUTION){
+                }else if(component.type == WidgetType.RESOLUTION){
                     this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
                 }else if(component.type == WidgetType.SEARCH){
                     this._components.push({type: WidgetType.SEARCH, obj: this._components[<number>component.map_id].obj, position: this._components[<number>component.map_id].position, title: component.title, subtitle: component.subtitle});
@@ -349,7 +347,7 @@ class GrammarInterpreter {
         if((<IView>this._processedGrammar['components'][view]).map.knotVisibility == undefined)
             return true;
 
-        let map: any = this._components[view];
+        let map: any = this._components[view].obj;
 
         let zoom = map.camera.getZoomLevel();
         let timeElapsed = Date.now() - this._lastValidationTimestep;
