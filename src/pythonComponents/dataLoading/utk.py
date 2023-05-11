@@ -33,16 +33,31 @@ def remove_elements(filepath, ids):
 '''
     Converts a wrf file into an abstract layer
 '''
-def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longitude_variable, coordinates_projection, timestep, bbox=[]):
+def wrf_to_abstract(filepath, layer_id, value_variable, latitude_variable, longitude_variable, coordinates_projection, timestep=None, bbox=[]):
     
     # Open the NetCDF file
     ncfile = Dataset(filepath)
 
+    xlong = []
+    xlat = []
+    temp = []
+
     ## Data coords
-    xlong = ncfile.variables[longitude_variable][timestep]
-    xlat = ncfile.variables[latitude_variable][timestep]
+    if(len(ncfile.variables[longitude_variable].shape) == 3 and timestep != None):
+        xlong = ncfile.variables[longitude_variable][timestep]
+    else:
+        xlong = ncfile.variables[longitude_variable]
+
+    if(len(ncfile.variables[latitude_variable].shape) == 3 and timestep != None):
+        xlat = ncfile.variables[latitude_variable][timestep]
+    else:
+        xlat = ncfile.variables[latitude_variable]
+
     ## Data var
-    temp = ncfile.variables[value_variable][timestep]
+    if(len(ncfile.variables[value_variable].shape) == 3 and timestep != None):
+        temp = ncfile.variables[value_variable][timestep]
+    else:
+        temp = ncfile.variables[value_variable]
 
     mask_values = []
 

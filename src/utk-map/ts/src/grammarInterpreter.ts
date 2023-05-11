@@ -345,7 +345,7 @@ class GrammarInterpreter {
         }
 
         if((<IView>this._processedGrammar['components'][view]).map.knotVisibility == undefined)
-            return true;
+            return knot.visible;
 
         let map: any = this._components[view].obj;
 
@@ -365,7 +365,7 @@ class GrammarInterpreter {
             }
         }
 
-        return true;
+        return knot.visible;
     }
 
     private getKnotById(knotId: string, view: number){

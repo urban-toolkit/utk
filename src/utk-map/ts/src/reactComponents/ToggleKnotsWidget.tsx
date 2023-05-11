@@ -166,7 +166,7 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
 
             let mark = {
                 value: Math.round((i/layers.length)*100),
-                label: 't'+i
+                label: ''+i
             };
 
             marks.push(mark);
@@ -199,7 +199,7 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
 
     return(
       <React.Fragment>
-        {title != undefined ? <div style={{margin: "4px", height: "13%", display: "flex", alignItems: "center"}}><p style={{fontWeight: "bold", fontSize: "20px"}}>{title}</p></div> : <></>}
+        {title != undefined ? <div style={{margin: "4px", height: "11%", display: "flex", alignItems: "center"}}><p style={{fontWeight: "bold", fontSize: "20px"}}>{title}</p></div> : <></>}
         {subtitle != undefined ? <div style={{marginBottom: "4px", height: "5%"}}><p style={{color: "#bfbec2", fontSize: "16px", fontWeight: "bold"}}>{subtitle}</p></div> : <></>}
         {/* <div className="d-flex align-items-center justify-content-center"> */}
         <div style={{overflowY: "auto", overflowX: "clip", height: "73%", padding: "10px"}} id={"toggle_widget_"+viewId}>

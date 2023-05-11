@@ -25,8 +25,8 @@ void main() {
 
   // texCoords[0] contains the func value for the pixel
   if((discardFuncInterval[0] != -1.0 || discardFuncInterval[1] != -1.0) && (texCoords[0] >= discardFuncInterval[0] && texCoords[0] <= discardFuncInterval[1])){
-    // discard;
-    fragColor = vec4(texColor, 1.0);
+    discard;
+    // fragColor = vec4(texColor, 1.0);
   }else if(filtered <= 0.5){
     fragColor = vec4(0.5,0.5,0.5, 0.7);
   }else{
