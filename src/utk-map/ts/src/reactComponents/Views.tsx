@@ -215,6 +215,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                     knotVisibility = {knotVisibility}
                     title = {component.title}
                     subtitle = {component.subtitle}
+                    viewId = {viewIds[index]}
                   />
                 </div>
               </React.Fragment>
