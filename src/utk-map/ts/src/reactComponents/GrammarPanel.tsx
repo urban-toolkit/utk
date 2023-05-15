@@ -105,9 +105,9 @@ export const GrammarPanelContainer = ({
             },
             body: JSON.stringify(data)
         })
-        .then(async (response) => {
+        .then((response) => {
             // await createLinksAndRenderStyles(url);
-            await obj.processGrammar(JSON.parse(grammarStateRef.current));
+            obj.processGrammar(JSON.parse(grammarStateRef.current));
         })
         .catch(error => {
             console.error('Request to update grammar failed: ', error);

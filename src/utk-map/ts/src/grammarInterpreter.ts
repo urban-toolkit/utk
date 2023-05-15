@@ -6,7 +6,7 @@ import { Knot } from './knot';
 import { MapViewFactory } from './mapview';
 import { MapRendererContainer } from './reactComponents/MapRenderer';
 import React, { ComponentType } from 'react';
-import {createRoot} from 'react-dom/client';
+import {Root, createRoot} from 'react-dom/client';
 import Views from './reactComponents/Views';
 import params from '../pythonServerConfig.json';
 
@@ -19,6 +19,7 @@ class GrammarInterpreter {
     protected _frontEndCallback: any;
     protected _mainDiv: HTMLElement;
     protected _url: string;
+    protected _root: Root;
 
     protected _cameraUpdateCallback: any;
 
@@ -34,6 +35,8 @@ class GrammarInterpreter {
 
     // TODO: it should be possible to create more than one map. So map should not be a singleton
     public initViews(mainDiv: HTMLElement, grammar: IGrammar){
+
+        this._components = [];
 
         for(const component of grammar.components){
             if("map" in component){ // It is a map view
@@ -434,9 +437,14 @@ class GrammarInterpreter {
 
     // TODO: more than one view should be rendered but inside a single div provided by the front end
     private renderViews(mainDiv: HTMLElement, grammar: IGrammar){
-        mainDiv.innerHTML = ""; // empty all content
+        // mainDiv.innerHTML = ""; // empty all content
 
-        const root = createRoot(mainDiv);
+        if(this._root == undefined){
+            this._root = createRoot(mainDiv);
+        }else{
+            this._root.unmount();
+            this._root = createRoot(mainDiv);
+        }
 
         let viewIds: string[] = [];
 
@@ -444,7 +452,7 @@ class GrammarInterpreter {
             viewIds.push(this._components[i].type+i);
         }
 
-        root.render(React.createElement(Views, {viewObjs: this._components, viewIds: viewIds, grammar: grammar, mainDivSize: {width: mainDiv.offsetWidth, height: mainDiv.offsetHeight}}));
+        this._root.render(React.createElement(Views, {viewObjs: this._components, viewIds: viewIds, grammar: grammar, mainDivSize: {width: mainDiv.offsetWidth, height: mainDiv.offsetHeight}}));
     }
 
 }

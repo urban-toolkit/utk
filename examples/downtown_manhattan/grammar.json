@@ -1,23 +1,23 @@
 {
-    "views": [
+    "components": [
         {
             "map": {
                 "camera": {
                     "position": [
                         -8239611,
                         4941390.5,
-                        1.811947509765625
+                        0.49792965698242186
                     ],
                     "direction": {
                         "right": [
-                            536.95458984375,
-                            -2519.207275390625,
-                            1811.947509765625
+                            946.6354370117188,
+                            -423.0624084472656,
+                            497.9296569824219
                         ],
                         "lookAt": [
-                            552.7074584960938,
-                            -1744.518310546875,
-                            1179.801513671875
+                            962.3882446289062,
+                            351.6265563964844,
+                            -134.21630859375
                         ],
                         "up": [
                             0.012851359322667122,
@@ -43,55 +43,84 @@
             "knots": [
                 {
                     "id": "pureparks",
-                    "linkingScheme": [
+                    "integration_scheme": [
                         {
-                            "thisLayer": "parks"
+                            "out": {
+                                "name": "parks",
+                                "level": "OBJECTS"
+                            }
                         }
-                    ],
-                    "aggregationScheme": [
-                        "NONE"
                     ]
                 },
                 {
                     "id": "purewater",
-                    "linkingScheme": [
+                    "integration_scheme": [
                         {
-                            "thisLayer": "water"
+                            "out": {
+                                "name": "water",
+                                "level": "OBJECTS"
+                            }
                         }
-                    ],
-                    "aggregationScheme": [
-                        "NONE"
                     ]
                 },
                 {
                     "id": "pureroads",
-                    "linkingScheme": [
+                    "integration_scheme": [
                         {
-                            "thisLayer": "roads"
+                            "out": {
+                                "name": "roads",
+                                "level": "OBJECTS"
+                            }
                         }
-                    ],
-                    "aggregationScheme": [
-                        "NONE"
                     ]
                 },
                 {
                     "id": "shadowToBuildings",
-                    "linkingScheme": [
+                    "integration_scheme": [
                         {
-                            "predicate": "NEAREST",
-                            "thisLayer": "buildings",
-                            "otherLayer": "shadow0_buildings",
-                            "thisLevel": "COORDINATES3D",
-                            "otherLevel": "COORDINATES3D",
+                            "spatial_relation": "NEAREST",
+                            "out": {
+                                "name": "buildings",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadow0_buildings",
+                                "level": "COORDINATES3D"
+                            },
+                            "operation": "NONE",
                             "abstract": true
                         }
-                    ],
-                    "aggregationScheme": [
-                        "NONE"
                     ]
                 }
-            ]
+            ],
+            "position": {
+                "width": [
+                    6,
+                    12
+                ],
+                "height": [
+                    1,
+                    4
+                ]
+            }
+        },
+        {
+            "type": "GRAMMAR",
+            "position": {
+                "width": [
+                    1,
+                    5
+                ],
+                "height": [
+                    1,
+                    4
+                ]
+            }
         }
     ],
-    "arrangement": "LINKED"
+    "arrangement": "LINKED",
+    "grid": {
+        "width": 12,
+        "height": 4
+    }
 }
