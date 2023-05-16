@@ -196,7 +196,10 @@ class GrammarInterpreter {
                                 if(maxDistance != undefined){
                                     await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel+"&maxDistance="+maxDistance+"&defaultValue="+defaultValue);
                                 }else{
-                                    await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel);
+                                    await fetch(url+"/linkLayers?spatial_relation="+spatial_relation+"&out="+out+"&operation="+operation+"&in="+inData+"&abstract="+abstract+"&outLevel="+outLevel+"&inLevel="+inLevel).catch(error => {
+                                        // Handle any errors here
+                                        console.error(error);
+                                    });
                                 }
         
                                 // addNewMessage("Join finished in " +(elapsed/1000)+" seconds", "green");

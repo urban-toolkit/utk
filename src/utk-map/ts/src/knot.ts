@@ -321,6 +321,8 @@ export class Knot {
             }
         }
 
+        console.log("interaction", interaction);
+
         if(interaction == ''){return;}
 
         let plotsGrammar = this._grammarInterpreter.getPlots();

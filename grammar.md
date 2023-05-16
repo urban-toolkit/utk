@@ -183,11 +183,16 @@ UTK is divided in components and each component can be positioned in the screen 
             }
         },
         {
-            grammar_editor: {
-                position: {
-                    width: [1,5],
-                    height: [1,1]
-                }
+            type: "GRAMMAR",
+            position: {
+                width: [
+                    1,
+                    5
+                ],
+                height: [
+                    1,
+                    4
+                ]
             }
         }
     ],
@@ -202,7 +207,6 @@ UTK is divided in components and each component can be positioned in the screen 
 In this example there are two components: a map and a grammar editor. The grid is divided in 13 sections horizontally and 1 section vertically. The map component, for example, occupies sections 6 to 13 horizontally and 1 section vertically. 
 
 ### Grammar editor
-
 
 ### Toggle Knots Widget
 
