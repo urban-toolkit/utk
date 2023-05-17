@@ -1,6 +1,6 @@
 /// <reference types="@types/webgl2" />
 
-import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot, IView, IComponentPosition } from './interfaces';
+import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot, IView, IComponentPosition, IGenericWidget } from './interfaces';
 import { PlotArrangementType, OperationType, SpatialRelationType, LevelType, ComponentIdentifier, WidgetType} from './constants';
 import { Knot } from './knot';
 import { MapViewFactory } from './mapview';
@@ -15,7 +15,7 @@ class GrammarInterpreter {
     protected _preProcessedGrammar: IGrammar;
     protected _processedGrammar: IGrammar;
     protected _lastValidationTimestep: number;
-    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title:string | undefined, subtitle: string | undefined}[] = [];
+    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title:string | undefined, subtitle: string | undefined, grammarDefinition: IView | IGenericWidget}[] = [];
     protected _frontEndCallback: any;
     protected _mainDiv: HTMLElement;
     protected _url: string;
@@ -40,9 +40,9 @@ class GrammarInterpreter {
 
         for(const component of grammar.components){
             if("map" in component){ // It is a map view
-                this._components.push({type: ComponentIdentifier.MAP, obj: MapViewFactory.getInstance(mainDiv, this), position: component.position, title: undefined, subtitle: undefined});
+                this._components.push({type: ComponentIdentifier.MAP, obj: MapViewFactory.getInstance(mainDiv, this), position: component.position, title: undefined, subtitle: undefined, grammarDefinition: component});
             }else if("type" in component && component.type == WidgetType.GRAMMAR){ // It is a grammar editor
-                this._components.push({type: WidgetType.GRAMMAR, obj: this, position: component.position, title: component.title, subtitle: component.subtitle});
+                this._components.push({type: WidgetType.GRAMMAR, obj: this, position: component.position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
             }
         }
 
@@ -50,11 +50,11 @@ class GrammarInterpreter {
         for(const component of grammar.components){
             if("type" in component){
                 if(component.type == WidgetType.TOGGLE_KNOT){
-                    this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
+                    this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
                 }else if(component.type == WidgetType.RESOLUTION){
-                    this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle});
+                    this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
                 }else if(component.type == WidgetType.SEARCH){
-                    this._components.push({type: WidgetType.SEARCH, obj: this._components[<number>component.map_id].obj, position: this._components[<number>component.map_id].position, title: component.title, subtitle: component.subtitle});
+                    this._components.push({type: WidgetType.SEARCH, obj: this._components[<number>component.map_id].obj, position: this._components[<number>component.map_id].position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
                 }
             }
         }
@@ -67,6 +67,12 @@ class GrammarInterpreter {
         // TODO: checking conflicting types of interactions for the knots. One knot cannot be in plots with different arrangements
 
         // TODO: ensure that the widgets have all the attributes they should have
+
+        // TODO: check if the knots references in the categories are correct
+
+        // TODO: enforce that if a knot is groupped it can only be referenced by its group name in the categories
+
+        // TODO: one knot cannot be in more than one category at the same time
 
         this._lastValidationTimestep = Date.now();
 

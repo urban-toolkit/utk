@@ -206,33 +206,86 @@ UTK is divided in components and each component can be positioned in the screen 
 
 In this example there are two components: a map and a grammar editor. The grid is divided in 13 sections horizontally and 1 section vertically. The map component, for example, occupies sections 6 to 13 horizontally and 1 section vertically. 
 
-### Grammar editor
+### Widgets
+
+`widget := (type,map_id?,title?,subtitle?,position)`  
 
 ### Toggle Knots Widget
 
 ### Groupping knots
 
-Knots can be groupped by assigning a group name and a position of the knot inside the group.
+Knots can be groupped by assigning a group name and a position of the knot inside the group. This type of grouping is inteded to be used for data with different timesteps for instance.
 
+```js
 {
-    "id": "wrfToSurface_d02_2016-07-01_t0",
-    "group": {
-        "group_name": "wrf",
-        "position": 0 
+    id: "wrfToSurface_d02_2016-07-01_t0",
+    group: {
+        group_name: "wrf",
+        position: 0 
     },
-    "integration_scheme": [
+    integration_scheme: [
         {
-            "spatial_relation": "NEAREST",
-            "out": {
-                "name": "surface_wrf_d02_2016-07-01_t0",
-                "level": "COORDINATES"
+            spatial_relation: "NEAREST",
+            out: {
+                name: "surface_wrf_d02_2016-07-01_t0",
+                level: "COORDINATES"
             },
-            "in": {
-                "name": "wrf_d02_2016-07-01_t0",
-                "level": "COORDINATES"
+            in: {
+                name: "wrf_d02_2016-07-01_t0",
+                level: "COORDINATES"
             },
-            "operation": "NONE",
-            "abstract": true
+            operation: "NONE",
+            abstract: true
         }
     ]
-},
+}
+```
+
+### Categorizing knots
+
+The notion of categories is related to the idea of how knots (or groups of knots) can be labelled in a hierarchical manner. For instance, a knot with income data can be categorized as "Socio-demographics". In reality the semantics is completly defined by the user. Moreover, categories can be nested.
+
+```js
+{
+    type: "TOGGLE_KNOT",
+    title: "WRF and Demographic data",
+    subtitle: "Income and temperature in multiscale",
+    map_id: 0,
+    categories: [
+        {
+            category_name: "Socio-demographic",
+            elements: [
+                {
+                    category_name: "Economic",
+                    elements: [
+                        "income"
+                    ]
+                },
+                "population"
+            ]
+        },
+        {
+            category_name: "map",
+            elements: [
+                "park",
+                "water",
+                "roads"
+            ]
+        }
+    ],
+    position:{
+        width: [1,3],
+        height: [1,1]
+    }
+}
+```
+
+The result of the categories defined above is:  
+- Socio-demographic (category)
+    - Economic (category)
+        - income (knot)
+    - population (knot)
+- map (category)
+    - park (knot)
+    - water (knot)
+    - roads (knot)

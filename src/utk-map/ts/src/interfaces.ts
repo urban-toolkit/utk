@@ -33,7 +33,13 @@ export interface IGenericWidget{
     map_id?: number, // required to some widgets like toggle knots
     title?: string,
     subtitle?: string,
+    categories?: ICategory[], // used with the TOGGLE_KNOT widget
     position: IComponentPosition
+}
+
+export interface ICategory{
+    category_name: string,
+    elements: (string | ICategory)[]
 }
 
 export interface IComponentPosition{
