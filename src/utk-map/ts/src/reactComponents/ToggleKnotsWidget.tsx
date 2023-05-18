@@ -55,61 +55,65 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
             clearInterval(knotVisibilityMonitor);
         }
         
-        // setKnotVisibilityMonitor(window.setInterval(function(){
+        setKnotVisibilityMonitor(window.setInterval(function(){
 
-        //     let div = document.getElementById("toggle_widget_"+viewId);
+            let div = document.getElementById("toggle_widget_"+viewId);
 
-        //     if(div == null || Object.keys(listLayersStateRef.current).length == 0)
-        //         return;
+            if(div == null || Object.keys(listLayersStateRef.current).length == 0)
+                return;
 
-        //     let children = div.childNodes;
+            let children = div.childNodes;
 
-        //     let groupsToAnimate = [];
+            let groupsToAnimate = [];
 
-        //     for (let i = 0; i < children.length; i++) {
-        //         const child = children[i] as HTMLElement;
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i] as HTMLElement;
             
-        //         let input = child.querySelectorAll("div input")[0] as HTMLInputElement;
-            
-        //         if(input.checked && listLayersStateRef.current[input.id].length > 1){
-        //             groupsToAnimate.push(input.id);
-        //         }
-        //     }
+                let inputs = child.querySelectorAll("div input");
 
-        //     for(const group of groupsToAnimate){
+                for(let j = 0; j < inputs.length; j++){
+                    let input = inputs[j] as HTMLInputElement;
 
-        //         let knotsToConsider = [];
-        //         let range = 0 ? rangeRef.current[group] == undefined : rangeRef.current[group];
+                    if(input.checked && listLayersStateRef.current[input.id].length > 1){
+                        groupsToAnimate.push(input.id);
+                    }
+                }   
+            }
 
-        //         knotsToConsider = listLayersStateRef.current[group].slice(0,range+1);
+            for(const group of groupsToAnimate){
 
-        //         if(knotsToConsider.length == 0) // should not do any animation
-        //             return
+                let knotsToConsider = [];
+                let range = 0 ? rangeRef.current[group] == undefined : rangeRef.current[group];
+
+                knotsToConsider = listLayersStateRef.current[group].slice(0,range+1);
+
+                if(knotsToConsider.length == 0) // should not do any animation
+                    return
     
-        //         let elapsedTime = Date.now() - initialTime;
+                let elapsedTime = Date.now() - initialTime;
     
-        //         let changeEvery = 1000/fpsRef.current;
+                let changeEvery = 1000/fpsRef.current;
     
-        //         let indexLayer = Math.round((elapsedTime%(changeEvery*(knotsToConsider.length)))/changeEvery);
+                let indexLayer = Math.round((elapsedTime%(changeEvery*(knotsToConsider.length)))/changeEvery);
 
-        //         if(indexLayer > knotsToConsider.length-1){
-        //             indexLayer = 0;
-        //         }
+                if(indexLayer > knotsToConsider.length-1){
+                    indexLayer = 0;
+                }
 
-        //         let layerToShow = knotsToConsider[indexLayer];
+                let layerToShow = knotsToConsider[indexLayer];
     
-        //         for(let i = 0; i < listLayersStateRef.current[group].length; i++){
-        //             let key = listLayersStateRef.current[group][i];
+                for(let i = 0; i < listLayersStateRef.current[group].length; i++){
+                    let key = listLayersStateRef.current[group][i];
     
-        //             if(key == layerToShow){
-        //                 obj.toggleKnot(layerToShow, true);
-        //             }else{
-        //                 obj.toggleKnot(key, false);
-        //             }
-        //         }
-        //     }
+                    if(key == layerToShow){
+                        obj.toggleKnot(layerToShow, true);
+                    }else{
+                        obj.toggleKnot(key, false);
+                    }
+                }
+            }
                 
-        // }, 50));
+        }, 50));
 
     }, []);
 
@@ -199,21 +203,39 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
         setRange(newObj);
     }
 
-    // TODO: add knots not included in the categories
+    const [collapsedItems, setCollapsedItems] = useState<string[]>([]);
 
-    const getCategoryHtml = (category: ICategory) => {
-        return<li key={category.category_name+"_li"}>{category.category_name}
-            <ul key={category.category_name+"_ul"}>
+    const toggleCollapse = (item: string) => {
+        if (collapsedItems.includes(item)) {
+          setCollapsedItems(collapsedItems.filter((id) => id !== item));
+        } else {
+          setCollapsedItems([...collapsedItems, item]);
+        }
+    };
+
+    const getCategoryHtml = (category: ICategory, listLayers: any, knotVisibility: any) => {
+        if(Object.keys(listLayers).length == 0 || knotVisibility.length == 0)
+            return
+        
+        return<li key={category.category_name+"_li"}>
+            <div key={category.category_name+"_span"} style={{margin: "5px", fontWeight: "bold", cursor: "pointer", color: collapsedItems.includes(category.category_name) ? 'black' : '#009687' }} onClick={() => toggleCollapse(category.category_name)}>
+                {category.category_name}
+            </div>
+            <ul key={category.category_name+"_ul"} style={{listStyleType: "none", display: collapsedItems.includes(category.category_name) ? 'none' : 'block' }}>
                 {
-                    category.elements.map((element: string | ICategory) => (
-                        typeof element === 'string' ? <li key={element+"_li"}>{element}</li> : getCategoryHtml(element)
+                    category.elements.map((element: string | ICategory, index: any) => (
+                        typeof element === 'string' ? <li key={element+"_li"+"_"+index}>{getGroupHtml(element, listLayers, knotVisibility)}</li> : getCategoryHtml(element, listLayers, knotVisibility)
                     ))
                 }
             </ul>
         </li>
     }
 
-    const getNotInCategoriesHtml = (categories: ICategory[], listLayers: any) => {
+    const getNotInCategoriesHtml = (categories: ICategory[], listLayers: any, knotVisibility: any) => {
+
+        if(Object.keys(listLayers).length == 0 || knotVisibility.length == 0)
+            return
+
         let categorizedKnots: any[] = [];
 
         const getKnotsFromCategory = (category: ICategory) => {
@@ -234,11 +256,40 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
             categorizedKnots = categorizedKnots.concat(getKnotsFromCategory(category));
         }
 
-        console.log("categorizedKnots", categorizedKnots);
-
         return Object.keys(listLayers).map((item: any, index: any) => (
-                !categorizedKnots.includes(item) ? <li key={index+"_li_"+"_non_cat"}>{item}</li> : <></>
+                !categorizedKnots.includes(item) ? <li key={item+"_li_"+"_non_cat"}>{getGroupHtml(item, listLayers, knotVisibility)}</li> : <span key={item+"_empty"}></span>
             ))
+    }
+
+    const getGroupHtml = (item:string, listLayers: any, knotVisibility: any) => {
+
+        return <React.Fragment key={item+"_fragment"}>
+            <Row style={{paddingTop: "10px", paddingBottom: "10px", borderBottom: '1px solid #e2e1e6'}} className="align-items-center">
+                <Col>
+                    <Form.Check key={item+"_check"} checked={groupVisibility(listLayers, knotVisibility, item)} type="checkbox" label={item} id={item} onChange={() => {toggleGroup(listLayers, knotVisibility, item)}}/> 
+                </Col>
+                {
+                    listLayers[item].length > 1 ?
+                    <Col>
+                        <Row style={{padding: 0}} className="align-items-center">
+                            <Col md={9}>
+                                <Slider
+                                    key={item+"_slider"}
+                                    defaultValue={0}
+                                    valueLabelDisplay="off"
+                                    step={Math.round((1/listLayers[item].length)*100)}
+                                    marks = {getMarks(listLayers[item])}
+                                    onChange={(e) => {handleChangeSlides(e, item, Math.round((1/listLayers[item].length)*100))}}
+                                    disabled = {!groupVisibility(listLayers, knotVisibility, item)}
+                                />
+                            </Col>
+                            <Col md={3} style={{paddingLeft: 0}}>
+                                <Form.Control placeholder="FPS" type="text" onChange={(e) => {if(e.target.value != ''){setFps(parseInt(e.target.value))}}}/>
+                            </Col>
+                    </Row></Col> : <></>
+                }
+            </Row>
+        </React.Fragment>
     }
 
     return(
@@ -247,43 +298,43 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
         {subtitle != undefined ? <div style={{marginBottom: "4px", height: "5%"}}><p style={{color: "#bfbec2", fontSize: "16px", fontWeight: "bold"}}>{subtitle}</p></div> : <></>}
         {/* <div className="d-flex align-items-center justify-content-center"> */}
         <div style={{overflowY: "auto", overflowX: "clip", height: "73%", padding: "10px"}} id={"toggle_widget_"+viewId}>
-            <ul>
+            <ul style={{listStyleType: "none", padding: 0, margin: 0}}>
                 {
                     // Object.keys(listLayers).map((item, index) => (
-                    //     <React.Fragment key={item+"_fragment"}>
-                    //         <Row style={{paddingTop: "10px", paddingBottom: "10px", borderBottom: '1px solid #e2e1e6'}} className="align-items-center">
-                    //             <Col>
-                    //                 <Form.Check key={item+"_check"} checked={groupVisibility(listLayers, knotVisibility, item)} type="checkbox" label={item} id={item} onChange={() => {toggleGroup(listLayers, knotVisibility, item)}}/> 
-                    //             </Col>
-                    //             {
-                    //                 listLayers[item].length > 1 ?
-                    //                 <Col>
-                    //                     <Row style={{padding: 0}} className="align-items-center">
-                    //                         <Col md={9}>
-                    //                             <Slider
-                    //                                 key={item+"_slider"}
-                    //                                 defaultValue={0}
-                    //                                 valueLabelDisplay="off"
-                    //                                 step={Math.round((1/listLayers[item].length)*100)}
-                    //                                 marks = {getMarks(listLayers[item])}
-                    //                                 onChange={(e) => {handleChangeSlides(e, item, Math.round((1/listLayers[item].length)*100))}}
-                    //                                 disabled = {!groupVisibility(listLayers, knotVisibility, item)}
-                    //                             />
-                    //                         </Col>
-                    //                         <Col md={3} style={{paddingLeft: 0}}>
-                    //                             <Form.Control placeholder="FPS" type="text" onChange={(e) => {if(e.target.value != ''){setFps(parseInt(e.target.value))}}}/>
-                    //                         </Col>
-                    //                 </Row></Col> : <></>
-                    //             }
-                    //         </Row>
-                    //     </React.Fragment>
+                        // <React.Fragment key={item+"_fragment"}>
+                        //     <Row style={{paddingTop: "10px", paddingBottom: "10px", borderBottom: '1px solid #e2e1e6'}} className="align-items-center">
+                        //         <Col>
+                        //             <Form.Check key={item+"_check"} checked={groupVisibility(listLayers, knotVisibility, item)} type="checkbox" label={item} id={item} onChange={() => {toggleGroup(listLayers, knotVisibility, item)}}/> 
+                        //         </Col>
+                        //         {
+                        //             listLayers[item].length > 1 ?
+                        //             <Col>
+                        //                 <Row style={{padding: 0}} className="align-items-center">
+                        //                     <Col md={9}>
+                        //                         <Slider
+                        //                             key={item+"_slider"}
+                        //                             defaultValue={0}
+                        //                             valueLabelDisplay="off"
+                        //                             step={Math.round((1/listLayers[item].length)*100)}
+                        //                             marks = {getMarks(listLayers[item])}
+                        //                             onChange={(e) => {handleChangeSlides(e, item, Math.round((1/listLayers[item].length)*100))}}
+                        //                             disabled = {!groupVisibility(listLayers, knotVisibility, item)}
+                        //                         />
+                        //                     </Col>
+                        //                     <Col md={3} style={{paddingLeft: 0}}>
+                        //                         <Form.Control placeholder="FPS" type="text" onChange={(e) => {if(e.target.value != ''){setFps(parseInt(e.target.value))}}}/>
+                        //                     </Col>
+                        //             </Row></Col> : <></>
+                        //         }
+                        //     </Row>
+                        // </React.Fragment>
                     // ))
 
                     grammarDefinition.categories.map((category: ICategory) => (
-                        getCategoryHtml(category)
+                        getCategoryHtml(category, listLayers, knotVisibility)
                     ))
                 }
-                {getNotInCategoriesHtml(grammarDefinition.categories, listLayers)}
+                {getNotInCategoriesHtml(grammarDefinition.categories, listLayers, knotVisibility)}
             </ul>
         </div>
             

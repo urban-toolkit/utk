@@ -74,6 +74,8 @@ class GrammarInterpreter {
 
         // TODO: one knot cannot be in more than one category at the same time
 
+        // TODO: cannot have two categories with the same name
+
         this._lastValidationTimestep = Date.now();
 
         for(let componentId = 0; componentId < grammar['components'].length; componentId++){
