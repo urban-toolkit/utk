@@ -76,7 +76,7 @@ def serve_linkLayers():
         else:
             uc.attachPhysicalLayers(out, inData, spatial_relation, outLevel, inLevel, default_value=defaultValue)
 
-    uc.save(workDir, False)
+    uc.saveJoined(workDir)
 
     return ''
 

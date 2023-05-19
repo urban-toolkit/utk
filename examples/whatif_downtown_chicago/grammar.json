@@ -1,0 +1,201 @@
+{
+    "components": [
+        {
+            "map": {
+                "camera": {
+                    "position": [
+                        -9754472.41870091,
+                        5115000.8427740205,
+                        1
+                    ],
+                    "direction": {
+                        "right": [
+                            0,
+                            0,
+                            3000
+                        ],
+                        "lookAt": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "up": [
+                            0,
+                            1,
+                            0
+                        ]
+                    }
+                },
+                "knots": [
+                    "pureParks",
+                    "pureWater",
+                    "pureRoads",
+                    "whatIfSurface",
+                    "whatIfBuildings"
+                ],
+                "interactions": [
+                    "NONE",
+                    "NONE",
+                    "NONE",
+                    "NONE",
+                    "NONE"
+                ]
+            },
+            "plots": [],
+            "knots": [
+                {
+                    "id": "whatIfSurface",
+                    "knotOp": true,
+                    "colorMap": "interpolateBlues",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "shadowToSurfaceM",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadowToSurface",
+                                "level": "COORDINATES3D"
+                            },
+                            "op": "shadowToSurface - shadowToSurfaceM",
+                            "operation": "NONE"
+                        }
+                    ]
+                },
+                {
+                    "id": "shadowBuildingsM",
+                    "integration_scheme": [
+                        {
+                            "spatial_relation": "NEAREST",
+                            "out": {
+                                "name": "buildings_m",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadow0_buildings_m",
+                                "level": "COORDINATES3D"
+                            },
+                            "abstract": true,
+                            "operation": "NONE"
+                        }
+                    ]
+                },
+                {
+                    "id": "shadowBuildings",
+                    "integration_scheme": [
+                        {
+                            "spatial_relation": "NEAREST",
+                            "out": {
+                                "name": "buildings_m",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadow0_buildings",
+                                "level": "COORDINATES3D"
+                            },
+                            "abstract": true,
+                            "operation": "NONE"
+                        }
+                    ]
+                },
+                {
+                    "id": "whatIfBuildings",
+                    "knotOp": true,
+                    "colorMap": "interpolateBlues",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "shadowBuildingsM",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadowBuildings",
+                                "level": "COORDINATES3D"
+                            },
+                            "op": "shadowBuildings - shadowBuildingsM",
+                            "operation": "NONE"
+                        }
+                    ]
+                },
+                {
+                    "id": "shadowToSurfaceM",
+                    "integration_scheme": [
+                        {
+                            "spatial_relation": "NEAREST",
+                            "out": {
+                                "name": "surface",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadow0_surface_m",
+                                "level": "COORDINATES3D"
+                            },
+                            "abstract": true,
+                            "operation": "NONE"
+                        }
+                    ]
+                },
+                {
+                    "id": "shadowToSurface",
+                    "integration_scheme": [
+                        {
+                            "spatial_relation": "NEAREST",
+                            "out": {
+                                "name": "surface",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadow0_surface",
+                                "level": "COORDINATES3D"
+                            },
+                            "abstract": true,
+                            "operation": "NONE"
+                        }
+                    ]
+                },
+                {
+                    "id": "pureParks",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "parks",
+                                "level": "OBJECTS"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "pureRoads",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "roads",
+                                "level": "OBJECTS"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "pureWater",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "water",
+                                "level": "OBJECTS"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "position": {
+                "width": [1,1],
+                "height": [1,1]
+            }
+        }
+    ],
+    "arrangement": "LINKED",
+    "grid":{
+        "width": 1,
+        "height": 1
+    }
+}
