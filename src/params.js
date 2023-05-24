@@ -16,5 +16,5 @@ export const paramsMapView = {
     // Where the Environment that serves data for the map is running (Master node IP if running in the CAVE2, localhost if running locally)
     environmentIP: "localhost",
     // Which data folder to load the data from
-    environmentDataFolder: "data/chicago_diff"
+    environmentDataFolder: "data/wrf_temp_building"
 }

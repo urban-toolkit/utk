@@ -169,7 +169,11 @@ export class ShaderSmoothColorMapTex extends AuxiliaryShader {
 
         for(let j = 0; j < tempFunction.length; j++){
 
-            let scale = d3.scaleLinear().domain(d3.extent(tempFunction[j])).range([0,1]);
+            // console.log(d3.extent(tempFunction[j]));
+
+            // let scale = d3.scaleLinear().domain(d3.extent(tempFunction[j])).range([0,1]);
+            // let scale = d3.scaleLinear().domain([3,9]).range([0,1]);
+            let scale = d3.scalePow().exponent(2).domain([0,12]).range([0,1]);
 
             for(let i = 0; i < tempFunction[j].length; i++){
                 tempFunction[j][i] = scale(tempFunction[j][i]);
@@ -1597,17 +1601,17 @@ export class ShaderSmoothColorMapTex extends AuxiliaryShader {
         this.bindUniforms(glContext, camera);
 
         // was used for the outline
-        glContext.stencilFunc(
-            glContext.EQUAL,     // the test
-            0,            // reference value
-            0xFF,         // mask
-        );
-
         // glContext.stencilFunc(
-        //     glContext.GEQUAL,     // the test
-        //     zOrder,            // reference value
+        //     glContext.EQUAL,     // the test
+        //     0,            // reference value
         //     0xFF,         // mask
         // );
+
+        glContext.stencilFunc(
+            glContext.GEQUAL,     // the test
+            zOrder,            // reference value
+            0xFF,         // mask
+        );
 
         glContext.stencilOp(
             glContext.KEEP,     // what to do if the stencil test fails

@@ -559,7 +559,7 @@ class UrbanComponent:
 
         for layer in self.layers['json']:
 
-            grammar_json['components'][0]['knots'].append({"id": "pure"+layer['id'], "integration_scheme": [{"out": layer['id']}], "operation": ["NONE"]})
+            grammar_json['components'][0]['knots'].append({"id": "pure"+layer['id'], "integration_scheme": [{"out": {"name": layer['id'], "level": "OBJECTS"}}], "operation": "NONE"})
             grammar_json['components'][0]['map']['knots'].append("pure"+layer['id'])
             grammar_json['components'][0]['map']['interactions'].append("NONE")
 

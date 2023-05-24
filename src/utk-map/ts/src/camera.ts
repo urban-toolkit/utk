@@ -41,7 +41,7 @@ class Camera {
         
         // z-values start from here are in meters
         this.wNear = 1;
-        this.wFar = 1e10;
+        this.wFar = 1e5;
 
         this.groundRes = 1;
 

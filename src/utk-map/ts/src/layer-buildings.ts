@@ -29,10 +29,12 @@ export class BuildingsLayer extends Layer {
             3,
             zOrder // TODO: set correct zOrder
         );
-
-        this.updateMeshGeometry(geometryData);
+        
+        console.log("buildings", zOrder);
 
         this._zOrder = zOrder;
+        this.updateMeshGeometry(geometryData);
+
         // this._zOrder = 10; // TODO: set correct zOrder
 
     }

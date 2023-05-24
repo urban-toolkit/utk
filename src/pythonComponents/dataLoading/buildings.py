@@ -3,7 +3,7 @@ import geopandas as gpd
 import numpy as np
 import math
 import mapbox_earcut as earcut
-# import vedo
+import vedo
 import time
 import os
 import matplotlib.pyplot as plt 
@@ -410,7 +410,7 @@ class Buildings:
             cells = intersection.rotate(-rot, origin=(0,0)).values
 
             # for cell in cells:
-            for j in trange(len(cells)):
+            for j in range(len(cells)):
 
                 cell = cells[j]
 

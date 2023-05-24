@@ -31,10 +31,11 @@ export class HeatmapLayer extends Layer {
             3,
             zOrder
         );
-        
-        this.updateMeshGeometry(geometryData);
+
+        console.log("heatmap", zOrder);
 
         this._zOrder = zOrder;
+        this.updateMeshGeometry(geometryData);
     }
 
     updateMeshGeometry(data: ILayerFeature[]){
@@ -90,7 +91,7 @@ export class HeatmapLayer extends Layer {
         }
 
         // enables the depth test
-        glContext.enable(glContext.DEPTH_TEST);
+        // glContext.enable(glContext.DEPTH_TEST);
         glContext.depthFunc(glContext.LEQUAL);
 
         // enable culling
@@ -120,7 +121,7 @@ export class HeatmapLayer extends Layer {
         // disables stencil
         glContext.disable(glContext.STENCIL_TEST);
         // disables the depth test
-        glContext.disable(glContext.DEPTH_TEST);
+        // glContext.disable(glContext.DEPTH_TEST);
         // disables culling
         glContext.disable(glContext.CULL_FACE);
     }

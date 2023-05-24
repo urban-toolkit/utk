@@ -30,11 +30,10 @@ export class TrianglesLayer extends Layer {
             dimensions,
             zOrder
         );
-        
-        this.updateMeshGeometry(geometryData);
 
         this._zOrder = zOrder;
         this._dimensions = dimensions;
+        this.updateMeshGeometry(geometryData);
     }
 
     supportInteraction(eventName: string): boolean {
@@ -109,7 +108,7 @@ export class TrianglesLayer extends Layer {
     render(glContext: WebGL2RenderingContext, shaders: (Shader|AuxiliaryShader)[]): void {
 
         // enables the depth test
-        glContext.enable(glContext.DEPTH_TEST);
+        // glContext.enable(glContext.DEPTH_TEST);
         glContext.depthFunc(glContext.LEQUAL);
 
         // enable culling
@@ -142,7 +141,7 @@ export class TrianglesLayer extends Layer {
         // disables stencil
         glContext.disable(glContext.STENCIL_TEST);
         // disables the depth test
-        glContext.disable(glContext.DEPTH_TEST);
+        // glContext.disable(glContext.DEPTH_TEST);
         // disables culling
         glContext.disable(glContext.CULL_FACE);
     }

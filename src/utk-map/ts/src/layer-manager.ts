@@ -174,11 +174,17 @@ export class LayerManager {
                 }
             }
             
+            // if(linkScheme[i].abstract == undefined){
+            //     throw new Error("abstract field cannot be undefined when extracting function values");
+            // }
+
             if(linkScheme[i].abstract == false){
+
                 // inner operation (changing geometry levels inside the same layer)
                 if(linkScheme[i].spatial_relation == SpatialRelationType.INNERAGG && functionValues != null && linkScheme[i].in != undefined && linkScheme[i].out.level != undefined){
                     functionValues = left_side.innerAggFunc(functionValues, (<{name: string, level: LevelType}>linkScheme[i].in).level, <LevelType>linkScheme[i].out.level, <OperationType>linkScheme[i].operation);
                 }else if(functionValues != null && linkScheme[i].in != undefined && linkScheme[i].out.level != undefined){ // sjoin with another physical layer
+                    
                     if((<{name: string, level: string}>linkScheme[i].in).name == linkScheme[i].out.name){
                         throw new Error("Only the spatial_relation INNERAGG can be used inside the context of the same layer");
                     }
@@ -271,7 +277,6 @@ export class LayerManager {
 
                     }
                 }
-                
             }
         }
 

@@ -231,7 +231,7 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
         </li>
     }
 
-    const getNotInCategoriesHtml = (categories: ICategory[], listLayers: any, knotVisibility: any) => {
+    const getNotInCategoriesHtml = (categories: ICategory[] | undefined, listLayers: any, knotVisibility: any) => {
 
         if(Object.keys(listLayers).length == 0 || knotVisibility.length == 0)
             return
@@ -252,9 +252,12 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
             return knots;
         }
 
-        for(const category of categories){
-            categorizedKnots = categorizedKnots.concat(getKnotsFromCategory(category));
+        if(categories != undefined){
+            for(const category of categories){
+                categorizedKnots = categorizedKnots.concat(getKnotsFromCategory(category));
+            }
         }
+
 
         return Object.keys(listLayers).map((item: any, index: any) => (
                 !categorizedKnots.includes(item) ? <li key={item+"_li_"+"_non_cat"}>{getGroupHtml(item, listLayers, knotVisibility)}</li> : <span key={item+"_empty"}></span>
@@ -265,14 +268,14 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
 
         return <React.Fragment key={item+"_fragment"}>
             <Row style={{paddingTop: "10px", paddingBottom: "10px", borderBottom: '1px solid #e2e1e6'}} className="align-items-center">
-                <Col>
+                <Col md={5}>
                     <Form.Check key={item+"_check"} checked={groupVisibility(listLayers, knotVisibility, item)} type="checkbox" label={item} id={item} onChange={() => {toggleGroup(listLayers, knotVisibility, item)}}/> 
                 </Col>
                 {
                     listLayers[item].length > 1 ?
                     <Col>
                         <Row style={{padding: 0}} className="align-items-center">
-                            <Col md={9}>
+                            <Col md={12}>
                                 <Slider
                                     key={item+"_slider"}
                                     defaultValue={0}
@@ -283,9 +286,9 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
                                     disabled = {!groupVisibility(listLayers, knotVisibility, item)}
                                 />
                             </Col>
-                            <Col md={3} style={{paddingLeft: 0}}>
+                            {/* <Col md={3} style={{paddingLeft: 0}}>
                                 <Form.Control placeholder="FPS" type="text" onChange={(e) => {if(e.target.value != ''){setFps(parseInt(e.target.value))}}}/>
-                            </Col>
+                            </Col> */}
                     </Row></Col> : <></>
                 }
             </Row>
@@ -329,10 +332,10 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
                         //     </Row>
                         // </React.Fragment>
                     // ))
-
-                    grammarDefinition.categories.map((category: ICategory) => (
+                    
+                    grammarDefinition.categories != undefined ? grammarDefinition.categories.map((category: ICategory) => (
                         getCategoryHtml(category, listLayers, knotVisibility)
-                    ))
+                    )) : <></>
                 }
                 {getNotInCategoriesHtml(grammarDefinition.categories, listLayers, knotVisibility)}
             </ul>
