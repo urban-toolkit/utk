@@ -58,7 +58,7 @@ All data loaded into the system must be under `public/data/`
 
 To choose which folder to load one has to modify:  
 - The field environmentDataFolder in `src/utk-map/ts/pythonServerConfig.js` following the format: `public/data/*folder_name*`.  
-- The field environmentDataFolder in `src/params.js` following the format: `data/test`.
+- The field environmentDataFolder in `src/params.js` following the format: `data/*folder_name*`.
 
 All layers (physical and thematic) are defined using .json files but following different [formats](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/src/pythonComponents/dataLoading/layers_format.md).
 
