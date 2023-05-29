@@ -169,11 +169,7 @@ export class ShaderSmoothColorMapTex extends AuxiliaryShader {
 
         for(let j = 0; j < tempFunction.length; j++){
 
-            // console.log(d3.extent(tempFunction[j]));
-
-            // let scale = d3.scaleLinear().domain(d3.extent(tempFunction[j])).range([0,1]);
-            // let scale = d3.scaleLinear().domain([3,9]).range([0,1]);
-            let scale = d3.scalePow().exponent(2).domain([0,12]).range([0,1]);
+            let scale = d3.scaleLinear().domain(d3.extent(tempFunction[j])).range([0,1]);
 
             for(let i = 0; i < tempFunction[j].length; i++){
                 tempFunction[j][i] = scale(tempFunction[j][i]);
