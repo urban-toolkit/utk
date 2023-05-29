@@ -1,10 +1,7 @@
 import os
 from flask import Flask, request, send_from_directory, abort, jsonify
 import json
-from osm import *
 from urbanComponent import *
-import pandas as pd
-import gzip
 from geopy.geocoders import Nominatim
 import utils
 

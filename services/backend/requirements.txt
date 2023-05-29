@@ -1,0 +1,8 @@
+geojson==2.5.0
+flask=2.2.2
+pandas=1.4.3
+geopy=2.2.0
+geopandas=0.11.1
+shapely=1.8.4
+numpy=1.21.6
+scipy=1.9.0

@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    entrypoint: ["python", "/usr/src/utk-backend/server.py"] 
+    volumes:
+      - "./services/backend:/usr/src/utk-backend"
+    ports:
+      - 5004:5000
+    environment:
+      - FLASK_ENV=development
+
+  db:
+    build:
+      context: ./services/db
+      dockerfile: Dockerfile
+    volumes:
+      - "./services/db/data:/var/lib/postgresql/data"
+    expose:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=gmoreira
+      - POSTGRES_DB=app_dev
+      - POSTGRES_PASSWORD=t^uyM#1@l
+
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+    volumes:
+      - "./services/frontend:/usr/src/io-analyzer-app"
+      - "/usr/src/io-analyzer-app/node_modules"
+    ports:
+      - 3000:3000
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
+      - REACT_APP_BACKEND_SERVICE_URL=http://localhost:5004
+      - REACT_APP_WEBSOCKET_SERVICE_URL=http://localhost:5001
+    depends_on:
+      - backend
