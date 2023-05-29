@@ -23,7 +23,7 @@ code of the framework as well as documentation containing a gallery of examples,
 
 1. Clone the repository
 
-- `git clone https://github.com/urban-toolkit/utk.git`
+- `git clone https://github.com/urban-toolkit/urbantk.git`
 - `cd utk`
 
 2. Setup virtual environment
