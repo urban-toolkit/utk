@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, send_from_directory, abort, jsonify
 import json
-from urbanComponent import *
+from filesInterface import *
 from geopy.geocoders import Nominatim
 import utils
 
@@ -52,28 +52,28 @@ def serve_linkLayers():
     if("defaultValue" in request.args):
         defaultValue = float(request.args.get('defaultValue'))
 
-    uc = UrbanComponent()
+    fi = FilesInterface()
 
-    uc.setWorkDir(workDir)
+    fi.setWorkDir(workDir)
 
-    if(uc.existsJoin(out, inData, spatial_relation.upper(), outLevel.upper(), inLevel.upper(), abstract)):
+    if(fi.existsJoin(out, inData, spatial_relation.upper(), outLevel.upper(), inLevel.upper(), abstract)):
         return ''
 
-    uc.addLayerFromJsonFile(os.path.join(workDir, out+".json"))
-    uc.addLayerFromJsonFile(os.path.join(workDir, inData+".json"), abstract=abstract)
+    fi.addLayerFromJsonFile(os.path.join(workDir, out+".json"))
+    fi.addLayerFromJsonFile(os.path.join(workDir, inData+".json"), abstract=abstract)
 
     if(abstract):
         if(maxDistance != None):
-            uc.attachAbstractToPhysical(out, inData, outLevel, inLevel, spatial_relation, operation, maxDistance, default_value=defaultValue)
+            fi.attachAbstractToPhysical(out, inData, outLevel, inLevel, spatial_relation, operation, maxDistance, default_value=defaultValue)
         else:
-            uc.attachAbstractToPhysical(out, inData, outLevel, inLevel, spatial_relation, operation, default_value=defaultValue)
+            fi.attachAbstractToPhysical(out, inData, outLevel, inLevel, spatial_relation, operation, default_value=defaultValue)
     else:
         if(maxDistance != None):
-            uc.attachPhysicalLayers(out, inData, spatial_relation, outLevel, inLevel, maxDistance, default_value=defaultValue)
+            fi.attachPhysicalLayers(out, inData, spatial_relation, outLevel, inLevel, maxDistance, default_value=defaultValue)
         else:
-            uc.attachPhysicalLayers(out, inData, spatial_relation, outLevel, inLevel, default_value=defaultValue)
+            fi.attachPhysicalLayers(out, inData, spatial_relation, outLevel, inLevel, default_value=defaultValue)
 
-    uc.saveJoined(workDir)
+    fi.saveJoined(workDir)
 
     return ''
 
