@@ -68,7 +68,9 @@ The `src/pythonComponents/dataLoading/UTK_API.ipynb` presents several data loadi
 
 ### Example gallery
 
-Each example can be download and executed out of the shelf, but jupyter notebooks and the grammar specifications are also provided if one wants to build it from "scratch".
+Each example can be download and executed out of the shelf, but jupyter notebooks and the grammar specifications are also provided if one wants to build it from "scratch".  
+
+All the available data can be download at once [here](https://drive.google.com/drive/folders/1mmv6mJQyv6tE9ht7xq3XaOjCp9-QPphJ?usp=sharing) or following the examples:  
 
 <ins>Loading downtown Manhattan</ins>
 
