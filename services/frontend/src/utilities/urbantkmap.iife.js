@@ -172,16 +172,16 @@ let Environment = /** @class */ (() => {
     class Environment {
         /**
          * Set environment parameters
-         * @param {{backend: string, dataFolder: string}} env Environment parameters
+         * @param {{backend: string}} env Environment parameters
          */
         static setEnvironment(env) {
             this.backend = env.backend;
-            this.dataFolder = env.dataFolder;
+            // this.dataFolder = env.dataFolder;
         }
     }
     // App environment parameters
     Environment.backend = 'localhost';
-    Environment.dataFolder = '../data';
+    // Environment.dataFolder = '../data';
     return Environment;
 })();
 

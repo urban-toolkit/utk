@@ -7,7 +7,7 @@ import utils
 
 app = Flask(__name__)
 geolocator = Nominatim(user_agent="urbantk")
-workDir = None
+workDir = './data/'
 
 @app.after_request
 def add_cors_headers(response):
@@ -243,12 +243,17 @@ def serve_updateGrammar():
 
 if __name__ == '__main__':
 
-    params = {}
+    # params = {}
 
-    with open('src/utk-map/ts/pythonServerConfig.json', "r", encoding="utf-8") as f:
-        params = json.load(f)
-        params = params["paramsPythonServer"]
+    # with open('src/utk-map/ts/pythonServerConfig.json', "r", encoding="utf-8") as f:
+    #     params = json.load(f)
+    #     params = params["paramsPythonServer"]
 
-    workDir = params["environmentDataFolder"]
-    
-    app.run(debug=True, host=params["environmentIP"], port=params["port"])
+    # workDir = params["environmentDataFolder"]
+
+    workDir = os.path.join(workDir,os.environ.get('DATA_FOLDER'))
+
+    # app.run(debug=True, host=params["environmentIP"], port=params["port"])
+
+    app.run(debug=True, host='0.0.0.0')
+

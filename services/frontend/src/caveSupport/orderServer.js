@@ -7,7 +7,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import { WebSocketServer } from 'ws';
-import {paramsSendToUnity} from '../../params.js';
+// import {paramsSendToUnity} from '../../params.js';
 
 var clients = [];
 

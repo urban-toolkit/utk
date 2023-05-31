@@ -8,7 +8,6 @@ import { MapRendererContainer } from './reactComponents/MapRenderer';
 import React, { ComponentType } from 'react';
 import {Root, createRoot} from 'react-dom/client';
 import Views from './reactComponents/Views';
-import params from '../pythonServerConfig.json';
 
 class GrammarInterpreter {
 
@@ -24,8 +23,8 @@ class GrammarInterpreter {
     protected _cameraUpdateCallback: any;
 
     resetGrammarInterpreter(grammar: IGrammar, mainDiv: HTMLElement) {
-        
-        this._url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
+
+        this._url = <string>process.env.REACT_APP_BACKEND_SERVICE_URL;
 
         this._frontEndCallback = null;
         this._mainDiv = mainDiv;

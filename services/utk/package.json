@@ -19,7 +19,7 @@
       "url": "http://www.ic.uff.br/~mlage"
     }
   ],
-  "main": "dist/urbantkmap.js",
+  "main": "./utk-bundle/urbantkmap.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",

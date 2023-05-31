@@ -5,7 +5,6 @@ import './App.css';
 
 import {Environment, DataLoader, GrammarInterpreterFactory } from './utk-map/ts/dist/urbantkmap';
 import './utk-map/ts/dist/urbantkmap.css';
-import {paramsMapView} from './params.js';
 
 import $ from 'jquery';
 
@@ -56,9 +55,10 @@ export const createAndRunMap = () => {
   // }
 
   // Serves data files to the map
-  Environment.setEnvironment({backend: 'http://'+paramsMapView.environmentIP+':'+port+'/', dataFolder:paramsMapView.environmentDataFolder});
+  // Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string, dataFolder:paramsMapView.environmentDataFolder});
+  Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string});
   // index.json is a file containing the descrition of map layers
-  const url = `${Environment.backend}/${Environment.dataFolder}/grammar.json`;
+  const url = `${Environment.backend}/grammar.json`;
   DataLoader.getJsonData(url).then(data => {
     initializer.run(data);
   });

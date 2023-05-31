@@ -12,7 +12,6 @@ import './GrammarPanel.css';
 
 // const params = require('./pythonServerConfig.json');
 
-import params from '../../pythonServerConfig.json';
 import { IGrammar } from "../interfaces";
 
 // declaring the types of the props
@@ -64,7 +63,7 @@ export const GrammarPanelContainer = ({
     const [showEditor, setShowEditor] = useState(true);
     const [readOnly, setReadOnly] = useState(false);
 
-    const url = "http://"+params.paramsPythonServer.environmentIP+":"+params.paramsPythonServer.port;
+    const url = process.env.REACT_APP_BACKEND_SERVICE_URL;
 
     const applyGrammar = async () => {
 

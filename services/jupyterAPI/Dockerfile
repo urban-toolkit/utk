@@ -1,4 +1,5 @@
-FROM jupyter/datascience-notebook:python-3.10
+# FROM jupyter/datascience-notebook:python-3.10
+FROM jupyter/minimal-notebook:python-3.10
 
 # set working directory
 WORKDIR /usr/src/utk-jupyterAPI
