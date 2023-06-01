@@ -3,8 +3,8 @@ import React, {useEffect} from 'react';
 // css file
 import './App.css';
 
-import {Environment, DataLoader, GrammarInterpreterFactory } from './utk-map/ts/dist/urbantkmap';
-import './utk-map/ts/dist/urbantkmap.css';
+import {Environment, DataLoader, GrammarInterpreterFactory } from './utk-bundle/urbantkmap';
+import './utk-bundle/urbantkmap.css';
 
 import $ from 'jquery';
 
@@ -58,7 +58,7 @@ export const createAndRunMap = () => {
   // Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string, dataFolder:paramsMapView.environmentDataFolder});
   Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string});
   // index.json is a file containing the descrition of map layers
-  const url = `${Environment.backend}/grammar.json`;
+  const url = `${Environment.backend}/files?name=grammar.json`;
   DataLoader.getJsonData(url).then(data => {
     initializer.run(data);
   });

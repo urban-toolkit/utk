@@ -12,7 +12,7 @@ import {Container, Row} from 'react-bootstrap'
 // import { MapViewer, setCameraPosMap } from './components/MapView/MapView';
 // import { WidgetsComponent } from './components/Widgets/WidgetsComponent';
 
-import { GenericScreenPlotContainer } from './utk-map/ts/src/reactComponents/GenericScreenPlotContainer';
+// import { GenericScreenPlotContainer } from './utk-map/ts/src/reactComponents/GenericScreenPlotContainer';
 
 import * as d3 from "d3";
 
@@ -217,7 +217,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
         linkMapAndGrammarId = {"linkMapAndGrammar"}
       /> */}
 
-      {
+      {/* {
         genericPlots.map((item) => (
             <GenericScreenPlotContainer
               key={item.id}
@@ -225,7 +225,7 @@ function Jupyter(data: { bar: any; scatter: any; heat: any; city:any }) {
               svgId={item.svgId}
             />
         ))
-      }
+      } */}
 
       </Row>
     </Container>

@@ -5,9 +5,6 @@ import {Col, Row, Button} from 'react-bootstrap';
 
 import * as d3 from "d3";
 
-// jquery
-import $ from 'jquery';
-
 import './GrammarPanel.css';
 
 // const params = require('./pythonServerConfig.json');
@@ -169,7 +166,7 @@ export const GrammarPanelContainer = ({
         let stringData = JSON.stringify(initialGrammar, null, 4);
         setCode(stringData);
 
-        $('#'+inputId).on("keydown", function(e: any) {
+        d3.select('#'+inputId).on("keydown", function(e: any) {
             if(e.key == 'Enter'){
 
                 d3.select('#'+linkMapAndGrammarId).property("checked", false);
@@ -185,11 +182,11 @@ export const GrammarPanelContainer = ({
             }
         });
 
-        $('#'+applyGrammarButtonId).on("click", function(e: any) {
+        d3.select('#'+applyGrammarButtonId).on("click", function(e: any) {
             applyGrammar();
         });
 
-        $('#'+linkMapAndGrammarId).on('change', function(e: any){
+        d3.select('#'+linkMapAndGrammarId).on('change', function(e: any){
             setRefresh(!refresh);
         });
 
