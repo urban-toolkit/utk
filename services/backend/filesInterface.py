@@ -31,6 +31,9 @@ class FilesInterface:
         if bpolygon != None:
             self.bpolygon = bpolygon
 
+    def setWorkDir(self, dir):
+        self.workDir = dir
+
     def addLayerFromJsonFile(self, json_pathfile, gdf=None, abstract=False):
         layer_json = []
         layer_gdf = gdf
@@ -400,20 +403,10 @@ class FilesInterface:
 
     def saveJoined(self, dir=None):
 
-        if(self.workDir == None and dir == None):
+        if(dir == None):
             raise Exception("Directory not specified")
 
-        workDir = None
-
-        if(dir != None):
-            # workDir = os.path.join(os.pardir,os.pardir,os.pardir,'public/data',dir)
-            workDir = dir
-            if(self.workDir == None):
-                self.setWorkDir(dir)
-        else:
-            workDir = self.workDir
-
         for fileName in self.joinedJson:
-            with open(os.path.join(workDir,fileName+".json"), "w", encoding="utf-8") as f:
+            with open(os.path.join(dir,fileName+".json"), "w", encoding="utf-8") as f:
                 joined_json_str = str(json.dumps(self.joinedJson[fileName]))
                 f.write(joined_json_str)

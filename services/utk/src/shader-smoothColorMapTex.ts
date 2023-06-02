@@ -13,7 +13,6 @@ import {cross, rotateYMatrix, rotateZMatrix, angle, radians, multiplyMatrices, t
 import { IKnot } from "./interfaces";
 
 const mathjs = require('mathjs');
-const cov = require('compute-covariance');
 const d3 = require('d3');
 
 /**

@@ -9,7 +9,7 @@ export abstract class DataApi {
    * @param {string} index The layers index file
    */
   static async getMapData(index: string): Promise<IGrammar> {
-    const url = `${Environment.backend}/files?name=${index}`;
+    const url = `${Environment.backend}/files/${index}`;
 
     const datasets = await DataLoader.getJsonData(url);
     return <IGrammar> datasets;
@@ -20,7 +20,7 @@ export abstract class DataApi {
    * @param {string} style The style file
    */
   static async getCustomStyle(style: string): Promise<IMapStyle> {
-    const url = `${Environment.backend}/files?name=${style}.json`;
+    const url = `${Environment.backend}/files/${style}.json`;
 
     const custom = <IMapStyle> await DataLoader.getJsonData(url);
     return <IMapStyle> custom;
@@ -31,7 +31,7 @@ export abstract class DataApi {
    * @param {string} camera The camera file
    */
   static async getCameraParameters(camera: string): Promise<ICameraData> {
-    const url = `${Environment.backend}/files?name=${camera}.json`;
+    const url = `${Environment.backend}/files/${camera}.json`;
 
     const params = <ICameraData> await DataLoader.getJsonData(url);
     return params;
@@ -42,11 +42,11 @@ export abstract class DataApi {
    * @param {string} layerId the layer data
    */
   static async getLayer(layerId: string): Promise<ILayerData> {
-    const url_base = `${Environment.backend}/files?name=${layerId}.json`;
-    const url_coordinates = `${Environment.backend}/files?name=${layerId}_coordinates.data`;
-    const url_indices = `${Environment.backend}/files?name=${layerId}_indices.data`;
-    const url_normals = `${Environment.backend}/files?name=${layerId}_normals.data`;
-    const url_ids = `${Environment.backend}/files?name=${layerId}_ids.data`;
+    const url_base = `${Environment.backend}/files/${layerId}.json`;
+    const url_coordinates = `${Environment.backend}/files/${layerId}_coordinates.data`;
+    const url_indices = `${Environment.backend}/files/${layerId}_indices.data`;
+    const url_normals = `${Environment.backend}/files/${layerId}_normals.data`;
+    const url_ids = `${Environment.backend}/files/${layerId}_ids.data`;
 
     const base_feature = <ILayerData> await DataLoader.getJsonData(url_base);
 
@@ -112,7 +112,7 @@ export abstract class DataApi {
    * @param {string} layerId the layer data
    */
   static async getLayerFeature(layerId: string): Promise<ILayerFeature[]> {
-    const url = `${Environment.backend}/files?name=${layerId}.json`;
+    const url = `${Environment.backend}/files/${layerId}.json`;
 
     const feature = <ILayerFeature[]> await DataLoader.getJsonData(url);
     return feature;
@@ -124,7 +124,7 @@ export abstract class DataApi {
    */
    static async getLayerFunction(layerId: string): Promise<ILayerFeature[]> {
     // TODO
-    const url = `${Environment.backend}/files?name=${layerId}.json`;
+    const url = `${Environment.backend}/files/${layerId}.json`;
 
     const feature = <ILayerFeature[]> await DataLoader.getJsonData(url);
     return feature;
@@ -136,14 +136,14 @@ export abstract class DataApi {
    */
    static async getLayerHighlight(layerId: string): Promise<ILayerFeature[]> {
     // TODO
-    const url = `${Environment.backend}/files?name=${layerId}.json`;
+    const url = `${Environment.backend}/files/${layerId}.json`;
 
     const feature = <ILayerFeature[]> await DataLoader.getJsonData(url);
     return feature;
   }
 
   static async getJoinedJson(layerId: string){
-    const url = `${Environment.backend}/files?name=${layerId+"_joined"}.json`;
+    const url = `${Environment.backend}/files/${layerId+"_joined"}.json`;
     
     const joinedJson = <IJoinedJson> await DataLoader.getJsonData(url);
     return joinedJson;

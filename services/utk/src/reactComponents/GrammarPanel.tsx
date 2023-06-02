@@ -171,7 +171,7 @@ export const GrammarPanelContainer = ({
 
                 d3.select('#'+linkMapAndGrammarId).property("checked", false);
 
-                let inputValue = $(this).val();
+                let inputValue = d3.select('#'+inputId).attr("value");
                 
                 if(inputValue != undefined && !Array.isArray(inputValue)){
                     updateCameraNominatim(inputValue.toString());

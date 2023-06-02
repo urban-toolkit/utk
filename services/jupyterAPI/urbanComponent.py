@@ -33,9 +33,8 @@ class UrbanComponent:
         if bpolygon != None:
             self.bpolygon = bpolygon
 
-    # def setWorkDir(self, dir):
-
-    #     self.workDir = dir
+    def setWorkDir(self, dir):
+        self.workDir = dir
 
     #     # python_config_file = open(os.path.join(os.pardir,os.pardir,'pythonServerConfig.json'), 'r')
     #     # python_config_json = json.load(python_config_file)

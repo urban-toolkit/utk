@@ -58,7 +58,7 @@ export const createAndRunMap = () => {
   // Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string, dataFolder:paramsMapView.environmentDataFolder});
   Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string});
   // index.json is a file containing the descrition of map layers
-  const url = `${Environment.backend}/files?name=grammar.json`;
+  const url = `${Environment.backend}/files/grammar.json`;
   DataLoader.getJsonData(url).then(data => {
     initializer.run(data);
   });

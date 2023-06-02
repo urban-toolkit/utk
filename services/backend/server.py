@@ -87,6 +87,10 @@ def serve_clearLinks():
     
     return ''
 
+@app.route('/files/<path:path>')
+def serve_files(path):
+    return send_from_directory(workDir, path)
+
 @app.route('/getGrammar', methods=['GET'])
 def serve_getGrammar():
 
