@@ -20,11 +20,11 @@ code of the framework as well as documentation containing a gallery of examples,
 
 UTK follows a microsservice architecture where each functionality is offered by one container. Please refer to the README.md of each service for more details:
 
-- [backend]()
-- [frontend]()
-- [jupyterAPI]()
-- [prodWebServer]()
-- [utk]()
+- [backend](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/backend/README.md)
+- [frontend](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/frontend/README.md)
+- [jupyterAPI](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/jupyterAPI/README.md)
+- [utk](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/utk/README.md)
+- [prodWebServer](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/prodWebServer/README.md)
 
 ### Configuration
 
