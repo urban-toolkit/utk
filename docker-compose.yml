@@ -38,6 +38,8 @@ services:
       - "./utk-bundle:/usr/src/utk/utk-bundle"
     environment:
       - REACT_APP_BACKEND_SERVICE_URL=http://localhost:5004
+    depends_on:
+      - backend
 
   frontend:
     build:

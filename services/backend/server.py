@@ -137,92 +137,92 @@ def serve_solveNominatim():
         }
     })
 
-@app.route('/addRenderStyles', methods=['GET'])
-def serve_addRenderStyles():
+# @app.route('/addRenderStyles', methods=['GET'])
+# def serve_addRenderStyles():
 
-    grammar = {}
+#     grammar = {}
 
-    with open(os.path.join(workDir,"grammar.json"), "r", encoding="utf-8") as f:
-        grammar = json.load(f)
+#     with open(os.path.join(workDir,"grammar.json"), "r", encoding="utf-8") as f:
+#         grammar = json.load(f)
 
-    layersInfo = {}
+#     layersInfo = {}
 
-    for knot in grammar["components"][0]["knots"]:
-        if('knotOp' not in knot or knot['knotOp'] != True):
+#     for knot in grammar["components"][0]["knots"]:
+#         if('knotOp' not in knot or knot['knotOp'] != True):
             
-            for index, link in enumerate(knot['integration_scheme']):
+#             for index, link in enumerate(knot['integration_scheme']):
 
-                layer = link['out']
-                buildings = False
-                triangles = False
-                interactions = False
-                embeddedPlots = False
-                abstract = 'in' in link
-                data = {}
+#                 layer = link['out']
+#                 buildings = False
+#                 triangles = False
+#                 interactions = False
+#                 embeddedPlots = False
+#                 abstract = 'in' in link
+#                 data = {}
 
-                if(layer not in layersInfo):
-                    with open(os.path.join(workDir,layer+".json"), "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                else:
-                    data = layersInfo[layer]['data']
+#                 if(layer not in layersInfo):
+#                     with open(os.path.join(workDir,layer+".json"), "r", encoding="utf-8") as f:
+#                         data = json.load(f)
+#                 else:
+#                     data = layersInfo[layer]['data']
 
-                if(data["type"] == "TRIANGLES_3D_LAYER" or data["type"] == "TRIANGLES_3D_LAYER"):
-                    triangles = True
+#                 if(data["type"] == "TRIANGLES_3D_LAYER" or data["type"] == "TRIANGLES_3D_LAYER"):
+#                     triangles = True
 
-                if(data["type"] == "BUILDINGS_LAYER"):
-                    buildings = True
+#                 if(data["type"] == "BUILDINGS_LAYER"):
+#                     buildings = True
 
-                for i in range(len(grammar["components"][0]['map']["knots"])):
-                    if(grammar["components"][0]['map']["knots"][i] == knot["id"] and grammar["components"][0]["map"]["interactions"][i] != "NONE"):
-                        if(index == len(knot['integration_scheme'])-1): # only the layers that will be rendered can be interacted with
-                            interactions = True
-                        break
+#                 for i in range(len(grammar["components"][0]['map']["knots"])):
+#                     if(grammar["components"][0]['map']["knots"][i] == knot["id"] and grammar["components"][0]["map"]["interactions"][i] != "NONE"):
+#                         if(index == len(knot['integration_scheme'])-1): # only the layers that will be rendered can be interacted with
+#                             interactions = True
+#                         break
 
-                for i in range(len(grammar["components"][0]["plots"])):
-                    if(knot["id"] in grammar["components"][0]["plots"][i]["knots"] and grammar["components"][0]["plots"][i]["arrangement"] == "SUR_EMBEDDED" or grammar["components"][0]["plots"][i]["arrangement"] == "FOOT_EMBEDDED"):
-                        embeddedPlots = True
-                        break
+#                 for i in range(len(grammar["components"][0]["plots"])):
+#                     if(knot["id"] in grammar["components"][0]["plots"][i]["knots"] and grammar["components"][0]["plots"][i]["arrangement"] == "SUR_EMBEDDED" or grammar["components"][0]["plots"][i]["arrangement"] == "FOOT_EMBEDDED"):
+#                         embeddedPlots = True
+#                         break
 
-                if(layer not in layersInfo):
-                    layersInfo[layer] = {
-                        "layer": layer,
-                        "triangles": triangles,
-                        "buildings": buildings,
-                        "interactions": interactions,
-                        "embeddedPlots": embeddedPlots,
-                        "abstract": abstract,
-                        "data": data
-                    }
-                else:
-                    layersInfo[layer]['triangles'] =  layersInfo[layer]['triangles'] or triangles
-                    layersInfo[layer]['buildings'] =  layersInfo[layer]['buildings'] or buildings
-                    layersInfo[layer]['interactions'] =  layersInfo[layer]['interactions'] or interactions
-                    layersInfo[layer]['embeddedPlots'] =  layersInfo[layer]['embeddedPlots'] or embeddedPlots
-                    layersInfo[layer]['abstract'] =  layersInfo[layer]['abstract'] or abstract
+#                 if(layer not in layersInfo):
+#                     layersInfo[layer] = {
+#                         "layer": layer,
+#                         "triangles": triangles,
+#                         "buildings": buildings,
+#                         "interactions": interactions,
+#                         "embeddedPlots": embeddedPlots,
+#                         "abstract": abstract,
+#                         "data": data
+#                     }
+#                 else:
+#                     layersInfo[layer]['triangles'] =  layersInfo[layer]['triangles'] or triangles
+#                     layersInfo[layer]['buildings'] =  layersInfo[layer]['buildings'] or buildings
+#                     layersInfo[layer]['interactions'] =  layersInfo[layer]['interactions'] or interactions
+#                     layersInfo[layer]['embeddedPlots'] =  layersInfo[layer]['embeddedPlots'] or embeddedPlots
+#                     layersInfo[layer]['abstract'] =  layersInfo[layer]['abstract'] or abstract
 
-    for layer in layersInfo:
-        renderStyles = []
+#     for layer in layersInfo:
+#         renderStyles = []
 
-        # coloring shader
-        if(not layersInfo[layer]['abstract']):
-            renderStyles.append("SMOOTH_COLOR")
-        elif(not layersInfo[layer]['buildings']):
-            renderStyles.append("SMOOTH_COLOR_MAP")
-        else:
-            renderStyles.append("SMOOTH_COLOR_MAP_TEX")
+#         # coloring shader
+#         if(not layersInfo[layer]['abstract']):
+#             renderStyles.append("SMOOTH_COLOR")
+#         elif(not layersInfo[layer]['buildings']):
+#             renderStyles.append("SMOOTH_COLOR_MAP")
+#         else:
+#             renderStyles.append("SMOOTH_COLOR_MAP_TEX")
 
-        if(layersInfo[layer]['interactions']):
-            renderStyles.append("PICKING")
+#         if(layersInfo[layer]['interactions']):
+#             renderStyles.append("PICKING")
 
-        if(layersInfo[layer]['buildings'] and layersInfo[layer]['embeddedPlots']):
-            renderStyles.append("ABSTRACT_SURFACES")
+#         if(layersInfo[layer]['buildings'] and layersInfo[layer]['embeddedPlots']):
+#             renderStyles.append("ABSTRACT_SURFACES")
 
-        layersInfo[layer]['data']['renderStyle'] = renderStyles
+#         layersInfo[layer]['data']['renderStyle'] = renderStyles
 
-        with open(os.path.join(workDir,layer+".json"), "w", encoding="utf-8") as f:
-            f.write(json.dumps(layersInfo[layer]['data']))
+#         with open(os.path.join(workDir,layer+".json"), "w", encoding="utf-8") as f:
+#             f.write(json.dumps(layersInfo[layer]['data']))
 
-    return ''
+#     return ''
 
 @app.route('/writeImpactViewData', methods=['POST'])
 def writeImpactViewData():

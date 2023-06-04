@@ -1,9 +1,18 @@
-## Physical
+## jupyterAPI
 
+This service is responsible for provinding a python API through Jupyter notebooks where it is possible to process data to feed UTK. Processing data includes retrieving and parsing data from external sources like OSM and parsing local files like WRF, CSV and GeoJSON. jupyterAPI will output the results to a folder inside `/data`. The outputs are:  
 
-## Thematic
+- `*.json` for thematic data. 
+- `*_joined.json` for links. 
+- `.json` for physical metadata.
+- `.data` for physical data.
 
-More about data formats [here](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/src/pythonComponents/dataLoading/layers_format.md).
+Examples of Jupyter notebooks that consume the API can be found under `/examples`. Copy the .ipynb files to `services/jupyterAPI` to run them using this service.
+
+### docker-compose.yml
+
+- The service is acessible through `localhost:8888`.
+- `JUPYTER_TOKEN` defines the token used to access jupyter lab.
 
 ## API Reference
 

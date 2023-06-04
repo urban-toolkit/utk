@@ -1,0 +1,126 @@
+{
+    "components": [
+        {
+            "map": {
+                "camera": {
+                    "position": [
+                        -8239611,
+                        4941390.5,
+                        0.49792965698242186
+                    ],
+                    "direction": {
+                        "right": [
+                            946.6354370117188,
+                            -423.0624084472656,
+                            497.9296569824219
+                        ],
+                        "lookAt": [
+                            962.3882446289062,
+                            351.6265563964844,
+                            -134.21630859375
+                        ],
+                        "up": [
+                            0.012851359322667122,
+                            0.6320154070854187,
+                            0.7748492360115051
+                        ]
+                    }
+                },
+                "knots": [
+                    "pureparks",
+                    "purewater",
+                    "pureroads",
+                    "shadowToBuildings"
+                ],
+                "interactions": [
+                    "NONE",
+                    "NONE",
+                    "NONE",
+                    "NONE"
+                ]
+            },
+            "plots": [],
+            "knots": [
+                {
+                    "id": "pureparks",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "parks",
+                                "level": "OBJECTS"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "purewater",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "water",
+                                "level": "OBJECTS"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "pureroads",
+                    "integration_scheme": [
+                        {
+                            "out": {
+                                "name": "roads",
+                                "level": "OBJECTS"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "shadowToBuildings",
+                    "integration_scheme": [
+                        {
+                            "spatial_relation": "NEAREST",
+                            "out": {
+                                "name": "buildings",
+                                "level": "COORDINATES3D"
+                            },
+                            "in": {
+                                "name": "shadow0_buildings",
+                                "level": "COORDINATES3D"
+                            },
+                            "operation": "NONE",
+                            "abstract": true
+                        }
+                    ]
+                }
+            ],
+            "position": {
+                "width": [
+                    6,
+                    12
+                ],
+                "height": [
+                    1,
+                    4
+                ]
+            }
+        },
+        {
+            "type": "GRAMMAR",
+            "position": {
+                "width": [
+                    1,
+                    5
+                ],
+                "height": [
+                    1,
+                    4
+                ]
+            }
+        }
+    ],
+    "arrangement": "LINKED",
+    "grid": {
+        "width": 12,
+        "height": 4
+    }
+}
