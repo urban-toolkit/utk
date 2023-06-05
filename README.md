@@ -67,3 +67,7 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 </p>
 
 <ins>WRF Temperature per building</ins>
+
+### Grammar
+
+For more details on the grammar refer to [grammar.md](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/grammar.md).
