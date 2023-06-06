@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    entrypoint: ["python", "/usr/src/utk-backend/server.py"] 
+    volumes:
+      - "./services/backend:/usr/src/utk-backend"
+      - "./data:/usr/src/utk-backend/data"
+    ports:
+      - 5004:5000
+    environment:
+      - FLASK_DEBUG=1
+      - DATA_FOLDER=downtown_manhattan
+
+  jupyterapi:
+    build:
+      context: ./services/jupyterAPI
+      dockerfile: Dockerfile
+    volumes:
+      - "./services/jupyterAPI:/usr/src/utk-jupyterAPI"
+      - "./data:/usr/src/utk-jupyterAPI/data"
+    ports:
+      - 8888:8888
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=docker 
+
+  utk:
+    build:
+      context: ./services/utk
+      dockerfile: Dockerfile
+    volumes:
+      - "./services/utk:/usr/src/utk"
+      - "/usr/src/utk/node_modules"
+      - "./utk-bundle:/usr/src/utk/utk-bundle"
+    environment:
+      - REACT_APP_BACKEND_SERVICE_URL=http://localhost:5004
+    depends_on:
+      - backend
+
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+    volumes:
+      - "./services/frontend:/usr/src/utk-frontend"
+      - "/usr/src/utk-frontend/node_modules"
+      - "./utk-bundle:/usr/src/utk-frontend/src/utk-bundle"
+    ports:
+      - 3000:3000
+    environment:
+      - WATCHPACK_POLLING=true
+      - NODE_ENV=development
+      - REACT_APP_BACKEND_SERVICE_URL=http://localhost:5004
+      - REACT_APP_ENTRY=app
+    depends_on:
+      - backend
+      - utk

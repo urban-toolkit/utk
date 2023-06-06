@@ -1,0 +1,31 @@
+/* axes ticks css for line */
+.ticks line{
+  stroke: black;
+  
+}
+/* axes ticks css for text */
+.ticks text{
+  fill: black;
+  text-anchor: middle;
+  font-size: 0.7em;
+  /* transform: rotate(-45deg); */
+}
+/* the axis lines */
+.axisLine{
+  stroke: black;
+}
+/* text label format */
+.textlabel{
+  font-size: 1.2em;
+  fill: black;
+}
+/* bar chart color */
+.mark{
+  fill: #137B80;
+}
+
+body,html {
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+}

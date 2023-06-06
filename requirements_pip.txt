@@ -1,4 +1,0 @@
-geojson==2.5.0
-osmium==3.4.1
-plotoptix==0.14.3
-overpass==0.7

@@ -1,0 +1,9 @@
+{
+    "land":  "#F6F6F4",
+    "roads":  "#FFFFFF",
+    "parks":  "#cccccd",
+    "water": "#cad2d4",
+    "sky":  "#FFFFFF",
+    "building": "#DFDFDF"
+
+}

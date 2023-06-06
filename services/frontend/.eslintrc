@@ -1,0 +1,50 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "jsx-a11y",
+    "react-hooks"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:jsx-a11y/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-loss-of-precision" : "off",
+    "no-cond-assign": "off",
+    "@typescript-eslint/adjacent-overload-signatures": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-loss-of-precision": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "no-case-declarations": "off",
+    "no-func-assign": "off",
+    "no-empty": "off",
+    "no-fallthrough": "off",
+    "getter-return": "off",
+    "no-self-assign": "off",
+    "no-redeclare": "off",
+    "no-misleading-character-class": "off",
+    "no-useless-escape": "off",
+    "no-unreachable": "off",
+    "valid-typeof": "off",
+    "no-control-regex": "off",
+    "no-unsafe-finally": "off",
+    "no-sparse-arrays": "off",
+    "no-async-promise-executor": "off",
+    "no-constant-condition": "off",
+    "no-prototype-builtins": "off",
+    "no-mixed-spaces-and-tabs": "off",
+    "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  }
+}

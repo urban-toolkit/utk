@@ -1,0 +1,28 @@
+.mapView {
+    /* height: calc(100vh - 6px); */
+    /* height: 98vh; */
+    width: 100%;
+    height: 100%;
+} 
+
+.texCanvas {
+    position: absolute;
+    /* top: 30px;
+    right: 54px; */
+    z-index: 2;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.35);
+    /* border: 2px solid black; */
+}
+
+.searchBar {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 8px 8px 8px 8px;
+    border: 1px solid #dadce0;
+    background-color: #fff;
+    height: 40px;
+    padding: 10px
+}
+
+.searchBar:focus {
+    outline: none;
+}

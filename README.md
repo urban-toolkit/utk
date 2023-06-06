@@ -8,69 +8,35 @@ through a new high-level grammar specifically built with common urban use cases 
 visualization of different urban data, we also propose the concept of knots to merge thematic and physical urban layers. This repository presents the source
 code of the framework as well as documentation containing a gallery of examples, an in-depth description of the grammar and the steps needed to run the code.
 
-## Getting started
-
 ### System Requirements
 
-- Browser: Google Chrome (other browsers were not extensively tested yet, it might not behave as expected)
-- OS: Windows (other OS were not extensively tested yet, it might not behave as expected)
-- For ray tracing computation (optional): check PlotOptix requeriments [here](https://plotoptix.rnd.team/)
-- To load data from PBF files:
-    - Windows with wsl activated is necessary
-    - In the wsl cmd run `apt get install osmium-tool`
+- docker and docker-compose ([installation guide](https://www.docker.com/get-started/))
 
-### Installation
+### Running
 
-1. Clone the repository
+- `docker-compose up` (at the root of the project)
 
-- `git clone https://github.com/urban-toolkit/urbantk.git`
-- `cd urbantk`
+### Architecture
 
-2. Setup virtual environment
+UTK follows a microsservice architecture where each functionality is offered by one container. Please refer to the README.md of each service for more details:
 
-While dependencies can be installed without using a virtual environment, we recommend you to do so. Specifically, the Anaconda package manager will be used.  
+- [backend](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/backend/README.md)
+- [frontend](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/frontend/README.md)
+- [jupyterAPI](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/jupyterAPI/README.md)
+- [utk](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/utk/README.md)
+- [prodWebServer](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/services/prodWebServer/README.md)
 
-- If you do not have Anaconda installed you can follow the instructions [here](https://www.anaconda.com/) (the Anaconda version used in this tutorial is '22.9.0').
-- After installing it, open the Anaconda prompt and run:
-    - `conda create -n utkenv python=3.10.6 -c conda-forge --file requirements_conda.txt`
-    - `conda activate utkenv` (utkenv needs to be activated to run UTK)
-    - `pip install -r requirements_pip.txt`
+### Configuration
 
-3. Backend setup 
+All data loaded into the system must be under `data/` (at the root of the project).  
 
-- `cd src/utk-map/ts`
-- `npm install`
-- `npm run build`
-
-4. Frontend setup
-
-- `cd ../../../` (go back to the root folder)
-- `npm install`
-- to see web version `npm run start:web`
-
-5. Run
-
-- `npm run start:web` (after a couple of seconds the browser will open)
-
-### Data loading
-
-All data loaded into the system must be under `public/data/`
-
-To choose which folder to load one has to modify:  
-- The field environmentDataFolder in `src/utk-map/ts/pythonServerConfig.json` following the format: `public/data/*folder_name*`.  
-- The field environmentDataFolder in `src/params.js` following the format: `data/*folder_name*`.
-
-All layers (physical and thematic) are defined using .json files but following different [formats](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/src/pythonComponents/dataLoading/layers_format.md).
-
-<ins>[UTK API (python)](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/src/pythonComponents/dataLoading/README.md)</ins>
-
-The `src/pythonComponents/dataLoading/UTK_API.ipynb` presents several data loading examples using different types of data. In the end all data will be loaded to a folder under `public/data/`.
+You can modify the `DATA_FOLDER` environment variable on `docker-compose.yml` to change the loaded folder.  
 
 ### Example gallery
 
-Each example can be download and executed out of the shelf, but jupyter notebooks and the grammar specifications are also provided if one wants to build it from "scratch".  
+Each example can be download and executed out of the shelf, but jupyter notebooks and the grammar specifications are also provided if one wants to build them from "scratch".
 
-All the available data can be download at once [here](https://drive.google.com/drive/folders/1mmv6mJQyv6tE9ht7xq3XaOjCp9-QPphJ?usp=sharing) or following the examples:  
+The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyterAPI]() for more details.
 
 <ins>Loading downtown Manhattan</ins>
 
@@ -102,22 +68,6 @@ All the available data can be download at once [here](https://drive.google.com/d
 
 <ins>WRF Temperature per building</ins>
 
+### Grammar
 
-
-### Configuration
-
-UTK will load data files stored under utk/public/data.  
-
-To choose the loaded datafolder one has to modify /src/params.js (environmentDataFolder) and utk/src/pythonServerConfig.json (environmentDataFolder)
-
-### Deploy (Linux server)
-
-Open ports: 80, 3000 and 3002  
-
-Edit /src/param.js (environmentIP) and /src/utk-map/ts/pythonServerConfig.json (environmentIP)
-
-Run (on the project root):
-
-- python src/pythonComponents/dataLoading/webserver/webserver.py (Python server that handles switching examples)
-- python src/pythonComponents/dataLoading/server.py (Python server that handles data files)
-- npm run deploy:web
+For more details on the grammar refer to [grammar.md](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/grammar.md).

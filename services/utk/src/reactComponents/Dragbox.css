@@ -1,0 +1,40 @@
+/* drag box style */
+.drag-box {
+    /* padding: 50px; */
+    background: #ccc;
+    padding: 0;
+    /* width: 35vw !important;
+    height: 40vh !important; */
+    /* cursor: move; */
+    position: absolute;
+  }
+
+  .drag-box:active{
+    cursor: grabbing;
+  }
+
+  .axis-label, .dropdown-label{
+    font-size: 1.5em;
+    color: #8e8883;
+  }
+  .dropdown-label{
+    margin-left: 50px;
+    /* margin-right: 5px; */
+  }
+  .Dropdown-root{
+    font-size: 1em;
+    width: 300px;
+    display: inline-block;
+  }
+  
+  .Dropdown-menu{
+    max-height: 400px;
+  }
+  
+  .menu-container-dragbox{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    margin-right: 60px;
+  }
