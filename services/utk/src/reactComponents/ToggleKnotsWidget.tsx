@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 import Slider from '@mui/material/Slider';
 import {Row, Col} from 'react-bootstrap';
-import { IGenericWidget, IView, ICategory } from "../interfaces";
+import { IView, ICategory } from "../interfaces";
 
 // declaring the types of the props
 type ToggleKnotsWidgetProps = {

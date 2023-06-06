@@ -1,6 +1,6 @@
 /// <reference types="@types/webgl2" />
 
-import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot, IView, IComponentPosition, IGenericWidget } from './interfaces';
+import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot, IView, IComponentPosition } from './interfaces';
 import { PlotArrangementType, OperationType, SpatialRelationType, LevelType, ComponentIdentifier, WidgetType} from './constants';
 import { Knot } from './knot';
 import { MapViewFactory } from './mapview';
@@ -14,7 +14,7 @@ class GrammarInterpreter {
     protected _preProcessedGrammar: IGrammar;
     protected _processedGrammar: IGrammar;
     protected _lastValidationTimestep: number;
-    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title:string | undefined, subtitle: string | undefined, grammarDefinition: IView | IGenericWidget}[] = [];
+    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition | undefined, grammarDefinition: IView | undefined}[] = [];
     protected _frontEndCallback: any;
     protected _mainDiv: HTMLElement;
     protected _url: string;
@@ -39,25 +39,27 @@ class GrammarInterpreter {
 
         for(const component of grammar.components){
             if("map" in component){ // It is a map view
-                this._components.push({type: ComponentIdentifier.MAP, obj: MapViewFactory.getInstance(mainDiv, this), position: component.position, title: undefined, subtitle: undefined, grammarDefinition: component});
-            }else if("type" in component && component.type == WidgetType.GRAMMAR){ // It is a grammar editor
-                this._components.push({type: WidgetType.GRAMMAR, obj: this, position: component.position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
+                let map_component = {type: ComponentIdentifier.MAP, obj: MapViewFactory.getInstance(mainDiv, this), position: component.position, grammarDefinition: component};
+
+                this._components.push(map_component);
+                
+                if(component.widgets != undefined){
+                    for(const widget of component.widgets){
+                        if(widget == WidgetType.TOGGLE_KNOT){
+                            this._components.push({type: WidgetType.TOGGLE_KNOT, obj: map_component, position: undefined, grammarDefinition: component});
+                        }else if(widget == WidgetType.SEARCH){
+                            this._components.push({type: WidgetType.SEARCH, obj: map_component, position: undefined, grammarDefinition: component});
+                        }
+                    }
+                }
+            
             }
         }
 
-        // widgets that depend on maps
-        for(const component of grammar.components){
-            if("type" in component){
-                if(component.type == WidgetType.TOGGLE_KNOT){
-                    this._components.push({type: WidgetType.TOGGLE_KNOT, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
-                }else if(component.type == WidgetType.RESOLUTION){
-                    this._components.push({type: WidgetType.RESOLUTION, obj: this._components[<number>component.map_id].obj, position: component.position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
-                }else if(component.type == WidgetType.SEARCH){
-                    this._components.push({type: WidgetType.SEARCH, obj: this._components[<number>component.map_id].obj, position: this._components[<number>component.map_id].position, title: component.title, subtitle: component.subtitle, grammarDefinition: component});
-                }
-            }
+        if(grammar.grammar_editor != undefined){
+            this._components.push({type: ComponentIdentifier.GRAMMAR, obj: this, position: grammar.grammar_editor, grammarDefinition: undefined});
         }
-       
+
         this.renderViews(mainDiv, grammar);
     }
 

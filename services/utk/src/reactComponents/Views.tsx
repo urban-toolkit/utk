@@ -12,17 +12,18 @@ import Draggable from "react-draggable";
 import './Dragbox.css'
 
 import * as d3 from "d3";
-import { IComponentPosition, IGenericWidget, IGrammar, IGrid, IView } from '../interfaces';
+import { IComponentPosition, IGrammar, IGrid, IView } from '../interfaces';
 import './View.css';
 
 // declaring the types of the props
 type ViewProps = {
-  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView | IGenericWidget}[] // each view has a an object representing its logic
+  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView}[] // each view has a an object representing its logic
   viewIds: string[]
   grammar: IGrammar
   mainDivSize: {width: number, height: number}
 }
 
+// Render components
 function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
 
   const [camera, setCamera] = useState<{position: number[], direction: {right: number[], lookAt: number[], up: number[]}}>({position: [], direction: {right: [], lookAt: [], up: []}}); // TODO: if we have multiple map instances we have multiple cameras
@@ -185,6 +186,11 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                   <MapRendererContainer
                     obj = {component.obj}
                     viewId={viewIds[index]}
+                    viewObjs={viewObjs}
+                    x={getTopLeft(component.position).left}
+                    y={getTopLeft(component.position).top}
+                    width={getSizes(component.position).width}
+                    height={getSizes(component.position).height}
                   />
                 </div>
               </React.Fragment>
@@ -205,46 +211,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                   />
                 </div>
               </React.Fragment>
-            } else if(component.type == WidgetType.TOGGLE_KNOT){
-              return <React.Fragment key={viewIds[index]}>
-                <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
-                  <ToggleKnotsWidget
-                    obj = {component.obj}
-                    listLayers = {layersIds}
-                    knotVisibility = {knotVisibility}
-                    title = {component.title}
-                    subtitle = {component.subtitle}
-                    viewId = {viewIds[index]}
-                    grammarDefinition = {component.grammarDefinition}
-                  />
-                </div>
-              </React.Fragment>
-            }else if(component.type == WidgetType.RESOLUTION){
-              // return <React.Fragment key={viewIds[index]}>
-              //   <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
-              //     <ResolutionWidget 
-              //       listLayers = {layersIds}
-              //       obj = {component.obj}
-              //       viewId = {viewIds[index]}
-              //       camera = {camera}
-              //       title = {component.title}
-              //       subtitle = {component.subtitle}
-              //     />
-              //   </div>
-              // </React.Fragment>
-            }else if(component.type == WidgetType.SEARCH){
-              return <Draggable nodeRef={nodeRef} key={viewIds[index]} defaultPosition={{x: getTopLeft(component.position).left+15, y: getTopLeft(component.position).top+15}}>
-                <div ref={nodeRef} className="drag-box" style={{borderRadius: "8px 8px 8px 8px"}}>
-                  <SearchWidget 
-                    obj = {component.obj}
-                    viewId = {viewIds[index]}
-                    inputId = {inputBarId}
-                    title = {component.title}
-                    subtitle = {component.subtitle}
-                  />
-                </div>
-              </Draggable>
-            }
+            } 
           })
         }
       </div>
