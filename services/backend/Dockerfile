@@ -1,4 +1,4 @@
-FROM python:3.10.6-buster
+FROM --platform=linux/amd64 python:3.10.6-buster
 
 # set working directory
 WORKDIR /usr/src/utk-backend

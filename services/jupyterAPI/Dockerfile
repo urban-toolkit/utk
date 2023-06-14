@@ -1,4 +1,4 @@
-FROM jupyter/minimal-notebook:python-3.10
+FROM --platform=linux/amd64 jupyter/minimal-notebook:python-3.10
 
 USER root
 
