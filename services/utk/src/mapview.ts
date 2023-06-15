@@ -327,9 +327,10 @@ class MapView {
         this._grammarManager = new GrammarManager(grammar, this._updateStatusCallback, this.parsePlotsKnotData(), {"function": this.setHighlightElement, "arg": this});
     }
 
+    //TODO: not sure if mapview should contain this logic
     setHighlightElement(knotId: string, elementIndex: number, value: boolean, _this: any){
 
-        let knot = _this.getKnotById(knotId, this._viewId);
+        let knot = _this._grammarInterpreter.getKnotById(knotId, this._viewId);
 
         if(knot == undefined){
             throw Error("Cannot highlight element knot not found");
@@ -342,9 +343,14 @@ class MapView {
         if(lastLink.out.level == undefined)
             return;
 
+        let knotObject = _this.knotManager.getKnotById(knotId);
+
+        let shaders = knotObject.shaders;
+
+        // not sure if layer should be accessed directly or knot.ts be used
         for(const layer of _this._layerManager.layers){
             if(layer.id == layerId){
-                layer.setHighlightElements([elementIndex], <LevelType>lastLink.out.level, value);
+                layer.setHighlightElements([elementIndex], <LevelType>lastLink.out.level, value, shaders);
                 break;
             }
         }

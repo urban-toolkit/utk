@@ -306,8 +306,6 @@ export class ShaderPickingTriangles extends Shader {
 
         let id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
         
-        console.log("id", id);
-
         if(this.isFilteredIn(id)){ // filtered in so can be interacted
             this._auxiliaryShader.setPickedObject(id);
         }

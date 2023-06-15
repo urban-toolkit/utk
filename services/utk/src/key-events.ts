@@ -41,7 +41,6 @@ class KeyEvents {
       // select a building to do the footprint plot
       if(event.key == "t"){
         for (const knot of this._map.knotManager.knots) {
-          console.log(knot);
           knot.interact(this._map.glContext, "t", this._map.mouse.currentPoint);
         }
       }

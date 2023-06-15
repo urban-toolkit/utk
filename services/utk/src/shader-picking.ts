@@ -441,8 +441,6 @@ export class ShaderPicking extends Shader {
         
         let idBuildingLevel = this.objectFromCell(id);
 
-        console.log("id", idBuildingLevel);
-        
         if(this.isFilteredIn(idBuildingLevel)){ // filtered in, therefore can be interacted
             this._auxiliaryShader.setPickedObject(id);
         }

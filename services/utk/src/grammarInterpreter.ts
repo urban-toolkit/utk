@@ -271,7 +271,7 @@ class GrammarInterpreter {
     // }
     
     public getCamera(view: number = 0): ICameraData{
-        if("map" in this._processedGrammar['components']){
+        if("map" in this._processedGrammar['components'][view]){
             return (<IView>this._processedGrammar['components'][view]).map.camera;
         }else{
             throw new Error("The component is not a map");
@@ -279,7 +279,7 @@ class GrammarInterpreter {
     }
 
     public getPlots(view: number = 0) {
-        if("map" in this._processedGrammar['components']){
+        if("map" in this._processedGrammar['components'][view]){
             return (<IView>this._processedGrammar['components'][view]).plots;
         }else{
             throw new Error("The component is not a map");
@@ -287,7 +287,7 @@ class GrammarInterpreter {
     }
 
     public getKnots(view: number = 0){
-        if("map" in this._processedGrammar['components']){
+        if("map" in this._processedGrammar['components'][view]){
             return (<IView>this._processedGrammar['components'][view]).knots;
         }else{
             throw new Error("The component is not a map");
@@ -295,7 +295,7 @@ class GrammarInterpreter {
     }
 
     public getMap(view: number = 0){
-        if("map" in this._processedGrammar['components']){
+        if("map" in this._processedGrammar['components'][view]){
             return (<IView>this._processedGrammar['components'][view]).map;
         }else{
             throw new Error("The component is not a map");
@@ -303,7 +303,7 @@ class GrammarInterpreter {
     }
 
     public getFilterKnots(view: number = 0){
-        if("map" in this._processedGrammar['components']){
+        if("map" in this._processedGrammar['components'][view]){
             return (<IView>this._processedGrammar['components'][view]).map.filterKnots;
         }else{
             throw new Error("The component is not a map");
@@ -381,7 +381,7 @@ class GrammarInterpreter {
         return knot.visible;
     }
 
-    private getKnotById(knotId: string, view: number){
+    public getKnotById(knotId: string, view: number){
 
         for(let i = 0; i < this.getKnots(view).length; i++){
             let knot = this.getKnots(view)[i];
@@ -393,7 +393,7 @@ class GrammarInterpreter {
 
     }
 
-    private getKnotOutputLayer(knot: IKnot, view: number){
+    public getKnotOutputLayer(knot: IKnot, view: number){
         if(knot.knotOp == true){
 
             let lastKnotId = knot.integration_scheme[knot.integration_scheme.length-1].out.name;

@@ -67,6 +67,9 @@ export class TrianglesLayer extends Layer {
 
     setHighlightElements(elements: number[], level: LevelType, value: boolean, shaders: (Shader|AuxiliaryShader)[]): void{
 
+        if(elements[0] == undefined)
+            return;
+
         let coords = this.getCoordsByLevel(level);
         
         for(let i = 0; i < elements.length; i++){

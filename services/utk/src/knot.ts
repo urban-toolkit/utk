@@ -315,13 +315,11 @@ export class Knot {
         let interaction = '';
 
         for(let i = 0; i < mapGrammar.knots.length; i++){
-            if(mapGrammar.knots[i].id == this._id){
+            if(mapGrammar.knots[i] == this._id){
                 interaction = mapGrammar.interactions[i];
                 break;
             }
         }
-
-        console.log("interaction", interaction);
 
         if(interaction == ''){return;}
 

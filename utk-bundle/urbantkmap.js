@@ -1,6 +1,6 @@
 import * as React$1 from 'react';
 import React__default, { useRef, useEffect, useState, forwardRef, useContext } from 'react';
-import ReactDOM from 'react-dom';
+import require$$2 from 'react-dom';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { Button, Row, Col, Form } from 'react-bootstrap';
 import PropTypes from 'prop-types';
@@ -4624,7 +4624,6 @@ class ShaderPicking extends Shader {
         data); // typed array to hold result
         let id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
         let idBuildingLevel = this.objectFromCell(id);
-        console.log("id", idBuildingLevel);
         if (this.isFilteredIn(idBuildingLevel)) { // filtered in, therefore can be interacted
             this._auxiliaryShader.setPickedObject(id);
         }
@@ -6262,7 +6261,8 @@ class Camera {
         this._updateStatusCallback = updateStatusCallback;
         // z-values start from here are in meters
         this.wNear = 1;
-        this.wFar = 1e5;
+        // this.wFar = 1e5;
+        this.wFar = 1e10;
         this.groundRes = 1;
         this.wOrigin = fromValues(initialPosition[0], initialPosition[1]);
         this.wLookAt = fromValues$1(wLookAt[0], wLookAt[1], wLookAt[2]);
@@ -6459,7 +6459,6 @@ class KeyEvents {
         // select a building to do the footprint plot
         if (event.key == "t") {
             for (const knot of this._map.knotManager.knots) {
-                console.log(knot);
                 knot.interact(this._map.glContext, "t", this._map.mouse.currentPoint);
             }
         }
@@ -7243,7 +7242,6 @@ class ShaderPickingTriangles extends Shader {
         glContext.UNSIGNED_BYTE, // type
         data); // typed array to hold result
         let id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-        console.log("id", id);
         if (this.isFilteredIn(id)) { // filtered in so can be interacted
             this._auxiliaryShader.setPickedObject(id);
         }
@@ -8116,6 +8114,8 @@ class TrianglesLayer extends Layer {
         }
     }
     setHighlightElements(elements, level, value, shaders) {
+        if (elements[0] == undefined)
+            return;
         let coords = this.getCoordsByLevel(level);
         for (let i = 0; i < elements.length; i++) {
             let offsetCoords = 0;
@@ -11436,7 +11436,6 @@ class GrammarManager {
             for (let j = 1; j < elem.knots.length; j++) {
                 mergedKnots = mergeKnotData(mergedKnots.values, processedKnotData[elem.knots[j]].values);
             }
-            console.log("mergedKnots", mergedKnots);
             elem.plot.data = mergedKnots;
             let vegaspec = lite.compile(elem.plot).spec;
             var view = new vega.View(vega.parse(vegaspec))
@@ -12187,12 +12186,11 @@ class Knot {
         let mapGrammar = this._grammarInterpreter.getMap();
         let interaction = '';
         for (let i = 0; i < mapGrammar.knots.length; i++) {
-            if (mapGrammar.knots[i].id == this._id) {
+            if (mapGrammar.knots[i] == this._id) {
                 interaction = mapGrammar.interactions[i];
                 break;
             }
         }
-        console.log("interaction", interaction);
         if (interaction == '') {
             return;
         }
@@ -12611,8 +12609,9 @@ class MapView {
     initGrammarManager(grammar) {
         this._grammarManager = new GrammarManager(grammar, this._updateStatusCallback, this.parsePlotsKnotData(), { "function": this.setHighlightElement, "arg": this });
     }
+    //TODO: not sure if mapview should contain this logic
     setHighlightElement(knotId, elementIndex, value, _this) {
-        let knot = _this.getKnotById(knotId, this._viewId);
+        let knot = _this._grammarInterpreter.getKnotById(knotId, this._viewId);
         if (knot == undefined) {
             throw Error("Cannot highlight element knot not found");
         }
@@ -12620,9 +12619,12 @@ class MapView {
         let lastLink = _this._grammarInterpreter.getKnotLastLink(knot, _this._viewId);
         if (lastLink.out.level == undefined)
             return;
+        let knotObject = _this.knotManager.getKnotById(knotId);
+        let shaders = knotObject.shaders;
+        // not sure if layer should be accessed directly or knot.ts be used
         for (const layer of _this._layerManager.layers) {
             if (layer.id == layerId) {
-                layer.setHighlightElements([elementIndex], lastLink.out.level, value);
+                layer.setHighlightElements([elementIndex], lastLink.out.level, value, shaders);
                 break;
             }
         }
@@ -12871,7 +12873,7 @@ function getAugmentedNamespace(n) {
 
 var createRoot;
 
-var m$1 = ReactDOM;
+var m$1 = require$$2;
 if (process.env.NODE_ENV === 'production') {
   createRoot = m$1.createRoot;
   m$1.hydrateRoot;
@@ -13120,6 +13122,1793 @@ const MapRendererContainer = ({ obj, viewId }) => {
     return (jsx(React__default.Fragment, { children: jsxs("div", { style: { padding: 0, width: "100%", height: "100%" }, children: [jsx("div", { id: viewId, className: "mapView" }), jsx("div", { id: 'svg_div', children: jsx("svg", { id: 'svg_element', xmlns: "http://www.w3.org/2000/svg", style: { "display": "none" } }) })] }) }));
 };
 
+var cjs = {exports: {}};
+
+var Draggable$2 = {};
+
+function r(e){var t,f,n="";if("string"==typeof e||"number"==typeof e)n+=e;else if("object"==typeof e)if(Array.isArray(e))for(t=0;t<e.length;t++)e[t]&&(f=r(e[t]))&&(n&&(n+=" "),n+=f);else for(t in e)e[t]&&(n&&(n+=" "),n+=t);return n}function clsx(){for(var e,t,f=0,n="";f<arguments.length;)(e=arguments[f++])&&(t=r(e))&&(n&&(n+=" "),n+=t);return n}
+
+var clsx_m = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    clsx: clsx,
+    default: clsx
+});
+
+var require$$3 = /*@__PURE__*/getAugmentedNamespace(clsx_m);
+
+var domFns = {};
+
+var shims = {};
+
+Object.defineProperty(shims, "__esModule", {
+  value: true
+});
+shims.dontSetMe = dontSetMe;
+shims.findInArray = findInArray;
+shims.int = int;
+shims.isFunction = isFunction;
+shims.isNum = isNum;
+
+// @credits https://gist.github.com/rogozhnikoff/a43cfed27c41e4e68cdc
+function findInArray(array
+/*: Array<any> | TouchList*/
+, callback
+/*: Function*/
+)
+/*: any*/
+{
+  for (var i = 0, length = array.length; i < length; i++) {
+    if (callback.apply(callback, [array[i], i, array])) return array[i];
+  }
+}
+
+function isFunction(func
+/*: any*/
+)
+/*: boolean %checks*/
+{
+  // $FlowIgnore[method-unbinding]
+  return typeof func === 'function' || Object.prototype.toString.call(func) === '[object Function]';
+}
+
+function isNum(num
+/*: any*/
+)
+/*: boolean %checks*/
+{
+  return typeof num === 'number' && !isNaN(num);
+}
+
+function int(a
+/*: string*/
+)
+/*: number*/
+{
+  return parseInt(a, 10);
+}
+
+function dontSetMe(props
+/*: Object*/
+, propName
+/*: string*/
+, componentName
+/*: string*/
+)
+/*: ?Error*/
+{
+  if (props[propName]) {
+    return new Error("Invalid prop ".concat(propName, " passed to ").concat(componentName, " - do not set this, set it on the child."));
+  }
+}
+
+var getPrefix$1 = {};
+
+Object.defineProperty(getPrefix$1, "__esModule", {
+  value: true
+});
+getPrefix$1.browserPrefixToKey = browserPrefixToKey;
+getPrefix$1.browserPrefixToStyle = browserPrefixToStyle;
+getPrefix$1.default = void 0;
+getPrefix$1.getPrefix = getPrefix;
+var prefixes = ['Moz', 'Webkit', 'O', 'ms'];
+
+function getPrefix()
+/*: string*/
+{
+  var _window$document, _window$document$docu;
+
+  var prop
+  /*: string*/
+  = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'transform';
+  // Ensure we're running in an environment where there is actually a global
+  // `window` obj
+  if (typeof window === 'undefined') return ''; // If we're in a pseudo-browser server-side environment, this access
+  // path may not exist, so bail out if it doesn't.
+
+  var style = (_window$document = window.document) === null || _window$document === void 0 ? void 0 : (_window$document$docu = _window$document.documentElement) === null || _window$document$docu === void 0 ? void 0 : _window$document$docu.style;
+  if (!style) return '';
+  if (prop in style) return '';
+
+  for (var i = 0; i < prefixes.length; i++) {
+    if (browserPrefixToKey(prop, prefixes[i]) in style) return prefixes[i];
+  }
+
+  return '';
+}
+
+function browserPrefixToKey(prop
+/*: string*/
+, prefix
+/*: string*/
+)
+/*: string*/
+{
+  return prefix ? "".concat(prefix).concat(kebabToTitleCase(prop)) : prop;
+}
+
+function browserPrefixToStyle(prop
+/*: string*/
+, prefix
+/*: string*/
+)
+/*: string*/
+{
+  return prefix ? "-".concat(prefix.toLowerCase(), "-").concat(prop) : prop;
+}
+
+function kebabToTitleCase(str
+/*: string*/
+)
+/*: string*/
+{
+  var out = '';
+  var shouldCapitalize = true;
+
+  for (var i = 0; i < str.length; i++) {
+    if (shouldCapitalize) {
+      out += str[i].toUpperCase();
+      shouldCapitalize = false;
+    } else if (str[i] === '-') {
+      shouldCapitalize = true;
+    } else {
+      out += str[i];
+    }
+  }
+
+  return out;
+} // Default export is the prefix itself, like 'Moz', 'Webkit', etc
+// Note that you may have to re-test for certain things; for instance, Chrome 50
+// can handle unprefixed `transform`, but not unprefixed `user-select`
+
+
+var _default = (getPrefix()
+/*: string*/
+);
+
+getPrefix$1.default = _default;
+
+function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
+
+Object.defineProperty(domFns, "__esModule", {
+  value: true
+});
+domFns.addClassName = addClassName;
+domFns.addEvent = addEvent;
+domFns.addUserSelectStyles = addUserSelectStyles;
+domFns.createCSSTransform = createCSSTransform;
+domFns.createSVGTransform = createSVGTransform;
+domFns.getTouch = getTouch;
+domFns.getTouchIdentifier = getTouchIdentifier;
+domFns.getTranslation = getTranslation;
+domFns.innerHeight = innerHeight$1;
+domFns.innerWidth = innerWidth$1;
+domFns.matchesSelector = matchesSelector;
+domFns.matchesSelectorAndParentsTo = matchesSelectorAndParentsTo;
+domFns.offsetXYFromParent = offsetXYFromParent;
+domFns.outerHeight = outerHeight;
+domFns.outerWidth = outerWidth;
+domFns.removeClassName = removeClassName;
+domFns.removeEvent = removeEvent;
+domFns.removeUserSelectStyles = removeUserSelectStyles;
+
+var _shims$2 = shims;
+
+var _getPrefix = _interopRequireWildcard$1(getPrefix$1);
+
+function _getRequireWildcardCache$1(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache$1 = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard$1(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof$1(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache$1(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty$1(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty$1(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var matchesSelectorFunc = '';
+
+function matchesSelector(el
+/*: Node*/
+, selector
+/*: string*/
+)
+/*: boolean*/
+{
+  if (!matchesSelectorFunc) {
+    matchesSelectorFunc = (0, _shims$2.findInArray)(['matches', 'webkitMatchesSelector', 'mozMatchesSelector', 'msMatchesSelector', 'oMatchesSelector'], function (method) {
+      // $FlowIgnore: Doesn't think elements are indexable
+      return (0, _shims$2.isFunction)(el[method]);
+    });
+  } // Might not be found entirely (not an Element?) - in that case, bail
+  // $FlowIgnore: Doesn't think elements are indexable
+
+
+  if (!(0, _shims$2.isFunction)(el[matchesSelectorFunc])) return false; // $FlowIgnore: Doesn't think elements are indexable
+
+  return el[matchesSelectorFunc](selector);
+} // Works up the tree to the draggable itself attempting to match selector.
+
+
+function matchesSelectorAndParentsTo(el
+/*: Node*/
+, selector
+/*: string*/
+, baseNode
+/*: Node*/
+)
+/*: boolean*/
+{
+  var node = el;
+
+  do {
+    if (matchesSelector(node, selector)) return true;
+    if (node === baseNode) return false;
+    node = node.parentNode;
+  } while (node);
+
+  return false;
+}
+
+function addEvent(el
+/*: ?Node*/
+, event
+/*: string*/
+, handler
+/*: Function*/
+, inputOptions
+/*: Object*/
+)
+/*: void*/
+{
+  if (!el) return;
+
+  var options = _objectSpread({
+    capture: true
+  }, inputOptions); // $FlowIgnore[method-unbinding]
+
+
+  if (el.addEventListener) {
+    el.addEventListener(event, handler, options);
+  } else if (el.attachEvent) {
+    el.attachEvent('on' + event, handler);
+  } else {
+    // $FlowIgnore: Doesn't think elements are indexable
+    el['on' + event] = handler;
+  }
+}
+
+function removeEvent(el
+/*: ?Node*/
+, event
+/*: string*/
+, handler
+/*: Function*/
+, inputOptions
+/*: Object*/
+)
+/*: void*/
+{
+  if (!el) return;
+
+  var options = _objectSpread({
+    capture: true
+  }, inputOptions); // $FlowIgnore[method-unbinding]
+
+
+  if (el.removeEventListener) {
+    el.removeEventListener(event, handler, options);
+  } else if (el.detachEvent) {
+    el.detachEvent('on' + event, handler);
+  } else {
+    // $FlowIgnore: Doesn't think elements are indexable
+    el['on' + event] = null;
+  }
+}
+
+function outerHeight(node
+/*: HTMLElement*/
+)
+/*: number*/
+{
+  // This is deliberately excluding margin for our calculations, since we are using
+  // offsetTop which is including margin. See getBoundPosition
+  var height = node.clientHeight;
+  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
+  height += (0, _shims$2.int)(computedStyle.borderTopWidth);
+  height += (0, _shims$2.int)(computedStyle.borderBottomWidth);
+  return height;
+}
+
+function outerWidth(node
+/*: HTMLElement*/
+)
+/*: number*/
+{
+  // This is deliberately excluding margin for our calculations, since we are using
+  // offsetLeft which is including margin. See getBoundPosition
+  var width = node.clientWidth;
+  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
+  width += (0, _shims$2.int)(computedStyle.borderLeftWidth);
+  width += (0, _shims$2.int)(computedStyle.borderRightWidth);
+  return width;
+}
+
+function innerHeight$1(node
+/*: HTMLElement*/
+)
+/*: number*/
+{
+  var height = node.clientHeight;
+  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
+  height -= (0, _shims$2.int)(computedStyle.paddingTop);
+  height -= (0, _shims$2.int)(computedStyle.paddingBottom);
+  return height;
+}
+
+function innerWidth$1(node
+/*: HTMLElement*/
+)
+/*: number*/
+{
+  var width = node.clientWidth;
+  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
+  width -= (0, _shims$2.int)(computedStyle.paddingLeft);
+  width -= (0, _shims$2.int)(computedStyle.paddingRight);
+  return width;
+}
+/*:: interface EventWithOffset {
+  clientX: number, clientY: number
+}*/
+
+
+// Get from offsetParent
+function offsetXYFromParent(evt
+/*: EventWithOffset*/
+, offsetParent
+/*: HTMLElement*/
+, scale
+/*: number*/
+)
+/*: ControlPosition*/
+{
+  var isBody = offsetParent === offsetParent.ownerDocument.body;
+  var offsetParentRect = isBody ? {
+    left: 0,
+    top: 0
+  } : offsetParent.getBoundingClientRect();
+  var x = (evt.clientX + offsetParent.scrollLeft - offsetParentRect.left) / scale;
+  var y = (evt.clientY + offsetParent.scrollTop - offsetParentRect.top) / scale;
+  return {
+    x: x,
+    y: y
+  };
+}
+
+function createCSSTransform(controlPos
+/*: ControlPosition*/
+, positionOffset
+/*: PositionOffsetControlPosition*/
+)
+/*: Object*/
+{
+  var translation = getTranslation(controlPos, positionOffset, 'px');
+  return _defineProperty$1({}, (0, _getPrefix.browserPrefixToKey)('transform', _getPrefix.default), translation);
+}
+
+function createSVGTransform(controlPos
+/*: ControlPosition*/
+, positionOffset
+/*: PositionOffsetControlPosition*/
+)
+/*: string*/
+{
+  var translation = getTranslation(controlPos, positionOffset, '');
+  return translation;
+}
+
+function getTranslation(_ref2, positionOffset
+/*: PositionOffsetControlPosition*/
+, unitSuffix
+/*: string*/
+)
+/*: string*/
+{
+  var x = _ref2.x,
+      y = _ref2.y;
+  var translation = "translate(".concat(x).concat(unitSuffix, ",").concat(y).concat(unitSuffix, ")");
+
+  if (positionOffset) {
+    var defaultX = "".concat(typeof positionOffset.x === 'string' ? positionOffset.x : positionOffset.x + unitSuffix);
+    var defaultY = "".concat(typeof positionOffset.y === 'string' ? positionOffset.y : positionOffset.y + unitSuffix);
+    translation = "translate(".concat(defaultX, ", ").concat(defaultY, ")") + translation;
+  }
+
+  return translation;
+}
+
+function getTouch(e
+/*: MouseTouchEvent*/
+, identifier
+/*: number*/
+)
+/*: ?{clientX: number, clientY: number}*/
+{
+  return e.targetTouches && (0, _shims$2.findInArray)(e.targetTouches, function (t) {
+    return identifier === t.identifier;
+  }) || e.changedTouches && (0, _shims$2.findInArray)(e.changedTouches, function (t) {
+    return identifier === t.identifier;
+  });
+}
+
+function getTouchIdentifier(e
+/*: MouseTouchEvent*/
+)
+/*: ?number*/
+{
+  if (e.targetTouches && e.targetTouches[0]) return e.targetTouches[0].identifier;
+  if (e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].identifier;
+} // User-select Hacks:
+//
+// Useful for preventing blue highlights all over everything when dragging.
+// Note we're passing `document` b/c we could be iframed
+
+
+function addUserSelectStyles(doc
+/*: ?Document*/
+) {
+  if (!doc) return;
+  var styleEl = doc.getElementById('react-draggable-style-el');
+
+  if (!styleEl) {
+    styleEl = doc.createElement('style');
+    styleEl.type = 'text/css';
+    styleEl.id = 'react-draggable-style-el';
+    styleEl.innerHTML = '.react-draggable-transparent-selection *::-moz-selection {all: inherit;}\n';
+    styleEl.innerHTML += '.react-draggable-transparent-selection *::selection {all: inherit;}\n';
+    doc.getElementsByTagName('head')[0].appendChild(styleEl);
+  }
+
+  if (doc.body) addClassName(doc.body, 'react-draggable-transparent-selection');
+}
+
+function removeUserSelectStyles(doc
+/*: ?Document*/
+) {
+  if (!doc) return;
+
+  try {
+    if (doc.body) removeClassName(doc.body, 'react-draggable-transparent-selection'); // $FlowIgnore: IE
+
+    if (doc.selection) {
+      // $FlowIgnore: IE
+      doc.selection.empty();
+    } else {
+      // Remove selection caused by scroll, unless it's a focused input
+      // (we use doc.defaultView in case we're in an iframe)
+      var selection = (doc.defaultView || window).getSelection();
+
+      if (selection && selection.type !== 'Caret') {
+        selection.removeAllRanges();
+      }
+    }
+  } catch (e) {// probably IE
+  }
+}
+
+function addClassName(el
+/*: HTMLElement*/
+, className
+/*: string*/
+) {
+  if (el.classList) {
+    el.classList.add(className);
+  } else {
+    if (!el.className.match(new RegExp("(?:^|\\s)".concat(className, "(?!\\S)")))) {
+      el.className += " ".concat(className);
+    }
+  }
+}
+
+function removeClassName(el
+/*: HTMLElement*/
+, className
+/*: string*/
+) {
+  if (el.classList) {
+    el.classList.remove(className);
+  } else {
+    el.className = el.className.replace(new RegExp("(?:^|\\s)".concat(className, "(?!\\S)"), 'g'), '');
+  }
+}
+
+var positionFns = {};
+
+Object.defineProperty(positionFns, "__esModule", {
+  value: true
+});
+positionFns.canDragX = canDragX;
+positionFns.canDragY = canDragY;
+positionFns.createCoreData = createCoreData;
+positionFns.createDraggableData = createDraggableData;
+positionFns.getBoundPosition = getBoundPosition;
+positionFns.getControlPosition = getControlPosition;
+positionFns.snapToGrid = snapToGrid;
+
+var _shims$1 = shims;
+
+var _domFns$1 = domFns;
+
+function getBoundPosition(draggable
+/*: Draggable*/
+, x
+/*: number*/
+, y
+/*: number*/
+)
+/*: [number, number]*/
+{
+  // If no bounds, short-circuit and move on
+  if (!draggable.props.bounds) return [x, y]; // Clone new bounds
+
+  var bounds = draggable.props.bounds;
+  bounds = typeof bounds === 'string' ? bounds : cloneBounds(bounds);
+  var node = findDOMNode(draggable);
+
+  if (typeof bounds === 'string') {
+    var ownerDocument = node.ownerDocument;
+    var ownerWindow = ownerDocument.defaultView;
+    var boundNode;
+
+    if (bounds === 'parent') {
+      boundNode = node.parentNode;
+    } else {
+      boundNode = ownerDocument.querySelector(bounds);
+    }
+
+    if (!(boundNode instanceof ownerWindow.HTMLElement)) {
+      throw new Error('Bounds selector "' + bounds + '" could not find an element.');
+    }
+
+    var boundNodeEl
+    /*: HTMLElement*/
+    = boundNode; // for Flow, can't seem to refine correctly
+
+    var nodeStyle = ownerWindow.getComputedStyle(node);
+    var boundNodeStyle = ownerWindow.getComputedStyle(boundNodeEl); // Compute bounds. This is a pain with padding and offsets but this gets it exactly right.
+
+    bounds = {
+      left: -node.offsetLeft + (0, _shims$1.int)(boundNodeStyle.paddingLeft) + (0, _shims$1.int)(nodeStyle.marginLeft),
+      top: -node.offsetTop + (0, _shims$1.int)(boundNodeStyle.paddingTop) + (0, _shims$1.int)(nodeStyle.marginTop),
+      right: (0, _domFns$1.innerWidth)(boundNodeEl) - (0, _domFns$1.outerWidth)(node) - node.offsetLeft + (0, _shims$1.int)(boundNodeStyle.paddingRight) - (0, _shims$1.int)(nodeStyle.marginRight),
+      bottom: (0, _domFns$1.innerHeight)(boundNodeEl) - (0, _domFns$1.outerHeight)(node) - node.offsetTop + (0, _shims$1.int)(boundNodeStyle.paddingBottom) - (0, _shims$1.int)(nodeStyle.marginBottom)
+    };
+  } // Keep x and y below right and bottom limits...
+
+
+  if ((0, _shims$1.isNum)(bounds.right)) x = Math.min(x, bounds.right);
+  if ((0, _shims$1.isNum)(bounds.bottom)) y = Math.min(y, bounds.bottom); // But above left and top limits.
+
+  if ((0, _shims$1.isNum)(bounds.left)) x = Math.max(x, bounds.left);
+  if ((0, _shims$1.isNum)(bounds.top)) y = Math.max(y, bounds.top);
+  return [x, y];
+}
+
+function snapToGrid(grid
+/*: [number, number]*/
+, pendingX
+/*: number*/
+, pendingY
+/*: number*/
+)
+/*: [number, number]*/
+{
+  var x = Math.round(pendingX / grid[0]) * grid[0];
+  var y = Math.round(pendingY / grid[1]) * grid[1];
+  return [x, y];
+}
+
+function canDragX(draggable
+/*: Draggable*/
+)
+/*: boolean*/
+{
+  return draggable.props.axis === 'both' || draggable.props.axis === 'x';
+}
+
+function canDragY(draggable
+/*: Draggable*/
+)
+/*: boolean*/
+{
+  return draggable.props.axis === 'both' || draggable.props.axis === 'y';
+} // Get {x, y} positions from event.
+
+
+function getControlPosition(e
+/*: MouseTouchEvent*/
+, touchIdentifier
+/*: ?number*/
+, draggableCore
+/*: DraggableCore*/
+)
+/*: ?ControlPosition*/
+{
+  var touchObj = typeof touchIdentifier === 'number' ? (0, _domFns$1.getTouch)(e, touchIdentifier) : null;
+  if (typeof touchIdentifier === 'number' && !touchObj) return null; // not the right touch
+
+  var node = findDOMNode(draggableCore); // User can provide an offsetParent if desired.
+
+  var offsetParent = draggableCore.props.offsetParent || node.offsetParent || node.ownerDocument.body;
+  return (0, _domFns$1.offsetXYFromParent)(touchObj || e, offsetParent, draggableCore.props.scale);
+} // Create an data object exposed by <DraggableCore>'s events
+
+
+function createCoreData(draggable
+/*: DraggableCore*/
+, x
+/*: number*/
+, y
+/*: number*/
+)
+/*: DraggableData*/
+{
+  var state = draggable.state;
+  var isStart = !(0, _shims$1.isNum)(state.lastX);
+  var node = findDOMNode(draggable);
+
+  if (isStart) {
+    // If this is our first move, use the x and y as last coords.
+    return {
+      node: node,
+      deltaX: 0,
+      deltaY: 0,
+      lastX: x,
+      lastY: y,
+      x: x,
+      y: y
+    };
+  } else {
+    // Otherwise calculate proper values.
+    return {
+      node: node,
+      deltaX: x - state.lastX,
+      deltaY: y - state.lastY,
+      lastX: state.lastX,
+      lastY: state.lastY,
+      x: x,
+      y: y
+    };
+  }
+} // Create an data exposed by <Draggable>'s events
+
+
+function createDraggableData(draggable
+/*: Draggable*/
+, coreData
+/*: DraggableData*/
+)
+/*: DraggableData*/
+{
+  var scale = draggable.props.scale;
+  return {
+    node: coreData.node,
+    x: draggable.state.x + coreData.deltaX / scale,
+    y: draggable.state.y + coreData.deltaY / scale,
+    deltaX: coreData.deltaX / scale,
+    deltaY: coreData.deltaY / scale,
+    lastX: draggable.state.x,
+    lastY: draggable.state.y
+  };
+} // A lot faster than stringify/parse
+
+
+function cloneBounds(bounds
+/*: Bounds*/
+)
+/*: Bounds*/
+{
+  return {
+    left: bounds.left,
+    top: bounds.top,
+    right: bounds.right,
+    bottom: bounds.bottom
+  };
+}
+
+function findDOMNode(draggable
+/*: Draggable | DraggableCore*/
+)
+/*: HTMLElement*/
+{
+  var node = draggable.findDOMNode();
+
+  if (!node) {
+    throw new Error('<DraggableCore>: Unmounted during event!');
+  } // $FlowIgnore we can't assert on HTMLElement due to tests... FIXME
+
+
+  return node;
+}
+
+var DraggableCore$2 = {};
+
+var log$1 = {};
+
+Object.defineProperty(log$1, "__esModule", {
+  value: true
+});
+log$1.default = log;
+
+/*eslint no-console:0*/
+function log() {
+}
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+Object.defineProperty(DraggableCore$2, "__esModule", {
+  value: true
+});
+DraggableCore$2.default = void 0;
+
+var React = _interopRequireWildcard(React__default);
+
+var _propTypes = _interopRequireDefault(PropTypes);
+
+var _reactDom = _interopRequireDefault(require$$2);
+
+var _domFns = domFns;
+
+var _positionFns = positionFns;
+
+var _shims = shims;
+
+var _log = _interopRequireDefault(log$1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Simple abstraction for dragging events names.
+var eventsFor = {
+  touch: {
+    start: 'touchstart',
+    move: 'touchmove',
+    stop: 'touchend'
+  },
+  mouse: {
+    start: 'mousedown',
+    move: 'mousemove',
+    stop: 'mouseup'
+  }
+}; // Default to mouse events.
+
+var dragEventFor = eventsFor.mouse;
+/*:: type DraggableCoreState = {
+  dragging: boolean,
+  lastX: number,
+  lastY: number,
+  touchIdentifier: ?number
+};*/
+
+/*:: export type DraggableData = {
+  node: HTMLElement,
+  x: number, y: number,
+  deltaX: number, deltaY: number,
+  lastX: number, lastY: number,
+};*/
+
+/*:: export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;*/
+
+/*:: export type ControlPosition = {x: number, y: number};*/
+
+/*:: export type PositionOffsetControlPosition = {x: number|string, y: number|string};*/
+
+/*:: export type DraggableCoreDefaultProps = {
+  allowAnyClick: boolean,
+  disabled: boolean,
+  enableUserSelectHack: boolean,
+  onStart: DraggableEventHandler,
+  onDrag: DraggableEventHandler,
+  onStop: DraggableEventHandler,
+  onMouseDown: (e: MouseEvent) => void,
+  scale: number,
+};*/
+
+/*:: export type DraggableCoreProps = {
+  ...DraggableCoreDefaultProps,
+  cancel: string,
+  children: ReactElement<any>,
+  offsetParent: HTMLElement,
+  grid: [number, number],
+  handle: string,
+  nodeRef?: ?React.ElementRef<any>,
+};*/
+
+//
+// Define <DraggableCore>.
+//
+// <DraggableCore> is for advanced usage of <Draggable>. It maintains minimal internal state so it can
+// work well with libraries that require more control over the element.
+//
+var DraggableCore$1 = /*#__PURE__*/function (_React$Component) {
+  _inherits(DraggableCore, _React$Component);
+
+  var _super = _createSuper(DraggableCore);
+
+  function DraggableCore() {
+    var _this;
+
+    _classCallCheck(this, DraggableCore);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "state", {
+      dragging: false,
+      // Used while dragging to determine deltas.
+      lastX: NaN,
+      lastY: NaN,
+      touchIdentifier: null
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "mounted", false);
+
+    _defineProperty(_assertThisInitialized(_this), "handleDragStart", function (e) {
+      // Make it possible to attach event handlers on top of this one.
+      _this.props.onMouseDown(e); // Only accept left-clicks.
+
+
+      if (!_this.props.allowAnyClick && typeof e.button === 'number' && e.button !== 0) return false; // Get nodes. Be sure to grab relative document (could be iframed)
+
+      var thisNode = _this.findDOMNode();
+
+      if (!thisNode || !thisNode.ownerDocument || !thisNode.ownerDocument.body) {
+        throw new Error('<DraggableCore> not mounted on DragStart!');
+      }
+
+      var ownerDocument = thisNode.ownerDocument; // Short circuit if handle or cancel prop was provided and selector doesn't match.
+
+      if (_this.props.disabled || !(e.target instanceof ownerDocument.defaultView.Node) || _this.props.handle && !(0, _domFns.matchesSelectorAndParentsTo)(e.target, _this.props.handle, thisNode) || _this.props.cancel && (0, _domFns.matchesSelectorAndParentsTo)(e.target, _this.props.cancel, thisNode)) {
+        return;
+      } // Prevent scrolling on mobile devices, like ipad/iphone.
+      // Important that this is after handle/cancel.
+
+
+      if (e.type === 'touchstart') e.preventDefault(); // Set touch identifier in component state if this is a touch event. This allows us to
+      // distinguish between individual touches on multitouch screens by identifying which
+      // touchpoint was set to this element.
+
+      var touchIdentifier = (0, _domFns.getTouchIdentifier)(e);
+
+      _this.setState({
+        touchIdentifier: touchIdentifier
+      }); // Get the current drag point from the event. This is used as the offset.
+
+
+      var position = (0, _positionFns.getControlPosition)(e, touchIdentifier, _assertThisInitialized(_this));
+      if (position == null) return; // not possible but satisfies flow
+
+      var x = position.x,
+          y = position.y; // Create an event object with all the data parents need to make a decision here.
+
+      var coreEvent = (0, _positionFns.createCoreData)(_assertThisInitialized(_this), x, y);
+      (0, _log.default)('DraggableCore: handleDragStart: %j', coreEvent); // Call event handler. If it returns explicit false, cancel.
+
+      (0, _log.default)('calling', _this.props.onStart);
+
+      var shouldUpdate = _this.props.onStart(e, coreEvent);
+
+      if (shouldUpdate === false || _this.mounted === false) return; // Add a style to the body to disable user-select. This prevents text from
+      // being selected all over the page.
+
+      if (_this.props.enableUserSelectHack) (0, _domFns.addUserSelectStyles)(ownerDocument); // Initiate dragging. Set the current x and y as offsets
+      // so we know how much we've moved during the drag. This allows us
+      // to drag elements around even if they have been moved, without issue.
+
+      _this.setState({
+        dragging: true,
+        lastX: x,
+        lastY: y
+      }); // Add events to the document directly so we catch when the user's mouse/touch moves outside of
+      // this element. We use different events depending on whether or not we have detected that this
+      // is a touch-capable device.
+
+
+      (0, _domFns.addEvent)(ownerDocument, dragEventFor.move, _this.handleDrag);
+      (0, _domFns.addEvent)(ownerDocument, dragEventFor.stop, _this.handleDragStop);
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "handleDrag", function (e) {
+      // Get the current drag point from the event. This is used as the offset.
+      var position = (0, _positionFns.getControlPosition)(e, _this.state.touchIdentifier, _assertThisInitialized(_this));
+      if (position == null) return;
+      var x = position.x,
+          y = position.y; // Snap to grid if prop has been provided
+
+      if (Array.isArray(_this.props.grid)) {
+        var deltaX = x - _this.state.lastX,
+            deltaY = y - _this.state.lastY;
+
+        var _snapToGrid = (0, _positionFns.snapToGrid)(_this.props.grid, deltaX, deltaY);
+
+        var _snapToGrid2 = _slicedToArray(_snapToGrid, 2);
+
+        deltaX = _snapToGrid2[0];
+        deltaY = _snapToGrid2[1];
+        if (!deltaX && !deltaY) return; // skip useless drag
+
+        x = _this.state.lastX + deltaX, y = _this.state.lastY + deltaY;
+      }
+
+      var coreEvent = (0, _positionFns.createCoreData)(_assertThisInitialized(_this), x, y);
+      (0, _log.default)('DraggableCore: handleDrag: %j', coreEvent); // Call event handler. If it returns explicit false, trigger end.
+
+      var shouldUpdate = _this.props.onDrag(e, coreEvent);
+
+      if (shouldUpdate === false || _this.mounted === false) {
+        try {
+          // $FlowIgnore
+          _this.handleDragStop(new MouseEvent('mouseup'));
+        } catch (err) {
+          // Old browsers
+          var event = ((document.createEvent('MouseEvents')
+          /*: any*/
+          )
+          /*: MouseTouchEvent*/
+          ); // I see why this insanity was deprecated
+          // $FlowIgnore
+
+          event.initMouseEvent('mouseup', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+          _this.handleDragStop(event);
+        }
+
+        return;
+      }
+
+      _this.setState({
+        lastX: x,
+        lastY: y
+      });
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "handleDragStop", function (e) {
+      if (!_this.state.dragging) return;
+      var position = (0, _positionFns.getControlPosition)(e, _this.state.touchIdentifier, _assertThisInitialized(_this));
+      if (position == null) return;
+      var x = position.x,
+          y = position.y; // Snap to grid if prop has been provided
+
+      if (Array.isArray(_this.props.grid)) {
+        var deltaX = x - _this.state.lastX || 0;
+        var deltaY = y - _this.state.lastY || 0;
+
+        var _snapToGrid3 = (0, _positionFns.snapToGrid)(_this.props.grid, deltaX, deltaY);
+
+        var _snapToGrid4 = _slicedToArray(_snapToGrid3, 2);
+
+        deltaX = _snapToGrid4[0];
+        deltaY = _snapToGrid4[1];
+        x = _this.state.lastX + deltaX, y = _this.state.lastY + deltaY;
+      }
+
+      var coreEvent = (0, _positionFns.createCoreData)(_assertThisInitialized(_this), x, y); // Call event handler
+
+      var shouldContinue = _this.props.onStop(e, coreEvent);
+
+      if (shouldContinue === false || _this.mounted === false) return false;
+
+      var thisNode = _this.findDOMNode();
+
+      if (thisNode) {
+        // Remove user-select hack
+        if (_this.props.enableUserSelectHack) (0, _domFns.removeUserSelectStyles)(thisNode.ownerDocument);
+      }
+
+      (0, _log.default)('DraggableCore: handleDragStop: %j', coreEvent); // Reset the el.
+
+      _this.setState({
+        dragging: false,
+        lastX: NaN,
+        lastY: NaN
+      });
+
+      if (thisNode) {
+        // Remove event handlers
+        (0, _log.default)('DraggableCore: Removing handlers');
+        (0, _domFns.removeEvent)(thisNode.ownerDocument, dragEventFor.move, _this.handleDrag);
+        (0, _domFns.removeEvent)(thisNode.ownerDocument, dragEventFor.stop, _this.handleDragStop);
+      }
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "onMouseDown", function (e) {
+      dragEventFor = eventsFor.mouse; // on touchscreen laptops we could switch back to mouse
+
+      return _this.handleDragStart(e);
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "onMouseUp", function (e) {
+      dragEventFor = eventsFor.mouse;
+      return _this.handleDragStop(e);
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "onTouchStart", function (e) {
+      // We're on a touch device now, so change the event handlers
+      dragEventFor = eventsFor.touch;
+      return _this.handleDragStart(e);
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "onTouchEnd", function (e) {
+      // We're on a touch device now, so change the event handlers
+      dragEventFor = eventsFor.touch;
+      return _this.handleDragStop(e);
+    });
+
+    return _this;
+  }
+
+  _createClass(DraggableCore, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.mounted = true; // Touch handlers must be added with {passive: false} to be cancelable.
+      // https://developers.google.com/web/updates/2017/01/scrolling-intervention
+
+      var thisNode = this.findDOMNode();
+
+      if (thisNode) {
+        (0, _domFns.addEvent)(thisNode, eventsFor.touch.start, this.onTouchStart, {
+          passive: false
+        });
+      }
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      this.mounted = false; // Remove any leftover event handlers. Remove both touch and mouse handlers in case
+      // some browser quirk caused a touch event to fire during a mouse move, or vice versa.
+
+      var thisNode = this.findDOMNode();
+
+      if (thisNode) {
+        var ownerDocument = thisNode.ownerDocument;
+        (0, _domFns.removeEvent)(ownerDocument, eventsFor.mouse.move, this.handleDrag);
+        (0, _domFns.removeEvent)(ownerDocument, eventsFor.touch.move, this.handleDrag);
+        (0, _domFns.removeEvent)(ownerDocument, eventsFor.mouse.stop, this.handleDragStop);
+        (0, _domFns.removeEvent)(ownerDocument, eventsFor.touch.stop, this.handleDragStop);
+        (0, _domFns.removeEvent)(thisNode, eventsFor.touch.start, this.onTouchStart, {
+          passive: false
+        });
+        if (this.props.enableUserSelectHack) (0, _domFns.removeUserSelectStyles)(ownerDocument);
+      }
+    } // React Strict Mode compatibility: if `nodeRef` is passed, we will use it instead of trying to find
+    // the underlying DOM node ourselves. See the README for more information.
+
+  }, {
+    key: "findDOMNode",
+    value: function findDOMNode()
+    /*: ?HTMLElement*/
+    {
+      var _this$props, _this$props2, _this$props2$nodeRef;
+
+      return (_this$props = this.props) !== null && _this$props !== void 0 && _this$props.nodeRef ? (_this$props2 = this.props) === null || _this$props2 === void 0 ? void 0 : (_this$props2$nodeRef = _this$props2.nodeRef) === null || _this$props2$nodeRef === void 0 ? void 0 : _this$props2$nodeRef.current : _reactDom.default.findDOMNode(this);
+    }
+  }, {
+    key: "render",
+    value: function render()
+    /*: React.Element<any>*/
+    {
+      // Reuse the child provided
+      // This makes it flexible to use whatever element is wanted (div, ul, etc)
+      return /*#__PURE__*/React.cloneElement(React.Children.only(this.props.children), {
+        // Note: mouseMove handler is attached to document so it will still function
+        // when the user drags quickly and leaves the bounds of the element.
+        onMouseDown: this.onMouseDown,
+        onMouseUp: this.onMouseUp,
+        // onTouchStart is added on `componentDidMount` so they can be added with
+        // {passive: false}, which allows it to cancel. See
+        // https://developers.google.com/web/updates/2017/01/scrolling-intervention
+        onTouchEnd: this.onTouchEnd
+      });
+    }
+  }]);
+
+  return DraggableCore;
+}(React.Component);
+
+DraggableCore$2.default = DraggableCore$1;
+
+_defineProperty(DraggableCore$1, "displayName", 'DraggableCore');
+
+_defineProperty(DraggableCore$1, "propTypes", {
+  /**
+   * `allowAnyClick` allows dragging using any mouse button.
+   * By default, we only accept the left button.
+   *
+   * Defaults to `false`.
+   */
+  allowAnyClick: _propTypes.default.bool,
+
+  /**
+   * `disabled`, if true, stops the <Draggable> from dragging. All handlers,
+   * with the exception of `onMouseDown`, will not fire.
+   */
+  disabled: _propTypes.default.bool,
+
+  /**
+   * By default, we add 'user-select:none' attributes to the document body
+   * to prevent ugly text selection during drag. If this is causing problems
+   * for your app, set this to `false`.
+   */
+  enableUserSelectHack: _propTypes.default.bool,
+
+  /**
+   * `offsetParent`, if set, uses the passed DOM node to compute drag offsets
+   * instead of using the parent node.
+   */
+  offsetParent: function offsetParent(props
+  /*: DraggableCoreProps*/
+  , propName
+  /*: $Keys<DraggableCoreProps>*/
+  ) {
+    if (props[propName] && props[propName].nodeType !== 1) {
+      throw new Error('Draggable\'s offsetParent must be a DOM Node.');
+    }
+  },
+
+  /**
+   * `grid` specifies the x and y that dragging should snap to.
+   */
+  grid: _propTypes.default.arrayOf(_propTypes.default.number),
+
+  /**
+   * `handle` specifies a selector to be used as the handle that initiates drag.
+   *
+   * Example:
+   *
+   * ```jsx
+   *   let App = React.createClass({
+   *       render: function () {
+   *         return (
+   *            <Draggable handle=".handle">
+   *              <div>
+   *                  <div className="handle">Click me to drag</div>
+   *                  <div>This is some other content</div>
+   *              </div>
+   *           </Draggable>
+   *         );
+   *       }
+   *   });
+   * ```
+   */
+  handle: _propTypes.default.string,
+
+  /**
+   * `cancel` specifies a selector to be used to prevent drag initialization.
+   *
+   * Example:
+   *
+   * ```jsx
+   *   let App = React.createClass({
+   *       render: function () {
+   *           return(
+   *               <Draggable cancel=".cancel">
+   *                   <div>
+   *                     <div className="cancel">You can't drag from here</div>
+   *                     <div>Dragging here works fine</div>
+   *                   </div>
+   *               </Draggable>
+   *           );
+   *       }
+   *   });
+   * ```
+   */
+  cancel: _propTypes.default.string,
+
+  /* If running in React Strict mode, ReactDOM.findDOMNode() is deprecated.
+   * Unfortunately, in order for <Draggable> to work properly, we need raw access
+   * to the underlying DOM node. If you want to avoid the warning, pass a `nodeRef`
+   * as in this example:
+   *
+   * function MyComponent() {
+   *   const nodeRef = React.useRef(null);
+   *   return (
+   *     <Draggable nodeRef={nodeRef}>
+   *       <div ref={nodeRef}>Example Target</div>
+   *     </Draggable>
+   *   );
+   * }
+   *
+   * This can be used for arbitrarily nested components, so long as the ref ends up
+   * pointing to the actual child DOM node and not a custom component.
+   */
+  nodeRef: _propTypes.default.object,
+
+  /**
+   * Called when dragging starts.
+   * If this function returns the boolean false, dragging will be canceled.
+   */
+  onStart: _propTypes.default.func,
+
+  /**
+   * Called while dragging.
+   * If this function returns the boolean false, dragging will be canceled.
+   */
+  onDrag: _propTypes.default.func,
+
+  /**
+   * Called when dragging stops.
+   * If this function returns the boolean false, the drag will remain active.
+   */
+  onStop: _propTypes.default.func,
+
+  /**
+   * A workaround option which can be passed if onMouseDown needs to be accessed,
+   * since it'll always be blocked (as there is internal use of onMouseDown)
+   */
+  onMouseDown: _propTypes.default.func,
+
+  /**
+   * `scale`, if set, applies scaling while dragging an element
+   */
+  scale: _propTypes.default.number,
+
+  /**
+   * These properties should be defined on the child, not here.
+   */
+  className: _shims.dontSetMe,
+  style: _shims.dontSetMe,
+  transform: _shims.dontSetMe
+});
+
+_defineProperty(DraggableCore$1, "defaultProps", {
+  allowAnyClick: false,
+  // by default only accept left click
+  disabled: false,
+  enableUserSelectHack: true,
+  onStart: function onStart() {},
+  onDrag: function onDrag() {},
+  onStop: function onStop() {},
+  onMouseDown: function onMouseDown() {},
+  scale: 1
+});
+
+(function (exports) {
+
+	function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	Object.defineProperty(exports, "DraggableCore", {
+	  enumerable: true,
+	  get: function get() {
+	    return _DraggableCore.default;
+	  }
+	});
+	exports.default = void 0;
+
+	var React = _interopRequireWildcard(React__default);
+
+	var _propTypes = _interopRequireDefault(PropTypes);
+
+	var _reactDom = _interopRequireDefault(require$$2);
+
+	var _clsx2 = _interopRequireDefault(require$$3);
+
+	var _domFns = domFns;
+
+	var _positionFns = positionFns;
+
+	var _shims = shims;
+
+	var _DraggableCore = _interopRequireDefault(DraggableCore$2);
+
+	var _log = _interopRequireDefault(log$1);
+
+	var _excluded = ["axis", "bounds", "children", "defaultPosition", "defaultClassName", "defaultClassNameDragging", "defaultClassNameDragged", "position", "positionOffset", "scale"];
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+	function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+	function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+	function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+	function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+	function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+	function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+	function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+	function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+	function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+	function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+	function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+	function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+	function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	//
+	// Define <Draggable>
+	//
+	var Draggable = /*#__PURE__*/function (_React$Component) {
+	  _inherits(Draggable, _React$Component);
+
+	  var _super = _createSuper(Draggable);
+
+	  function Draggable(props
+	  /*: DraggableProps*/
+	  ) {
+	    var _this;
+
+	    _classCallCheck(this, Draggable);
+
+	    _this = _super.call(this, props);
+
+	    _defineProperty(_assertThisInitialized(_this), "onDragStart", function (e, coreData) {
+	      (0, _log.default)('Draggable: onDragStart: %j', coreData); // Short-circuit if user's callback killed it.
+
+	      var shouldStart = _this.props.onStart(e, (0, _positionFns.createDraggableData)(_assertThisInitialized(_this), coreData)); // Kills start event on core as well, so move handlers are never bound.
+
+
+	      if (shouldStart === false) return false;
+
+	      _this.setState({
+	        dragging: true,
+	        dragged: true
+	      });
+	    });
+
+	    _defineProperty(_assertThisInitialized(_this), "onDrag", function (e, coreData) {
+	      if (!_this.state.dragging) return false;
+	      (0, _log.default)('Draggable: onDrag: %j', coreData);
+	      var uiData = (0, _positionFns.createDraggableData)(_assertThisInitialized(_this), coreData);
+	      var newState
+	      /*: $Shape<DraggableState>*/
+	      = {
+	        x: uiData.x,
+	        y: uiData.y
+	      }; // Keep within bounds.
+
+	      if (_this.props.bounds) {
+	        // Save original x and y.
+	        var x = newState.x,
+	            y = newState.y; // Add slack to the values used to calculate bound position. This will ensure that if
+	        // we start removing slack, the element won't react to it right away until it's been
+	        // completely removed.
+
+	        newState.x += _this.state.slackX;
+	        newState.y += _this.state.slackY; // Get bound position. This will ceil/floor the x and y within the boundaries.
+
+	        var _getBoundPosition = (0, _positionFns.getBoundPosition)(_assertThisInitialized(_this), newState.x, newState.y),
+	            _getBoundPosition2 = _slicedToArray(_getBoundPosition, 2),
+	            newStateX = _getBoundPosition2[0],
+	            newStateY = _getBoundPosition2[1];
+
+	        newState.x = newStateX;
+	        newState.y = newStateY; // Recalculate slack by noting how much was shaved by the boundPosition handler.
+
+	        newState.slackX = _this.state.slackX + (x - newState.x);
+	        newState.slackY = _this.state.slackY + (y - newState.y); // Update the event we fire to reflect what really happened after bounds took effect.
+
+	        uiData.x = newState.x;
+	        uiData.y = newState.y;
+	        uiData.deltaX = newState.x - _this.state.x;
+	        uiData.deltaY = newState.y - _this.state.y;
+	      } // Short-circuit if user's callback killed it.
+
+
+	      var shouldUpdate = _this.props.onDrag(e, uiData);
+
+	      if (shouldUpdate === false) return false;
+
+	      _this.setState(newState);
+	    });
+
+	    _defineProperty(_assertThisInitialized(_this), "onDragStop", function (e, coreData) {
+	      if (!_this.state.dragging) return false; // Short-circuit if user's callback killed it.
+
+	      var shouldContinue = _this.props.onStop(e, (0, _positionFns.createDraggableData)(_assertThisInitialized(_this), coreData));
+
+	      if (shouldContinue === false) return false;
+	      (0, _log.default)('Draggable: onDragStop: %j', coreData);
+	      var newState
+	      /*: $Shape<DraggableState>*/
+	      = {
+	        dragging: false,
+	        slackX: 0,
+	        slackY: 0
+	      }; // If this is a controlled component, the result of this operation will be to
+	      // revert back to the old position. We expect a handler on `onDragStop`, at the least.
+
+	      var controlled = Boolean(_this.props.position);
+
+	      if (controlled) {
+	        var _this$props$position = _this.props.position,
+	            x = _this$props$position.x,
+	            y = _this$props$position.y;
+	        newState.x = x;
+	        newState.y = y;
+	      }
+
+	      _this.setState(newState);
+	    });
+
+	    _this.state = {
+	      // Whether or not we are currently dragging.
+	      dragging: false,
+	      // Whether or not we have been dragged before.
+	      dragged: false,
+	      // Current transform x and y.
+	      x: props.position ? props.position.x : props.defaultPosition.x,
+	      y: props.position ? props.position.y : props.defaultPosition.y,
+	      prevPropsPosition: _objectSpread({}, props.position),
+	      // Used for compensating for out-of-bounds drags
+	      slackX: 0,
+	      slackY: 0,
+	      // Can only determine if SVG after mounting
+	      isElementSVG: false
+	    };
+
+	    if (props.position && !(props.onDrag || props.onStop)) {
+	      // eslint-disable-next-line no-console
+	      console.warn('A `position` was applied to this <Draggable>, without drag handlers. This will make this ' + 'component effectively undraggable. Please attach `onDrag` or `onStop` handlers so you can adjust the ' + '`position` of this element.');
+	    }
+
+	    return _this;
+	  }
+
+	  _createClass(Draggable, [{
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      // Check to see if the element passed is an instanceof SVGElement
+	      if (typeof window.SVGElement !== 'undefined' && this.findDOMNode() instanceof window.SVGElement) {
+	        this.setState({
+	          isElementSVG: true
+	        });
+	      }
+	    }
+	  }, {
+	    key: "componentWillUnmount",
+	    value: function componentWillUnmount() {
+	      this.setState({
+	        dragging: false
+	      }); // prevents invariant if unmounted while dragging
+	    } // React Strict Mode compatibility: if `nodeRef` is passed, we will use it instead of trying to find
+	    // the underlying DOM node ourselves. See the README for more information.
+
+	  }, {
+	    key: "findDOMNode",
+	    value: function findDOMNode()
+	    /*: ?HTMLElement*/
+	    {
+	      var _this$props$nodeRef$c, _this$props, _this$props$nodeRef;
+
+	      return (_this$props$nodeRef$c = (_this$props = this.props) === null || _this$props === void 0 ? void 0 : (_this$props$nodeRef = _this$props.nodeRef) === null || _this$props$nodeRef === void 0 ? void 0 : _this$props$nodeRef.current) !== null && _this$props$nodeRef$c !== void 0 ? _this$props$nodeRef$c : _reactDom.default.findDOMNode(this);
+	    }
+	  }, {
+	    key: "render",
+	    value: function render()
+	    /*: ReactElement<any>*/
+	    {
+	      var _clsx;
+
+	      var _this$props2 = this.props;
+	          _this$props2.axis;
+	          _this$props2.bounds;
+	          var children = _this$props2.children,
+	          defaultPosition = _this$props2.defaultPosition,
+	          defaultClassName = _this$props2.defaultClassName,
+	          defaultClassNameDragging = _this$props2.defaultClassNameDragging,
+	          defaultClassNameDragged = _this$props2.defaultClassNameDragged,
+	          position = _this$props2.position,
+	          positionOffset = _this$props2.positionOffset;
+	          _this$props2.scale;
+	          var draggableCoreProps = _objectWithoutProperties(_this$props2, _excluded);
+
+	      var style = {};
+	      var svgTransform = null; // If this is controlled, we don't want to move it - unless it's dragging.
+
+	      var controlled = Boolean(position);
+	      var draggable = !controlled || this.state.dragging;
+	      var validPosition = position || defaultPosition;
+	      var transformOpts = {
+	        // Set left if horizontal drag is enabled
+	        x: (0, _positionFns.canDragX)(this) && draggable ? this.state.x : validPosition.x,
+	        // Set top if vertical drag is enabled
+	        y: (0, _positionFns.canDragY)(this) && draggable ? this.state.y : validPosition.y
+	      }; // If this element was SVG, we use the `transform` attribute.
+
+	      if (this.state.isElementSVG) {
+	        svgTransform = (0, _domFns.createSVGTransform)(transformOpts, positionOffset);
+	      } else {
+	        // Add a CSS transform to move the element around. This allows us to move the element around
+	        // without worrying about whether or not it is relatively or absolutely positioned.
+	        // If the item you are dragging already has a transform set, wrap it in a <span> so <Draggable>
+	        // has a clean slate.
+	        style = (0, _domFns.createCSSTransform)(transformOpts, positionOffset);
+	      } // Mark with class while dragging
+
+
+	      var className = (0, _clsx2.default)(children.props.className || '', defaultClassName, (_clsx = {}, _defineProperty(_clsx, defaultClassNameDragging, this.state.dragging), _defineProperty(_clsx, defaultClassNameDragged, this.state.dragged), _clsx)); // Reuse the child provided
+	      // This makes it flexible to use whatever element is wanted (div, ul, etc)
+
+	      return /*#__PURE__*/React.createElement(_DraggableCore.default, _extends({}, draggableCoreProps, {
+	        onStart: this.onDragStart,
+	        onDrag: this.onDrag,
+	        onStop: this.onDragStop
+	      }), /*#__PURE__*/React.cloneElement(React.Children.only(children), {
+	        className: className,
+	        style: _objectSpread(_objectSpread({}, children.props.style), style),
+	        transform: svgTransform
+	      }));
+	    }
+	  }], [{
+	    key: "getDerivedStateFromProps",
+	    value: // React 16.3+
+	    // Arity (props, state)
+	    function getDerivedStateFromProps(_ref, _ref2)
+	    /*: ?$Shape<DraggableState>*/
+	    {
+	      var position = _ref.position;
+	      var prevPropsPosition = _ref2.prevPropsPosition;
+
+	      // Set x/y if a new position is provided in props that is different than the previous.
+	      if (position && (!prevPropsPosition || position.x !== prevPropsPosition.x || position.y !== prevPropsPosition.y)) {
+	        (0, _log.default)('Draggable: getDerivedStateFromProps %j', {
+	          position: position,
+	          prevPropsPosition: prevPropsPosition
+	        });
+	        return {
+	          x: position.x,
+	          y: position.y,
+	          prevPropsPosition: _objectSpread({}, position)
+	        };
+	      }
+
+	      return null;
+	    }
+	  }]);
+
+	  return Draggable;
+	}(React.Component);
+
+	exports.default = Draggable;
+
+	_defineProperty(Draggable, "displayName", 'Draggable');
+
+	_defineProperty(Draggable, "propTypes", _objectSpread(_objectSpread({}, _DraggableCore.default.propTypes), {}, {
+	  /**
+	   * `axis` determines which axis the draggable can move.
+	   *
+	   *  Note that all callbacks will still return data as normal. This only
+	   *  controls flushing to the DOM.
+	   *
+	   * 'both' allows movement horizontally and vertically.
+	   * 'x' limits movement to horizontal axis.
+	   * 'y' limits movement to vertical axis.
+	   * 'none' limits all movement.
+	   *
+	   * Defaults to 'both'.
+	   */
+	  axis: _propTypes.default.oneOf(['both', 'x', 'y', 'none']),
+
+	  /**
+	   * `bounds` determines the range of movement available to the element.
+	   * Available values are:
+	   *
+	   * 'parent' restricts movement within the Draggable's parent node.
+	   *
+	   * Alternatively, pass an object with the following properties, all of which are optional:
+	   *
+	   * {left: LEFT_BOUND, right: RIGHT_BOUND, bottom: BOTTOM_BOUND, top: TOP_BOUND}
+	   *
+	   * All values are in px.
+	   *
+	   * Example:
+	   *
+	   * ```jsx
+	   *   let App = React.createClass({
+	   *       render: function () {
+	   *         return (
+	   *            <Draggable bounds={{right: 300, bottom: 300}}>
+	   *              <div>Content</div>
+	   *           </Draggable>
+	   *         );
+	   *       }
+	   *   });
+	   * ```
+	   */
+	  bounds: _propTypes.default.oneOfType([_propTypes.default.shape({
+	    left: _propTypes.default.number,
+	    right: _propTypes.default.number,
+	    top: _propTypes.default.number,
+	    bottom: _propTypes.default.number
+	  }), _propTypes.default.string, _propTypes.default.oneOf([false])]),
+	  defaultClassName: _propTypes.default.string,
+	  defaultClassNameDragging: _propTypes.default.string,
+	  defaultClassNameDragged: _propTypes.default.string,
+
+	  /**
+	   * `defaultPosition` specifies the x and y that the dragged item should start at
+	   *
+	   * Example:
+	   *
+	   * ```jsx
+	   *      let App = React.createClass({
+	   *          render: function () {
+	   *              return (
+	   *                  <Draggable defaultPosition={{x: 25, y: 25}}>
+	   *                      <div>I start with transformX: 25px and transformY: 25px;</div>
+	   *                  </Draggable>
+	   *              );
+	   *          }
+	   *      });
+	   * ```
+	   */
+	  defaultPosition: _propTypes.default.shape({
+	    x: _propTypes.default.number,
+	    y: _propTypes.default.number
+	  }),
+	  positionOffset: _propTypes.default.shape({
+	    x: _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.string]),
+	    y: _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.string])
+	  }),
+
+	  /**
+	   * `position`, if present, defines the current position of the element.
+	   *
+	   *  This is similar to how form elements in React work - if no `position` is supplied, the component
+	   *  is uncontrolled.
+	   *
+	   * Example:
+	   *
+	   * ```jsx
+	   *      let App = React.createClass({
+	   *          render: function () {
+	   *              return (
+	   *                  <Draggable position={{x: 25, y: 25}}>
+	   *                      <div>I start with transformX: 25px and transformY: 25px;</div>
+	   *                  </Draggable>
+	   *              );
+	   *          }
+	   *      });
+	   * ```
+	   */
+	  position: _propTypes.default.shape({
+	    x: _propTypes.default.number,
+	    y: _propTypes.default.number
+	  }),
+
+	  /**
+	   * These properties should be defined on the child, not here.
+	   */
+	  className: _shims.dontSetMe,
+	  style: _shims.dontSetMe,
+	  transform: _shims.dontSetMe
+	}));
+
+	_defineProperty(Draggable, "defaultProps", _objectSpread(_objectSpread({}, _DraggableCore.default.defaultProps), {}, {
+	  axis: 'both',
+	  bounds: false,
+	  defaultClassName: 'react-draggable',
+	  defaultClassNameDragging: 'react-draggable-dragging',
+	  defaultClassNameDragged: 'react-draggable-dragged',
+	  defaultPosition: {
+	    x: 0,
+	    y: 0
+	  },
+	  scale: 1
+	})); 
+} (Draggable$2));
+
+var _require = Draggable$2,
+    Draggable = _require.default,
+    DraggableCore = _require.DraggableCore; // Previous versions of this lib exported <Draggable> as the root export. As to no-// them, or TypeScript, we export *both* as the root and as 'default'.
+// See https://github.com/mzabriskie/react-draggable/pull/254
+// and https://github.com/mzabriskie/react-draggable/issues/266
+
+
+cjs.exports = Draggable;
+cjs.exports.default = Draggable;
+cjs.exports.DraggableCore = DraggableCore;
+
+var cjsExports = cjs.exports;
+var Draggable$1 = /*@__PURE__*/getDefaultExportFromCjs(cjsExports);
+
+const GenericScreenPlotContainer = ({ disp, svgId }) => {
+    const nodeRef = useRef(null);
+    return (jsx(Draggable$1, { nodeRef: nodeRef, defaultPosition: { x: window.innerWidth / 1.5, y: -window.innerHeight / 1.5 }, children: jsx("div", { ref: nodeRef, className: "drag-box", style: { display: disp ? 'block' : 'none', boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.35)", overflow: "auto", maxWidth: window.innerWidth / 2, maxHeight: window.innerHeight }, children: jsx("div", { id: svgId }) }) }));
+};
+
 function _objectWithoutPropertiesLoose(source, excluded) {
   if (source == null) return {};
   var target = {};
@@ -13147,14 +14936,6 @@ function _extends() {
   };
   return _extends.apply(this, arguments);
 }
-
-function r(e){var t,f,n="";if("string"==typeof e||"number"==typeof e)n+=e;else if("object"==typeof e)if(Array.isArray(e))for(t=0;t<e.length;t++)e[t]&&(f=r(e[t]))&&(n&&(n+=" "),n+=f);else for(t in e)e[t]&&(n&&(n+=" "),n+=t);return n}function clsx(){for(var e,t,f=0,n="";f<arguments.length;)(e=arguments[f++])&&(t=r(e))&&(n&&(n+=" "),n+=t);return n}
-
-var clsx_m = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    clsx: clsx,
-    default: clsx
-});
 
 function chainPropTypes(propType1, propType2) {
   if (process.env.NODE_ENV === 'production') {
@@ -20492,1780 +22273,6 @@ const SearchWidget = ({ obj, inputId, viewId, title, subtitle }) => {
     return (jsxs(React__default.Fragment, { children: [title != undefined ? jsx("p", { children: title }) : jsx(Fragment, {}), subtitle != undefined ? jsx("p", { children: subtitle }) : jsx(Fragment, {}), jsx("input", { type: "text", className: inputId, name: "searchBar", placeholder: 'Search place' })] }));
 };
 
-var cjs = {exports: {}};
-
-var Draggable$2 = {};
-
-var require$$3 = /*@__PURE__*/getAugmentedNamespace(clsx_m);
-
-var domFns = {};
-
-var shims = {};
-
-Object.defineProperty(shims, "__esModule", {
-  value: true
-});
-shims.dontSetMe = dontSetMe;
-shims.findInArray = findInArray;
-shims.int = int;
-shims.isFunction = isFunction;
-shims.isNum = isNum;
-
-// @credits https://gist.github.com/rogozhnikoff/a43cfed27c41e4e68cdc
-function findInArray(array
-/*: Array<any> | TouchList*/
-, callback
-/*: Function*/
-)
-/*: any*/
-{
-  for (var i = 0, length = array.length; i < length; i++) {
-    if (callback.apply(callback, [array[i], i, array])) return array[i];
-  }
-}
-
-function isFunction(func
-/*: any*/
-)
-/*: boolean %checks*/
-{
-  // $FlowIgnore[method-unbinding]
-  return typeof func === 'function' || Object.prototype.toString.call(func) === '[object Function]';
-}
-
-function isNum(num
-/*: any*/
-)
-/*: boolean %checks*/
-{
-  return typeof num === 'number' && !isNaN(num);
-}
-
-function int(a
-/*: string*/
-)
-/*: number*/
-{
-  return parseInt(a, 10);
-}
-
-function dontSetMe(props
-/*: Object*/
-, propName
-/*: string*/
-, componentName
-/*: string*/
-)
-/*: ?Error*/
-{
-  if (props[propName]) {
-    return new Error("Invalid prop ".concat(propName, " passed to ").concat(componentName, " - do not set this, set it on the child."));
-  }
-}
-
-var getPrefix$1 = {};
-
-Object.defineProperty(getPrefix$1, "__esModule", {
-  value: true
-});
-getPrefix$1.browserPrefixToKey = browserPrefixToKey;
-getPrefix$1.browserPrefixToStyle = browserPrefixToStyle;
-getPrefix$1.default = void 0;
-getPrefix$1.getPrefix = getPrefix;
-var prefixes = ['Moz', 'Webkit', 'O', 'ms'];
-
-function getPrefix()
-/*: string*/
-{
-  var _window$document, _window$document$docu;
-
-  var prop
-  /*: string*/
-  = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'transform';
-  // Ensure we're running in an environment where there is actually a global
-  // `window` obj
-  if (typeof window === 'undefined') return ''; // If we're in a pseudo-browser server-side environment, this access
-  // path may not exist, so bail out if it doesn't.
-
-  var style = (_window$document = window.document) === null || _window$document === void 0 ? void 0 : (_window$document$docu = _window$document.documentElement) === null || _window$document$docu === void 0 ? void 0 : _window$document$docu.style;
-  if (!style) return '';
-  if (prop in style) return '';
-
-  for (var i = 0; i < prefixes.length; i++) {
-    if (browserPrefixToKey(prop, prefixes[i]) in style) return prefixes[i];
-  }
-
-  return '';
-}
-
-function browserPrefixToKey(prop
-/*: string*/
-, prefix
-/*: string*/
-)
-/*: string*/
-{
-  return prefix ? "".concat(prefix).concat(kebabToTitleCase(prop)) : prop;
-}
-
-function browserPrefixToStyle(prop
-/*: string*/
-, prefix
-/*: string*/
-)
-/*: string*/
-{
-  return prefix ? "-".concat(prefix.toLowerCase(), "-").concat(prop) : prop;
-}
-
-function kebabToTitleCase(str
-/*: string*/
-)
-/*: string*/
-{
-  var out = '';
-  var shouldCapitalize = true;
-
-  for (var i = 0; i < str.length; i++) {
-    if (shouldCapitalize) {
-      out += str[i].toUpperCase();
-      shouldCapitalize = false;
-    } else if (str[i] === '-') {
-      shouldCapitalize = true;
-    } else {
-      out += str[i];
-    }
-  }
-
-  return out;
-} // Default export is the prefix itself, like 'Moz', 'Webkit', etc
-// Note that you may have to re-test for certain things; for instance, Chrome 50
-// can handle unprefixed `transform`, but not unprefixed `user-select`
-
-
-var _default = (getPrefix()
-/*: string*/
-);
-
-getPrefix$1.default = _default;
-
-function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
-
-Object.defineProperty(domFns, "__esModule", {
-  value: true
-});
-domFns.addClassName = addClassName;
-domFns.addEvent = addEvent;
-domFns.addUserSelectStyles = addUserSelectStyles;
-domFns.createCSSTransform = createCSSTransform;
-domFns.createSVGTransform = createSVGTransform;
-domFns.getTouch = getTouch;
-domFns.getTouchIdentifier = getTouchIdentifier;
-domFns.getTranslation = getTranslation;
-domFns.innerHeight = innerHeight$1;
-domFns.innerWidth = innerWidth$1;
-domFns.matchesSelector = matchesSelector;
-domFns.matchesSelectorAndParentsTo = matchesSelectorAndParentsTo;
-domFns.offsetXYFromParent = offsetXYFromParent;
-domFns.outerHeight = outerHeight;
-domFns.outerWidth = outerWidth;
-domFns.removeClassName = removeClassName;
-domFns.removeEvent = removeEvent;
-domFns.removeUserSelectStyles = removeUserSelectStyles;
-
-var _shims$2 = shims;
-
-var _getPrefix = _interopRequireWildcard$1(getPrefix$1);
-
-function _getRequireWildcardCache$1(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache$1 = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard$1(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof$1(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache$1(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty$1(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
-function _defineProperty$1(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var matchesSelectorFunc = '';
-
-function matchesSelector(el
-/*: Node*/
-, selector
-/*: string*/
-)
-/*: boolean*/
-{
-  if (!matchesSelectorFunc) {
-    matchesSelectorFunc = (0, _shims$2.findInArray)(['matches', 'webkitMatchesSelector', 'mozMatchesSelector', 'msMatchesSelector', 'oMatchesSelector'], function (method) {
-      // $FlowIgnore: Doesn't think elements are indexable
-      return (0, _shims$2.isFunction)(el[method]);
-    });
-  } // Might not be found entirely (not an Element?) - in that case, bail
-  // $FlowIgnore: Doesn't think elements are indexable
-
-
-  if (!(0, _shims$2.isFunction)(el[matchesSelectorFunc])) return false; // $FlowIgnore: Doesn't think elements are indexable
-
-  return el[matchesSelectorFunc](selector);
-} // Works up the tree to the draggable itself attempting to match selector.
-
-
-function matchesSelectorAndParentsTo(el
-/*: Node*/
-, selector
-/*: string*/
-, baseNode
-/*: Node*/
-)
-/*: boolean*/
-{
-  var node = el;
-
-  do {
-    if (matchesSelector(node, selector)) return true;
-    if (node === baseNode) return false;
-    node = node.parentNode;
-  } while (node);
-
-  return false;
-}
-
-function addEvent(el
-/*: ?Node*/
-, event
-/*: string*/
-, handler
-/*: Function*/
-, inputOptions
-/*: Object*/
-)
-/*: void*/
-{
-  if (!el) return;
-
-  var options = _objectSpread({
-    capture: true
-  }, inputOptions); // $FlowIgnore[method-unbinding]
-
-
-  if (el.addEventListener) {
-    el.addEventListener(event, handler, options);
-  } else if (el.attachEvent) {
-    el.attachEvent('on' + event, handler);
-  } else {
-    // $FlowIgnore: Doesn't think elements are indexable
-    el['on' + event] = handler;
-  }
-}
-
-function removeEvent(el
-/*: ?Node*/
-, event
-/*: string*/
-, handler
-/*: Function*/
-, inputOptions
-/*: Object*/
-)
-/*: void*/
-{
-  if (!el) return;
-
-  var options = _objectSpread({
-    capture: true
-  }, inputOptions); // $FlowIgnore[method-unbinding]
-
-
-  if (el.removeEventListener) {
-    el.removeEventListener(event, handler, options);
-  } else if (el.detachEvent) {
-    el.detachEvent('on' + event, handler);
-  } else {
-    // $FlowIgnore: Doesn't think elements are indexable
-    el['on' + event] = null;
-  }
-}
-
-function outerHeight(node
-/*: HTMLElement*/
-)
-/*: number*/
-{
-  // This is deliberately excluding margin for our calculations, since we are using
-  // offsetTop which is including margin. See getBoundPosition
-  var height = node.clientHeight;
-  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
-  height += (0, _shims$2.int)(computedStyle.borderTopWidth);
-  height += (0, _shims$2.int)(computedStyle.borderBottomWidth);
-  return height;
-}
-
-function outerWidth(node
-/*: HTMLElement*/
-)
-/*: number*/
-{
-  // This is deliberately excluding margin for our calculations, since we are using
-  // offsetLeft which is including margin. See getBoundPosition
-  var width = node.clientWidth;
-  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
-  width += (0, _shims$2.int)(computedStyle.borderLeftWidth);
-  width += (0, _shims$2.int)(computedStyle.borderRightWidth);
-  return width;
-}
-
-function innerHeight$1(node
-/*: HTMLElement*/
-)
-/*: number*/
-{
-  var height = node.clientHeight;
-  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
-  height -= (0, _shims$2.int)(computedStyle.paddingTop);
-  height -= (0, _shims$2.int)(computedStyle.paddingBottom);
-  return height;
-}
-
-function innerWidth$1(node
-/*: HTMLElement*/
-)
-/*: number*/
-{
-  var width = node.clientWidth;
-  var computedStyle = node.ownerDocument.defaultView.getComputedStyle(node);
-  width -= (0, _shims$2.int)(computedStyle.paddingLeft);
-  width -= (0, _shims$2.int)(computedStyle.paddingRight);
-  return width;
-}
-/*:: interface EventWithOffset {
-  clientX: number, clientY: number
-}*/
-
-
-// Get from offsetParent
-function offsetXYFromParent(evt
-/*: EventWithOffset*/
-, offsetParent
-/*: HTMLElement*/
-, scale
-/*: number*/
-)
-/*: ControlPosition*/
-{
-  var isBody = offsetParent === offsetParent.ownerDocument.body;
-  var offsetParentRect = isBody ? {
-    left: 0,
-    top: 0
-  } : offsetParent.getBoundingClientRect();
-  var x = (evt.clientX + offsetParent.scrollLeft - offsetParentRect.left) / scale;
-  var y = (evt.clientY + offsetParent.scrollTop - offsetParentRect.top) / scale;
-  return {
-    x: x,
-    y: y
-  };
-}
-
-function createCSSTransform(controlPos
-/*: ControlPosition*/
-, positionOffset
-/*: PositionOffsetControlPosition*/
-)
-/*: Object*/
-{
-  var translation = getTranslation(controlPos, positionOffset, 'px');
-  return _defineProperty$1({}, (0, _getPrefix.browserPrefixToKey)('transform', _getPrefix.default), translation);
-}
-
-function createSVGTransform(controlPos
-/*: ControlPosition*/
-, positionOffset
-/*: PositionOffsetControlPosition*/
-)
-/*: string*/
-{
-  var translation = getTranslation(controlPos, positionOffset, '');
-  return translation;
-}
-
-function getTranslation(_ref2, positionOffset
-/*: PositionOffsetControlPosition*/
-, unitSuffix
-/*: string*/
-)
-/*: string*/
-{
-  var x = _ref2.x,
-      y = _ref2.y;
-  var translation = "translate(".concat(x).concat(unitSuffix, ",").concat(y).concat(unitSuffix, ")");
-
-  if (positionOffset) {
-    var defaultX = "".concat(typeof positionOffset.x === 'string' ? positionOffset.x : positionOffset.x + unitSuffix);
-    var defaultY = "".concat(typeof positionOffset.y === 'string' ? positionOffset.y : positionOffset.y + unitSuffix);
-    translation = "translate(".concat(defaultX, ", ").concat(defaultY, ")") + translation;
-  }
-
-  return translation;
-}
-
-function getTouch(e
-/*: MouseTouchEvent*/
-, identifier
-/*: number*/
-)
-/*: ?{clientX: number, clientY: number}*/
-{
-  return e.targetTouches && (0, _shims$2.findInArray)(e.targetTouches, function (t) {
-    return identifier === t.identifier;
-  }) || e.changedTouches && (0, _shims$2.findInArray)(e.changedTouches, function (t) {
-    return identifier === t.identifier;
-  });
-}
-
-function getTouchIdentifier(e
-/*: MouseTouchEvent*/
-)
-/*: ?number*/
-{
-  if (e.targetTouches && e.targetTouches[0]) return e.targetTouches[0].identifier;
-  if (e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].identifier;
-} // User-select Hacks:
-//
-// Useful for preventing blue highlights all over everything when dragging.
-// Note we're passing `document` b/c we could be iframed
-
-
-function addUserSelectStyles(doc
-/*: ?Document*/
-) {
-  if (!doc) return;
-  var styleEl = doc.getElementById('react-draggable-style-el');
-
-  if (!styleEl) {
-    styleEl = doc.createElement('style');
-    styleEl.type = 'text/css';
-    styleEl.id = 'react-draggable-style-el';
-    styleEl.innerHTML = '.react-draggable-transparent-selection *::-moz-selection {all: inherit;}\n';
-    styleEl.innerHTML += '.react-draggable-transparent-selection *::selection {all: inherit;}\n';
-    doc.getElementsByTagName('head')[0].appendChild(styleEl);
-  }
-
-  if (doc.body) addClassName(doc.body, 'react-draggable-transparent-selection');
-}
-
-function removeUserSelectStyles(doc
-/*: ?Document*/
-) {
-  if (!doc) return;
-
-  try {
-    if (doc.body) removeClassName(doc.body, 'react-draggable-transparent-selection'); // $FlowIgnore: IE
-
-    if (doc.selection) {
-      // $FlowIgnore: IE
-      doc.selection.empty();
-    } else {
-      // Remove selection caused by scroll, unless it's a focused input
-      // (we use doc.defaultView in case we're in an iframe)
-      var selection = (doc.defaultView || window).getSelection();
-
-      if (selection && selection.type !== 'Caret') {
-        selection.removeAllRanges();
-      }
-    }
-  } catch (e) {// probably IE
-  }
-}
-
-function addClassName(el
-/*: HTMLElement*/
-, className
-/*: string*/
-) {
-  if (el.classList) {
-    el.classList.add(className);
-  } else {
-    if (!el.className.match(new RegExp("(?:^|\\s)".concat(className, "(?!\\S)")))) {
-      el.className += " ".concat(className);
-    }
-  }
-}
-
-function removeClassName(el
-/*: HTMLElement*/
-, className
-/*: string*/
-) {
-  if (el.classList) {
-    el.classList.remove(className);
-  } else {
-    el.className = el.className.replace(new RegExp("(?:^|\\s)".concat(className, "(?!\\S)"), 'g'), '');
-  }
-}
-
-var positionFns = {};
-
-Object.defineProperty(positionFns, "__esModule", {
-  value: true
-});
-positionFns.canDragX = canDragX;
-positionFns.canDragY = canDragY;
-positionFns.createCoreData = createCoreData;
-positionFns.createDraggableData = createDraggableData;
-positionFns.getBoundPosition = getBoundPosition;
-positionFns.getControlPosition = getControlPosition;
-positionFns.snapToGrid = snapToGrid;
-
-var _shims$1 = shims;
-
-var _domFns$1 = domFns;
-
-function getBoundPosition(draggable
-/*: Draggable*/
-, x
-/*: number*/
-, y
-/*: number*/
-)
-/*: [number, number]*/
-{
-  // If no bounds, short-circuit and move on
-  if (!draggable.props.bounds) return [x, y]; // Clone new bounds
-
-  var bounds = draggable.props.bounds;
-  bounds = typeof bounds === 'string' ? bounds : cloneBounds(bounds);
-  var node = findDOMNode(draggable);
-
-  if (typeof bounds === 'string') {
-    var ownerDocument = node.ownerDocument;
-    var ownerWindow = ownerDocument.defaultView;
-    var boundNode;
-
-    if (bounds === 'parent') {
-      boundNode = node.parentNode;
-    } else {
-      boundNode = ownerDocument.querySelector(bounds);
-    }
-
-    if (!(boundNode instanceof ownerWindow.HTMLElement)) {
-      throw new Error('Bounds selector "' + bounds + '" could not find an element.');
-    }
-
-    var boundNodeEl
-    /*: HTMLElement*/
-    = boundNode; // for Flow, can't seem to refine correctly
-
-    var nodeStyle = ownerWindow.getComputedStyle(node);
-    var boundNodeStyle = ownerWindow.getComputedStyle(boundNodeEl); // Compute bounds. This is a pain with padding and offsets but this gets it exactly right.
-
-    bounds = {
-      left: -node.offsetLeft + (0, _shims$1.int)(boundNodeStyle.paddingLeft) + (0, _shims$1.int)(nodeStyle.marginLeft),
-      top: -node.offsetTop + (0, _shims$1.int)(boundNodeStyle.paddingTop) + (0, _shims$1.int)(nodeStyle.marginTop),
-      right: (0, _domFns$1.innerWidth)(boundNodeEl) - (0, _domFns$1.outerWidth)(node) - node.offsetLeft + (0, _shims$1.int)(boundNodeStyle.paddingRight) - (0, _shims$1.int)(nodeStyle.marginRight),
-      bottom: (0, _domFns$1.innerHeight)(boundNodeEl) - (0, _domFns$1.outerHeight)(node) - node.offsetTop + (0, _shims$1.int)(boundNodeStyle.paddingBottom) - (0, _shims$1.int)(nodeStyle.marginBottom)
-    };
-  } // Keep x and y below right and bottom limits...
-
-
-  if ((0, _shims$1.isNum)(bounds.right)) x = Math.min(x, bounds.right);
-  if ((0, _shims$1.isNum)(bounds.bottom)) y = Math.min(y, bounds.bottom); // But above left and top limits.
-
-  if ((0, _shims$1.isNum)(bounds.left)) x = Math.max(x, bounds.left);
-  if ((0, _shims$1.isNum)(bounds.top)) y = Math.max(y, bounds.top);
-  return [x, y];
-}
-
-function snapToGrid(grid
-/*: [number, number]*/
-, pendingX
-/*: number*/
-, pendingY
-/*: number*/
-)
-/*: [number, number]*/
-{
-  var x = Math.round(pendingX / grid[0]) * grid[0];
-  var y = Math.round(pendingY / grid[1]) * grid[1];
-  return [x, y];
-}
-
-function canDragX(draggable
-/*: Draggable*/
-)
-/*: boolean*/
-{
-  return draggable.props.axis === 'both' || draggable.props.axis === 'x';
-}
-
-function canDragY(draggable
-/*: Draggable*/
-)
-/*: boolean*/
-{
-  return draggable.props.axis === 'both' || draggable.props.axis === 'y';
-} // Get {x, y} positions from event.
-
-
-function getControlPosition(e
-/*: MouseTouchEvent*/
-, touchIdentifier
-/*: ?number*/
-, draggableCore
-/*: DraggableCore*/
-)
-/*: ?ControlPosition*/
-{
-  var touchObj = typeof touchIdentifier === 'number' ? (0, _domFns$1.getTouch)(e, touchIdentifier) : null;
-  if (typeof touchIdentifier === 'number' && !touchObj) return null; // not the right touch
-
-  var node = findDOMNode(draggableCore); // User can provide an offsetParent if desired.
-
-  var offsetParent = draggableCore.props.offsetParent || node.offsetParent || node.ownerDocument.body;
-  return (0, _domFns$1.offsetXYFromParent)(touchObj || e, offsetParent, draggableCore.props.scale);
-} // Create an data object exposed by <DraggableCore>'s events
-
-
-function createCoreData(draggable
-/*: DraggableCore*/
-, x
-/*: number*/
-, y
-/*: number*/
-)
-/*: DraggableData*/
-{
-  var state = draggable.state;
-  var isStart = !(0, _shims$1.isNum)(state.lastX);
-  var node = findDOMNode(draggable);
-
-  if (isStart) {
-    // If this is our first move, use the x and y as last coords.
-    return {
-      node: node,
-      deltaX: 0,
-      deltaY: 0,
-      lastX: x,
-      lastY: y,
-      x: x,
-      y: y
-    };
-  } else {
-    // Otherwise calculate proper values.
-    return {
-      node: node,
-      deltaX: x - state.lastX,
-      deltaY: y - state.lastY,
-      lastX: state.lastX,
-      lastY: state.lastY,
-      x: x,
-      y: y
-    };
-  }
-} // Create an data exposed by <Draggable>'s events
-
-
-function createDraggableData(draggable
-/*: Draggable*/
-, coreData
-/*: DraggableData*/
-)
-/*: DraggableData*/
-{
-  var scale = draggable.props.scale;
-  return {
-    node: coreData.node,
-    x: draggable.state.x + coreData.deltaX / scale,
-    y: draggable.state.y + coreData.deltaY / scale,
-    deltaX: coreData.deltaX / scale,
-    deltaY: coreData.deltaY / scale,
-    lastX: draggable.state.x,
-    lastY: draggable.state.y
-  };
-} // A lot faster than stringify/parse
-
-
-function cloneBounds(bounds
-/*: Bounds*/
-)
-/*: Bounds*/
-{
-  return {
-    left: bounds.left,
-    top: bounds.top,
-    right: bounds.right,
-    bottom: bounds.bottom
-  };
-}
-
-function findDOMNode(draggable
-/*: Draggable | DraggableCore*/
-)
-/*: HTMLElement*/
-{
-  var node = draggable.findDOMNode();
-
-  if (!node) {
-    throw new Error('<DraggableCore>: Unmounted during event!');
-  } // $FlowIgnore we can't assert on HTMLElement due to tests... FIXME
-
-
-  return node;
-}
-
-var DraggableCore$2 = {};
-
-var log$1 = {};
-
-Object.defineProperty(log$1, "__esModule", {
-  value: true
-});
-log$1.default = log;
-
-/*eslint no-console:0*/
-function log() {
-}
-
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-Object.defineProperty(DraggableCore$2, "__esModule", {
-  value: true
-});
-DraggableCore$2.default = void 0;
-
-var React = _interopRequireWildcard(React__default);
-
-var _propTypes = _interopRequireDefault(PropTypes);
-
-var _reactDom = _interopRequireDefault(ReactDOM);
-
-var _domFns = domFns;
-
-var _positionFns = positionFns;
-
-var _shims = shims;
-
-var _log = _interopRequireDefault(log$1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-// Simple abstraction for dragging events names.
-var eventsFor = {
-  touch: {
-    start: 'touchstart',
-    move: 'touchmove',
-    stop: 'touchend'
-  },
-  mouse: {
-    start: 'mousedown',
-    move: 'mousemove',
-    stop: 'mouseup'
-  }
-}; // Default to mouse events.
-
-var dragEventFor = eventsFor.mouse;
-/*:: type DraggableCoreState = {
-  dragging: boolean,
-  lastX: number,
-  lastY: number,
-  touchIdentifier: ?number
-};*/
-
-/*:: export type DraggableData = {
-  node: HTMLElement,
-  x: number, y: number,
-  deltaX: number, deltaY: number,
-  lastX: number, lastY: number,
-};*/
-
-/*:: export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;*/
-
-/*:: export type ControlPosition = {x: number, y: number};*/
-
-/*:: export type PositionOffsetControlPosition = {x: number|string, y: number|string};*/
-
-/*:: export type DraggableCoreDefaultProps = {
-  allowAnyClick: boolean,
-  disabled: boolean,
-  enableUserSelectHack: boolean,
-  onStart: DraggableEventHandler,
-  onDrag: DraggableEventHandler,
-  onStop: DraggableEventHandler,
-  onMouseDown: (e: MouseEvent) => void,
-  scale: number,
-};*/
-
-/*:: export type DraggableCoreProps = {
-  ...DraggableCoreDefaultProps,
-  cancel: string,
-  children: ReactElement<any>,
-  offsetParent: HTMLElement,
-  grid: [number, number],
-  handle: string,
-  nodeRef?: ?React.ElementRef<any>,
-};*/
-
-//
-// Define <DraggableCore>.
-//
-// <DraggableCore> is for advanced usage of <Draggable>. It maintains minimal internal state so it can
-// work well with libraries that require more control over the element.
-//
-var DraggableCore$1 = /*#__PURE__*/function (_React$Component) {
-  _inherits(DraggableCore, _React$Component);
-
-  var _super = _createSuper(DraggableCore);
-
-  function DraggableCore() {
-    var _this;
-
-    _classCallCheck(this, DraggableCore);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _super.call.apply(_super, [this].concat(args));
-
-    _defineProperty(_assertThisInitialized(_this), "state", {
-      dragging: false,
-      // Used while dragging to determine deltas.
-      lastX: NaN,
-      lastY: NaN,
-      touchIdentifier: null
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "mounted", false);
-
-    _defineProperty(_assertThisInitialized(_this), "handleDragStart", function (e) {
-      // Make it possible to attach event handlers on top of this one.
-      _this.props.onMouseDown(e); // Only accept left-clicks.
-
-
-      if (!_this.props.allowAnyClick && typeof e.button === 'number' && e.button !== 0) return false; // Get nodes. Be sure to grab relative document (could be iframed)
-
-      var thisNode = _this.findDOMNode();
-
-      if (!thisNode || !thisNode.ownerDocument || !thisNode.ownerDocument.body) {
-        throw new Error('<DraggableCore> not mounted on DragStart!');
-      }
-
-      var ownerDocument = thisNode.ownerDocument; // Short circuit if handle or cancel prop was provided and selector doesn't match.
-
-      if (_this.props.disabled || !(e.target instanceof ownerDocument.defaultView.Node) || _this.props.handle && !(0, _domFns.matchesSelectorAndParentsTo)(e.target, _this.props.handle, thisNode) || _this.props.cancel && (0, _domFns.matchesSelectorAndParentsTo)(e.target, _this.props.cancel, thisNode)) {
-        return;
-      } // Prevent scrolling on mobile devices, like ipad/iphone.
-      // Important that this is after handle/cancel.
-
-
-      if (e.type === 'touchstart') e.preventDefault(); // Set touch identifier in component state if this is a touch event. This allows us to
-      // distinguish between individual touches on multitouch screens by identifying which
-      // touchpoint was set to this element.
-
-      var touchIdentifier = (0, _domFns.getTouchIdentifier)(e);
-
-      _this.setState({
-        touchIdentifier: touchIdentifier
-      }); // Get the current drag point from the event. This is used as the offset.
-
-
-      var position = (0, _positionFns.getControlPosition)(e, touchIdentifier, _assertThisInitialized(_this));
-      if (position == null) return; // not possible but satisfies flow
-
-      var x = position.x,
-          y = position.y; // Create an event object with all the data parents need to make a decision here.
-
-      var coreEvent = (0, _positionFns.createCoreData)(_assertThisInitialized(_this), x, y);
-      (0, _log.default)('DraggableCore: handleDragStart: %j', coreEvent); // Call event handler. If it returns explicit false, cancel.
-
-      (0, _log.default)('calling', _this.props.onStart);
-
-      var shouldUpdate = _this.props.onStart(e, coreEvent);
-
-      if (shouldUpdate === false || _this.mounted === false) return; // Add a style to the body to disable user-select. This prevents text from
-      // being selected all over the page.
-
-      if (_this.props.enableUserSelectHack) (0, _domFns.addUserSelectStyles)(ownerDocument); // Initiate dragging. Set the current x and y as offsets
-      // so we know how much we've moved during the drag. This allows us
-      // to drag elements around even if they have been moved, without issue.
-
-      _this.setState({
-        dragging: true,
-        lastX: x,
-        lastY: y
-      }); // Add events to the document directly so we catch when the user's mouse/touch moves outside of
-      // this element. We use different events depending on whether or not we have detected that this
-      // is a touch-capable device.
-
-
-      (0, _domFns.addEvent)(ownerDocument, dragEventFor.move, _this.handleDrag);
-      (0, _domFns.addEvent)(ownerDocument, dragEventFor.stop, _this.handleDragStop);
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "handleDrag", function (e) {
-      // Get the current drag point from the event. This is used as the offset.
-      var position = (0, _positionFns.getControlPosition)(e, _this.state.touchIdentifier, _assertThisInitialized(_this));
-      if (position == null) return;
-      var x = position.x,
-          y = position.y; // Snap to grid if prop has been provided
-
-      if (Array.isArray(_this.props.grid)) {
-        var deltaX = x - _this.state.lastX,
-            deltaY = y - _this.state.lastY;
-
-        var _snapToGrid = (0, _positionFns.snapToGrid)(_this.props.grid, deltaX, deltaY);
-
-        var _snapToGrid2 = _slicedToArray(_snapToGrid, 2);
-
-        deltaX = _snapToGrid2[0];
-        deltaY = _snapToGrid2[1];
-        if (!deltaX && !deltaY) return; // skip useless drag
-
-        x = _this.state.lastX + deltaX, y = _this.state.lastY + deltaY;
-      }
-
-      var coreEvent = (0, _positionFns.createCoreData)(_assertThisInitialized(_this), x, y);
-      (0, _log.default)('DraggableCore: handleDrag: %j', coreEvent); // Call event handler. If it returns explicit false, trigger end.
-
-      var shouldUpdate = _this.props.onDrag(e, coreEvent);
-
-      if (shouldUpdate === false || _this.mounted === false) {
-        try {
-          // $FlowIgnore
-          _this.handleDragStop(new MouseEvent('mouseup'));
-        } catch (err) {
-          // Old browsers
-          var event = ((document.createEvent('MouseEvents')
-          /*: any*/
-          )
-          /*: MouseTouchEvent*/
-          ); // I see why this insanity was deprecated
-          // $FlowIgnore
-
-          event.initMouseEvent('mouseup', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-          _this.handleDragStop(event);
-        }
-
-        return;
-      }
-
-      _this.setState({
-        lastX: x,
-        lastY: y
-      });
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "handleDragStop", function (e) {
-      if (!_this.state.dragging) return;
-      var position = (0, _positionFns.getControlPosition)(e, _this.state.touchIdentifier, _assertThisInitialized(_this));
-      if (position == null) return;
-      var x = position.x,
-          y = position.y; // Snap to grid if prop has been provided
-
-      if (Array.isArray(_this.props.grid)) {
-        var deltaX = x - _this.state.lastX || 0;
-        var deltaY = y - _this.state.lastY || 0;
-
-        var _snapToGrid3 = (0, _positionFns.snapToGrid)(_this.props.grid, deltaX, deltaY);
-
-        var _snapToGrid4 = _slicedToArray(_snapToGrid3, 2);
-
-        deltaX = _snapToGrid4[0];
-        deltaY = _snapToGrid4[1];
-        x = _this.state.lastX + deltaX, y = _this.state.lastY + deltaY;
-      }
-
-      var coreEvent = (0, _positionFns.createCoreData)(_assertThisInitialized(_this), x, y); // Call event handler
-
-      var shouldContinue = _this.props.onStop(e, coreEvent);
-
-      if (shouldContinue === false || _this.mounted === false) return false;
-
-      var thisNode = _this.findDOMNode();
-
-      if (thisNode) {
-        // Remove user-select hack
-        if (_this.props.enableUserSelectHack) (0, _domFns.removeUserSelectStyles)(thisNode.ownerDocument);
-      }
-
-      (0, _log.default)('DraggableCore: handleDragStop: %j', coreEvent); // Reset the el.
-
-      _this.setState({
-        dragging: false,
-        lastX: NaN,
-        lastY: NaN
-      });
-
-      if (thisNode) {
-        // Remove event handlers
-        (0, _log.default)('DraggableCore: Removing handlers');
-        (0, _domFns.removeEvent)(thisNode.ownerDocument, dragEventFor.move, _this.handleDrag);
-        (0, _domFns.removeEvent)(thisNode.ownerDocument, dragEventFor.stop, _this.handleDragStop);
-      }
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "onMouseDown", function (e) {
-      dragEventFor = eventsFor.mouse; // on touchscreen laptops we could switch back to mouse
-
-      return _this.handleDragStart(e);
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "onMouseUp", function (e) {
-      dragEventFor = eventsFor.mouse;
-      return _this.handleDragStop(e);
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "onTouchStart", function (e) {
-      // We're on a touch device now, so change the event handlers
-      dragEventFor = eventsFor.touch;
-      return _this.handleDragStart(e);
-    });
-
-    _defineProperty(_assertThisInitialized(_this), "onTouchEnd", function (e) {
-      // We're on a touch device now, so change the event handlers
-      dragEventFor = eventsFor.touch;
-      return _this.handleDragStop(e);
-    });
-
-    return _this;
-  }
-
-  _createClass(DraggableCore, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.mounted = true; // Touch handlers must be added with {passive: false} to be cancelable.
-      // https://developers.google.com/web/updates/2017/01/scrolling-intervention
-
-      var thisNode = this.findDOMNode();
-
-      if (thisNode) {
-        (0, _domFns.addEvent)(thisNode, eventsFor.touch.start, this.onTouchStart, {
-          passive: false
-        });
-      }
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      this.mounted = false; // Remove any leftover event handlers. Remove both touch and mouse handlers in case
-      // some browser quirk caused a touch event to fire during a mouse move, or vice versa.
-
-      var thisNode = this.findDOMNode();
-
-      if (thisNode) {
-        var ownerDocument = thisNode.ownerDocument;
-        (0, _domFns.removeEvent)(ownerDocument, eventsFor.mouse.move, this.handleDrag);
-        (0, _domFns.removeEvent)(ownerDocument, eventsFor.touch.move, this.handleDrag);
-        (0, _domFns.removeEvent)(ownerDocument, eventsFor.mouse.stop, this.handleDragStop);
-        (0, _domFns.removeEvent)(ownerDocument, eventsFor.touch.stop, this.handleDragStop);
-        (0, _domFns.removeEvent)(thisNode, eventsFor.touch.start, this.onTouchStart, {
-          passive: false
-        });
-        if (this.props.enableUserSelectHack) (0, _domFns.removeUserSelectStyles)(ownerDocument);
-      }
-    } // React Strict Mode compatibility: if `nodeRef` is passed, we will use it instead of trying to find
-    // the underlying DOM node ourselves. See the README for more information.
-
-  }, {
-    key: "findDOMNode",
-    value: function findDOMNode()
-    /*: ?HTMLElement*/
-    {
-      var _this$props, _this$props2, _this$props2$nodeRef;
-
-      return (_this$props = this.props) !== null && _this$props !== void 0 && _this$props.nodeRef ? (_this$props2 = this.props) === null || _this$props2 === void 0 ? void 0 : (_this$props2$nodeRef = _this$props2.nodeRef) === null || _this$props2$nodeRef === void 0 ? void 0 : _this$props2$nodeRef.current : _reactDom.default.findDOMNode(this);
-    }
-  }, {
-    key: "render",
-    value: function render()
-    /*: React.Element<any>*/
-    {
-      // Reuse the child provided
-      // This makes it flexible to use whatever element is wanted (div, ul, etc)
-      return /*#__PURE__*/React.cloneElement(React.Children.only(this.props.children), {
-        // Note: mouseMove handler is attached to document so it will still function
-        // when the user drags quickly and leaves the bounds of the element.
-        onMouseDown: this.onMouseDown,
-        onMouseUp: this.onMouseUp,
-        // onTouchStart is added on `componentDidMount` so they can be added with
-        // {passive: false}, which allows it to cancel. See
-        // https://developers.google.com/web/updates/2017/01/scrolling-intervention
-        onTouchEnd: this.onTouchEnd
-      });
-    }
-  }]);
-
-  return DraggableCore;
-}(React.Component);
-
-DraggableCore$2.default = DraggableCore$1;
-
-_defineProperty(DraggableCore$1, "displayName", 'DraggableCore');
-
-_defineProperty(DraggableCore$1, "propTypes", {
-  /**
-   * `allowAnyClick` allows dragging using any mouse button.
-   * By default, we only accept the left button.
-   *
-   * Defaults to `false`.
-   */
-  allowAnyClick: _propTypes.default.bool,
-
-  /**
-   * `disabled`, if true, stops the <Draggable> from dragging. All handlers,
-   * with the exception of `onMouseDown`, will not fire.
-   */
-  disabled: _propTypes.default.bool,
-
-  /**
-   * By default, we add 'user-select:none' attributes to the document body
-   * to prevent ugly text selection during drag. If this is causing problems
-   * for your app, set this to `false`.
-   */
-  enableUserSelectHack: _propTypes.default.bool,
-
-  /**
-   * `offsetParent`, if set, uses the passed DOM node to compute drag offsets
-   * instead of using the parent node.
-   */
-  offsetParent: function offsetParent(props
-  /*: DraggableCoreProps*/
-  , propName
-  /*: $Keys<DraggableCoreProps>*/
-  ) {
-    if (props[propName] && props[propName].nodeType !== 1) {
-      throw new Error('Draggable\'s offsetParent must be a DOM Node.');
-    }
-  },
-
-  /**
-   * `grid` specifies the x and y that dragging should snap to.
-   */
-  grid: _propTypes.default.arrayOf(_propTypes.default.number),
-
-  /**
-   * `handle` specifies a selector to be used as the handle that initiates drag.
-   *
-   * Example:
-   *
-   * ```jsx
-   *   let App = React.createClass({
-   *       render: function () {
-   *         return (
-   *            <Draggable handle=".handle">
-   *              <div>
-   *                  <div className="handle">Click me to drag</div>
-   *                  <div>This is some other content</div>
-   *              </div>
-   *           </Draggable>
-   *         );
-   *       }
-   *   });
-   * ```
-   */
-  handle: _propTypes.default.string,
-
-  /**
-   * `cancel` specifies a selector to be used to prevent drag initialization.
-   *
-   * Example:
-   *
-   * ```jsx
-   *   let App = React.createClass({
-   *       render: function () {
-   *           return(
-   *               <Draggable cancel=".cancel">
-   *                   <div>
-   *                     <div className="cancel">You can't drag from here</div>
-   *                     <div>Dragging here works fine</div>
-   *                   </div>
-   *               </Draggable>
-   *           );
-   *       }
-   *   });
-   * ```
-   */
-  cancel: _propTypes.default.string,
-
-  /* If running in React Strict mode, ReactDOM.findDOMNode() is deprecated.
-   * Unfortunately, in order for <Draggable> to work properly, we need raw access
-   * to the underlying DOM node. If you want to avoid the warning, pass a `nodeRef`
-   * as in this example:
-   *
-   * function MyComponent() {
-   *   const nodeRef = React.useRef(null);
-   *   return (
-   *     <Draggable nodeRef={nodeRef}>
-   *       <div ref={nodeRef}>Example Target</div>
-   *     </Draggable>
-   *   );
-   * }
-   *
-   * This can be used for arbitrarily nested components, so long as the ref ends up
-   * pointing to the actual child DOM node and not a custom component.
-   */
-  nodeRef: _propTypes.default.object,
-
-  /**
-   * Called when dragging starts.
-   * If this function returns the boolean false, dragging will be canceled.
-   */
-  onStart: _propTypes.default.func,
-
-  /**
-   * Called while dragging.
-   * If this function returns the boolean false, dragging will be canceled.
-   */
-  onDrag: _propTypes.default.func,
-
-  /**
-   * Called when dragging stops.
-   * If this function returns the boolean false, the drag will remain active.
-   */
-  onStop: _propTypes.default.func,
-
-  /**
-   * A workaround option which can be passed if onMouseDown needs to be accessed,
-   * since it'll always be blocked (as there is internal use of onMouseDown)
-   */
-  onMouseDown: _propTypes.default.func,
-
-  /**
-   * `scale`, if set, applies scaling while dragging an element
-   */
-  scale: _propTypes.default.number,
-
-  /**
-   * These properties should be defined on the child, not here.
-   */
-  className: _shims.dontSetMe,
-  style: _shims.dontSetMe,
-  transform: _shims.dontSetMe
-});
-
-_defineProperty(DraggableCore$1, "defaultProps", {
-  allowAnyClick: false,
-  // by default only accept left click
-  disabled: false,
-  enableUserSelectHack: true,
-  onStart: function onStart() {},
-  onDrag: function onDrag() {},
-  onStop: function onStop() {},
-  onMouseDown: function onMouseDown() {},
-  scale: 1
-});
-
-(function (exports) {
-
-	function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	Object.defineProperty(exports, "DraggableCore", {
-	  enumerable: true,
-	  get: function get() {
-	    return _DraggableCore.default;
-	  }
-	});
-	exports.default = void 0;
-
-	var React = _interopRequireWildcard(React__default);
-
-	var _propTypes = _interopRequireDefault(PropTypes);
-
-	var _reactDom = _interopRequireDefault(ReactDOM);
-
-	var _clsx2 = _interopRequireDefault(require$$3);
-
-	var _domFns = domFns;
-
-	var _positionFns = positionFns;
-
-	var _shims = shims;
-
-	var _DraggableCore = _interopRequireDefault(DraggableCore$2);
-
-	var _log = _interopRequireDefault(log$1);
-
-	var _excluded = ["axis", "bounds", "children", "defaultPosition", "defaultClassName", "defaultClassNameDragging", "defaultClassNameDragged", "position", "positionOffset", "scale"];
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-	function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-	function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-	function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-	function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
-	function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-	function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-	function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-	function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-	function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-	function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-	function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-	function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-
-	function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-	function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-	function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	//
-	// Define <Draggable>
-	//
-	var Draggable = /*#__PURE__*/function (_React$Component) {
-	  _inherits(Draggable, _React$Component);
-
-	  var _super = _createSuper(Draggable);
-
-	  function Draggable(props
-	  /*: DraggableProps*/
-	  ) {
-	    var _this;
-
-	    _classCallCheck(this, Draggable);
-
-	    _this = _super.call(this, props);
-
-	    _defineProperty(_assertThisInitialized(_this), "onDragStart", function (e, coreData) {
-	      (0, _log.default)('Draggable: onDragStart: %j', coreData); // Short-circuit if user's callback killed it.
-
-	      var shouldStart = _this.props.onStart(e, (0, _positionFns.createDraggableData)(_assertThisInitialized(_this), coreData)); // Kills start event on core as well, so move handlers are never bound.
-
-
-	      if (shouldStart === false) return false;
-
-	      _this.setState({
-	        dragging: true,
-	        dragged: true
-	      });
-	    });
-
-	    _defineProperty(_assertThisInitialized(_this), "onDrag", function (e, coreData) {
-	      if (!_this.state.dragging) return false;
-	      (0, _log.default)('Draggable: onDrag: %j', coreData);
-	      var uiData = (0, _positionFns.createDraggableData)(_assertThisInitialized(_this), coreData);
-	      var newState
-	      /*: $Shape<DraggableState>*/
-	      = {
-	        x: uiData.x,
-	        y: uiData.y
-	      }; // Keep within bounds.
-
-	      if (_this.props.bounds) {
-	        // Save original x and y.
-	        var x = newState.x,
-	            y = newState.y; // Add slack to the values used to calculate bound position. This will ensure that if
-	        // we start removing slack, the element won't react to it right away until it's been
-	        // completely removed.
-
-	        newState.x += _this.state.slackX;
-	        newState.y += _this.state.slackY; // Get bound position. This will ceil/floor the x and y within the boundaries.
-
-	        var _getBoundPosition = (0, _positionFns.getBoundPosition)(_assertThisInitialized(_this), newState.x, newState.y),
-	            _getBoundPosition2 = _slicedToArray(_getBoundPosition, 2),
-	            newStateX = _getBoundPosition2[0],
-	            newStateY = _getBoundPosition2[1];
-
-	        newState.x = newStateX;
-	        newState.y = newStateY; // Recalculate slack by noting how much was shaved by the boundPosition handler.
-
-	        newState.slackX = _this.state.slackX + (x - newState.x);
-	        newState.slackY = _this.state.slackY + (y - newState.y); // Update the event we fire to reflect what really happened after bounds took effect.
-
-	        uiData.x = newState.x;
-	        uiData.y = newState.y;
-	        uiData.deltaX = newState.x - _this.state.x;
-	        uiData.deltaY = newState.y - _this.state.y;
-	      } // Short-circuit if user's callback killed it.
-
-
-	      var shouldUpdate = _this.props.onDrag(e, uiData);
-
-	      if (shouldUpdate === false) return false;
-
-	      _this.setState(newState);
-	    });
-
-	    _defineProperty(_assertThisInitialized(_this), "onDragStop", function (e, coreData) {
-	      if (!_this.state.dragging) return false; // Short-circuit if user's callback killed it.
-
-	      var shouldContinue = _this.props.onStop(e, (0, _positionFns.createDraggableData)(_assertThisInitialized(_this), coreData));
-
-	      if (shouldContinue === false) return false;
-	      (0, _log.default)('Draggable: onDragStop: %j', coreData);
-	      var newState
-	      /*: $Shape<DraggableState>*/
-	      = {
-	        dragging: false,
-	        slackX: 0,
-	        slackY: 0
-	      }; // If this is a controlled component, the result of this operation will be to
-	      // revert back to the old position. We expect a handler on `onDragStop`, at the least.
-
-	      var controlled = Boolean(_this.props.position);
-
-	      if (controlled) {
-	        var _this$props$position = _this.props.position,
-	            x = _this$props$position.x,
-	            y = _this$props$position.y;
-	        newState.x = x;
-	        newState.y = y;
-	      }
-
-	      _this.setState(newState);
-	    });
-
-	    _this.state = {
-	      // Whether or not we are currently dragging.
-	      dragging: false,
-	      // Whether or not we have been dragged before.
-	      dragged: false,
-	      // Current transform x and y.
-	      x: props.position ? props.position.x : props.defaultPosition.x,
-	      y: props.position ? props.position.y : props.defaultPosition.y,
-	      prevPropsPosition: _objectSpread({}, props.position),
-	      // Used for compensating for out-of-bounds drags
-	      slackX: 0,
-	      slackY: 0,
-	      // Can only determine if SVG after mounting
-	      isElementSVG: false
-	    };
-
-	    if (props.position && !(props.onDrag || props.onStop)) {
-	      // eslint-disable-next-line no-console
-	      console.warn('A `position` was applied to this <Draggable>, without drag handlers. This will make this ' + 'component effectively undraggable. Please attach `onDrag` or `onStop` handlers so you can adjust the ' + '`position` of this element.');
-	    }
-
-	    return _this;
-	  }
-
-	  _createClass(Draggable, [{
-	    key: "componentDidMount",
-	    value: function componentDidMount() {
-	      // Check to see if the element passed is an instanceof SVGElement
-	      if (typeof window.SVGElement !== 'undefined' && this.findDOMNode() instanceof window.SVGElement) {
-	        this.setState({
-	          isElementSVG: true
-	        });
-	      }
-	    }
-	  }, {
-	    key: "componentWillUnmount",
-	    value: function componentWillUnmount() {
-	      this.setState({
-	        dragging: false
-	      }); // prevents invariant if unmounted while dragging
-	    } // React Strict Mode compatibility: if `nodeRef` is passed, we will use it instead of trying to find
-	    // the underlying DOM node ourselves. See the README for more information.
-
-	  }, {
-	    key: "findDOMNode",
-	    value: function findDOMNode()
-	    /*: ?HTMLElement*/
-	    {
-	      var _this$props$nodeRef$c, _this$props, _this$props$nodeRef;
-
-	      return (_this$props$nodeRef$c = (_this$props = this.props) === null || _this$props === void 0 ? void 0 : (_this$props$nodeRef = _this$props.nodeRef) === null || _this$props$nodeRef === void 0 ? void 0 : _this$props$nodeRef.current) !== null && _this$props$nodeRef$c !== void 0 ? _this$props$nodeRef$c : _reactDom.default.findDOMNode(this);
-	    }
-	  }, {
-	    key: "render",
-	    value: function render()
-	    /*: ReactElement<any>*/
-	    {
-	      var _clsx;
-
-	      var _this$props2 = this.props;
-	          _this$props2.axis;
-	          _this$props2.bounds;
-	          var children = _this$props2.children,
-	          defaultPosition = _this$props2.defaultPosition,
-	          defaultClassName = _this$props2.defaultClassName,
-	          defaultClassNameDragging = _this$props2.defaultClassNameDragging,
-	          defaultClassNameDragged = _this$props2.defaultClassNameDragged,
-	          position = _this$props2.position,
-	          positionOffset = _this$props2.positionOffset;
-	          _this$props2.scale;
-	          var draggableCoreProps = _objectWithoutProperties(_this$props2, _excluded);
-
-	      var style = {};
-	      var svgTransform = null; // If this is controlled, we don't want to move it - unless it's dragging.
-
-	      var controlled = Boolean(position);
-	      var draggable = !controlled || this.state.dragging;
-	      var validPosition = position || defaultPosition;
-	      var transformOpts = {
-	        // Set left if horizontal drag is enabled
-	        x: (0, _positionFns.canDragX)(this) && draggable ? this.state.x : validPosition.x,
-	        // Set top if vertical drag is enabled
-	        y: (0, _positionFns.canDragY)(this) && draggable ? this.state.y : validPosition.y
-	      }; // If this element was SVG, we use the `transform` attribute.
-
-	      if (this.state.isElementSVG) {
-	        svgTransform = (0, _domFns.createSVGTransform)(transformOpts, positionOffset);
-	      } else {
-	        // Add a CSS transform to move the element around. This allows us to move the element around
-	        // without worrying about whether or not it is relatively or absolutely positioned.
-	        // If the item you are dragging already has a transform set, wrap it in a <span> so <Draggable>
-	        // has a clean slate.
-	        style = (0, _domFns.createCSSTransform)(transformOpts, positionOffset);
-	      } // Mark with class while dragging
-
-
-	      var className = (0, _clsx2.default)(children.props.className || '', defaultClassName, (_clsx = {}, _defineProperty(_clsx, defaultClassNameDragging, this.state.dragging), _defineProperty(_clsx, defaultClassNameDragged, this.state.dragged), _clsx)); // Reuse the child provided
-	      // This makes it flexible to use whatever element is wanted (div, ul, etc)
-
-	      return /*#__PURE__*/React.createElement(_DraggableCore.default, _extends({}, draggableCoreProps, {
-	        onStart: this.onDragStart,
-	        onDrag: this.onDrag,
-	        onStop: this.onDragStop
-	      }), /*#__PURE__*/React.cloneElement(React.Children.only(children), {
-	        className: className,
-	        style: _objectSpread(_objectSpread({}, children.props.style), style),
-	        transform: svgTransform
-	      }));
-	    }
-	  }], [{
-	    key: "getDerivedStateFromProps",
-	    value: // React 16.3+
-	    // Arity (props, state)
-	    function getDerivedStateFromProps(_ref, _ref2)
-	    /*: ?$Shape<DraggableState>*/
-	    {
-	      var position = _ref.position;
-	      var prevPropsPosition = _ref2.prevPropsPosition;
-
-	      // Set x/y if a new position is provided in props that is different than the previous.
-	      if (position && (!prevPropsPosition || position.x !== prevPropsPosition.x || position.y !== prevPropsPosition.y)) {
-	        (0, _log.default)('Draggable: getDerivedStateFromProps %j', {
-	          position: position,
-	          prevPropsPosition: prevPropsPosition
-	        });
-	        return {
-	          x: position.x,
-	          y: position.y,
-	          prevPropsPosition: _objectSpread({}, position)
-	        };
-	      }
-
-	      return null;
-	    }
-	  }]);
-
-	  return Draggable;
-	}(React.Component);
-
-	exports.default = Draggable;
-
-	_defineProperty(Draggable, "displayName", 'Draggable');
-
-	_defineProperty(Draggable, "propTypes", _objectSpread(_objectSpread({}, _DraggableCore.default.propTypes), {}, {
-	  /**
-	   * `axis` determines which axis the draggable can move.
-	   *
-	   *  Note that all callbacks will still return data as normal. This only
-	   *  controls flushing to the DOM.
-	   *
-	   * 'both' allows movement horizontally and vertically.
-	   * 'x' limits movement to horizontal axis.
-	   * 'y' limits movement to vertical axis.
-	   * 'none' limits all movement.
-	   *
-	   * Defaults to 'both'.
-	   */
-	  axis: _propTypes.default.oneOf(['both', 'x', 'y', 'none']),
-
-	  /**
-	   * `bounds` determines the range of movement available to the element.
-	   * Available values are:
-	   *
-	   * 'parent' restricts movement within the Draggable's parent node.
-	   *
-	   * Alternatively, pass an object with the following properties, all of which are optional:
-	   *
-	   * {left: LEFT_BOUND, right: RIGHT_BOUND, bottom: BOTTOM_BOUND, top: TOP_BOUND}
-	   *
-	   * All values are in px.
-	   *
-	   * Example:
-	   *
-	   * ```jsx
-	   *   let App = React.createClass({
-	   *       render: function () {
-	   *         return (
-	   *            <Draggable bounds={{right: 300, bottom: 300}}>
-	   *              <div>Content</div>
-	   *           </Draggable>
-	   *         );
-	   *       }
-	   *   });
-	   * ```
-	   */
-	  bounds: _propTypes.default.oneOfType([_propTypes.default.shape({
-	    left: _propTypes.default.number,
-	    right: _propTypes.default.number,
-	    top: _propTypes.default.number,
-	    bottom: _propTypes.default.number
-	  }), _propTypes.default.string, _propTypes.default.oneOf([false])]),
-	  defaultClassName: _propTypes.default.string,
-	  defaultClassNameDragging: _propTypes.default.string,
-	  defaultClassNameDragged: _propTypes.default.string,
-
-	  /**
-	   * `defaultPosition` specifies the x and y that the dragged item should start at
-	   *
-	   * Example:
-	   *
-	   * ```jsx
-	   *      let App = React.createClass({
-	   *          render: function () {
-	   *              return (
-	   *                  <Draggable defaultPosition={{x: 25, y: 25}}>
-	   *                      <div>I start with transformX: 25px and transformY: 25px;</div>
-	   *                  </Draggable>
-	   *              );
-	   *          }
-	   *      });
-	   * ```
-	   */
-	  defaultPosition: _propTypes.default.shape({
-	    x: _propTypes.default.number,
-	    y: _propTypes.default.number
-	  }),
-	  positionOffset: _propTypes.default.shape({
-	    x: _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.string]),
-	    y: _propTypes.default.oneOfType([_propTypes.default.number, _propTypes.default.string])
-	  }),
-
-	  /**
-	   * `position`, if present, defines the current position of the element.
-	   *
-	   *  This is similar to how form elements in React work - if no `position` is supplied, the component
-	   *  is uncontrolled.
-	   *
-	   * Example:
-	   *
-	   * ```jsx
-	   *      let App = React.createClass({
-	   *          render: function () {
-	   *              return (
-	   *                  <Draggable position={{x: 25, y: 25}}>
-	   *                      <div>I start with transformX: 25px and transformY: 25px;</div>
-	   *                  </Draggable>
-	   *              );
-	   *          }
-	   *      });
-	   * ```
-	   */
-	  position: _propTypes.default.shape({
-	    x: _propTypes.default.number,
-	    y: _propTypes.default.number
-	  }),
-
-	  /**
-	   * These properties should be defined on the child, not here.
-	   */
-	  className: _shims.dontSetMe,
-	  style: _shims.dontSetMe,
-	  transform: _shims.dontSetMe
-	}));
-
-	_defineProperty(Draggable, "defaultProps", _objectSpread(_objectSpread({}, _DraggableCore.default.defaultProps), {}, {
-	  axis: 'both',
-	  bounds: false,
-	  defaultClassName: 'react-draggable',
-	  defaultClassNameDragging: 'react-draggable-dragging',
-	  defaultClassNameDragged: 'react-draggable-dragged',
-	  defaultPosition: {
-	    x: 0,
-	    y: 0
-	  },
-	  scale: 1
-	})); 
-} (Draggable$2));
-
-var _require = Draggable$2,
-    Draggable = _require.default,
-    DraggableCore = _require.DraggableCore; // Previous versions of this lib exported <Draggable> as the root export. As to no-// them, or TypeScript, we export *both* as the root and as 'default'.
-// See https://github.com/mzabriskie/react-draggable/pull/254
-// and https://github.com/mzabriskie/react-draggable/issues/266
-
-
-cjs.exports = Draggable;
-cjs.exports.default = Draggable;
-cjs.exports.DraggableCore = DraggableCore;
-
-var cjsExports = cjs.exports;
-var Draggable$1 = /*@__PURE__*/getDefaultExportFromCjs(cjsExports);
-
 function Views({ viewObjs, viewIds, grammar, mainDivSize }) {
     const [camera, setCamera] = useState({ position: [], direction: { right: [], lookAt: [], up: [] } }); // TODO: if we have multiple map instances we have multiple cameras
     const [filterKnots, setFilterKnots] = useState([]);
@@ -22311,10 +22318,10 @@ function Views({ viewObjs, viewIds, grammar, mainDivSize }) {
         let tempId = 0;
         for (let i = 0; i < n; i++) {
             if (names.length > 0 && names[i] != '' && names[i] != undefined) {
-                tempPlots.push({ id: tempId, hidden: true, svgId: "genericPlotSvg" + tempId, label: names[i], checked: false, edit: false });
+                tempPlots.push({ id: tempId, hidden: false, svgId: "genericPlotSvg" + tempId, label: names[i], checked: false, edit: false });
             }
             else {
-                tempPlots.push({ id: tempId, hidden: true, svgId: "genericPlotSvg" + tempId, label: "Plot " + tempId, checked: false, edit: false });
+                tempPlots.push({ id: tempId, hidden: false, svgId: "genericPlotSvg" + tempId, label: "Plot " + tempId, checked: false, edit: false });
             }
             createdIds.push(tempId);
             tempId += 1;
@@ -22369,21 +22376,21 @@ function Views({ viewObjs, viewIds, grammar, mainDivSize }) {
             viewObj.init(viewId, updateStatus);
         }
     }, []);
-    return (jsx(React__default.Fragment, { children: jsx("div", { style: { backgroundColor: "#EAEAEA", height: "100%", width: "100%" }, children: viewObjs.map((component, index) => {
-                if (component.type == ComponentIdentifier.MAP) {
-                    return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { padding: 0, position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(MapRendererContainer, { obj: component.obj, viewId: viewIds[index] }) }) }, viewIds[index]);
-                }
-                else if (component.type == WidgetType.GRAMMAR) {
-                    return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(GrammarPanelContainer, { obj: component.obj, viewId: viewIds[index], initialGrammar: grammar, camera: camera, filterKnots: filterKnots, inputId: inputBarId, setCamera: setCamera, addNewMessage: addNewMessage, applyGrammarButtonId: "applyGrammarButton", linkMapAndGrammarId: "linkMapAndGrammar" }) }) }, viewIds[index]);
-                }
-                else if (component.type == WidgetType.TOGGLE_KNOT) {
-                    return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(ToggleKnotsWidget, { obj: component.obj, listLayers: layersIds, knotVisibility: knotVisibility, title: component.title, subtitle: component.subtitle, viewId: viewIds[index], grammarDefinition: component.grammarDefinition }) }) }, viewIds[index]);
-                }
-                else if (component.type == WidgetType.RESOLUTION) ;
-                else if (component.type == WidgetType.SEARCH) {
-                    return jsx(Draggable$1, { nodeRef: nodeRef, defaultPosition: { x: getTopLeft(component.position).left + 15, y: getTopLeft(component.position).top + 15 }, children: jsx("div", { ref: nodeRef, className: "drag-box", style: { borderRadius: "8px 8px 8px 8px" }, children: jsx(SearchWidget, { obj: component.obj, viewId: viewIds[index], inputId: inputBarId, title: component.title, subtitle: component.subtitle }) }) }, viewIds[index]);
-                }
-            }) }) }));
+    return (jsxs(React__default.Fragment, { children: [jsx("div", { style: { backgroundColor: "#EAEAEA", height: "100%", width: "100%" }, children: viewObjs.map((component, index) => {
+                    if (component.type == ComponentIdentifier.MAP) {
+                        return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { padding: 0, position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(MapRendererContainer, { obj: component.obj, viewId: viewIds[index] }) }) }, viewIds[index]);
+                    }
+                    else if (component.type == WidgetType.GRAMMAR) {
+                        return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(GrammarPanelContainer, { obj: component.obj, viewId: viewIds[index], initialGrammar: grammar, camera: camera, filterKnots: filterKnots, inputId: inputBarId, setCamera: setCamera, addNewMessage: addNewMessage, applyGrammarButtonId: "applyGrammarButton", linkMapAndGrammarId: "linkMapAndGrammar" }) }) }, viewIds[index]);
+                    }
+                    else if (component.type == WidgetType.TOGGLE_KNOT) {
+                        return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(ToggleKnotsWidget, { obj: component.obj, listLayers: layersIds, knotVisibility: knotVisibility, title: component.title, subtitle: component.subtitle, viewId: viewIds[index], grammarDefinition: component.grammarDefinition }) }) }, viewIds[index]);
+                    }
+                    else if (component.type == WidgetType.RESOLUTION) ;
+                    else if (component.type == WidgetType.SEARCH) {
+                        return jsx(Draggable$1, { nodeRef: nodeRef, defaultPosition: { x: getTopLeft(component.position).left + 15, y: getTopLeft(component.position).top + 15 }, children: jsx("div", { ref: nodeRef, className: "drag-box", style: { borderRadius: "8px 8px 8px 8px" }, children: jsx(SearchWidget, { obj: component.obj, viewId: viewIds[index], inputId: inputBarId, title: component.title, subtitle: component.subtitle }) }) }, viewIds[index]);
+                    }
+                }) }), genericPlots.map((item) => (jsx(GenericScreenPlotContainer, { disp: !item.hidden, svgId: item.svgId }, item.id)))] }));
 }
 
 /// <reference types="@types/webgl2" />
@@ -22584,7 +22591,7 @@ class GrammarInterpreter {
     //     throw Error("Condition block does not have a default value");
     // }
     getCamera(view = 0) {
-        if ("map" in this._processedGrammar['components']) {
+        if ("map" in this._processedGrammar['components'][view]) {
             return this._processedGrammar['components'][view].map.camera;
         }
         else {
@@ -22592,7 +22599,7 @@ class GrammarInterpreter {
         }
     }
     getPlots(view = 0) {
-        if ("map" in this._processedGrammar['components']) {
+        if ("map" in this._processedGrammar['components'][view]) {
             return this._processedGrammar['components'][view].plots;
         }
         else {
@@ -22600,7 +22607,7 @@ class GrammarInterpreter {
         }
     }
     getKnots(view = 0) {
-        if ("map" in this._processedGrammar['components']) {
+        if ("map" in this._processedGrammar['components'][view]) {
             return this._processedGrammar['components'][view].knots;
         }
         else {
@@ -22608,7 +22615,7 @@ class GrammarInterpreter {
         }
     }
     getMap(view = 0) {
-        if ("map" in this._processedGrammar['components']) {
+        if ("map" in this._processedGrammar['components'][view]) {
             return this._processedGrammar['components'][view].map;
         }
         else {
@@ -22616,7 +22623,7 @@ class GrammarInterpreter {
         }
     }
     getFilterKnots(view = 0) {
-        if ("map" in this._processedGrammar['components']) {
+        if ("map" in this._processedGrammar['components'][view]) {
             return this._processedGrammar['components'][view].map.filterKnots;
         }
         else {

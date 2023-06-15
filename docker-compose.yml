@@ -13,7 +13,7 @@ services:
       - 5004:5000
     environment:
       - FLASK_DEBUG=1
-      - DATA_FOLDER=downtown_manhattan
+      - DATA_FOLDER=taxi_noise_zip
 
   jupyterapi:
     build:

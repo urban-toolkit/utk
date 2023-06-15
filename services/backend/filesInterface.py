@@ -5,6 +5,7 @@ import numpy as np
 import os
 import struct
 
+from shapely.geometry import Polygon, Point
 from scipy.spatial import KDTree
 
 class FilesInterface:
@@ -33,6 +34,83 @@ class FilesInterface:
 
     def setWorkDir(self, dir):
         self.workDir = dir
+
+    def jsonToGdf(self, layer_json, dim, abstract=False):
+
+        ids = []
+        ids_coordinates = []
+        values_coordinates = []
+        counter_id_coordinates = 0
+
+        geometries = []
+        geometries_coordinates = []
+
+        tridimensional_coordinates = []
+        ids_tridimensional_coordinates = []
+        counter_id_tridimensional_coordinates = 0
+
+        dimensions = 3
+
+
+        if(not abstract):
+            if('sectionFootprint' in layer_json['data'][0]['geometry']): # hard coded buildings case. We want to consider the footprint for 2D joins not the whole building
+                dimensions = 2 
+
+            for id, elem in enumerate(layer_json['data']):
+
+                groupedCoordinates = []
+
+                polygon_coordinates = None
+
+                if('sectionFootprint' in elem['geometry']):
+                    polygon_coordinates = elem['geometry']['sectionFootprint'][0] # used for buildings
+                else:
+                    polygon_coordinates = elem['geometry']['coordinates']
+
+                for i in range(0,int(len(polygon_coordinates)/dimensions)):
+                    geometries_coordinates.append(Point(polygon_coordinates[i*dimensions], polygon_coordinates[i*dimensions+1]))
+                    ids_coordinates.append(counter_id_coordinates)
+                    counter_id_coordinates += 1
+                    
+                    groupedCoordinates.append((polygon_coordinates[i*dimensions], polygon_coordinates[i*dimensions+1]))
+
+                    if(dimensions == 3 and 'sectionFootprint' not in elem['geometry']): # if it has a 3d representation and it is not a building
+                        tridimensional_coordinates.append([polygon_coordinates[i*dimensions], polygon_coordinates[i*dimensions+1], polygon_coordinates[i*dimensions+2]])
+                        ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
+                        counter_id_tridimensional_coordinates += 1  
+
+                if('sectionFootprint' in elem['geometry']): # it is a building so a 3d representation must be included (it comes from the coordinates field)
+                    for i in range(0,int(len(elem['geometry']['coordinates'])/3)):
+                        tridimensional_coordinates.append([elem['geometry']['coordinates'][i*3], elem['geometry']['coordinates'][i*3+1], elem['geometry']['coordinates'][i*3+2]])
+                        ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
+                        counter_id_tridimensional_coordinates += 1  
+
+                if(len(groupedCoordinates) >= 3):
+                    ids.append(id)
+                    geometries.append(Polygon(groupedCoordinates))
+        else:
+            for i in range(0,int(len(layer_json['coordinates'])/dimensions)):
+                
+                values_coordinates.append(layer_json['values'][i])
+                geometries_coordinates.append(Point(layer_json['coordinates'][i*dimensions], layer_json['coordinates'][i*dimensions+1]))
+
+                if(dimensions == 3):
+                    tridimensional_coordinates.append([layer_json['coordinates'][i*dimensions], layer_json['coordinates'][i*dimensions+1], layer_json['coordinates'][i*dimensions+2]])
+                    ids_tridimensional_coordinates.append(counter_id_tridimensional_coordinates)        
+                    counter_id_tridimensional_coordinates += 1  
+
+        gdf = gpd.GeoDataFrame({'geometry': geometries, 'id': ids}, crs=3395) if not abstract else {}
+
+        gdf_coordinates = gpd.GeoDataFrame({'geometry': geometries_coordinates, 'id': ids_coordinates}, crs=3395) if not abstract else gpd.GeoDataFrame({'geometry': geometries_coordinates, 'value': values_coordinates}, crs=3395)
+
+        df_coordinates3d = None
+
+        if(abstract):
+            df_coordinates3d = pd.DataFrame({'geometry': tridimensional_coordinates, 'id': ids_tridimensional_coordinates, 'value': values_coordinates}) if len(tridimensional_coordinates) > 0 and len(ids_tridimensional_coordinates) > 0 else None
+        else:
+            df_coordinates3d = pd.DataFrame({'geometry': tridimensional_coordinates, 'id': ids_tridimensional_coordinates}) if len(tridimensional_coordinates) > 0 and len(ids_tridimensional_coordinates) > 0 else None
+
+        return {'objects': gdf, 'coordinates': gdf_coordinates, 'coordinates3d': df_coordinates3d}
 
     def addLayerFromJsonFile(self, json_pathfile, gdf=None, abstract=False):
         layer_json = []
