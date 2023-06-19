@@ -22,8 +22,6 @@ services:
     volumes:
       - "./services/jupyterAPI:/usr/src/utk-jupyterAPI"
       - "./data:/usr/src/utk-jupyterAPI/data"
-    user: root
-    entrypoint: sh -c 'jupyter lab  --allow-root'
     ports:
       - 8888:8888
     environment:
@@ -53,6 +51,7 @@ services:
       - "./utk-bundle:/usr/src/utk-frontend/src/utk-bundle"
     ports:
       - 3000:3000
+      - 9229:9229
     environment:
       - WATCHPACK_POLLING=true
       - NODE_ENV=development
@@ -61,3 +60,4 @@ services:
     depends_on:
       - backend
       - utk
+    command: node --inspect=0.0.0.0:9229 ./bin/www
