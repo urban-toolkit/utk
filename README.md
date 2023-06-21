@@ -8,7 +8,7 @@ through a new high-level grammar specifically built with common urban use cases 
 visualization of different urban data, we also propose the concept of knots to merge thematic and physical urban layers. This repository presents the source
 code of the framework as well as documentation containing a gallery of examples, an in-depth description of the grammar and the steps needed to run the code.
 
-For a quick getting starter and tutorials, visit: [urbantk.org](http://urbantk.org)
+For a quick getting starter document and tutorials, visit: [urbantk.org](http://urbantk.org)
 
 ---
 
