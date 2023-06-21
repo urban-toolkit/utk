@@ -56,7 +56,7 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/downtown_manhattan/grammar.json)
 
-*To visualize the shadow data it is necessary to change the renderStyle of buildings.json to \['SMOOTH_COLOR_MAP_TEX'\] and renderStyle of surface.json to \['SMOOTH_COLOR_MAP'\]* (TODO: choose shader automatically)
+*To visualize the shadow data it is necessary to change the renderStyle of buildings.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```* (TODO: choose shader automatically)
 
 <p align="center">
     <img src="./images/example_downtown_manhattan.png"  width="500">
