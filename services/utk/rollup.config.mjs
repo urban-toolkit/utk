@@ -1,4 +1,4 @@
-import resolve from '@rollup/plugin-node-resolve';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import glsl from 'rollup-plugin-glsl';
 import json from '@rollup/plugin-json';
@@ -13,7 +13,7 @@ const config = {
     sourcemap: true,
   },
   plugins: [
-    resolve(),
+    nodeResolve(),
     json(),
     commonjs(),
     css(),
@@ -35,6 +35,6 @@ export default [
       name: 'urbantkmap',
       file: meta.default.main,
       format: "esm",
-    }  
+    }
   },
 ];

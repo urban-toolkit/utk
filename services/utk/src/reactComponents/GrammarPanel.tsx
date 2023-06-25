@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+//const changesets = require('json-diff-ts');
 // import { createAndRunMap, emptyMainDiv } from "../../../../App";
 import VanillaJSONEditor from "./VanillaJSONEditor";
 import { Col, Row, Button } from 'react-bootstrap';
-import GrammarHistory from "../GrammarHistory";
+import grammarHistory from "../grammarHistory";
 //import * as fs from 'fs';
 import * as d3 from "d3";
 
@@ -41,7 +42,7 @@ export const GrammarPanelContainer = ({
 ) => {
 
     const [grammar, _setCode] = useState('');
-    const [grammarHistory, _setGrammarHistory] = useState<string[]>([]); //TODO
+
 
     const [diffs, _setDiffs] = useState<string[]>([]);
 
@@ -72,14 +73,13 @@ export const GrammarPanelContainer = ({
 
     const applyGrammar = async () => {
 
-        // console.log('Grammar has been applied!')
-        // console.log('Current Grammar');
-        // console.log(JSON.stringify(grammarStateRef));
-        // console.log('Temp Grammar');
-        // console.log(JSON.stringify(tempGrammarStateRef));
-        GrammarHistory.pushToHistory(JSON.stringify(tempGrammarStateRef));
-        console.log(`Grammar History length -> ${GrammarHistory.getLength()}`)
 
+        grammarHistory.pushToHistory(JSON.stringify(grammarStateRef));
+        console.log(`Grammar History length -> ${grammarHistory.getLength()}`)
+        // const diffs = changesets.diff(grammarStateRef, tempGrammarStateRef);
+
+        grammarHistory.calculateAndPushDiff(grammarStateRef, tempGrammarStateRef);
+        //console.log(diffs);
         if (tempGrammarStateRef.current != '') {
             try {
                 JSON.parse(tempGrammarStateRef.current); // testing if temp grammar contains a valid grammar
@@ -88,11 +88,6 @@ export const GrammarPanelContainer = ({
                 return;
             }
         }
-
-        //Save old grammar into array
-        _setGrammarHistory(grammarHistory => [...grammarHistory, JSON.stringify(grammarStateRef)])
-
-        // console.log(grammarHistory.length);
 
 
         // let sendGrammar = addCamera(grammar, camera);

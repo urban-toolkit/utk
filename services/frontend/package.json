@@ -43,6 +43,7 @@
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
     "jquery": "^3.6.0",
+    "json-diff-ts": "^1.2.6",
     "mathjs": "^11.4.0",
     "mini-css-extract-plugin": "^2.4.5",
     "postcss": "^8.4.4",

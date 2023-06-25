@@ -44,6 +44,7 @@
     "exec-sh": "^0.4.0",
     "gl-matrix": "^3.3.0",
     "jquery": "^3.7.0",
+    "json-difference": "^1.9.1",
     "jsx": "^0.9.89",
     "mathjs": "^11.4.0",
     "merge": "^2.1.1",
@@ -64,7 +65,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.1",
     "@rollup/plugin-typescript": "^11.1.0",
     "@types/d3": "^6.2.0",
