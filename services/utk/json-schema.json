@@ -1,0 +1,150 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://urbantk.org/grammar-schema.json",
+    "title": "Grammar",
+    "description": "A grammar to produce visual analytics systems",
+    "type": "object",
+    "properties": {
+        "components": {
+            "description": "Stores the components that will visually compose the dashboard",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "map": {
+                        "type": "object",
+                        "properties": {
+                            "camera": {
+                                "type": "object"
+                            },
+                            "knots": {
+                                "type": "array"
+                            },
+                            "interactions": {
+                                "type": "array"
+                            },
+                            "required": ["camera", "knots", "interactions"]
+                        }
+                    },
+                    "plots": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "plot": {
+                                    "type": "object"
+                                },
+                                "knots": {
+                                    "type": "array"
+                                },
+                                "arrangement": {
+                                    "type": "string"
+                                },
+                                "interaction": {
+                                    "type": "string"
+                                },
+                                "args": {
+                                    "type": "object"
+                                },
+                                "required": ["plot", "knots", "arrangement", "interaction"]
+                            }
+                        }
+                    },
+                    "knots": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "group": {
+                                    "type": "object"
+                                },
+                                "knotOp": {
+                                    "type": "boolean"
+                                },
+                                "colorMap": {
+                                    "type": "string"
+                                },
+                                "integration_scheme": {
+                                    "type": "array"
+                                },
+                                "required": ["id", "integration_scheme"]
+                            }
+                        }
+                    },
+                    "position": {
+                        "type": "object",
+                        "properties": {
+                            "width": {
+                                "type": "array",
+                                "minItems": 2,
+                                "maxItems": 2,
+                                "items": {
+                                    "type": "integer"
+                                }
+                            },
+                            "height": {
+                                "type": "array",
+                                "minItems": 2,
+                                "maxItems": 2,
+                                "items": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["width", "height"]
+                        }
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "map_id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "subtitle": {
+                        "type": "string"
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "category_name": {
+                                    "type": "string"
+                                },
+                                "elements"
+                            }
+                        }
+                    },
+                    "required": ["position"],
+                    "dependentRequired": {
+                        "map": ["plots", "knots"],
+                        "plots": ["map", "knots"],
+                        "knots": ["map", "plots"]
+                    }
+                }
+            }
+        },
+        "grid": {
+            "description": "Defines how the screen should be divided",
+            "type": "object",
+            "properties": {
+                "width": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "integer"
+                }
+            },
+            "required": ["width", "height"]
+        }
+    },
+    "required": ["grid", "components"]
+}
