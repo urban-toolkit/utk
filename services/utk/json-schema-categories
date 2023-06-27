@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://urbantk.org/grammar/categories",
+    "description": "Categories schema",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "category_name": {
+                "type": "string"
+            },
+            "elements": {
+                "type": "array",
+                "items": {
+                    "anyOf": [
+                        {"type": "string"},
+                        {"#ref": "#"}
+                    ]
+                }
+            }
+        }
+    }
+}
