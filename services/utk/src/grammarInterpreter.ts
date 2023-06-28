@@ -9,6 +9,12 @@ import React, { ComponentType } from 'react';
 import {Root, createRoot} from 'react-dom/client';
 import Views from './reactComponents/Views';
 
+// @ts-ignore 
+import schema from './json-schema.json';
+import schema_categories from './json-schema-categories.json';
+
+const Ajv = require("ajv");  
+
 class GrammarInterpreter {
 
     protected _preProcessedGrammar: IGrammar;
@@ -19,16 +25,22 @@ class GrammarInterpreter {
     protected _mainDiv: HTMLElement;
     protected _url: string;
     protected _root: Root;
+    protected _ajv: any;
 
     protected _cameraUpdateCallback: any;
 
     resetGrammarInterpreter(grammar: IGrammar, mainDiv: HTMLElement) {
 
+        // =============================
+
+        this._ajv = new Ajv({schemas: [schema, schema_categories]});
+
+        // =============================
+
         this._url = <string>process.env.REACT_APP_BACKEND_SERVICE_URL;
 
         this._frontEndCallback = null;
         this._mainDiv = mainDiv;
-        this.validateGrammar(grammar);
         this.processGrammar(grammar);
     }
 
@@ -74,6 +86,18 @@ class GrammarInterpreter {
         // TODO: one knot cannot be in more than one category at the same time
 
         // TODO: cannot have two categories with the same name
+
+        const validate = this._ajv.getSchema("https://urbantk.org/grammar")
+
+        const valid = validate(grammar);
+
+        if(!valid){
+            for(const error of validate.errors){
+                alert("Invalid grammar: "+error.message+"at "+error.dataPath);
+            }
+
+            return false;
+        }
 
         this._lastValidationTimestep = Date.now();
 
@@ -160,14 +184,17 @@ class GrammarInterpreter {
 
         }
     
+        return true;
     }
 
     public async processGrammar(grammar: IGrammar){
-        this._preProcessedGrammar = grammar;
-        // this._processedGrammar = this.processConditionBlocks(JSON.parse(JSON.stringify(this._preProcessedGrammar))); // Making a deep copy of the grammar before processing it
-        await this.createSpatialJoins(this._url, this._preProcessedGrammar);
-        this._processedGrammar = this._preProcessedGrammar;
-        this.initViews(this._mainDiv, this._processedGrammar);
+        if(this.validateGrammar(grammar)){
+            this._preProcessedGrammar = grammar;
+            // this._processedGrammar = this.processConditionBlocks(JSON.parse(JSON.stringify(this._preProcessedGrammar))); // Making a deep copy of the grammar before processing it
+            await this.createSpatialJoins(this._url, this._preProcessedGrammar);
+            this._processedGrammar = this._preProcessedGrammar;
+            this.initViews(this._mainDiv, this._processedGrammar);
+        }
     }
 
     // Called by views

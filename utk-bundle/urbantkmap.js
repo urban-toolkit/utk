@@ -18993,7 +18993,7 @@ function memoize(fn) {
   };
 }
 
-const properties = {
+const properties$1 = {
   m: 'margin',
   p: 'padding'
 };
@@ -19025,7 +19025,7 @@ const getCssProperties = memoize(prop => {
     }
   }
   const [a, b] = prop.split('');
-  const property = properties[a];
+  const property = properties$1[a];
   const direction = directions[b] || '';
   return Array.isArray(direction) ? direction.map(dir => property + dir) : [property + direction];
 });
@@ -22393,7 +22393,362 @@ function Views({ viewObjs, viewIds, grammar, mainDivSize }) {
                 }) }), genericPlots.map((item) => (jsx(GenericScreenPlotContainer, { disp: !item.hidden, svgId: item.svgId }, item.id)))] }));
 }
 
+var $id$1 = "https://urbantk.org/grammar";
+var title = "Grammar";
+var description$1 = "A grammar to produce visual analytics systems";
+var type$1 = "object";
+var properties = {
+	components: {
+		description: "Stores the components that will visually compose the dashboard",
+		type: "array",
+		items: {
+			type: "object",
+			properties: {
+				map: {
+					type: "object",
+					properties: {
+						camera: {
+							type: "object",
+							properties: {
+								position: {
+									type: "array",
+									minItems: 3,
+									maxItems: 3,
+									items: {
+										type: "number"
+									}
+								},
+								direction: {
+									type: "object",
+									properties: {
+										right: {
+											type: "array",
+											minItems: 3,
+											maxItems: 3,
+											items: {
+												type: "number"
+											}
+										},
+										lookAt: {
+											type: "array",
+											minItems: 3,
+											maxItems: 3,
+											items: {
+												type: "number"
+											}
+										},
+										up: {
+											type: "array",
+											minItems: 3,
+											maxItems: 3,
+											items: {
+												type: "number"
+											}
+										}
+									}
+								}
+							}
+						},
+						knots: {
+							type: "array",
+							items: {
+								type: "string"
+							}
+						},
+						interactions: {
+							type: "array",
+							items: {
+								type: "string"
+							}
+						},
+						filterKnots: {
+							type: "array",
+							minItems: 4,
+							maxItems: 4,
+							items: {
+								type: "number"
+							}
+						},
+						knotVisibility: {
+							type: "array",
+							items: {
+								type: "object",
+								properties: {
+									knot: {
+										type: "string"
+									},
+									test: {
+										type: "string"
+									}
+								},
+								required: [
+									"knot",
+									"test"
+								]
+							}
+						}
+					},
+					required: [
+						"camera",
+						"knots",
+						"interactions"
+					]
+				},
+				plots: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: {
+							name: {
+								type: "string"
+							},
+							plot: {
+								type: "object",
+								additionalProperties: true
+							},
+							knots: {
+								type: "array",
+								items: {
+									type: "string"
+								}
+							},
+							arrangement: {
+								type: "string"
+							},
+							interaction: {
+								type: "string"
+							},
+							args: {
+								type: "object",
+								properties: {
+									bins: {
+										type: "number"
+									}
+								}
+							}
+						},
+						required: [
+							"plot",
+							"knots",
+							"arrangement"
+						]
+					}
+				},
+				knots: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: {
+							id: {
+								type: "string"
+							},
+							group: {
+								type: "object",
+								properties: {
+									group_name: {
+										type: "string"
+									},
+									position: {
+										type: "number"
+									}
+								},
+								required: [
+									"group_name",
+									"position"
+								]
+							},
+							knotOp: {
+								type: "boolean"
+							},
+							colorMap: {
+								type: "string"
+							},
+							integration_scheme: {
+								type: "array",
+								items: {
+									type: "object",
+									properties: {
+										spatial_relation: {
+											type: "string"
+										},
+										out: {
+											type: "object",
+											properties: {
+												name: {
+													type: "string"
+												},
+												level: {
+													type: "string"
+												}
+											}
+										},
+										"in": {
+											type: "object",
+											properties: {
+												name: {
+													type: "string"
+												},
+												level: {
+													type: "string"
+												}
+											}
+										},
+										operation: {
+											type: "string"
+										},
+										abstract: {
+											type: "boolean"
+										},
+										op: {
+											type: "string"
+										},
+										maxDistance: {
+											type: "number"
+										},
+										defaultValue: {
+											type: "number"
+										}
+									},
+									required: [
+										"out"
+									],
+									dependentRequired: {
+										"in": [
+											"spatial_relation"
+										]
+									}
+								}
+							}
+						},
+						required: [
+							"id",
+							"integration_scheme"
+						]
+					}
+				},
+				position: {
+					type: "object",
+					properties: {
+						width: {
+							type: "array",
+							minItems: 2,
+							maxItems: 2,
+							items: {
+								type: "integer"
+							}
+						},
+						height: {
+							type: "array",
+							minItems: 2,
+							maxItems: 2,
+							items: {
+								type: "integer"
+							}
+						}
+					},
+					required: [
+						"width",
+						"height"
+					]
+				},
+				type: {
+					type: "string"
+				},
+				map_id: {
+					type: "integer"
+				},
+				title: {
+					type: "string"
+				},
+				subtitle: {
+					type: "string"
+				},
+				categories: {
+					"#ref": "categories"
+				}
+			},
+			required: [
+				"position"
+			],
+			dependentRequired: {
+				map: [
+					"plots",
+					"knots"
+				],
+				plots: [
+					"map",
+					"knots"
+				],
+				knots: [
+					"map",
+					"plots"
+				]
+			}
+		}
+	},
+	grid: {
+		description: "Defines how the screen should be divided",
+		type: "object",
+		properties: {
+			width: {
+				type: "integer"
+			},
+			height: {
+				type: "integer"
+			}
+		},
+		required: [
+			"width",
+			"height"
+		]
+	}
+};
+var required = [
+	"grid",
+	"components"
+];
+var schema = {
+	$id: $id$1,
+	title: title,
+	description: description$1,
+	type: type$1,
+	properties: properties,
+	required: required
+};
+
+var $id = "https://urbantk.org/categories";
+var description = "Categories schema";
+var type = "array";
+var items = {
+	type: "object",
+	properties: {
+		category_name: {
+			type: "string"
+		},
+		elements: {
+			type: "array",
+			items: {
+				anyOf: [
+					{
+						type: "string"
+					},
+					{
+						"#ref": "#"
+					}
+				]
+			}
+		}
+	}
+};
+var schema_categories = {
+	$id: $id,
+	description: description,
+	type: type,
+	items: items
+};
+
 /// <reference types="@types/webgl2" />
+const Ajv = require("ajv");
 class GrammarInterpreter {
     _preProcessedGrammar;
     _processedGrammar;
@@ -22403,12 +22758,15 @@ class GrammarInterpreter {
     _mainDiv;
     _url;
     _root;
+    _ajv;
     _cameraUpdateCallback;
     resetGrammarInterpreter(grammar, mainDiv) {
+        // =============================
+        this._ajv = new Ajv({ schemas: [schema, schema_categories] });
+        // =============================
         this._url = process.env.REACT_APP_BACKEND_SERVICE_URL;
         this._frontEndCallback = null;
         this._mainDiv = mainDiv;
-        this.validateGrammar(grammar);
         this.processGrammar(grammar);
     }
     // TODO: it should be possible to create more than one map. So map should not be a singleton
@@ -22445,6 +22803,14 @@ class GrammarInterpreter {
         // TODO: enforce that if a knot is groupped it can only be referenced by its group name in the categories
         // TODO: one knot cannot be in more than one category at the same time
         // TODO: cannot have two categories with the same name
+        const validate = this._ajv.getSchema("https://urbantk.org/grammar");
+        const valid = validate(grammar);
+        if (!valid) {
+            for (const error of validate.errors) {
+                alert("Invalid grammar: " + error.message + "at " + error.dataPath);
+            }
+            return false;
+        }
         this._lastValidationTimestep = Date.now();
         for (let componentId = 0; componentId < grammar['components'].length; componentId++) {
             if ("map" in grammar.components[componentId]) { // if it is a map component
@@ -22506,13 +22872,16 @@ class GrammarInterpreter {
                 }
             }
         }
+        return true;
     }
     async processGrammar(grammar) {
-        this._preProcessedGrammar = grammar;
-        // this._processedGrammar = this.processConditionBlocks(JSON.parse(JSON.stringify(this._preProcessedGrammar))); // Making a deep copy of the grammar before processing it
-        await this.createSpatialJoins(this._url, this._preProcessedGrammar);
-        this._processedGrammar = this._preProcessedGrammar;
-        this.initViews(this._mainDiv, this._processedGrammar);
+        if (this.validateGrammar(grammar)) {
+            this._preProcessedGrammar = grammar;
+            // this._processedGrammar = this.processConditionBlocks(JSON.parse(JSON.stringify(this._preProcessedGrammar))); // Making a deep copy of the grammar before processing it
+            await this.createSpatialJoins(this._url, this._preProcessedGrammar);
+            this._processedGrammar = this._preProcessedGrammar;
+            this.initViews(this._mainDiv, this._processedGrammar);
+        }
     }
     // Called by views
     init(id, updateStatus) {

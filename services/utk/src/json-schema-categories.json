@@ -1,6 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://urbantk.org/grammar/categories",
+    "$id": "https://urbantk.org/categories",
     "description": "Categories schema",
     "type": "array",
     "items": {
