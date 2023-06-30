@@ -87,5 +87,5 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 *To visualize the shadow data it is necessary to change the renderStyle of buildings.json and buildings_m.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```*
 
 <p align="center">
-    <img src="./images/parallel_coordinates.png"  width="500">
+    <img src="./images/parallel-coordinates.png"  width="500">
 </p>
