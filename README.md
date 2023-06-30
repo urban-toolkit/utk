@@ -38,7 +38,7 @@ You can modify the `DATA_FOLDER` environment variable on `docker-compose.yml` to
 
 ## Grammar
 
-For more details on the grammar refer to [grammar.md](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/grammar.md).
+For more details on the grammar refer to [grammar.md](https://github.com/urban-toolkit/urbantk/blob/master/grammar.md).
 
 ---
 
