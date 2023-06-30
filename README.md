@@ -76,9 +76,9 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
     <img src="./images/example_whatif_downtown_chicago.png"  width="500">
 </p>
 
-### (4) Multiple datasets in downtown NYC
+### (3) Multiple datasets in downtown NYC
 
-**Description**" loading water, parks, street network, and buildings for downtown Chicago. Also, raytracing is used for shadow simulation and for building a what-if scenario considering the removal of two buildings.
+**Description**" loading water, parks, street network, and buildings for downtown NYC. Using multiple datasets aggregated by zip code to create a parallel coordinates chart.
 
 **Data** [download](https://drive.google.com/drive/folders/179RYmhPGNvd_kiLLg6AWIM-5wVciyLGr?usp=sharing) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
 
@@ -86,6 +86,6 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 *To visualize the shadow data it is necessary to change the renderStyle of buildings.json and buildings_m.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```*
 
-<!-- <p align="center">
-    <img src="./images/example_whatif_downtown_chicago.png"  width="500">
-</p> -->
+<p align="center">
+    <img src="./images/parallel_coordinates.png"  width="500">
+</p>
