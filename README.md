@@ -76,8 +76,6 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
     <img src="./images/example_whatif_downtown_chicago.png"  width="500">
 </p>
 
-### (3) WRF Temperature per building
-
 ### (4) Multiple datasets in downtown NYC
 
 **Description**" loading water, parks, street network, and buildings for downtown Chicago. Also, raytracing is used for shadow simulation and for building a what-if scenario considering the removal of two buildings.
