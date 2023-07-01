@@ -12944,8 +12944,42 @@ function SvelteJSONEditor(props) {
     return jsx("div", { className: "vanilla-jsoneditor-react", ref: refContainer });
 }
 
+//import { getDiff } from 'json-difference'
+const grammarHistory = (function () {
+    let grammarHistory = [];
+    const getHistory = function () {
+        return grammarHistory; // Or pull this from cookie/localStorage
+    };
+    const pushToHistory = function (history) {
+        grammarHistory.push(history);
+        // Also set this in cookie/localStorage
+    };
+    const calculateAndPushDiff = function (obj1, obj2) {
+        let ret = {};
+        for (var i in obj2) {
+            if (!obj1.hasOwnProperty(i) || obj2[i] !== obj1[i]) {
+                if (!Array.isArray(obj2[i]) || !(JSON.stringify(obj2[i]) == JSON.stringify(obj1[i]))) {
+                    ret[i] = obj2[i];
+                }
+            }
+        }
+        // console.log(`ret: ${JSON.stringify(diff)}`);
+        return ret;
+    };
+    const getLength = function () {
+        return grammarHistory.length;
+    };
+    return {
+        getHistory: getHistory,
+        pushToHistory: pushToHistory,
+        getLength: getLength,
+        calculateAndPushDiff: calculateAndPushDiff
+    };
+})();
+
 const GrammarPanelContainer = ({ obj, viewId, initialGrammar, camera, filterKnots, inputId, setCamera, addNewMessage, applyGrammarButtonId, linkMapAndGrammarId }) => {
     const [grammar, _setCode] = useState('');
+    useState([]);
     const grammarStateRef = useRef(grammar);
     const setCode = (data) => {
         grammarStateRef.current = data;
@@ -12961,7 +12995,15 @@ const GrammarPanelContainer = ({ obj, viewId, initialGrammar, camera, filterKnot
     const [showEditor, setShowEditor] = useState(true);
     const [readOnly, setReadOnly] = useState(false);
     const url = process.env.REACT_APP_BACKEND_SERVICE_URL;
+    // useEffect(() => {
+    //     console.log('History Length', grammarHistory.length);
+    // }, [grammarHistory])
     const applyGrammar = async () => {
+        grammarHistory.pushToHistory(JSON.stringify(grammarStateRef));
+        console.log(`Grammar History length -> ${grammarHistory.getLength()}`);
+        // const diffs = changesets.diff(grammarStateRef, tempGrammarStateRef);
+        grammarHistory.calculateAndPushDiff(grammarStateRef, tempGrammarStateRef);
+        //console.log(diffs);
         if (tempGrammarStateRef.current != '') {
             try {
                 JSON.parse(tempGrammarStateRef.current); // testing if temp grammar contains a valid grammar
@@ -13001,7 +13043,7 @@ const GrammarPanelContainer = ({ obj, viewId, initialGrammar, camera, filterKnot
             body: JSON.stringify(data)
         })
             .then((response) => {
-            // await createLinksAndRenderStyles(url);
+            console.log(response);
             obj.processGrammar(JSON.parse(grammarStateRef.current));
         })
             .catch(error => {

@@ -1,10 +1,15 @@
+import datetime
 import os
 from flask import Flask, request, send_from_directory, abort, jsonify
 import json
 from filesInterface import *
 from geopy.geocoders import Nominatim
+from sqliteInterface import sqlite_create_tables, sqlite_insert_query_executor
 import utils
 import sqlite3
+
+# sqlite3.register_converter("TIMESTAMP", datetime.datetime.fromisoformat)
+# sqlite3.register_converter("TIMESTAMP", lambda b: b)
 
 
 app = Flask(__name__)
@@ -255,27 +260,27 @@ def writeImpactViewData():
 @app.route('/updateGrammar', methods=['POST'])
 def serve_updateGrammar():
 
+    # get the current datetime and store it in a variable
+    currentDateTime = datetime.datetime.now()
+
     grammar = request.json['grammar']
 
     with open(os.path.join(workDir, "grammar.json"), "w", encoding="utf-8") as f:
         f.write(grammar)
 
-    conn = sqlite3.connect(os.path.join(workDir, "utk.db"))
+    insertedRowId = sqlite_insert_query_executor(
+        os.path.join(workDir, "utk.db"), "INSERT INTO Grammar (grammar_json) VALUES (?);", (grammar,))
 
-    print("Opened database successfully")
+    sqlite_insert_query_executor(
+        os.path.join(workDir, "utk.db"),
+        """INSERT into Operation_Execution 
+        (start_time,end_time,
+          output_message,
+          error_message,
+          id_user,
+          id_map,
+          id_grammar) VALUES (?, ?, ?,?,?,?,?);""", (currentDateTime, currentDateTime, "no_message", "no_message", 0, 0, insertedRowId,))
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS COMPANY
-         (ID INT PRIMARY KEY     NOT NULL,
-         NAME           TEXT    NOT NULL,
-         AGE            INT     NOT NULL,
-         ADDRESS        CHAR(50),
-         SALARY         REAL);''')
-    print('Table Created')
-
-    conn.execute("INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) \
-      VALUES (1, 'Paul', 32, 'California', 20000.00 )")
-
-    conn.close()
     return ''
 
 
@@ -290,6 +295,10 @@ if __name__ == '__main__':
     # workDir = params["environmentDataFolder"]
 
     workDir = os.path.join(workDir, os.environ.get('DATA_FOLDER'))
+
+    sqlite_create_tables(os.path.join(workDir, "utk.db"))
+
+    os.chmod(os.path.join(workDir, "utk.db"), 0o777)
 
     # app.run(debug=True, host=params["environmentIP"], port=params["port"])
 
