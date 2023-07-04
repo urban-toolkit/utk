@@ -90,9 +90,9 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
 
     for(let i = 0; i < n; i++){
       if(names.length > 0 && names[i] != '' && names[i] != undefined){
-        tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: names[i], checked: false, edit: false});
+        tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: names[i], checked: false, edit: false});
       }else{
-        tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
+        tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
       }
       createdIds.push(tempId);
       tempId += 1;
@@ -215,7 +215,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
           })
         }
       </div>
-        {/* {
+      {
         genericPlots.map((item) => (
             <GenericScreenPlotContainer
               key={item.id}
@@ -223,7 +223,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
               svgId={item.svgId}
             />
         ))
-        } */}
+      }
     </React.Fragment>
   );
 }

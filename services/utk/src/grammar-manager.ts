@@ -272,8 +272,6 @@ export class GrammarManager {
                 mergedKnots = mergeKnotData(mergedKnots.values, processedKnotData[<string>elem.knots[j]].values);
             }
 
-            console.log("mergedKnots", mergedKnots);
-
             elem.plot.data = mergedKnots;
 
             let vegaspec = lite.compile(elem.plot).spec;
