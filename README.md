@@ -38,15 +38,15 @@ You can modify the `DATA_FOLDER` environment variable on `docker-compose.yml` to
 
 ## Grammar
 
-For more details on the grammar refer to [grammar.md](https://github.com/urban-toolkit/urbantk/blob/15-dockerize-the-application/grammar.md).
+For more details on the grammar refer to [grammar.md](https://github.com/urban-toolkit/urbantk/blob/master/grammar.md).
 
 ---
 
-## Example gallery
+## Example Gallery
 
-Each example can be download and executed out of the shelf, but jupyter notebooks and the grammar specifications are also provided if one wants to build them from "scratch".
+Each example can be downloaded and executed off the shelf, but jupyter notebooks and the grammar specifications are also provided if one wants to build them from "scratch".
 
-The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyterAPI]() for more details.
+The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyterAPI](https://github.com/urban-toolkit/urbantk/blob/master/services/jupyterAPI/README.md) for more details.
 
 ### (1) Loading downtown Manhattan
 
@@ -56,7 +56,7 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/downtown_manhattan/grammar.json)
 
-*To visualize the shadow data it is necessary to change the renderStyle of buildings.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```* (TODO: choose shader automatically)
+*To visualize the shadow data it is necessary to change the renderStyle of buildings.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```*
 
 <p align="center">
     <img src="./images/example_downtown_manhattan.png"  width="500">
@@ -64,30 +64,28 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 ### (2) What if analysis downtown Chicago
 
-**Description**" loading water, parks, street network and buildings for downtown Chicago. Also raytracing is used for shadow simulation and for building a what if scenario considering the removal of two buildings.
+**Description**" loading water, parks, street network, and buildings for downtown Chicago. Also, raytracing is used for shadow simulation and for building a what-if scenario considering the removal of two buildings.
 
 **Data** [download](https://drive.google.com/drive/folders/1E8ItW4VO_SParQwc-AJuIQ2Y3-ffdqV_?usp=share_link) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
 
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/grammar.json)
 
-*To visualize the shadow data it is necessary to change the renderStyle of buildings.json and buildings_m.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```* (TODO: choose shader automatically)
+*To visualize the shadow data it is necessary to change the renderStyle of buildings.json and buildings_m.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```*
 
 <p align="center">
     <img src="./images/example_whatif_downtown_chicago.png"  width="500">
 </p>
 
-### (3) WRF Temperature per building
+### (3) Multiple datasets in downtown NYC
 
-### (4) Multiple datasets downtown NYC
-
-**Description**" loading water, parks, street network and buildings for downtown Chicago. Also raytracing is used for shadow simulation and for building a what if scenario considering the removal of two buildings.
+**Description**" loading water, parks, street network, and buildings for downtown NYC. Using multiple datasets aggregated by zip code to create a parallel coordinates chart.
 
 **Data** [download](https://drive.google.com/drive/folders/179RYmhPGNvd_kiLLg6AWIM-5wVciyLGr?usp=sharing) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
 
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/grammar.json)
 
-*To visualize the shadow data it is necessary to change the renderStyle of buildings.json and buildings_m.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```* (TODO: choose shader automatically)
+*To visualize the shadow data it is necessary to change the renderStyle of buildings.json and buildings_m.json to ```SMOOTH_COLOR_MAP_TEX``` and renderStyle of surface.json to ```SMOOTH_COLOR_MAP```*
 
-<!-- <p align="center">
-    <img src="./images/example_whatif_downtown_chicago.png"  width="500">
-</p> -->
+<p align="center">
+    <img src="./images/parallel-coordinates.png"  width="500">
+</p>
