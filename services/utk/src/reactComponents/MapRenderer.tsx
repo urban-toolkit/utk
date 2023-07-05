@@ -5,20 +5,23 @@ import { VisWidget } from "./VisWidget";
 import './MapRenderer.css';
 import { SideBarWidgets } from "./SideBarWigets";
 import { ComponentIdentifier, WidgetType } from "../constants";
-import { IComponentPosition, IView } from "../interfaces";
+import { IComponentPosition, IGenericWidget, IView } from "../interfaces";
 
 // declaring the types of the props
 type MapRendererProps = {
   obj: any,
   viewId: string,
-  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView}[] // each viewObj has a an object representing its logic
+  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView | IGenericWidget | undefined}[] // each viewObj has a an object representing its logic
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  layersIds: any,
+  knotVisibility: any,
+  inputBarId: string
 }
 
-export const MapRendererContainer = ({obj, viewId, viewObjs, x, y, width, height}:MapRendererProps) =>{
+export const MapRendererContainer = ({obj, viewId, viewObjs, x, y, width, height, layersIds, knotVisibility, inputBarId}:MapRendererProps) =>{
 
     return(
       <React.Fragment>
@@ -37,6 +40,9 @@ export const MapRendererContainer = ({obj, viewId, viewObjs, x, y, width, height
           y={y}
           mapWidth={width}
           mapHeight={height}
+          layersIds={layersIds}
+          knotVisibility={knotVisibility}
+          inputBarId={inputBarId}
         />
 
         {/* <div style={{position: "absolute", height: "160px", bottom: 0, width: (divWidth/12)*window.innerWidth, backgroundColor: "rgba(200,200,200,0.3)", padding: 0}}>

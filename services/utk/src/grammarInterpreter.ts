@@ -1,6 +1,6 @@
 /// <reference types="@types/webgl2" />
 
-import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot, IView, IComponentPosition } from './interfaces';
+import { ICameraData, IConditionBlock, IGrammar, IKnotVisibility, IKnot, IView, IComponentPosition, IGenericWidget } from './interfaces';
 import { PlotArrangementType, OperationType, SpatialRelationType, LevelType, ComponentIdentifier, WidgetType} from './constants';
 import { Knot } from './knot';
 import { MapViewFactory } from './mapview';
@@ -20,7 +20,7 @@ class GrammarInterpreter {
     protected _preProcessedGrammar: IGrammar;
     protected _processedGrammar: IGrammar;
     protected _lastValidationTimestep: number;
-    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition | undefined, grammarDefinition: IView | undefined}[] = [];
+    protected _components: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition | undefined, grammarDefinition: IView | IGenericWidget | undefined}[] = [];
     protected _frontEndCallback: any;
     protected _mainDiv: HTMLElement;
     protected _url: string;
@@ -57,10 +57,10 @@ class GrammarInterpreter {
                 
                 if(component.widgets != undefined){
                     for(const widget of component.widgets){
-                        if(widget == WidgetType.TOGGLE_KNOT){
-                            this._components.push({type: WidgetType.TOGGLE_KNOT, obj: map_component, position: undefined, grammarDefinition: component});
-                        }else if(widget == WidgetType.SEARCH){
-                            this._components.push({type: WidgetType.SEARCH, obj: map_component, position: undefined, grammarDefinition: component});
+                        if(widget.type == WidgetType.TOGGLE_KNOT){
+                            this._components.push({type: WidgetType.TOGGLE_KNOT, obj: MapViewFactory.getInstance(mainDiv, this), position: undefined, grammarDefinition: widget});
+                        }else if(widget.type == WidgetType.SEARCH){
+                            this._components.push({type: WidgetType.SEARCH, obj: MapViewFactory.getInstance(mainDiv, this), position: undefined, grammarDefinition: widget});
                         }
                     }
                 }
@@ -68,8 +68,8 @@ class GrammarInterpreter {
             }
         }
 
-        if(grammar.grammar_editor != undefined){
-            this._components.push({type: ComponentIdentifier.GRAMMAR, obj: this, position: grammar.grammar_editor, grammarDefinition: undefined});
+        if(grammar.grammar_position != undefined){
+            this._components.push({type: ComponentIdentifier.GRAMMAR, obj: this, position: grammar.grammar_position, grammarDefinition: undefined});
         }
 
         this.renderViews(mainDiv, grammar);

@@ -12,12 +12,12 @@ import Draggable from "react-draggable";
 import './Dragbox.css'
 
 import * as d3 from "d3";
-import { IComponentPosition, IGrammar, IGrid, IView } from '../interfaces';
+import { IComponentPosition, IGenericWidget, IGrammar, IGrid, IView } from '../interfaces';
 import './View.css';
 
 // declaring the types of the props
 type ViewProps = {
-  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView}[] // each view has a an object representing its logic
+  viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView | IGenericWidget | undefined}[] // each view has a an object representing its logic
   viewIds: string[]
   grammar: IGrammar
   mainDivSize: {width: number, height: number}
@@ -161,6 +161,8 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
       let viewObj = viewObjs[i].obj;
       let viewId = viewIds[i];
 
+      console.log(viewObj);
+
       viewObj.init(viewId, updateStatus);
     }
   }, []);
@@ -191,10 +193,13 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                     y={getTopLeft(component.position).top}
                     width={getSizes(component.position).width}
                     height={getSizes(component.position).height}
+                    layersIds={layersIds}
+                    knotVisibility={knotVisibility}
+                    inputBarId={inputBarId}
                   />
                 </div>
               </React.Fragment>
-            } else if(component.type == WidgetType.GRAMMAR) {
+            } else if(component.type == ComponentIdentifier.GRAMMAR) {
               return <React.Fragment key={viewIds[index]}>
                 <div className='component' style={{position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height}}>
                   <GrammarPanelContainer 

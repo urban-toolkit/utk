@@ -6,8 +6,8 @@ import { LayerType, RenderStyle, ColorHEX, OperationType, ViewArrangementType, P
 export interface IGrammar {
     components: (IView)[],
     arrangement: ViewArrangementType,
-    grammar_editor?: IComponentPosition,
-    grid: IGrid
+    grid: IGrid,
+    grammar_position?: IComponentPosition
 }
 
 export interface IGrid{
@@ -19,7 +19,7 @@ export interface IView{
     map: {camera: ICameraData, knots: (string | IConditionBlock)[], interactions: (InteractionType | IConditionBlock)[], filterKnots?: (number | IConditionBlock)[], knotVisibility?: IKnotVisibility[]}, // The knots refers to the id of IKnot. These knots must finished in a physical layer in the object level 
     plots: {name?: string, plot: any, knots: (string | IConditionBlock)[], arrangement: PlotArrangementType | IConditionBlock, interaction?: PlotInteractionType | IConditionBlock, args?: IPlotArgs}[], // The knots refers to the id of IKnot. These knots can finish in any layer at any level
     knots: IKnot[],
-    widgets?: WidgetType[],
+    widgets?: IGenericWidget[],
     position: IComponentPosition
 }
 
@@ -29,6 +29,11 @@ export interface IView{
 //         position: IComponentPosition
 //     }
 // }
+
+export interface IGenericWidget{
+    type: WidgetType,
+    args?: any
+}
 
 // export interface IGenericWidget{
 //     type: WidgetType,
