@@ -90,9 +90,9 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
 
     for(let i = 0; i < n; i++){
       if(names.length > 0 && names[i] != '' && names[i] != undefined){
-        tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: names[i], checked: false, edit: false});
+        tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: names[i], checked: false, edit: false});
       }else{
-        tempPlots.push({id: tempId, hidden: false, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
+        tempPlots.push({id: tempId, hidden: true, svgId: "genericPlotSvg"+tempId, label: "Plot "+tempId, checked: false, edit: false});
       }
       createdIds.push(tempId);
       tempId += 1;
@@ -112,6 +112,20 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
         modifiedPlots.push({id: plot.id, hidden: plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
       }
     }
+    setGenericPlots(modifiedPlots);
+  }
+
+  const toggleAllPlots = () => {
+    let modifiedPlots = [];
+
+    console.log("toggling all plots", genericPlots);
+
+    for(const plot of genericPlots){
+      modifiedPlots.push({id: plot.id, hidden: !plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
+    }
+
+    console.log("all plots toggled", modifiedPlots);
+
     setGenericPlots(modifiedPlots);
   }
 
@@ -161,8 +175,6 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
       let viewObj = viewObjs[i].obj;
       let viewId = viewIds[i];
 
-      console.log(viewObj);
-
       viewObj.init(viewId, updateStatus);
     }
   }, []);
@@ -196,6 +208,8 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
                     layersIds={layersIds}
                     knotVisibility={knotVisibility}
                     inputBarId={inputBarId}
+                    genericPlots={genericPlots}
+                    togglePlots={toggleAllPlots}
                   />
                 </div>
               </React.Fragment>
@@ -220,15 +234,6 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
           })
         }
       </div>
-      {
-        genericPlots.map((item) => (
-            <GenericScreenPlotContainer
-              key={item.id}
-              disp = {!item.hidden}
-              svgId={item.svgId}
-            />
-        ))
-      }
     </React.Fragment>
   );
 }

@@ -20488,6 +20488,10 @@ const ToggleKnotsWidget = ({ obj, title, subtitle, listLayers, knotVisibility, v
                         grammarDefinition.args != undefined && grammarDefinition.args.categories != undefined ? grammarDefinition.args.categories.map((category) => (getCategoryHtml(category, listLayers, knotVisibility))) : jsx(Fragment, {}), getNotInCategoriesHtml(grammarDefinition.args, listLayers, knotVisibility)] }) })] }));
 };
 
+const SearchWidget = ({ obj, inputId, viewId, title, subtitle }) => {
+    return (jsxs(React__default.Fragment, { children: [title != undefined ? jsx("p", { children: title }) : jsx(Fragment, {}), subtitle != undefined ? jsx("p", { children: subtitle }) : jsx(Fragment, {}), jsx("input", { type: "text", size: 24, className: inputId, name: "searchBar", placeholder: 'Search place' })] }));
+};
+
 function ownKeys$2(object, enumerableOnly) {
   var keys = Object.keys(object);
 
@@ -23897,44 +23901,20 @@ FontAwesomeIcon.defaultProps = {
 };
 var convertCurry = convert.bind(null, React__default.createElement);
 
+var faChartSimple = {
+  prefix: 'fas',
+  iconName: 'chart-simple',
+  icon: [448, 512, [], "e473", "M160 80c0-26.5 21.5-48 48-48h32c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V80zM0 272c0-26.5 21.5-48 48-48H80c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V272zM368 96h32c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H368c-26.5 0-48-21.5-48-48V144c0-26.5 21.5-48 48-48z"]
+};
 var faLayerGroup = {
   prefix: 'fas',
   iconName: 'layer-group',
   icon: [576, 512, [], "f5fd", "M264.5 5.2c14.9-6.9 32.1-6.9 47 0l218.6 101c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 149.8C37.4 145.8 32 137.3 32 128s5.4-17.9 13.9-21.8L264.5 5.2zM476.9 209.6l53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 277.8C37.4 273.8 32 265.3 32 256s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0l152-70.2zm-152 198.2l152-70.2 53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 405.8C37.4 401.8 32 393.3 32 384s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0z"]
 };
-
-const SideBarWidgets = ({ x, y, mapWidth, mapHeight, layersIds, knotVisibility, inputBarId, viewObjs }) => {
-    const handleClickLayers = (e) => {
-        console.log("clicked");
-        if (select("#toggle_knot_widget").style("display") == "block") {
-            select("#toggle_knot_widget").style("display", "none");
-        }
-        else {
-            select("#toggle_knot_widget").style("display", "block");
-        }
-    };
-    return (jsx(React__default.Fragment, { children: jsxs("div", { style: { backgroundColor: "white", height: "100%", width: "100px", position: "absolute", left: 0, top: 0 }, children: [jsx(Row, { children: jsx(FontAwesomeIcon, { icon: faLayerGroup, onClick: handleClickLayers }) }), viewObjs.map((component, index) => {
-                    if (component.type == WidgetType.TOGGLE_KNOT) {
-                        return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', id: "toggle_knot_widget", style: { position: "absolute", left: 110, top: 0, width: 200, height: 200, display: "none" }, children: jsx(ToggleKnotsWidget, { obj: component.obj, listLayers: layersIds, knotVisibility: knotVisibility, title: component.title, subtitle: component.subtitle, viewId: "toggle_knot_" + index, grammarDefinition: component.grammarDefinition }) }) }, "toggle_knot_" + index);
-                    }
-                    // else if(component.type == WidgetType.SEARCH){
-                    //   return <React.Fragment key={"search_"+index}>
-                    //     <div style={{borderRadius: "8px 8px 8px 8px"}} style={{position: "absolute", left: x, top: y}}>
-                    //       <SearchWidget 
-                    //         obj = {component.obj}
-                    //         viewId = {"search_"+index}
-                    //         inputId = {inputBarId}
-                    //         title = {component.title}
-                    //         subtitle = {component.subtitle}
-                    //       />
-                    //     </div>
-                    //   </React.Fragment>
-                    // }
-                })] }) }));
-};
-
-const MapRendererContainer = ({ obj, viewId, viewObjs, x, y, width, height, layersIds, knotVisibility, inputBarId }) => {
-    return (jsxs(React__default.Fragment, { children: [jsxs("div", { style: { padding: 0, width: "100%", height: "100%" }, children: [jsx("div", { id: viewId, className: "mapView" }), jsx("div", { id: 'svg_div', children: jsx("svg", { id: 'svg_element', xmlns: "http://www.w3.org/2000/svg", style: { "display": "none" } }) })] }), jsx(SideBarWidgets, { viewObjs: viewObjs, x: x, y: y, mapWidth: width, mapHeight: height, layersIds: layersIds, knotVisibility: knotVisibility, inputBarId: inputBarId })] }));
+var faMagnifyingGlass = {
+  prefix: 'fas',
+  iconName: 'magnifying-glass',
+  icon: [512, 512, [128269, "search"], "f002", "M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"]
 };
 
 var cjs = {exports: {}};
@@ -25711,9 +25691,43 @@ cjs.exports.DraggableCore = DraggableCore;
 var cjsExports = cjs.exports;
 var Draggable$1 = /*@__PURE__*/getDefaultExportFromCjs(cjsExports);
 
-const GenericScreenPlotContainer = ({ disp, svgId }) => {
+const GenericScreenPlotContainer = ({ id, disp, x, y, svgId }) => {
     const nodeRef = useRef(null);
-    return (jsx(Draggable$1, { nodeRef: nodeRef, defaultPosition: { x: window.innerWidth / 1.5, y: -window.innerHeight / 1.5 }, children: jsx("div", { ref: nodeRef, className: "drag-box", style: { display: disp ? 'block' : 'none', boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.35)", overflow: "auto", maxWidth: window.innerWidth / 2, maxHeight: window.innerHeight }, children: jsx("div", { id: svgId }) }) }));
+    return (jsx(Draggable$1, { nodeRef: nodeRef, defaultPosition: { x: x, y: -y }, children: jsx("div", { ref: nodeRef, className: "drag-box", style: { display: disp ? 'block' : 'none', boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.35)", overflow: "auto", maxWidth: window.innerWidth / 2, maxHeight: window.innerHeight }, children: jsx("div", { id: svgId }) }) }, id));
+};
+
+const SideBarWidgets = ({ x, y, mapWidth, mapHeight, layersIds, knotVisibility, inputBarId, genericPlots, togglePlots, viewObjs }) => {
+    const handleClickLayers = (e) => {
+        if (select("#toggle_knot_widget").style("display") == "block") {
+            select("#toggle_knot_widget").style("display", "none");
+        }
+        else {
+            select("#toggle_knot_widget").style("display", "block");
+        }
+    };
+    const handleClickSearch = (e) => {
+        if (select("#search_widget").style("display") == "block") {
+            select("#search_widget").style("display", "none");
+        }
+        else {
+            select("#search_widget").style("display", "block");
+        }
+    };
+    const handleTogglePlots = (e) => {
+        togglePlots();
+    };
+    return (jsxs(React__default.Fragment, { children: [jsx("div", { style: { backgroundColor: "white", height: "100%", width: "100px", position: "absolute", left: 0, top: 0, boxShadow: "3px 0px 5px 1px rgba(0,0,0,0.30)" }, children: jsxs(Row, { children: [jsx(FontAwesomeIcon, { size: "3x", style: { padding: 0, marginTop: "10px" }, icon: faLayerGroup, onClick: handleClickLayers }), jsx(FontAwesomeIcon, { size: "3x", style: { padding: 0, marginTop: "10px" }, icon: faMagnifyingGlass, onClick: handleClickSearch }), jsx(FontAwesomeIcon, { size: "3x", style: { padding: 0, marginTop: "10px" }, icon: faChartSimple, onClick: handleTogglePlots })] }) }), viewObjs.map((component, index) => {
+                if (component.type == WidgetType.TOGGLE_KNOT) {
+                    return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', id: "toggle_knot_widget", style: { position: "absolute", left: 110, top: 0, width: 300, height: 300, display: "none" }, children: jsx(ToggleKnotsWidget, { obj: component.obj, listLayers: layersIds, knotVisibility: knotVisibility, title: component.title, subtitle: component.subtitle, viewId: "toggle_knot_" + index, grammarDefinition: component.grammarDefinition }) }) }, "toggle_knot_" + index);
+                }
+                else if (component.type == WidgetType.SEARCH) {
+                    return jsx(React__default.Fragment, { children: jsx("div", { id: "search_widget", style: { borderRadius: "8px 8px 8px 8px", position: "absolute", left: mapWidth - 250, top: 10, display: "none" }, children: jsx(SearchWidget, { obj: component.obj, viewId: "search_" + index, inputId: inputBarId, title: component.title, subtitle: component.subtitle }) }) }, "search_" + index);
+                }
+            }), genericPlots.map((item) => (jsx(GenericScreenPlotContainer, { id: item.id, disp: !item.hidden, svgId: item.svgId, x: mapHeight / 2, y: mapWidth / 2 })))] }));
+};
+
+const MapRendererContainer = ({ obj, viewId, viewObjs, x, y, width, height, layersIds, knotVisibility, genericPlots, togglePlots, inputBarId }) => {
+    return (jsxs(React__default.Fragment, { children: [jsxs("div", { style: { padding: 0, width: "100%", height: "100%" }, children: [jsx("div", { id: viewId, className: "mapView" }), jsx("div", { id: 'svg_div', children: jsx("svg", { id: 'svg_element', xmlns: "http://www.w3.org/2000/svg", style: { "display": "none" } }) })] }), jsx(SideBarWidgets, { viewObjs: viewObjs, x: x, y: y, mapWidth: width, mapHeight: height, layersIds: layersIds, knotVisibility: knotVisibility, inputBarId: inputBarId, genericPlots: genericPlots, togglePlots: togglePlots })] }));
 };
 
 // Render components
@@ -25762,10 +25776,10 @@ function Views({ viewObjs, viewIds, grammar, mainDivSize }) {
         let tempId = 0;
         for (let i = 0; i < n; i++) {
             if (names.length > 0 && names[i] != '' && names[i] != undefined) {
-                tempPlots.push({ id: tempId, hidden: false, svgId: "genericPlotSvg" + tempId, label: names[i], checked: false, edit: false });
+                tempPlots.push({ id: tempId, hidden: true, svgId: "genericPlotSvg" + tempId, label: names[i], checked: false, edit: false });
             }
             else {
-                tempPlots.push({ id: tempId, hidden: false, svgId: "genericPlotSvg" + tempId, label: "Plot " + tempId, checked: false, edit: false });
+                tempPlots.push({ id: tempId, hidden: true, svgId: "genericPlotSvg" + tempId, label: "Plot " + tempId, checked: false, edit: false });
             }
             createdIds.push(tempId);
             tempId += 1;
@@ -25773,6 +25787,15 @@ function Views({ viewObjs, viewIds, grammar, mainDivSize }) {
         setGenericPlots(tempPlots);
         setCurrentPlotId(tempId);
         return createdIds;
+    };
+    const toggleAllPlots = () => {
+        let modifiedPlots = [];
+        console.log("toggling all plots", genericPlots);
+        for (const plot of genericPlots) {
+            modifiedPlots.push({ id: plot.id, hidden: !plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit });
+        }
+        console.log("all plots toggled", modifiedPlots);
+        setGenericPlots(modifiedPlots);
     };
     /**
      * Summarize callbacks
@@ -25817,18 +25840,17 @@ function Views({ viewObjs, viewIds, grammar, mainDivSize }) {
         for (let i = 0; i < viewObjs.length; i++) {
             let viewObj = viewObjs[i].obj;
             let viewId = viewIds[i];
-            console.log(viewObj);
             viewObj.init(viewId, updateStatus);
         }
     }, []);
-    return (jsxs(React__default.Fragment, { children: [jsx("div", { style: { backgroundColor: "#EAEAEA", height: "100%", width: "100%" }, children: viewObjs.map((component, index) => {
-                    if (component.type == ComponentIdentifier.MAP) {
-                        return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { padding: 0, position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(MapRendererContainer, { obj: component.obj, viewId: viewIds[index], viewObjs: viewObjs, x: getTopLeft(component.position).left, y: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height, layersIds: layersIds, knotVisibility: knotVisibility, inputBarId: inputBarId }) }) }, viewIds[index]);
-                    }
-                    else if (component.type == ComponentIdentifier.GRAMMAR) {
-                        return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(GrammarPanelContainer, { obj: component.obj, viewId: viewIds[index], initialGrammar: grammar, camera: camera, filterKnots: filterKnots, inputId: inputBarId, setCamera: setCamera, addNewMessage: addNewMessage, applyGrammarButtonId: "applyGrammarButton", linkMapAndGrammarId: "linkMapAndGrammar" }) }) }, viewIds[index]);
-                    }
-                }) }), genericPlots.map((item) => (jsx(GenericScreenPlotContainer, { disp: !item.hidden, svgId: item.svgId }, item.id)))] }));
+    return (jsx(React__default.Fragment, { children: jsx("div", { style: { backgroundColor: "#EAEAEA", height: "100%", width: "100%" }, children: viewObjs.map((component, index) => {
+                if (component.type == ComponentIdentifier.MAP) {
+                    return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { padding: 0, position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(MapRendererContainer, { obj: component.obj, viewId: viewIds[index], viewObjs: viewObjs, x: getTopLeft(component.position).left, y: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height, layersIds: layersIds, knotVisibility: knotVisibility, inputBarId: inputBarId, genericPlots: genericPlots, togglePlots: toggleAllPlots }) }) }, viewIds[index]);
+                }
+                else if (component.type == ComponentIdentifier.GRAMMAR) {
+                    return jsx(React__default.Fragment, { children: jsx("div", { className: 'component', style: { position: "absolute", left: getTopLeft(component.position).left, top: getTopLeft(component.position).top, width: getSizes(component.position).width, height: getSizes(component.position).height }, children: jsx(GrammarPanelContainer, { obj: component.obj, viewId: viewIds[index], initialGrammar: grammar, camera: camera, filterKnots: filterKnots, inputId: inputBarId, setCamera: setCamera, addNewMessage: addNewMessage, applyGrammarButtonId: "applyGrammarButton", linkMapAndGrammarId: "linkMapAndGrammar" }) }) }, viewIds[index]);
+                }
+            }) }) }));
 }
 
 var $id$1 = "https://urbantk.org/grammar";

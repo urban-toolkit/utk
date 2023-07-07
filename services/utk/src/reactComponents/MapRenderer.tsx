@@ -18,10 +18,12 @@ type MapRendererProps = {
   height: number,
   layersIds: any,
   knotVisibility: any,
+  genericPlots: any,
+  togglePlots: any,
   inputBarId: string
 }
 
-export const MapRendererContainer = ({obj, viewId, viewObjs, x, y, width, height, layersIds, knotVisibility, inputBarId}:MapRendererProps) =>{
+export const MapRendererContainer = ({obj, viewId, viewObjs, x, y, width, height, layersIds, knotVisibility, genericPlots, togglePlots, inputBarId}:MapRendererProps) =>{
 
     return(
       <React.Fragment>
@@ -43,6 +45,8 @@ export const MapRendererContainer = ({obj, viewId, viewObjs, x, y, width, height
           layersIds={layersIds}
           knotVisibility={knotVisibility}
           inputBarId={inputBarId}
+          genericPlots={genericPlots}
+          togglePlots={togglePlots}
         />
 
         {/* <div style={{position: "absolute", height: "160px", bottom: 0, width: (divWidth/12)*window.innerWidth, backgroundColor: "rgba(200,200,200,0.3)", padding: 0}}>

@@ -5,8 +5,9 @@ import { ToggleKnotsWidget } from './ToggleKnotsWidget';
 import { SearchWidget } from './SearchWidget';
 import {Row} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faLayerGroup } from '@fortawesome/free-solid-svg-icons'
+import { faLayerGroup, faMagnifyingGlass, faChartSimple } from '@fortawesome/free-solid-svg-icons'
 import * as d3 from "d3";
+import { GenericScreenPlotContainer } from "./GenericScreenPlotContainer";
 
 type SideBarWidgetsProps = {
     x: number,
@@ -16,73 +17,86 @@ type SideBarWidgetsProps = {
     layersIds: any,
     knotVisibility: any,
     inputBarId: string,
+    genericPlots: any,
+    togglePlots: any,
     viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView | IGenericWidget | undefined}[] // each viewObj has a an object representing its logic
 }
 
-export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibility, inputBarId, viewObjs}:SideBarWidgetsProps) =>{
+export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibility, inputBarId, genericPlots, togglePlots, viewObjs}:SideBarWidgetsProps) =>{
 
     const handleClickLayers = (e: any) => {
-      console.log("clicked");
 
       if(d3.select("#toggle_knot_widget").style("display") == "block"){
           d3.select("#toggle_knot_widget").style("display", "none");
       }else{
         d3.select("#toggle_knot_widget").style("display", "block");
       }
+    }
 
+    const handleClickSearch = (e: any) => {
 
+      if(d3.select("#search_widget").style("display") == "block"){
+          d3.select("#search_widget").style("display", "none");
+      }else{
+        d3.select("#search_widget").style("display", "block");
+      }
+    }
+
+    const handleTogglePlots = (e: any) => {
+      togglePlots();
     }
 
     return (
         <React.Fragment>
-        <div style={{backgroundColor: "white", height: "100%", width: "100px", position: "absolute", left: 0, top: 0}}>
-          <Row>
-            <FontAwesomeIcon icon={faLayerGroup} onClick={handleClickLayers} />
-          </Row>
-
-          {
-            viewObjs.map((component, index) => {
-              if(component.type == WidgetType.TOGGLE_KNOT){
-                return <React.Fragment key={"toggle_knot_"+index}>
-                  <div className='component' id="toggle_knot_widget" style={{position: "absolute", left: 110, top: 0, width: 200, height: 200, display: "none"}}>
-                    <ToggleKnotsWidget
-                      obj = {component.obj}
-                      listLayers = {layersIds}
-                      knotVisibility = {knotVisibility}
-                      title = {component.title}
-                      subtitle = {component.subtitle}
-                      viewId = {"toggle_knot_"+index}
-                      grammarDefinition = {component.grammarDefinition}
-                    />
-                  </div>
-                </React.Fragment>
-              }
-              
-              // else if(component.type == WidgetType.SEARCH){
-              //   return <React.Fragment key={"search_"+index}>
-              //     <div style={{borderRadius: "8px 8px 8px 8px"}} style={{position: "absolute", left: x, top: y}}>
-              //       <SearchWidget 
-              //         obj = {component.obj}
-              //         viewId = {"search_"+index}
-              //         inputId = {inputBarId}
-              //         title = {component.title}
-              //         subtitle = {component.subtitle}
-              //       />
-              //     </div>
-              //   </React.Fragment>
-              // }
-            })
-          }
-        </div>
-          {/* {
-          genericPlots.map((item) => (
+          <div style={{backgroundColor: "white", height: "100%", width: "100px", position: "absolute", left: 0, top: 0, boxShadow: "3px 0px 5px 1px rgba(0,0,0,0.30)"}}>
+            <Row>
+              <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faLayerGroup} onClick={handleClickLayers} />
+              <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faMagnifyingGlass} onClick={handleClickSearch} />
+              <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faChartSimple} onClick={handleTogglePlots} />
+            </Row>
+          </div>
+            {
+              viewObjs.map((component, index) => {
+                if(component.type == WidgetType.TOGGLE_KNOT){
+                  return <React.Fragment key={"toggle_knot_"+index}>
+                    <div className='component' id="toggle_knot_widget" style={{position: "absolute", left: 110, top: 0, width: 300, height: 300, display: "none"}}>
+                      <ToggleKnotsWidget
+                        obj = {component.obj}
+                        listLayers = {layersIds}
+                        knotVisibility = {knotVisibility}
+                        title = {component.title}
+                        subtitle = {component.subtitle}
+                        viewId = {"toggle_knot_"+index}
+                        grammarDefinition = {component.grammarDefinition}
+                      />
+                    </div>
+                  </React.Fragment>
+                }else if(component.type == WidgetType.SEARCH){
+                  return <React.Fragment key={"search_"+index}>
+                    <div id="search_widget" style={{borderRadius: "8px 8px 8px 8px", position: "absolute", left: mapWidth - 250, top: 10, display: "none"}}>
+                      <SearchWidget 
+                        obj = {component.obj}
+                        viewId = {"search_"+index}
+                        inputId = {inputBarId}
+                        title = {component.title}
+                        subtitle = {component.subtitle}
+                      />
+                    </div>
+                  </React.Fragment>
+                }
+              })
+            }
+        {
+          genericPlots.map((item: any) => (
               <GenericScreenPlotContainer
-                key={item.id}
+                id={item.id}
                 disp = {!item.hidden}
                 svgId={item.svgId}
+                x={mapHeight/2}
+                y={mapWidth/2}
               />
           ))
-          } */}
+        }
       </React.Fragment>
     );
 }

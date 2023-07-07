@@ -16,7 +16,7 @@ export const SearchWidget = ({obj, inputId, viewId, title, subtitle}:SearchWidge
       <React.Fragment>
         {title != undefined ? <p>{title}</p> : <></>}
         {subtitle != undefined ? <p>{subtitle}</p> : <></>}
-        <input type="text" className={inputId} name="searchBar" placeholder='Search place'></input>
+        <input type="text" size={24} className={inputId} name="searchBar" placeholder='Search place'></input>
       </React.Fragment>
     )
 }
