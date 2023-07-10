@@ -585,6 +585,7 @@ export class Mesh {
             let timesteps = this.getFunctionValues(knotId, this._components[0]);
 
             if(timesteps == null){
+                return vbo;
                 throw new Error(knotId+" not found while trying to recover function values");
             }
 

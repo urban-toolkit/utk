@@ -13,7 +13,7 @@ services:
       - 5004:5000
     environment:
       - FLASK_DEBUG=1
-      - DATA_FOLDER=downtown_manhattan
+      - DATA_FOLDER=my_first_vis
 
   jupyterapi:
     build:
@@ -22,6 +22,7 @@ services:
     volumes:
       - "./services/jupyterAPI:/usr/src/utk-jupyterAPI"
       - "./data:/usr/src/utk-jupyterAPI/data"
+    user: root
     ports:
       - 8888:8888
     environment:
