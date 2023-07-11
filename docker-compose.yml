@@ -5,7 +5,7 @@ services:
     build:
       context: ./services/backend
       dockerfile: Dockerfile
-    entrypoint: ["python", "/usr/src/utk-backend/server.py"] 
+    entrypoint: ["python", "/usr/src/utk-backend/server.py"]
     volumes:
       - "./services/backend:/usr/src/utk-backend"
       - "./data:/usr/src/utk-backend/data"
@@ -25,9 +25,10 @@ services:
     user: root
     ports:
       - 8888:8888
+    entrypoint: sh -c 'jupyter lab  --allow-root'
     environment:
       - JUPYTER_ENABLE_LAB=yes
-      - JUPYTER_TOKEN=docker 
+      - JUPYTER_TOKEN=docker
 
   utk:
     build:
