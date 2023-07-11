@@ -26,7 +26,6 @@ services:
     entrypoint: sh -c 'jupyter lab  --allow-root'
     ports:
       - 8888:8888
-    entrypoint: sh -c 'jupyter lab  --allow-root'
     environment:
       - JUPYTER_ENABLE_LAB=yes
       - JUPYTER_TOKEN=docker
