@@ -23,6 +23,7 @@ services:
       - "./services/jupyterAPI:/usr/src/utk-jupyterAPI"
       - "./data:/usr/src/utk-jupyterAPI/data"
     user: root
+    entrypoint: sh -c 'jupyter lab  --allow-root'
     ports:
       - 8888:8888
     environment:
