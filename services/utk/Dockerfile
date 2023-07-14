@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:18-alpine
+FROM --platform=linux/amd64 node:18-alpine
 
 # set working directory
 WORKDIR /usr/src/utk
