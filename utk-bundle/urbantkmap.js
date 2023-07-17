@@ -581,7 +581,7 @@ class Mesh {
         if (this._components.length > 0) {
             let timesteps = this.getFunctionValues(knotId, this._components[0]);
             if (timesteps == null) {
-                throw new Error(knotId + " not found while trying to recover function values");
+                return vbo;
             }
             for (let i = 0; i < timesteps.length; i++) { // all components must have the same number of functions
                 // let min =  Infinity;
@@ -20278,7 +20278,6 @@ var Slider$1 = Slider;
 const ToggleKnotsWidget = ({ obj, title, subtitle, listLayers, knotVisibility, viewId, grammarDefinition }) => {
     // Animation ====================================================
     const [initialTime, setInitialTime] = useState(Date.now());
-    const [knotVisibilityMonitor, setKnotVisibilityMonitor] = useState();
     const [fps, _setFps] = useState(5);
     const fpsRef = useRef(fps);
     // current ranges
@@ -20296,10 +20295,9 @@ const ToggleKnotsWidget = ({ obj, title, subtitle, listLayers, knotVisibility, v
         _setListLayersState(data);
     };
     useEffect(() => {
-        if (knotVisibilityMonitor != undefined) {
-            clearInterval(knotVisibilityMonitor);
-        }
-        setKnotVisibilityMonitor(window.setInterval(function () {
+        console.log("listLayersState", listLayersState);
+        console.log("listLayersStateRef.current", listLayersStateRef.current);
+        const intervalId = window.setInterval(function () {
             let div = document.getElementById("toggle_widget_" + viewId);
             if (div == null || Object.keys(listLayersStateRef.current).length == 0)
                 return;
@@ -20338,8 +20336,11 @@ const ToggleKnotsWidget = ({ obj, title, subtitle, listLayers, knotVisibility, v
                     }
                 }
             }
-        }, 50));
-    }, []);
+        }, 50);
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, [listLayersState]);
     useEffect(() => {
         setListLayersState(listLayers);
     }, [listLayers]);

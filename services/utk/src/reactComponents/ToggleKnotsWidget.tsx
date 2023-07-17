@@ -20,7 +20,6 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
     // Animation ====================================================
 
     const [initialTime, setInitialTime] = useState<number>(Date.now());
-    const [knotVisibilityMonitor, setKnotVisibilityMonitor] = useState<any>();
 
     const [fps, _setFps] = useState<number>(5);
 
@@ -48,14 +47,12 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
         _setListLayersState(data);
     };
     
-
     useEffect(() => {
 
-        if(knotVisibilityMonitor != undefined){
-            clearInterval(knotVisibilityMonitor);
-        }
-        
-        setKnotVisibilityMonitor(window.setInterval(function(){
+        console.log("listLayersState", listLayersState);
+        console.log("listLayersStateRef.current", listLayersStateRef.current);
+
+        const intervalId = window.setInterval(function(){
 
             let div = document.getElementById("toggle_widget_"+viewId);
 
@@ -113,9 +110,13 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
                 }
             }
                 
-        }, 50));
+        }, 50);
 
-    }, []);
+        return () => {
+            window.clearInterval(intervalId);
+        };
+
+    }, [listLayersState]);
 
     useEffect(() => {
 

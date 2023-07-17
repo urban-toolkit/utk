@@ -1,6 +1,6 @@
 # grammar
 
-The Urban Toolkit is built around the idea of a grammar for urban visual analytics. The grammar allows for a flexible and reproducible approach. This document presents the description of each funcionality supported by the grammar.   
+The Urban Toolkit is built around the idea of a grammar for urban visual analytics. The grammar allows for a flexible and reproducible approach. This document presents the description of each functionality supported by the grammar.   
 
 The grammar is defined through a `.json` file that has two fundamental fields `components` and `grid`. The `components` define the elements that will compose the dashboard. The `grid` defines how the dashboard will be divided so the `components` can be positioned.
 
@@ -8,7 +8,7 @@ The grammar is defined through a `.json` file that has two fundamental fields `c
 
 `grid := (width, height)`  
 
-The grid system specify how the screem should be divided so the `components` can be positioned. 
+The grid system specify how the screen should be divided so the `components` can be positioned. 
 
 ```js
 grid:{
@@ -42,7 +42,7 @@ There are two types of components: map and widgets.
 
 The map components needs four basic elements `map`, `plots`, `knots` and `widgets`. The `map` contains basic configurations of the map itself, the `plots` contains Vega-Lite specifications of the plots to be used, `knots` defines how data will be loaded and linked and `widgets` define what widgets will appear as a side bar inside the map. A more detailed description of each of the fields can be found in the following sections.  
 
-The map is positioned following what is specified in the `position` field. In the example below, the map will ocupy columns 6 to 12 horizontally and rows 1 to 4 vertically.
+The map is positioned following what is specified in the `position` field. In the example below, the map will occupy columns 6 to 12 horizontally and rows 1 to 4 vertically.
 
 ```js
 {
@@ -98,7 +98,7 @@ A thematic layer is fed into the pipeline (`in`) and by using `spatial_relation`
 
 - Next steps  
  
-The `out` of the previous step has to be equal to the `in` of the current one and both need to be physical layers. A `spatial_relation` indicates how data should be joined and `operation` how it should aggregated. However, it is important to notice that even though `in` and `out` are physical layers, the attribute of every join is the thematic data, but the position of the data is determined by the physical layers. It is possible to understand each link as shapping the thematic data and the last `out` is the final shape.  
+The `out` of the previous step has to be equal to the `in` of the current one and both need to be physical layers. A `spatial_relation` indicates how data should be joined and `operation` how it should aggregated. However, it is important to notice that even though `in` and `out` are physical layers, the attribute of every join is the thematic data, but the position of the data is determined by the physical layers. It is possible to understand each link as shaping the thematic data and the last `out` is the final shape.  
 
 - Pure knot  
 
@@ -148,7 +148,7 @@ Details about `in` and `out` will be defined in the following sections.
 
 Defining a layer is the first step to load data inside the grammar. Layers are used to feed the knots (`in` and `out`). A layer is composed by a `name` and a `level`.   
 
-The level indicates the geometry level to use when applying a spatial join the involves the layer. For physical layers geometry levels can be `COORDINATES`, `COORDINATES3D` or `OBJECTS` and for thematic layers `COORDINATES` and `COORDINATES3D`. The coordinates levels will consider the the individual points of a physical layer and the objects level the whole shape.  
+The level indicates the geometry level to use when applying a spatial join the involves the layer. For physical layers geometry levels can be `COORDINATES`, `COORDINATES3D` or `OBJECTS` and for thematic layers `COORDINATES` and `COORDINATES3D`. The coordinates levels will consider the individual points of a physical layer and the objects level the whole shape.  
 
 The `name` points to the name of the `.json` that defines the layer.
 
@@ -173,7 +173,7 @@ In order to configure the map component it is necessary to define `camera`, `kno
 
 The `camera` is composed by `position` (origin of the camera), `right`, `lookAt` and `up` that define the camera `direction`.  
 
-The `knots` reference the ids of knots ealier defined and for each knot an `interactions` is added.
+The `knots` reference the ids of knots earlier defined and for each knot an `interactions` is added.
 
 ```js
     map: {
@@ -229,7 +229,7 @@ The `knots` reference the ids of knots ealier defined and for each knot an `inte
 
 Plots are specified through the usage of another grammar-based visualization tool called Vega-Lite. To the vega-lite specification is injected the data defined through the knots.   
 
-The `plot` field contains the vega-lite specification, with the only diference being that the user should not specify a `data` field and should make reference to knot information by using the keywords `_abstract`, `_index` and `_highlight` after the id of the knot. `_abstract` is a reference to the thematic data of the knot, `_index` is a reference to the index of the data element and `_highlight` is a boolean that indicates if the element was interacted with.    
+The `plot` field contains the vega-lite specification, with the only difference being that the user should not specify a `data` field and should make reference to knot information by using the keywords `_abstract`, `_index` and `_highlight` after the id of the knot. `_abstract` is a reference to the thematic data of the knot, `_index` is a reference to the index of the data element and `_highlight` is a boolean that indicates if the element was interacted with.    
 
 The `knots` field should contain a list of knots ids that feed the plot.  
 
@@ -340,9 +340,9 @@ The `type` can be:
 
 `group := (group_name, position)`
 
-Knots can be groupped by assigning a group name and a position of the knot inside the group. This type of grouping is inteded to be used for data with different timesteps.  
+Knots can be grouped by assigning a group name and a position of the knot inside the group. This type of grouping is intended to be used for data with different timesteps.  
 
-When groupped knots are used together with the `TOGGLE_KNOTS` widget a animation bar can be used to switch between frames.  
+When grouped knots are used together with the `TOGGLE_KNOTS` widget a animation bar can be used to switch between frames.  
 
 ```js
 knots: [
@@ -478,7 +478,7 @@ The example above is an animation that loop through all frames every 5 seconds.
 
 ### Operations between knots
 
-It is possible to do operations between knots. To do so the `knotOp` field in the knot must be true. In that case `name` in `in` and `out` will not point to layers but to the id of other knots. In addition a `op` field must be specified where an arithmetic operation is defined. In each link of the `integration_scheme` it is possible to use `op` to make a reference to the id of the knots of that link or use the keyword `prevResult` to get the result of `op` of the previous link.  
+It is possible to do operations between knots. To do so the `knotOp` field in the knot must be true. In that case `name` in `in` and `out` will not point to layers but to the id of other knots. In addition, a `op` field must be specified where an arithmetic operation is defined. In each link of the `integration_scheme` it is possible to use `op` to make a reference to the id of the knots of that link or use the keyword `prevResult` to get the result of `op` of the previous link.  
 
 ```js
     {
@@ -587,7 +587,7 @@ PS: This is a more generic and powerful approach to the knots visibility feature
 
 ### Categorizing knots
 
-The notion of categories is related to the idea of how knots (or groups of knots) can be labelled in a hierarchical manner. For instance, a knot with income data can be categorized as "Socio-demographics". In reality the semantics is completly defined by the user. Moreover, categories can be nested.
+The notion of categories is related to the idea of how knots (or groups of knots) can be labelled in a hierarchical manner. For instance, a knot with income data can be categorized as "Socio-demographics". In reality, the semantics is completely defined by the user. Moreover, categories can be nested.
 
 ```js
 {

@@ -386,7 +386,7 @@ class OSM:
                 result_gdf_coordinates_3d.append(layer_geometry['gdf']['coordinates3d'])
                 ttype = 'BUILDINGS_LAYER'
                 styleKey = 'building'
-                renderStyle = ['SMOOTH_COLOR']
+                renderStyle = ['SMOOTH_COLOR_MAP_TEX']
             elif layer == 'roads':
                 layer_geometry = OSM.osm_to_roads_polyline(overpass_responses[layer], bpoly, bbox)
                 geometry = layer_geometry['data']

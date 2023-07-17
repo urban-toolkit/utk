@@ -17,3 +17,6 @@ pyproj==3.3.1
 pytz==2022.2.1
 timezonefinder==6.0.2
 netCDF4==1.6.3
+pythonnet==3.0.1
+pygeos==0.14
+ipywidgets==8.0.7

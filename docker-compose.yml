@@ -5,7 +5,7 @@ services:
     build:
       context: ./services/backend
       dockerfile: Dockerfile
-    entrypoint: ["python", "/usr/src/utk-backend/server.py"] 
+    entrypoint: ["python", "/usr/src/utk-backend/server.py"]
     volumes:
       - "./services/backend:/usr/src/utk-backend"
       - "./data:/usr/src/utk-backend/data"
@@ -13,7 +13,7 @@ services:
       - 5004:5000
     environment:
       - FLASK_DEBUG=1
-      - DATA_FOLDER=multiple_downtown_nyc
+      - DATA_FOLDER=my_first_vis
 
   jupyterapi:
     build:
@@ -22,11 +22,13 @@ services:
     volumes:
       - "./services/jupyterAPI:/usr/src/utk-jupyterAPI"
       - "./data:/usr/src/utk-jupyterAPI/data"
+    user: root
+    entrypoint: sh -c 'jupyter lab  --allow-root'
     ports:
       - 8888:8888
     environment:
       - JUPYTER_ENABLE_LAB=yes
-      - JUPYTER_TOKEN=docker 
+      - JUPYTER_TOKEN=docker
 
   utk:
     build:

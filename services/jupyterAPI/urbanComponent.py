@@ -492,14 +492,16 @@ class UrbanComponent:
 
     def break_into_binary(self, filepath, filename, data, types, dataTypes):
 
+        transformed_data = data
+
         for index, type in enumerate(types):
 
             readCoords = 0
 
             floatList = []
 
-            for i in range(len(data['data'])):
-                geometry = data['data'][i]['geometry']
+            for i in range(len(transformed_data['data'])):
+                geometry = transformed_data['data'][i]['geometry']
 
                 newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
 
@@ -507,7 +509,9 @@ class UrbanComponent:
 
                 floatList += geometry[type].copy()
 
-                geometry[type] = newValue
+                # geometry[type] = newValue
+
+                transformed_data['data'][i]['geometry'][type] = newValue
 
             fout = open(os.path.join(filepath,filename+'_'+type+'.data'), 'wb')
 
@@ -516,10 +520,10 @@ class UrbanComponent:
             fout.write(buf)
             fout.close()
 
-            json_object = json.dumps(data)
+        json_object = json.dumps(transformed_data)
 
-            with open(os.path.join(filepath,filename+".json"), "w") as outfile:
-                outfile.write(json_object)
+        with open(os.path.join(filepath,filename+".json"), "w") as outfile:
+            outfile.write(json_object)
 
     def save(self, dir=None, includeGrammar=True):
 

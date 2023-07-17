@@ -13,6 +13,11 @@ from load_physical import *
 from load_thematic import *
 from load_utk import *
 
+import shapely
+import warnings
+from shapely.errors import ShapelyDeprecationWarning
+warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning) 
+
 def remove_elements(filepath, ids):
     file = open(filepath, mode='r')
     file_content = json.loads(file.read())
