@@ -83,13 +83,12 @@ export enum PlotInteractionType{
 
 export enum ComponentIdentifier{
     MAP = "MAP",
+    GRAMMAR = "GRAMMAR",
     WIDGET = "WIDGET"
 }
 
 export enum WidgetType{
     TOGGLE_KNOT = "TOGGLE_KNOT",
-    RESOLUTION = "RESOLUTION",
-    GRAMMAR = "GRAMMAR",
     SEARCH = "SEARCH"
 }
 

@@ -8,20 +8,26 @@ import './Dragbox.css'
 
 // declaring the types of the props
 type GenericScreenPlotProps = {
+    id: any,
     disp: boolean,
+    x: number,
+    y: number,
     svgId: string
 }
 
 export const GenericScreenPlotContainer = ({
+    id,
     disp,
+    x,
+    y,
     svgId
 }: GenericScreenPlotProps
 ) =>{
     const nodeRef = useRef(null)
     
     return(
-        <Draggable nodeRef={nodeRef} defaultPosition={{x: window.innerWidth/1.5, y: -window.innerHeight/1.5}}>
-            <div ref={nodeRef} className="drag-box" style={{display: disp? 'block' : 'none', boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.35)", overflow: "auto", maxWidth: window.innerWidth/2, maxHeight: window.innerHeight}}>
+        <Draggable nodeRef={nodeRef} key={id} defaultPosition={{x: x, y: -y}}>
+            <div ref={nodeRef} className="drag-box" style={{display: disp ? 'block' : 'none', boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.35)", overflow: "auto", maxWidth: window.innerWidth/2, maxHeight: window.innerHeight}}>
                 <div id={svgId}>
                 </div>
             </div>

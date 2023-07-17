@@ -254,7 +254,7 @@ export class GrammarManager {
             }
         }
 
-        let ids = await this._updateStatusCallback("containerGenerator", linkedPlots.length, names); 
+        let ids = await this._updateStatusCallback("containerGenerator", {n: linkedPlots.length, names: names}); 
 
         for(let i = 0; i < linkedPlots.length; i++){
 

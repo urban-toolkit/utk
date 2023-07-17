@@ -19,15 +19,28 @@ grid:{
 
 In this example the screen is divided in 12 sections horizontally and 4 sections vertically.
 
+### Grammar editor
+
+By using the grid system it is possible to define where the grammar editor will be rendered.
+
+```js
+grammar_position:{
+    width: [1,5],
+    height: [1,4]
+}
+```
+
+In the previous example the editor is occupying columns 1 through 5 and line 4.
+
 ### Components
 
 There are two types of components: map and widgets. 
 
 ### Map
 
-`map_view := (map, plots+, knot+, position)`  
+`map_view := (map, plots+, knot+, widget+, position)`  
 
-The map components need three basic elements `map`, `plots` and `knots`. The `map` contains basic configurations of the map itself, the `plots` contains Vega-Lite specifications of the plots to be used and `knots` defines how data will be loaded and linked. A more detailed description of each of the fields can be found in the following sections.  
+The map components needs four basic elements `map`, `plots`, `knots` and `widgets`. The `map` contains basic configurations of the map itself, the `plots` contains Vega-Lite specifications of the plots to be used, `knots` defines how data will be loaded and linked and `widgets` define what widgets will appear as a side bar inside the map. A more detailed description of each of the fields can be found in the following sections.  
 
 The map is positioned following what is specified in the `position` field. In the example below, the map will occupy columns 6 to 12 horizontally and rows 1 to 4 vertically.
 
@@ -36,6 +49,7 @@ The map is positioned following what is specified in the `position` field. In th
     map: {...},
     plots: [...],
     knots: [...],
+    widgets: [...],
     position: {
         width: [
             6,
@@ -47,60 +61,6 @@ The map is positioned following what is specified in the `position` field. In th
         ]
     }
 }
-```
-
-### Widgets
-<!--- Widgets will no longer exist and will be incorporated inside the map. The components then will be: map and plot. -->
-
-`widget := (type, map_id?, title?, subtitle?, categories?+, position)`  
-
-`categories := (category_name, elements+)`  
-
-`elements := (string | categories)`
-
-Widgets are extra functionalities that can be linked to the map to facilitate data manipulation, map navigation and data exploration.   
-
-Widgets are composed of `type`, `position`. `type` can be:
-- `TOGGLE_KNOT`: widget to toggle layers and animate them.
-- `GRAMMAR`: grammar editor.
-- `SEARCH`: search bar to navigate map.
-
-`map_id` must be specified for `TOGGLE_KNOT` and `SEARCH` and indicates the index of a map on the `components` field. `categories` can only be used with `TOGGLE_KNOT` and allows the specification of a hierarchy between layers.
-
-In the example below the grammar editor will occupy columns 1 to 5 horizontally and rows 1 to 4 vertically.
-
-```js
-    {
-        type: "TOGGLE_KNOT",
-        map_id: 0,
-        title: "Toggle knots",
-        subtitle: "Widget to toggle knots",
-        categories: [
-            {
-                category_name: "cat1",
-                elements: [
-                    "element1",
-                    {
-                        category_name: "cat1.1",
-                        elements: [
-                            "element2",
-                            "element3"
-                        ]
-                    }
-                ]
-            }
-        ]
-        position: {
-            width: [
-                1,
-                5
-            ],
-            height: [
-                1,
-                4
-            ]
-        }
-    }
 ```
 
 ### Knots (Map)
@@ -313,6 +273,67 @@ plots: [
         }
     }
 ]
+```
+
+### Widgets
+
+`widget := (type, args?)`  
+
+`args := (categories+)`
+
+`categories := (category_name, elements+)`  
+
+`elements := (string | categories)`
+
+Widgets are extra funcionalities that are linked to the map to facilitate data manipulation, map navigation and data exploration.   
+
+The `type` can be:
+- `TOGGLE_KNOT`: widget to toggle layers and animate them.
+- `SEARCH`: search bar to navigate map.
+
+`categories` can only be used with `TOGGLE_KNOT` and allows the specification of a hierarchy between layers.
+
+```js
+    {
+        map: {...},
+        plots: [...],
+        knots: [...],
+        widgets: [
+            {
+                type: "TOGGLE_KNOT",
+                args: {
+                    categories: [
+                        {
+                            category_name: "cat1",
+                            elements: [
+                                "element1",
+                                {
+                                    category_name: "cat1.1",
+                                    elements: [
+                                        "element2",
+                                        "element3"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                type: "SEARCH"
+            }
+        ],
+        position: {
+            width: [
+                6,
+                12
+            ],
+            height: [
+                1,
+                4
+            ]
+        }
+    }
 ```
 
 ### Groupping knots

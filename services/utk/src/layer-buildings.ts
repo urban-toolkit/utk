@@ -30,8 +30,6 @@ export class BuildingsLayer extends Layer {
             zOrder // TODO: set correct zOrder
         );
         
-        console.log("buildings", zOrder);
-
         this._zOrder = zOrder;
         this.updateMeshGeometry(geometryData);
 

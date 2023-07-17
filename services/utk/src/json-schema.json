@@ -211,6 +211,26 @@
                             "required": ["id", "integration_scheme"]
                         }
                     },
+                    "widgets": {
+                        "type":"array",
+                        "items": {
+                            "type": "object", 
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "args": {
+                                    "type": "object",
+                                    "properties": {
+                                        "categories": {
+                                            "#ref": "categories"
+                                        } 
+                                    }
+                                }
+                            },
+                            "required": ["type"]
+                        }
+                    },
                     "position": {
                         "type": "object",
                         "properties": {
@@ -232,28 +252,14 @@
                             }
                         },
                         "required": ["width", "height"]
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "map_id": {
-                        "type": "integer"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "subtitle": {
-                        "type": "string"
-                    },
-                    "categories": {
-                        "#ref": "categories"
                     }
                 },
                 "required": ["position"],
                 "dependentRequired": {
                     "map": ["plots", "knots"],
                     "plots": ["map", "knots"],
-                    "knots": ["map", "plots"]
+                    "knots": ["map", "plots"],
+                    "widgets": ["map"]
                 }
             }
         },

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 import Slider from '@mui/material/Slider';
 import {Row, Col} from 'react-bootstrap';
-import { IGenericWidget, IView, ICategory } from "../interfaces";
+import { IView, ICategory } from "../interfaces";
 
 // declaring the types of the props
 type ToggleKnotsWidgetProps = {
@@ -232,7 +232,12 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
         </li>
     }
 
-    const getNotInCategoriesHtml = (categories: ICategory[] | undefined, listLayers: any, knotVisibility: any) => {
+    const getNotInCategoriesHtml = (args: any, listLayers: any, knotVisibility: any) => {
+
+        let categories: ICategory[] | undefined;
+
+        if(args != undefined)
+            categories = args.categories;
 
         if(Object.keys(listLayers).length == 0 || knotVisibility.length == 0)
             return
@@ -334,11 +339,11 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
                         // </React.Fragment>
                     // ))
                     
-                    grammarDefinition.categories != undefined ? grammarDefinition.categories.map((category: ICategory) => (
+                    grammarDefinition.args != undefined && grammarDefinition.args.categories != undefined ? grammarDefinition.args.categories.map((category: ICategory) => (
                         getCategoryHtml(category, listLayers, knotVisibility)
                     )) : <></>
                 }
-                {getNotInCategoriesHtml(grammarDefinition.categories, listLayers, knotVisibility)}
+                {getNotInCategoriesHtml(grammarDefinition.args, listLayers, knotVisibility)}
             </ul>
         </div>
             
