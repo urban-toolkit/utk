@@ -45,6 +45,10 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
 
     let createdIds: number[] = [];
 
+    if(n == 0){
+      return [];
+    }
+
     createdIds = addNewGenericPlot(n, names);
 
     // promise is only resolved when the container is created
@@ -118,13 +122,9 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
   const toggleAllPlots = () => {
     let modifiedPlots = [];
 
-    console.log("toggling all plots", genericPlots);
-
     for(const plot of genericPlots){
       modifiedPlots.push({id: plot.id, hidden: !plot.hidden, svgId: plot.svgId, label: plot.label, checked: plot.checked, edit: plot.edit});
     }
-
-    console.log("all plots toggled", modifiedPlots);
 
     setGenericPlots(modifiedPlots);
   }

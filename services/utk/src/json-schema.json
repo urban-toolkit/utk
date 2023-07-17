@@ -212,21 +212,24 @@
                         }
                     },
                     "widgets": {
-                        "type": "object", 
-                        "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "args": {
-                                "type": "object",
-                                "properties": {
-                                    "categories": {
-                                        "#ref": "categories"
-                                    } 
+                        "type":"array",
+                        "items": {
+                            "type": "object", 
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "args": {
+                                    "type": "object",
+                                    "properties": {
+                                        "categories": {
+                                            "#ref": "categories"
+                                        } 
+                                    }
                                 }
-                            }
-                        },
-                        "required": ["type"]
+                            },
+                            "required": ["type"]
+                        }
                     },
                     "position": {
                         "type": "object",

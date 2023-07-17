@@ -13,7 +13,7 @@ services:
       - 5004:5000
     environment:
       - FLASK_DEBUG=1
-      - DATA_FOLDER=downtown_manhattan
+      - DATA_FOLDER=multiple_downtown_nyc
 
   jupyterapi:
     build:

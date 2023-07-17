@@ -48,13 +48,20 @@ export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibi
 
     return (
         <React.Fragment>
-          <div style={{backgroundColor: "white", height: "100%", width: "100px", position: "absolute", left: 0, top: 0, boxShadow: "3px 0px 5px 1px rgba(0,0,0,0.30)"}}>
+          {genericPlots.length > 0 || viewObjs.length > 1 ? <div style={{backgroundColor: "white", height: "100%", width: "100px", position: "absolute", left: 0, top: 0, boxShadow: "3px 0px 5px 1px rgba(0,0,0,0.30)"}}>
             <Row>
-              <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faLayerGroup} onClick={handleClickLayers} />
-              <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faMagnifyingGlass} onClick={handleClickSearch} />
-              <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faChartSimple} onClick={handleTogglePlots} />
+              {
+                viewObjs.map((component, index) => {
+                  if(component.type == WidgetType.TOGGLE_KNOT){
+                    return <FontAwesomeIcon key={"widget_"+index} size="3x" style={{padding: 0, marginTop: "10px"}} icon={faLayerGroup} onClick={handleClickLayers} />
+                  }else if(component.type == WidgetType.SEARCH){
+                    return <FontAwesomeIcon key={"widget_"+index} size="3x" style={{padding: 0, marginTop: "10px"}} icon={faMagnifyingGlass} onClick={handleClickSearch} />
+                  }
+                })
+              }
+              {genericPlots.length > 0 ? <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faChartSimple} onClick={handleTogglePlots} /> : null}
             </Row>
-          </div>
+          </div> : null}
             {
               viewObjs.map((component, index) => {
                 if(component.type == WidgetType.TOGGLE_KNOT){

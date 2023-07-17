@@ -32,8 +32,6 @@ export class HeatmapLayer extends Layer {
             zOrder
         );
 
-        console.log("heatmap", zOrder);
-
         this._zOrder = zOrder;
         this.updateMeshGeometry(geometryData);
     }
