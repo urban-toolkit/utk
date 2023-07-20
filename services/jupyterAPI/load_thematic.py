@@ -3,15 +3,10 @@ import pandas as pd
 import os
 import json
 
-'''
-    Converts a csv file into an abstract layer
-'''
-def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude_column, coordinates_projection, z_column = None):
+def df_to_abstract(directory, df, layer_id, value_column, latitude_column, longitude_column, coordinates_projection, z_column = None):
     
-    df = pd.read_csv(filepath)
-
     df = df.drop_duplicates(subset=[latitude_column, longitude_column])
-
+    
     latitude_list = df[latitude_column].tolist()
     longitude_list = df[longitude_column].tolist()
     values_list = df[value_column].tolist()
@@ -45,7 +40,14 @@ def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude
 
     json_object = json.dumps(abstract_json)
 
-    directory = os.path.dirname(filepath)
-
     with open(os.path.join(directory,layer_id+".json"), "w") as outfile:
         outfile.write(json_object)
+
+'''
+    Converts a csv file into an abstract layer
+'''
+def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude_column, coordinates_projection, z_column = None):
+    
+    df = pd.read_csv(filepath)
+
+    df_to_abstract(os.path.dirname(filepath), df, layer_id, value_column, latitude_column, longitude_column, coordinates_projection, z_column = None)

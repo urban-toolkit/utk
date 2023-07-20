@@ -14,9 +14,6 @@ RUN apt-get update \
   && apt -y install mono-devel \
   && apt-get clean
 
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 libgl1-mesa-dev libglib2.0-0  -y
-
-
 # add and install requirements
 COPY ./requirements.txt .
 RUN pip install --upgrade pip
