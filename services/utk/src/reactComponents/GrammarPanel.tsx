@@ -43,9 +43,6 @@ export const GrammarPanelContainer = ({
 
     const [grammar, _setCode] = useState('');
 
-
-    const [diffs, _setDiffs] = useState<string[]>([]);
-
     const grammarStateRef = useRef(grammar);
     const setCode = (data: any) => {
         grammarStateRef.current = data;
@@ -74,11 +71,17 @@ export const GrammarPanelContainer = ({
     const applyGrammar = async () => {
 
 
-        grammarHistory.pushToHistory(JSON.stringify(grammarStateRef));
+        if (grammarHistory.getLength() == 0) {
+            grammarHistory.pushToHistory(JSON.stringify(grammarStateRef.current));
+            grammarHistory.pushToHistory(JSON.stringify(tempGrammarStateRef.current))
+        }
+        else {
+            grammarHistory.pushToHistory(JSON.stringify(tempGrammarStateRef.current));
+        }
         console.log(`Grammar History length -> ${grammarHistory.getLength()}`)
         // const diffs = changesets.diff(grammarStateRef, tempGrammarStateRef);
 
-        grammarHistory.calculateAndPushDiff(grammarStateRef, tempGrammarStateRef);
+        grammarHistory.calculateAndPushDiff(grammarStateRef.current, tempGrammarStateRef.current);
         //console.log(diffs);
         if (tempGrammarStateRef.current != '') {
             try {
@@ -95,6 +98,7 @@ export const GrammarPanelContainer = ({
         if (d3.select('#' + linkMapAndGrammarId).property("checked")) {
             if (tempGrammarStateRef.current == '') {
                 sendGrammar = addCameraAndFilter(grammarStateRef.current, camera, filterKnots);
+
             } else {
                 sendGrammar = addCameraAndFilter(tempGrammarStateRef.current, camera, filterKnots);
             }

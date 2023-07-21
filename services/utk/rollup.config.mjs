@@ -23,7 +23,7 @@ const config = {
     }),
     typescript(),
   ],
-  external: ['react', 'react-bootstrap', 'vega-lite', 'vega-embed', 'vega-util', 'react/jsx-runtime', 'react-dom', 'invariant', 'prop-types', 'classnames', 'warning', "vega"]
+  external: ['recursive-diff', 'react', 'react-bootstrap', 'vega-lite', 'vega-embed', 'vega-util', 'react/jsx-runtime', 'react-dom', 'invariant', 'prop-types', 'classnames', 'warning', 'vega']
 }
 
 export default [

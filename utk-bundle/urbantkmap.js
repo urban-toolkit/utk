@@ -12944,27 +12944,36 @@ function SvelteJSONEditor(props) {
     return jsx("div", { className: "vanilla-jsoneditor-react", ref: refContainer });
 }
 
-//import { getDiff } from 'json-difference'
+const rdiff = require('recursive-diff');
 const grammarHistory = (function () {
     let grammarHistory = [];
     const getHistory = function () {
         return grammarHistory; // Or pull this from cookie/localStorage
     };
-    const pushToHistory = function (history) {
-        grammarHistory.push(history);
+    const pushToHistory = function (currentGrammar) {
+        grammarHistory.push(currentGrammar);
         // Also set this in cookie/localStorage
     };
-    const calculateAndPushDiff = function (obj1, obj2) {
-        let ret = {};
-        for (var i in obj2) {
-            if (!obj1.hasOwnProperty(i) || obj2[i] !== obj1[i]) {
-                if (!Array.isArray(obj2[i]) || !(JSON.stringify(obj2[i]) == JSON.stringify(obj1[i]))) {
-                    ret[i] = obj2[i];
-                }
-            }
-        }
+    const calculateAndPushDiff = function (currentGrammar, nextGrammar) {
+        // let ret: any = {};
+        // for (var i in obj2) {
+        //     if (!obj1.hasOwnProperty(i) || obj2[i] !== obj1[i]) {
+        //         if (!Array.isArray(obj2[i]) || !(JSON.stringify(obj2[i]) == JSON.stringify(obj1[i]))) {
+        //             ret[i] = obj2[i];
+        //         }
+        //     }
+        // }
+        //  let diff = getDiff(obj1, obj2);
+        // grammarDiff.push(ret);
         // console.log(`ret: ${JSON.stringify(diff)}`);
-        return ret;
+        // const currentKnots = JSON.parse(currentGrammar).knots;
+        //const newKnots = JSON.parse(nextGrammar).knots;
+        console.log(`Current Knots: ${currentGrammar}`);
+        console.log(`Next Knots:  ${nextGrammar}`);
+        console.log(JSON.stringify(currentGrammar));
+        const diff = rdiff.getDiff(currentGrammar, nextGrammar);
+        console.log(`Diff: ${diff}`);
+        return diff;
     };
     const getLength = function () {
         return grammarHistory.length;
@@ -12979,7 +12988,6 @@ const grammarHistory = (function () {
 
 const GrammarPanelContainer = ({ obj, viewId, initialGrammar, camera, filterKnots, inputId, setCamera, addNewMessage, applyGrammarButtonId, linkMapAndGrammarId }) => {
     const [grammar, _setCode] = useState('');
-    useState([]);
     const grammarStateRef = useRef(grammar);
     const setCode = (data) => {
         grammarStateRef.current = data;
@@ -12999,10 +13007,16 @@ const GrammarPanelContainer = ({ obj, viewId, initialGrammar, camera, filterKnot
     //     console.log('History Length', grammarHistory.length);
     // }, [grammarHistory])
     const applyGrammar = async () => {
-        grammarHistory.pushToHistory(JSON.stringify(grammarStateRef));
+        if (grammarHistory.getLength() == 0) {
+            grammarHistory.pushToHistory(JSON.stringify(grammarStateRef.current));
+            grammarHistory.pushToHistory(JSON.stringify(tempGrammarStateRef.current));
+        }
+        else {
+            grammarHistory.pushToHistory(JSON.stringify(tempGrammarStateRef.current));
+        }
         console.log(`Grammar History length -> ${grammarHistory.getLength()}`);
         // const diffs = changesets.diff(grammarStateRef, tempGrammarStateRef);
-        grammarHistory.calculateAndPushDiff(grammarStateRef, tempGrammarStateRef);
+        grammarHistory.calculateAndPushDiff(grammarStateRef.current, tempGrammarStateRef.current);
         //console.log(diffs);
         if (tempGrammarStateRef.current != '') {
             try {
