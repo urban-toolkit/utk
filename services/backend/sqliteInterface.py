@@ -78,58 +78,58 @@ def sqlite_create_tables(database_path):
                     id_grammar integer);
                  ''')
 
-    conn.execute('''CREATE TABLE IF NOT EXISTS
-                  Parameter.integration_scheme (
-                    integration_scheme varchar,
-                    spatial_relationship integer,
-                    in/out integer,
-                    in/out.Layers integer,
-                    in/out.Layers.name integer,
-                    in/out.Layers.level integer,
-                    Abstract integer,
-                    operation integer,
-                    op integer,
-                    maxDistances integer,
-                    defaultValue integer
-                  );
-                ''')
+    # conn.execute('''CREATE TABLE IF NOT EXISTS
+    #               Parameter.integration_scheme (
+    #                 integration_scheme varchar,
+    #                 spatial_relationship integer,
+    #                 in/out integer,
+    #                 in/out.Layers integer,
+    #                 in/out.Layers.name integer,
+    #                 in/out.Layers.level integer,
+    #                 Abstract integer,
+    #                 operation integer,
+    #                 op integer,
+    #                 maxDistances integer,
+    #                 defaultValue integer
+    #               );
+    #             ''')
     
-    conn.execute(''' CREATE TABLE IF NOT EXISTS Visual (
-                    id integer PRIMARY KEY,
-                    visual integer,
-                    camera integer,
-                    camera.direction integer,
-                    camera.direction.right integer,
-                    camera.direction.lookAt integer,
-                    camera.direction.up integer,
-                    camera.position integer,
-                    knots integer,
-                    interactions integer,
-                    position integer,
-                    position.width integer,
-                    position.height integer
-                );
+    # conn.execute(''' CREATE TABLE IF NOT EXISTS Visual (
+    #                 id integer PRIMARY KEY,
+    #                 visual integer,
+    #                 camera integer,
+    #                 camera.direction integer,
+    #                 camera.direction.right integer,
+    #                 camera.direction.lookAt integer,
+    #                 camera.direction.up integer,
+    #                 camera.position integer,
+    #                 knots integer,
+    #                 interactions integer,
+    #                 position integer,
+    #                 position.width integer,
+    #                 position.height integer
+    #             );
 
-                ''')
-    conn.execute(''' CREATE TABLE IF NOT EXISTS Knots(
-                 id integer PRIMARY KEY,
-                 integration_scheme integer);
-                 ''')
+    #             ''')
+    # conn.execute(''' CREATE TABLE IF NOT EXISTS Knots(
+    #              id integer PRIMARY KEY,
+    #              integration_scheme integer);
+    #              ''')
     
-    conn.execute('''CREATE TABLE Widgets (
-                    id integer PRIMARY KEY,
-                    type integer,
-                    title integer,
-                    subtitle integer,
-                    categories integer,
-                    categories.category_name integer,
-                    categories.elements integer,
-                    categories.elements.categories integer,
-                    position integer,
-                    position.height integer,
-                    position.width integer
-                    ); 
-                ''')
+    # conn.execute('''CREATE TABLE Widgets (
+    #                 id integer PRIMARY KEY,
+    #                 type integer,
+    #                 title integer,
+    #                 subtitle integer,
+    #                 categories integer,
+    #                 categories.category_name integer,
+    #                 categories.elements integer,
+    #                 categories.elements.categories integer,
+    #                 position integer,
+    #                 position.height integer,
+    #                 position.width integer
+    #                 ); 
+    #             ''')
 
     print('Table Created')
 

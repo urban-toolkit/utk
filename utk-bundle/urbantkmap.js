@@ -12956,8 +12956,12 @@ const grammarHistory = (function () {
     };
     const calculateAndPushDiff = function (currentGrammar, nextGrammar) {
         // let ret: any = {};
-        console.log(`Current Knots: ${currentGrammar.knots}`);
-        console.log(`Next Knots:  ${nextGrammar.knots}`);
+        console.log(`Current Knots: ${currentGrammar}`);
+        console.log(`Next Knots:  ${nextGrammar}`);
+        const parsed = JSON.parse(nextGrammar);
+        const reparsed = JSON.parse(JSON.stringify(nextGrammar));
+        console.log(`Parsed: ${parsed}`);
+        console.log(`Reparsed: ${reparsed}`);
         console.log(JSON.stringify(currentGrammar.knots));
         const diff = rdiff.getDiff(currentGrammar.knots, nextGrammar.knots);
         console.log(`Diff: ${JSON.stringify(diff)}`);

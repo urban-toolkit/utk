@@ -6,7 +6,8 @@ from filesInterface import *
 from geopy.geocoders import Nominatim
 from sqliteInterface import sqlite_create_tables, sqlite_insert_query_executor
 import utils
-import sqlite3
+ 
+
 
 # sqlite3.register_converter("TIMESTAMP", datetime.datetime.fromisoformat)
 # sqlite3.register_converter("TIMESTAMP", lambda b: b)
