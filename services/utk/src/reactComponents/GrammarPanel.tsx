@@ -81,7 +81,7 @@ export const GrammarPanelContainer = ({
         console.log(`Grammar History length -> ${grammarHistory.getLength()}`)
         // const diffs = changesets.diff(grammarStateRef, tempGrammarStateRef);
 
-        grammarHistory.calculateAndPushDiff(grammarStateRef.current, tempGrammarStateRef.current);
+        const currentDiff = grammarHistory.calculateAndPushDiff(grammarStateRef.current, tempGrammarStateRef.current);
         //console.log(diffs);
         if (tempGrammarStateRef.current != '') {
             try {
@@ -112,7 +112,7 @@ export const GrammarPanelContainer = ({
         setCode(sendGrammar);
         setTempGrammar('');
 
-        const data = { "grammar": sendGrammar };
+        const data = { "grammar": sendGrammar, "diff":currentDiff };
 
         fetch(url + "/updateGrammar", {
             method: 'POST',

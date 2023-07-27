@@ -1,0 +1,111 @@
+[
+  {
+    "op": "update",
+    "path": [
+      0,
+      "id"
+    ],
+    "val": "purewater"
+  },
+  {
+    "op": "update",
+    "path": [
+      0,
+      "integration_scheme",
+      0,
+      "out",
+      "name"
+    ],
+    "val": "water"
+  },
+  {
+    "op": "update",
+    "path": [
+      1,
+      "id"
+    ],
+    "val": "pureroads"
+  },
+  {
+    "op": "delete",
+    "path": [
+      1,
+      "integration_scheme",
+      0,
+      "spatial_relation"
+    ]
+  },
+  {
+    "op": "update",
+    "path": [
+      1,
+      "integration_scheme",
+      0,
+      "out",
+      "name"
+    ],
+    "val": "roads"
+  },
+  {
+    "op": "update",
+    "path": [
+      1,
+      "integration_scheme",
+      0,
+      "out",
+      "level"
+    ],
+    "val": "OBJECTS"
+  },
+  {
+    "op": "delete",
+    "path": [
+      1,
+      "integration_scheme",
+      0,
+      "in"
+    ]
+  },
+  {
+    "op": "delete",
+    "path": [
+      1,
+      "integration_scheme",
+      0,
+      "operation"
+    ]
+  },
+  {
+    "op": "delete",
+    "path": [
+      1,
+      "integration_scheme",
+      0,
+      "abstract"
+    ]
+  },
+  {
+    "op": "add",
+    "path": [
+      2
+    ],
+    "val": {
+      "id": "buildings",
+      "integration_scheme": [
+        {
+          "spatial_relation": "NEAREST",
+          "out": {
+            "name": "buildings",
+            "level": "COORDINATES3D"
+          },
+          "in": {
+            "name": "shadow",
+            "level": "COORDINATES3D"
+          },
+          "operation": "NONE",
+          "abstract": true
+        }
+      ]
+    }
+  }
+]

@@ -16,14 +16,18 @@ const grammarHistory = (function () {
         // let ret: any = {};
         
 
-        console.log(`Current Knots: ${currentGrammar}`);
-        console.log(`Next Knots:  ${nextGrammar}`)
-        const parsed = JSON.parse(nextGrammar);
-        const reparsed = JSON.parse(JSON.stringify(nextGrammar));
-        console.log(`Parsed: ${parsed}`);
-        console.log(`Reparsed: ${reparsed}`);
-        console.log(JSON.stringify(currentGrammar.knots));
-        const diff = rdiff.getDiff(currentGrammar.knots, nextGrammar.knots);
+        // console.log(`Current Knots: ${currentGrammar.components}`);
+        // console.log(`Next Knots:  ${nextGrammar.components[0].knots}`)
+        const nextGrammarParsed = JSON.parse(nextGrammar);
+        const currentGrammarParsed = JSON.parse(currentGrammar);
+        console.log(`Parsed: ${nextGrammarParsed.components[0].knots}`); // <- OK É ESSE AQUI
+        console.log(`Reparsed: ${currentGrammarParsed.components[0].knots}`);
+        const nextGrammarKnots = nextGrammarParsed.components[0].knots;
+        const currentGrammarKnots = currentGrammarParsed.components[0].knots;
+
+
+        const diff = rdiff.getDiff(nextGrammarKnots, currentGrammarKnots);
+        grammarDiff.push(diff);
         console.log(`Diff: ${JSON.stringify(diff)}`)
         return diff;
     };

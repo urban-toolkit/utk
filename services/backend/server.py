@@ -265,9 +265,15 @@ def serve_updateGrammar():
     currentDateTime = datetime.datetime.now()
 
     grammar = request.json['grammar']
+    currentKnotDiff = request.json['diff']
+    
 
     with open(os.path.join(workDir, "grammar.json"), "w", encoding="utf-8") as f:
         f.write(grammar)
+
+    #TODO - process diffs and write them on DB
+    # with open(os.path.join(workDir, "currentDiff.json"), "w", encoding="utf-8") as f:
+    #     f.write(currentDiff)    
 
     insertedRowId = sqlite_insert_query_executor(
         os.path.join(workDir, "utk.db"), "INSERT INTO Grammar (grammar_json) VALUES (?);", (grammar,))

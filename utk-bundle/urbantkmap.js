@@ -12956,14 +12956,15 @@ const grammarHistory = (function () {
     };
     const calculateAndPushDiff = function (currentGrammar, nextGrammar) {
         // let ret: any = {};
-        console.log(`Current Knots: ${currentGrammar}`);
-        console.log(`Next Knots:  ${nextGrammar}`);
-        const parsed = JSON.parse(nextGrammar);
-        const reparsed = JSON.parse(JSON.stringify(nextGrammar));
-        console.log(`Parsed: ${parsed}`);
-        console.log(`Reparsed: ${reparsed}`);
-        console.log(JSON.stringify(currentGrammar.knots));
-        const diff = rdiff.getDiff(currentGrammar.knots, nextGrammar.knots);
+        // console.log(`Current Knots: ${currentGrammar.components}`);
+        // console.log(`Next Knots:  ${nextGrammar.components[0].knots}`)
+        const nextGrammarParsed = JSON.parse(nextGrammar);
+        const currentGrammarParsed = JSON.parse(currentGrammar);
+        console.log(`Parsed: ${nextGrammarParsed.components[0].knots}`); // <- OK É ESSE AQUI
+        console.log(`Reparsed: ${currentGrammarParsed.components[0].knots}`);
+        const nextGrammarKnots = nextGrammarParsed.components[0].knots;
+        const currentGrammarKnots = currentGrammarParsed.components[0].knots;
+        const diff = rdiff.getDiff(nextGrammarKnots, currentGrammarKnots);
         console.log(`Diff: ${JSON.stringify(diff)}`);
         return diff;
     };
@@ -13008,7 +13009,7 @@ const GrammarPanelContainer = ({ obj, viewId, initialGrammar, camera, filterKnot
         }
         console.log(`Grammar History length -> ${grammarHistory.getLength()}`);
         // const diffs = changesets.diff(grammarStateRef, tempGrammarStateRef);
-        grammarHistory.calculateAndPushDiff(grammarStateRef.current, tempGrammarStateRef.current);
+        const currentDiff = grammarHistory.calculateAndPushDiff(grammarStateRef.current, tempGrammarStateRef.current);
         //console.log(diffs);
         if (tempGrammarStateRef.current != '') {
             try {
@@ -13039,7 +13040,7 @@ const GrammarPanelContainer = ({ obj, viewId, initialGrammar, camera, filterKnot
         }
         setCode(sendGrammar);
         setTempGrammar('');
-        const data = { "grammar": sendGrammar };
+        const data = { "grammar": sendGrammar, "diff": currentDiff };
         fetch(url + "/updateGrammar", {
             method: 'POST',
             headers: {
