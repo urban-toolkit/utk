@@ -13,7 +13,7 @@ services:
       - 5004:5000
     environment:
       - FLASK_DEBUG=1
-      - DATA_FOLDER=my_first_vis
+      - DATA_FOLDER=wrf_temp_building
 
   jupyterapi:
     build:

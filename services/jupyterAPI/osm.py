@@ -1465,7 +1465,7 @@ class OSM:
         finalSize = sizeCells
 
         if(finalSize == -1 and nCells != -1):
-            finalSize = max(abs(bbox[2] - bbox[0])/nCells, abs(bbox[3] - bbox[1])/nCells)
+            finalSize = max(abs(bpoly[2] - bpoly[0])/nCells, abs(bpoly[3] - bpoly[1])/nCells)
 
         coordinates, indices, ids, normals = OSM.discretize_surface_mesh(grouped_coordinates, finalSize)
 
