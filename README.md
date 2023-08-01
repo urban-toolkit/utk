@@ -89,3 +89,15 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 <p align="center">
     <img src="./images/parallel-coordinates.png"  width="500">
 </p>
+
+### (4) Loading WRF temperature data
+
+**Description**" loading water, parks, buildings, and WRF temperature data over Chicago. 
+
+**Data** [download](https://drive.google.com/drive/folders/1ZjlAL9rYW4f1d4X897QEgQadoal1SzUp?usp=sharing)
+
+**Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/wrf_temp_building/grammar.json)
+
+<p align="center">
+    <img src="./images/wrf_temp_building.png"  width="500">
+</p>
