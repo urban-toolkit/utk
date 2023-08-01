@@ -66,7 +66,7 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 **Description**" loading water, parks, street network, and buildings for downtown Chicago. Also, raytracing is used for shadow simulation and for building a what-if scenario considering the removal of two buildings.
 
-**Data** [download](https://drive.google.com/drive/folders/1E8ItW4VO_SParQwc-AJuIQ2Y3-ffdqV_?usp=share_link) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
+**Data** [download](https://drive.google.com/drive/folders/13W7VY2xLGw6Su4W0t6ZuE9d7HuQl4xZ0?usp=sharing) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
 
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/grammar.json)
 
