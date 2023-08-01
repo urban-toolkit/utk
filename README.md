@@ -99,5 +99,5 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/wrf_temp_building/grammar.json)
 
 <p align="center">
-    <img src="./images/wrf_temp_building.png"  width="250">
+    <img src="./images/wrf_temp_building.png"  width="300">
 </p>
