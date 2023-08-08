@@ -66,7 +66,7 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 **Description**" loading water, parks, street network, and buildings for downtown Chicago. Also, raytracing is used for shadow simulation and for building a what-if scenario considering the removal of two buildings.
 
-**Data** [download](https://drive.google.com/drive/folders/1E8ItW4VO_SParQwc-AJuIQ2Y3-ffdqV_?usp=share_link) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
+**Data** [download](https://drive.google.com/drive/folders/13W7VY2xLGw6Su4W0t6ZuE9d7HuQl4xZ0?usp=sharing) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
 
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/grammar.json)
 
@@ -88,4 +88,16 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 <p align="center">
     <img src="./images/parallel-coordinates.png"  width="500">
+</p>
+
+### (4) Loading WRF temperature data
+
+**Description**" loading water, parks, buildings, and WRF temperature data over Chicago. 
+
+**Data** [download](https://drive.google.com/drive/folders/1ZjlAL9rYW4f1d4X897QEgQadoal1SzUp?usp=sharing)
+
+**Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/wrf_temp_building/grammar.json)
+
+<p align="center">
+    <img src="./images/wrf_temp_building.png"  width="300">
 </p>
