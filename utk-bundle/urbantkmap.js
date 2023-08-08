@@ -12964,8 +12964,21 @@ const grammarHistory = (function () {
         console.log(`Reparsed: ${currentGrammarParsed.components[0].knots}`);
         const nextGrammarKnots = nextGrammarParsed.components[0].knots;
         const currentGrammarKnots = currentGrammarParsed.components[0].knots;
+        const knotsRemoved = currentGrammarKnots.filter((x) => !nextGrammarKnots.includes(x));
+        /*
+            [1,2,3]
+            [2,3]
+            -> retorna 1 (foi removido)
+
+            [1,2,3]
+            [1,2,3,4]
+             -> não retorna nada, então vamos fazer a reversa:
+        */
+        const knotsInserted = nextGrammarKnots.filter((x) => !currentGrammarKnots.includes(x));
         const diff = rdiff.getDiff(nextGrammarKnots, currentGrammarKnots);
-        console.log(`Diff: ${JSON.stringify(diff)}`);
+        // console.log(`Diff: ${JSON.stringify(diff)}`)
+        console.log(`Removed: ${JSON.stringify(knotsRemoved)}`);
+        console.log(`Inserted: ${JSON.stringify(knotsInserted)}`);
         return diff;
     };
     const getLength = function () {
