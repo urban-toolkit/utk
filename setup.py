@@ -16,7 +16,7 @@ setup(
     description="The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/urban-toolkit/urbantk/tree/main/',
+    url='https://github.com/urban-toolkit/utk/tree/main/',
     packages=['utk'],
     package_dir = {
         'utk': './src/utk'
