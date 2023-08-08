@@ -1,0 +1,21 @@
+{
+    "$id": "https://urbantk.org/categories",
+    "description": "Categories schema",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "category_name": {
+                "type": "string"
+            },
+            "elements": {
+                "type": "array",
+                "items": {
+                    "anyOf": [
+                        {"type": "string"}
+                    ]
+                }
+            }
+        }
+    }
+}

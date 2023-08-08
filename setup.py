@@ -1,26 +1,34 @@
+import os
 from setuptools import setup, find_packages
+from distutils.dir_util import copy_tree
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open('requirements.txt') as f:
+    install_requires = f.read().strip().split('\n')
+
 setup(
-    name="urbantk",
-    version="0.0.1",
+    name="utk",
+    version="1.0.0",
     author="Fabio Miranda",
     author_email="fabiom@uic.edu",
     description="The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics",
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/urban-toolkit/urbantk/tree/main/',
-    packages=find_packages(exclude=['node_modules']),
+    packages=['utk'],
+    package_dir = {
+        'utk': './src/utk'
+    },
+    package_data={'utk': ['../utk_server.py', '../utk-frontend/build/utk-app/*', '../../requirements.txt']},
     include_package_data=True,
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: OS Independent",
-    ],
-    python_requires='>=3.9',
-    install_requires=[
-        'notebookjs',
-    ]
+    entry_points={
+        'console_scripts': [
+            'utk = utk_server:main',
+        ],
+    },
+    license_files = ('LICENSE'),
+    python_requires='>=3.8',
+    install_requires=install_requires
 )

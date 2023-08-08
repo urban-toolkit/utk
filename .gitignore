@@ -1,1 +1,2 @@
-/data
+*.eggs
+*.egg-info
