@@ -6,7 +6,6 @@ from filesInterface import *
 from geopy.geocoders import Nominatim
 from sqliteInterface import sqlite_create_tables, sqlite_insert_query_executor
 import utils
- 
 
 
 # sqlite3.register_converter("TIMESTAMP", datetime.datetime.fromisoformat)
@@ -265,18 +264,18 @@ def serve_updateGrammar():
     currentDateTime = datetime.datetime.now()
 
     grammar = request.json['grammar']
-    currentKnotDiff = request.json['diff']
-    
+    # currentKnotDiff = request.json['diff']
 
     with open(os.path.join(workDir, "grammar.json"), "w", encoding="utf-8") as f:
         f.write(grammar)
 
-    #TODO - process diffs and write them on DB
-    # with open(os.path.join(workDir, "currentDiff.json"), "w", encoding="utf-8") as f:
-    #     f.write(currentDiff)    
+    dumpedGrammar = json.loads(grammar)
+    # TODO - process diffs and write them on DB
+    with open(os.path.join(workDir, "knots_test.json"), "w", encoding="utf-8") as f:
+        f.write(str(dumpedGrammar["components"][0]["knots"][0]))
 
     insertedRowId = sqlite_insert_query_executor(
-        os.path.join(workDir, "utk.db"), "INSERT INTO Grammar (grammar_json) VALUES (?);", (grammar,))
+        os.path.join(workDir, "utk.db"), "INSERT INTO Grammars (grammar_json) VALUES (?);", (grammar,))
 
     sqlite_insert_query_executor(
         os.path.join(workDir, "utk.db"),
@@ -287,6 +286,39 @@ def serve_updateGrammar():
           id_user,
           id_map,
           id_grammar) VALUES (?, ?, ?,?,?,?,?);""", (currentDateTime, currentDateTime, "no_message", "no_message", 0, 0, insertedRowId,))
+
+    for k in dumpedGrammar["components"][0]["knots"]:
+        insertedKnotRowId = sqlite_insert_query_executor(
+            os.path.join(workDir, "utk.db"),
+            """INSERT into Knots 
+            (knot_id_name,grammar_id) VALUES (?,?);""", (k['id'], insertedRowId,))
+
+        for schema in k["integration_scheme"]:
+            operation = ''
+            abstract = ''
+            if "operation" in schema:
+                operation = schema['operation']
+            if "abstract" in schema:
+                abstract = schema['abstract']
+
+            insertedSchemaId = sqlite_insert_query_executor(
+
+                os.path.join(workDir, "utk.db"),
+                """INSERT into IntegrationSchemas 
+                    (operation,
+                    abstract,
+                    knot_id) VALUES (?,?,?);""", (operation, abstract, insertedKnotRowId,))
+
+            for key, value in schema.items():
+                if key == 'in' or key == 'out':
+                    sqlite_insert_query_executor(
+                        os.path.join(workDir, "utk.db"),
+                        """INSERT into InOutOperations 
+                    (   type,
+                        name,
+                        level,
+                        integration_schema_id
+                    ) VALUES (?,?,?,?);""", (key, value['name'], value['name'], insertedSchemaId))
 
     return ''
 
