@@ -80,7 +80,7 @@ The jupyter notebooks must be placed inside `jupyterAPI`. Please refer to [jupyt
 
 **Description**" loading water, parks, street network, and buildings for downtown NYC. Using multiple datasets aggregated by zip code to create a parallel coordinates chart.
 
-**Data** [download](https://drive.google.com/drive/folders/179RYmhPGNvd_kiLLg6AWIM-5wVciyLGr?usp=sharing) or [jupyter notebook](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/data.ipynb)
+**Data** [download](https://drive.google.com/drive/folders/179RYmhPGNvd_kiLLg6AWIM-5wVciyLGr?usp=sharing)
 
 **Grammar**: [specification](https://github.com/urban-toolkit/urbantk-react-ts/tree/master/examples/whatif_downtown_chicago/grammar.json)
 
