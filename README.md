@@ -28,7 +28,6 @@ UTK follows a microsservice architecture where each functionality is offered by 
 - [frontend](https://github.com/urban-toolkit/urbantk/blob/master/services/frontend/README.md)
 - [jupyterAPI](https://github.com/urban-toolkit/urbantk/blob/master/services/jupyterAPI/README.md)
 - [utk](https://github.com/urban-toolkit/urbantk/blob/master/services/utk/README.md)
-- [prodWebServer](https://github.com/urban-toolkit/urbantk/blob/master/services/prodWebServer/README.md)
 
 ## Configuration
 
