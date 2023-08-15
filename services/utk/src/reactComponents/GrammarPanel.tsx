@@ -255,7 +255,7 @@ export const GrammarPanelContainer = ({
                     readOnly={readOnly}
                     onChange={updateGrammarContent}
                     mode={'text'}
-                    indentation={4}
+                    identation={4}
                     />
                     
                 </div>
