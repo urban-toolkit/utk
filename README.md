@@ -34,7 +34,28 @@ UTK leverages several spatial packages, such as Geopandas, OSMnx, Shapely. To fa
 pip install utk
 ```
 
-UTK will then be available through the ``utk`` command. After the installation is complete, you can check a toy example with the following command:
+A detailed description of UTK's capabilities can be found in our [paper](https://arxiv.org/abs/2308.07769), but generally speaking UTK is divided into two components: a backend component, accessible through UTK's Python library, and a frontend component, accessible through a web interface.
+
+### UTK backend
+
+UTK's backend is available through our Python library. For example, using a Jupyter Notebook, it can be imported with:
+
+```python
+import utk
+```
+
+To download data for Manhattan, NY, you only need to then:
+```
+uc = utk.OSM.load('Manhattan, NY', layers=['surface', 'parks', 'water', 'roads'])
+uc.save('./manhattan')
+```
+
+This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.data.layer_from_shapefile``), csv files (``utk.data.layer_from_csv``), dataframes (``utk.data.layer_from_dataframe``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API is coming soon.
+
+
+### UTK frontend
+
+UTK's frontend is available through the ``utk`` command. After the pip installation is complete, you can check a toy example with the following command:
 
 ```console
 utk example
@@ -85,7 +106,7 @@ After starting UTK's server and opening ``localhost:5001`` on a browser, you wil
 
 Step-by-step tutorials are available on our [website](http://urbantk.org/home-tutorials). These tutorials highlight how UTK can be used to create sophisticated urban visualizations.
 
-A detailed description of UTK's grammar can be found [here](https://github.com/urban-toolkit/utk/blob/master/grammar.md). A detailed description of UTK's Python API is coming soon.
+A detailed description of UTK's grammar can be found [here](https://github.com/urban-toolkit/utk/blob/master/grammar.md).
 
 ## Team
 - Gustavo Moreira (UIC)
