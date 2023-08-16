@@ -273,7 +273,7 @@ export const ToggleKnotsWidget = ({obj, title, subtitle, listLayers, knotVisibil
     const getGroupHtml = (item:string, listLayers: any, knotVisibility: any) => {
 
         return <React.Fragment key={item+"_fragment"}>
-            <Row style={{paddingTop: "10px", paddingBottom: "10px", borderBottom: '1px solid #e2e1e6'}} className="align-items-center">
+            <Row style={{paddingTop: "5px", paddingBottom: "5px"}} className="align-items-center">
                 <Col md={5}>
                     <Form.Check key={item+"_check"} checked={groupVisibility(listLayers, knotVisibility, item)} type="checkbox" label={item} id={item} onChange={() => {toggleGroup(listLayers, knotVisibility, item)}}/> 
                 </Col>

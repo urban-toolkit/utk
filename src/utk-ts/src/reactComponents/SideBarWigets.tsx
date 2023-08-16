@@ -48,25 +48,25 @@ export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibi
 
     return (
         <React.Fragment>
-          {genericPlots.length > 0 || viewObjs.length > 1 ? <div style={{backgroundColor: "white", width: "75px", position: "absolute", left: 0, top: 0, boxShadow: "3px 0px 5px 1px rgba(0,0,0,0.30)"}}>
+          {genericPlots.length > 0 || viewObjs.length > 1 ? <div style={{backgroundColor: "white", width: "75px", position: "absolute", left: "10px", top: "10px", padding: "5px", borderRadius: "8px", border: "1px solid #dadce0", opacity: 0.9, boxShadow: "0 2px 8px 0 rgba(99,99,99,.2)"}}>
             <Row>
               {
                 viewObjs.map((component, index) => {
                   if(component.type == WidgetType.TOGGLE_KNOT){
-                    return <FontAwesomeIcon key={"widget_"+index} size="3x" style={{padding: 0, marginTop: "10px"}} icon={faLayerGroup} onClick={handleClickLayers} />
+                    return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faLayerGroup} onClick={handleClickLayers} />
                   }else if(component.type == WidgetType.SEARCH){
-                    return <FontAwesomeIcon key={"widget_"+index} size="3x" style={{padding: 0, marginTop: "10px"}} icon={faMagnifyingGlass} onClick={handleClickSearch} />
+                    return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faMagnifyingGlass} onClick={handleClickSearch} />
                   }
                 })
               }
-              {genericPlots.length > 0 ? <FontAwesomeIcon size="3x" style={{padding: 0, marginTop: "10px"}} icon={faChartSimple} onClick={handleTogglePlots} /> : null}
+              {genericPlots.length > 0 ? <FontAwesomeIcon size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faChartSimple} onClick={handleTogglePlots} /> : null}
             </Row>
           </div> : null}
             {
               viewObjs.map((component, index) => {
                 if(component.type == WidgetType.TOGGLE_KNOT){
                   return <React.Fragment key={"toggle_knot_"+index}>
-                    <div className='component' id="toggle_knot_widget" style={{position: "absolute", left: 110, top: 0, width: 300, height: 300, display: "none"}}>
+                    <div className='component' id="toggle_knot_widget" style={{position: "absolute", left: 100, top: 10, width: 300, borderRadius: "8px", border: "1px solid #dadce0", opacity: 0.9, boxShadow: "0 2px 8px 0 rgba(99,99,99,.2)", display: "none"}}>
                       <ToggleKnotsWidget
                         obj = {component.obj}
                         listLayers = {layersIds}
@@ -80,7 +80,7 @@ export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibi
                   </React.Fragment>
                 }else if(component.type == WidgetType.SEARCH){
                   return <React.Fragment key={"search_"+index}>
-                    <div id="search_widget" style={{borderRadius: "8px 8px 8px 8px", position: "absolute", left: mapWidth - 250, top: 10, display: "none"}}>
+                    <div id="search_widget" style={{borderRadius: "8px", position: "absolute", left: mapWidth - 240, top: 10, opacity: 0.9, display: "none"}}>
                       <SearchWidget 
                         obj = {component.obj}
                         viewId = {"search_"+index}
