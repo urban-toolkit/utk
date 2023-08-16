@@ -68,7 +68,12 @@ UTK's frontend is available through the ``utk`` command. After the pip installat
 utk example
 ```
 
-UTK's toy example will then be accessible through ``localhost:5001``. Starting and stopping UTK's server can be done using the following command:
+UTK's toy example will then be accessible through ``localhost:5001``. After accessing it using a browser, you should see a grammar-defined visualization showing sunlight access per building:
+
+![UTK example](https://github.com/urban-toolkit/utk/blob/master/images/example_full.png?raw=true)
+
+
+Beyong the simple example, you can also use the ``utk`` command to start and stop UTK's server:
 
 ```console
 utk start
