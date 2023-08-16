@@ -45,6 +45,33 @@ utk start
 utk stop
 ```
 
+The ``utk`` command takes the following arguments:
+```
+usage: utk [-h] [-d [DATA]] [-b [BUNDLE]] [-g [GRAMMAR]] [-a [ADDRESS]]
+           [-p PORT]
+           {start,list,stop,example}
+
+The Urban Toolkit
+
+positional arguments:
+  {start,list,stop,example}
+                        Start, list or stop utk servers, or start server with
+                        a simple example.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d [DATA], --data [DATA]
+                        Path to data folder.
+  -b [BUNDLE], --bundle [BUNDLE]
+                        Path to app bundle (defaults to installed utk bundle).
+  -g [GRAMMAR], --grammar [GRAMMAR]
+                        Path to grammar JSON file, if different from
+                        [DATA]/grammar.json (default: [DATA]/grammar.json).
+  -a [ADDRESS], --address [ADDRESS]
+                        Server address (default: localhost).
+  -p PORT, --port PORT  Server port (default: 5001).
+```
+
 After starting UTK's server and opening ``localhost:5001`` on a browser, you will see UTK's main interface, composed of a grammar editor (left) and map viewer (right). Adding new elements to the grammar specification on the right (e.g., new plots, new data) will automatically update the map viewer:
 
 ![UTK example](https://github.com/urban-toolkit/utk/blob/master/images/example.gif?raw=true)
