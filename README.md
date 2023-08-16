@@ -26,9 +26,10 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 - Support for juxtaposed and embedded plots.
 - Integration with OpenStreetMap.
 
+UTK has been tested on Linux (Ubuntu 23.04), Windows 10 & 11, and MacOS 13.
+
 ### Road map
 - Aug 21: Python API description.
-- Sep 15: Better support for macOS.
 - Sep 15: Support for WRF data.
 - Sep 30: Support for point cloud data.
 
