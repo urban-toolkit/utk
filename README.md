@@ -1,6 +1,6 @@
 ![PyPI](https://img.shields.io/pypi/v/utk)
 
-![UTK logo](images/logo.jpg)
+![UTK logo](https://github.com/urban-toolkit/utk/blob/master/images/logo.jpg?raw=true)
 
 # The Urban Toolkit (UTK)
 
@@ -16,7 +16,7 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 ---
 
-![UTK cases](images/image-1.png)
+![UTK cases](https://github.com/urban-toolkit/utk/blob/master/images/image-1.png?raw=true)
 
 ## Features
 - Easy integration of physical and thematic layers.
@@ -47,12 +47,12 @@ utk stop
 
 After starting UTK's server and opening ``localhost:5001`` on a browser, you will see UTK's main interface, composed of a grammar editor (left) and map viewer (right). Adding new elements to the grammar specification on the right (e.g., new plots, new data) will automatically update the map viewer:
 
-![UTK example](images/example.gif)
+![UTK example](https://github.com/urban-toolkit/utk/blob/master/images/example.gif?raw=true)
 
 
 ## Tutorials
 
-![UTK tutorials](images/tutorials.png)
+![UTK tutorials](https://github.com/urban-toolkit/utk/blob/master/images/tutorials.png?raw=true)
 
 Step-by-step tutorials are available on our [website](http://urbantk.org/home-tutorials). These tutorials highlight how UTK can be used to create sophisticated urban visualizations.
 
