@@ -300,7 +300,7 @@ def stop_used_ports():
         try:
             if 'python' in p.cmdline()[0]:
                 if os.path.basename(__file__) in p.cmdline()[1] or 'utk' in p.cmdline()[1]:
-                    if ('example' or 'start') in p.cmdline()[2]:
+                    if 'example' in p.cmdline()[2] or 'start' in p.cmdline()[2]:
                         p.kill()
         except:
             pass

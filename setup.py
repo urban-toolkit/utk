@@ -10,7 +10,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="utk",
-    version="1.0.0",
+    version="0.9.0",
     author="Fabio Miranda",
     author_email="fabiom@uic.edu",
     description="The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics",

@@ -540,6 +540,11 @@ class UrbanComponent:
         else:
             workDir = self.workDir
 
+
+        # create dir
+        if(os.path.exists(self.workDir) == False):
+            os.makedirs(self.workDir)
+
         grammar_json = {
             "components": [
                 {
@@ -549,10 +554,51 @@ class UrbanComponent:
                         "interactions": []
                     },
                     "plots": [],
-                    "knots": []            
-                }
+                    "knots": [],
+                    "position": {
+                        "width": [
+                            6,
+                            12
+                        ],
+                        "height": [
+                            1,
+                            4
+                        ]
+                    },
+                    "widgets": [
+                        {
+                            "type": "TOGGLE_KNOT"
+                        },
+                        {
+                            "type": "SEARCH"
+                        }
+                    ],
+                    "position": {
+                        "width": [
+                            6,
+                            12
+                        ],
+                        "height": [
+                            1,
+                            4
+                        ]
+                    }
+                },
             ],
-            "arrangement": "LINKED"
+            "grid": {
+                "width": 12,
+                "height": 4
+            },
+            "grammar_position": {
+                "width": [
+                    1,
+                    5
+                ],
+                "height": [
+                    1,
+                    4
+                ]
+            }
         }
 
         for layer in self.layers['json']:

@@ -146,34 +146,34 @@ class GrammarInterpreter {
                     if(allKnotsIds.includes(knot.id)){
                         throw Error("Duplicated knot id");
                     }else{
-                        if(knot.knotOp != true)
+                        if(knot.knot_op != true)
                             allKnotsIds.push(knot.id);
                     }
                 }
     
                 for(const knot of component.knots){
-                    if(knot.knotOp == true){
+                    if(knot.knot_op == true){
                         for(const integration_scheme of knot.integration_scheme){
     
                             let operation = integration_scheme.operation;
     
                             if(operation != OperationType.NONE){
-                                throw Error("All operation for knots with knotOp = true should be NONE");
+                                throw Error("All operation for knots with knot_op = true should be NONE");
                             }
                         }
                         
                         for(const scheme of knot.integration_scheme){
                             
                             if(scheme.in == undefined){
-                                throw Error("in must be defined when knotOp = true");
+                                throw Error("in must be defined when knot_op = true");
                             }
         
                             if(!allKnotsIds.includes(scheme.out.name) || !allKnotsIds.includes(scheme.in.name)){
-                                throw Error("When using knotOp out and in must make reference to the id of other knots (that doesnt have knotOp = true)");
+                                throw Error("When using knot_op out and in must make reference to the id of other knots (that doesnt have knot_op = true)");
                             }
         
                             if(scheme.op == undefined){
-                                throw Error("If knotOp = true each step of the integration_scheme must have a defined op");
+                                throw Error("If knot_op = true each step of the integration_scheme must have a defined op");
                             }
         
                             if((scheme.maxDistance != undefined || scheme.defaultValue != undefined) && (scheme.spatial_relation != "NEAREST" || scheme.abstract != true)){
@@ -216,7 +216,7 @@ class GrammarInterpreter {
         for(const component of grammar.components){
             if("map" in component){
                 for(const knot of component.knots){
-                    if(knot.knotOp != true){
+                    if(knot.knot_op != true){
                         for(let i = 0; i < knot.integration_scheme.length; i++){
                             if(knot.integration_scheme[i].spatial_relation != 'INNERAGG' && knot.integration_scheme[i].in != undefined){
                                 let spatial_relation = (<SpatialRelationType>knot.integration_scheme[i].spatial_relation).toLowerCase();
@@ -431,7 +431,7 @@ class GrammarInterpreter {
     }
 
     public getKnotOutputLayer(knot: IKnot, view: number){
-        if(knot.knotOp == true){
+        if(knot.knot_op == true){
 
             let lastKnotId = knot.integration_scheme[knot.integration_scheme.length-1].out.name;
 
@@ -449,7 +449,7 @@ class GrammarInterpreter {
     }
 
     public getKnotLastLink(knot: IKnot, view: number){
-        if(knot.knotOp == true){
+        if(knot.knot_op == true){
             
             let lastKnotId = knot.integration_scheme[knot.integration_scheme.length-1].out.name;
 

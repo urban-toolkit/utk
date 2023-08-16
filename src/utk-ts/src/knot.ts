@@ -84,8 +84,8 @@ export class Knot {
 
         let cmap = 'interpolateReds';
 
-        if(this._knotSpecification['colorMap'] != undefined){
-            cmap = <string>this._knotSpecification['colorMap'];
+        if(this._knotSpecification['color_map'] != undefined){
+            cmap = <string>this._knotSpecification['color_map'];
         }
         
         for (const type of this._physicalLayer.renderStyle) {
@@ -180,7 +180,7 @@ export class Knot {
 
     processThematicData(layerManager: LayerManager){
 
-        if(this._knotSpecification.knotOp != true){
+        if(this._knotSpecification.knot_op != true){
             this.addMeshFunction(layerManager);
         }else{ // TODO: knot should not have to retrieve the subknots they should be given
             let functionsPerKnot: any = {};
@@ -190,7 +190,7 @@ export class Knot {
                     let knot = this._grammarInterpreter.getKnotById(scheme.out.name, this._viewId);
 
                     if(knot == undefined){
-                        throw Error("Could not retrieve knot that composes knotOp "+this._knotSpecification.id);
+                        throw Error("Could not retrieve knot that composes knot_op "+this._knotSpecification.id);
                     }
 
                     functionsPerKnot[scheme.out.name] = layerManager.getAbstractDataFromLink(knot.integration_scheme);
@@ -200,7 +200,7 @@ export class Knot {
                     let knot = this._grammarInterpreter.getKnotById(<string>scheme.in.name, this._viewId);
 
                     if(knot == undefined){
-                        throw Error("Could not retrieve knot that composes knotOp "+this._knotSpecification.id);
+                        throw Error("Could not retrieve knot that composes knot_op "+this._knotSpecification.id);
                     }
 
                     functionsPerKnot[<string>scheme.in.name] = layerManager.getAbstractDataFromLink(knot.integration_scheme);
@@ -216,12 +216,12 @@ export class Knot {
                 if(functionSize == -1){
                     functionSize = functionsPerKnot[key].length;
                 }else if(functionSize != functionsPerKnot[key].length){
-                    throw Error("All knots used in knotOp must have the same length");
+                    throw Error("All knots used in knot_op must have the same length");
                 }
             }
 
             if(functionSize == -1){
-                throw Error("Could not retrieve valid function values for knotOp "+this._knotSpecification.id);
+                throw Error("Could not retrieve valid function values for knot_op "+this._knotSpecification.id);
             }
 
             let prevResult: number[] = new Array(functionSize);

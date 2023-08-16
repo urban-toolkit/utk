@@ -146,7 +146,7 @@ def break_into_binary(filepath, filename, data, types, dataTypes):
 '''
     Generate mesh json file based on shapefile
 '''
-def generateLayerFromShp(filepath, bpoly, layerName, styleKey, isBbox = False):
+def layer_from_shapefile(filepath, bpoly, layerName, styleKey, isBbox = False):
     '''
         In the same folder as the .shp file there must be a .prj and .shx files   
 

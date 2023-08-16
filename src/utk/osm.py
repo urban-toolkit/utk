@@ -3,11 +3,8 @@ import pandas as pd
 import geopandas as gpd
 import mapbox_earcut as earcut
 import numpy as np
-import utils
-import errors
 import re
 import time
-import cache
 import vedo
 import osmium as o
 import subprocess
@@ -19,8 +16,12 @@ from shapely.geometry import MultiPolygon, Polygon, MultiLineString, LineString,
 from shapely.ops import linemerge, transform
 from shapely.wkb import loads
 from shapely.validation import explain_validity
-from buildings import Buildings
-from urban_component import UrbanComponent
+
+from . import utils
+from . import errors
+from . import cache
+from .buildings import Buildings
+from .urban_component import UrbanComponent
 
 
 class RelationHandler(o.SimpleHandler):
@@ -488,7 +489,7 @@ class OSM:
                 ids_coordinates.append(counter_id_coordinates)
                 counter_id_coordinates += 1
 
-            nodes = utils.from2dTo3d(nodes)
+            nodes = utils.from_2d_to_3d(nodes)
 
             mesh.append({'type': 'type', 'geometry': {'coordinates': [round(item,4) for item in nodes], 'indices': indices}})
 
@@ -721,14 +722,14 @@ class OSM:
             # if(abs(dev) > 0.001): # TODO: prevent bad triangulation of complex meshes
             #     raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
 
-            nodes = utils.convertProjections("4326", "3395", nodes)
+            nodes = utils.convert_projections("4326", "3395", nodes)
             
             for i in range(int(len(nodes)/2)):
                 geometries_coordinates.append(Point(nodes[i*2], nodes[i*2+1]))
                 ids_coordinates.append(counter_id_coordinates)
                 counter_id_coordinates += 1
 
-            nodes = utils.from2dTo3d(nodes)
+            nodes = utils.from_2d_to_3d(nodes)
 
             mesh.append({'type': poly['type'], 'geometry': {'coordinates': [round(item,4) for item in nodes], 'indices': indices}})
 
@@ -1093,7 +1094,7 @@ class OSM:
             if(abs(dev) > 0.001):
                 raise errors.InvalidPolygon('Invalid deviation (%f)'%dev)
             
-            nodes = utils.convertProjections("4326", "3395", nodes)
+            nodes = utils.convert_projections("4326", "3395", nodes)
 
             for i in range(int(len(nodes)/2)):
                 geometries_coordinates.append(Point(nodes[i*2], nodes[i*2+1]))
@@ -1101,7 +1102,7 @@ class OSM:
                 counter_id_coordinates += 1
 
             if convert2dto3d:
-                nodes = utils.from2dTo3d(nodes)
+                nodes = utils.from_2d_to_3d(nodes)
 
             mesh.append({'type': 'type', 'geometry': {'coordinates': [round(item,4) for item in nodes], 'indices': indices}})
         
@@ -1449,11 +1450,11 @@ class OSM:
             boundaries = utils.polygon_bpoly(bpoly, bbox).bounds
             nodes = [boundaries[0],boundaries[1], boundaries[2],boundaries[1], boundaries[2],boundaries[3], boundaries[0],boundaries[3]]
 
-        nodes = utils.convertProjections("4326", "3395", nodes)
+        nodes = utils.convert_projections("4326", "3395", nodes)
 
         gdf = gpd.GeoDataFrame({'geometry': [Polygon([(nodes[0], nodes[1]), (nodes[2], nodes[3]), (nodes[4], nodes[5]), (nodes[6], nodes[7])])], "id": [0]}, crs=3395)
 
-        nodes = utils.from2dTo3d(nodes)
+        nodes = utils.from_2d_to_3d(nodes)
 
         indices = [0, 3, 2, 2, 1, 0]
 

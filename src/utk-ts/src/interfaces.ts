@@ -61,8 +61,8 @@ export interface IPlotArgs{
 export interface IKnot {
     id: string,
     group?: IKnotGroup,
-    knotOp?: boolean,
-    colorMap?: string | IConditionBlock,
+    knot_op?: boolean,
+    color_map?: string | IConditionBlock,
     integration_scheme: ILinkDescription[],
 }
 

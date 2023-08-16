@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 // import { createAndRunMap, emptyMainDiv } from "../../../../App";
-import VanillaJSONEditor from "./VanillaJSONEditor";
+import JSONEditorReact from "./JSONEditorReact";
 import {Col, Row, Button} from 'react-bootstrap';
 
 import * as d3 from "d3";
@@ -10,7 +10,9 @@ import './GrammarPanel.css';
 // const params = require('./pythonServerConfig.json');
 
 import { IGrammar } from "../interfaces";
-import { Environment } from '../environment';
+
+import schema from '../json-schema.json';
+import schema_categories from '../json-schema-categories.json';
 
 // declaring the types of the props
 type GrammarPanelProps = {
@@ -40,6 +42,8 @@ export const GrammarPanelContainer = ({
 }: GrammarPanelProps
 ) =>{
 
+    const [mode, setMode] = useState('code');
+
     const [grammar, _setCode] = useState('');
 
     const grammarStateRef = useRef(grammar);
@@ -61,8 +65,7 @@ export const GrammarPanelContainer = ({
     const [showEditor, setShowEditor] = useState(true);
     const [readOnly, setReadOnly] = useState(false);
 
-    // const url = process.env.REACT_APP_BACKEND_SERVICE_URL;
-    const url = Environment.backend;
+    const url = process.env.REACT_APP_BACKEND_SERVICE_URL;
 
     const applyGrammar = async () => {
 
@@ -237,29 +240,31 @@ export const GrammarPanelContainer = ({
     }
 
     const updateGrammarContent = (grammarObj: any) => {
-        if(grammarObj.text != undefined){
-            setTempGrammar(grammarObj.text);
-
-        }else{
-            setTempGrammar(JSON.stringify(grammarObj.json, null, 4));
-        }
-
+        setTempGrammar(grammarObj);
     }
+
+    const onModeChange = (mode: string) => {
+        setMode(mode);
+    };    
+
+    const modes = ['code'];
 
     return(
         <React.Fragment>
             {showEditor && (
                 <>
                 <div className="my-editor" style={{overflow: "auto", fontSize: "24px", height: "max(90%,calc(100% - 40px))"}}>
-                {/* <div className="my-editor"> */}
-                    <VanillaJSONEditor
-                    content={checkIfAddCameraAndFilter(grammar, camera, tempGrammar, filterKnots)}
-                    readOnly={readOnly}
-                    onChange={updateGrammarContent}
-                    mode={'text'}
-                    indentation={4}
+                    <JSONEditorReact
+                        content={checkIfAddCameraAndFilter(grammar, camera, tempGrammar, filterKnots)}
+                        schema={schema}
+                        schemaRefs={{"categories": schema_categories}}
+                        mode={'code'}
+                        modes={modes}
+                        onChangeText={updateGrammarContent}
+                        onModeChange={onModeChange}
+                        allowSchemaSuggestions={true}
+                        indentation={2}
                     />
-                    
                 </div>
                 <div className="d-flex align-items-center justify-content-center" style={{overflow: "auto", height: "min(10%, 40px)"}}>
                     <Button variant="secondary" id={applyGrammarButtonId} style={{marginRight: "10px"}}>Apply Grammar</Button>

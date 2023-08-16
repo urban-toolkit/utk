@@ -8,10 +8,15 @@ import time
 import os
 import matplotlib.pyplot as plt 
 
-from tqdm.notebook import trange
+from tqdm.auto import trange, tqdm
 from shapely import affinity
 from shapely.ops import linemerge
 from shapely.geometry import MultiPolygon, MultiLineString, LineString, Point, MultiPoint, box, polygon, Polygon, LinearRing
+
+
+import warnings
+from shapely.errors import ShapelyDeprecationWarning
+warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning) 
 
 class Buildings:
                 

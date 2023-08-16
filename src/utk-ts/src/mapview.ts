@@ -19,7 +19,7 @@ import { ShaderPicking } from "./shader-picking";
 import { ShaderPickingTriangles } from "./shader-picking-triangles";
 
 import { GrammarManager } from "./grammar-manager";
-import { KnotManager } from './knotManager';
+import { KnotManager } from './knot-manager';
 import { Knot } from './knot';
 
 class MapView {
@@ -384,7 +384,7 @@ class MapView {
         let centroid = this.camera.getWorldOrigin();
 
         for(const knot of this._grammarInterpreter.getKnots(this._viewId)){
-            if(!knot.knotOp){
+            if(!knot.knot_op){
                 // load layers from knots if they dont already exist
                 for(let i = 0; i < knot.integration_scheme.length; i++){
 

@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point, Polygon, box
 
-from utk.lineclipping import *
+from . import lineclipping
 
 def convert_projections(inProj, outProj, geometry, dim2=True):
     '''
@@ -55,7 +55,7 @@ def get_camera(coordinates, bbox=False):
         polygon = polygon_bpoly(coordinates, bbox)
         center = list(polygon.centroid.coords[0])
 
-    center = convertProjections("4326", "3395", center)
+    center = convert_projections("4326", "3395", center)
     center.append(1) # zoom level
 
     return {

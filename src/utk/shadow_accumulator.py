@@ -307,7 +307,7 @@ class ShadowAccumulator:
             Accumulate shadow over a period of time considering the parameters defined in the constructor
         '''
 
-        self.loadFiles()
+        self.load_files()
 
         self.flat_coords = [float(elem) for sublist in self.coords_before_transformation for elem in sublist]
 
@@ -335,7 +335,7 @@ class ShadowAccumulator:
  
             self.result_to_write[index] =  [(elem[0] - min) / (max - min) for elem in accum]
 
-    def loadFiles(self):
+    def load_files(self):
 
         for filepath in self.filespaths:
 

@@ -60,7 +60,7 @@ export class BuildingsLayer extends Layer {
         this._mesh.loadFunctionData(distributedValues, knotId);
     }
 
-     updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
+    updateFunction(knot: IKnot, shaders: (Shader|AuxiliaryShader)[]): void {
         // updates the shader references
         for (const shader of shaders) {
             shader.updateShaderData(this._mesh, knot);

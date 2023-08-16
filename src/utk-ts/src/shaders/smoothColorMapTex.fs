@@ -54,8 +54,8 @@ void main() {
   highp vec3 normal = normalize(fragNormals);
 
   highp float diffuse = max(dot(normal, light) * 0.7, 0.0);
-  // highp float ambient = 0.25; 
-  highp float ambient = 0.6; 
+  highp float ambient = 0.25; 
+  // highp float ambient = 0.6; 
   
   // highp vec3 shade = vec3(1.0, 1.0, 1.0) * (diffuse + ambient);
   highp vec3 shade = texColor * (diffuse + ambient);
@@ -72,8 +72,9 @@ void main() {
         fragColor = vec4(1,1,1,0.3);
         // discard;
       }else{
-        // fragColor = vec4(0.6 * shade + 0.64 * texColor, 1);
-        fragColor = vec4(shade, 1);
+        // texColor = vec3(0.875,0.875,0.875);
+        fragColor = vec4(0.6 * shade + 0.4 * texColor, 1);
+        // fragColor = vec4(shade, 1);
         // fragColor = vec4(texColor, 1);
       }
     }

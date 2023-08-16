@@ -4,22 +4,23 @@ import os
 import json
 
 '''
-    Converts a csv file into an abstract layer
+    Converts a dataframe into an abstract layer
 '''
-def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude_column, coordinates_projection, z_column = None):
+def layer_from_dataframe(df, outputfilename, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
     
-    df = pd.read_csv(filepath)
-
     df = df.drop_duplicates(subset=[latitude_column, longitude_column])
 
     latitude_list = df[latitude_column].tolist()
     longitude_list = df[longitude_column].tolist()
-    values_list = df[value_column].tolist()
-
+    
     z_list = []
-
     if z_column != None:
        z_list = df[z_column].toList()
+
+    if value_column != None:
+        values_list = df[value_column].tolist()
+    else:
+        values_list = [1] * len(latitude_list)
 
     transformer = Transformer.from_crs(coordinates_projection, 3395)
     points = list(zip(latitude_list, longitude_list))
@@ -38,14 +39,24 @@ def csv_to_abstract(filepath, layer_id, value_column, latitude_column, longitude
         coordinates.append(z_value)
 
     abstract_json = {
-        "id": layer_id,
+        "id": os.path.basename(outputfilename),
         "coordinates": coordinates,
-        "values": [int(elem) for elem in values_list]
+        "values": [elem for elem in values_list]
     }
 
     json_object = json.dumps(abstract_json)
 
-    directory = os.path.dirname(filepath)
-
-    with open(os.path.join(directory,layer_id+".json"), "w") as outfile:
+    directory = os.path.dirname(outputfilename)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
+    with open(outputfilename, "w") as outfile:
         outfile.write(json_object)
+
+'''
+    Converts a csv file into an abstract layer
+'''
+def layer_from_csv(filepath, outputpath, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
+    
+    df = pd.read_csv(filepath)
+    layer_from_dataframe(df, outputpath, latitude_column, longitude_column, coordinates_projection, z_column, value_column)
