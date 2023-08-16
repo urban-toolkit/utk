@@ -26,6 +26,12 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 - Support for juxtaposed and embedded plots.
 - Integration with OpenStreetMap.
 
+### Road map
+- Aug 21: Python API description.
+- Sep 15: Better support for macOS.
+- Sep 15: Support for WRF data.
+- Sep 30: Support for point cloud data.
+
 ## Installation & quick start
 
 UTK leverages several spatial packages, such as Geopandas, OSMnx, Shapely. To facilite the installation of UTK, we have made it available through pip, only requiring the following commands in a terminal / command prompt:
@@ -55,13 +61,13 @@ This will create a new folder (``manhattan``) with the downloaded and parsed OSM
 
 ### UTK frontend
 
-UTK's frontend is available through the ``utk`` command. After the pip installation is complete, you can check a toy example with the following command:
+UTK's frontend is available through the ``utk`` command. After the pip installation is complete, you can check a toy example with the following commands:
 
 ```console
 utk example
 ```
 
-UTK will then be accessible through ``localhost:5001``. Starting and stopping UTK's server can be done using the following command:
+UTK's toy example will then be accessible through ``localhost:5001``. Starting and stopping UTK's server can be done using the following command:
 
 ```console
 utk start
@@ -93,6 +99,12 @@ optional arguments:
   -a [ADDRESS], --address [ADDRESS]
                         Server address (default: localhost).
   -p PORT, --port PORT  Server port (default: 5001).
+```
+
+Even though we offer support for a variety of arguments, most users will simply need to run the following to use data stored in a folder called ``./data/``:
+
+```console
+utk start --data ./data
 ```
 
 After starting UTK's server and opening ``localhost:5001`` on a browser, you will see UTK's main interface, composed of a grammar editor (left) and map viewer (right). Adding new elements to the grammar specification on the right (e.g., new plots, new data) will automatically update the map viewer:
