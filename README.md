@@ -21,7 +21,9 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 ## Features
 - Easy integration of physical and thematic layers.
 - Rapid iteration over the visualization design space.
+- Data transformation to support visualization tasks.
 - Support for 2D and 3D maps.
+- Support for juxtaposed and embedded plots.
 - Integration with OpenStreetMap.
 
 ## Installation & quick start
