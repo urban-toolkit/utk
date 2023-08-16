@@ -21,3 +21,4 @@ flask==2.3.*
 vedo==2023.*
 netCDF4==1.6.*
 requests==2.*
+psutil==5.9.*

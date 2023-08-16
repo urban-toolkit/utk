@@ -5,16 +5,18 @@ import struct
 
 import timezonefinder
 import math
-# import vedo
 import numpy as np
-from plotoptix import NpOptiX
-from plotoptix.geometry import PinnedBuffer
 
 from datetime import datetime
 from datetime import timedelta
 
 import json
 import os
+import sys
+
+if sys.platform != "darwin":
+    from plotoptix import NpOptiX
+    from plotoptix.geometry import PinnedBuffer
 
 class ShadowAccumulator:
     '''
