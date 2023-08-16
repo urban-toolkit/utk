@@ -1,3 +1,5 @@
+![PyPI](https://img.shields.io/pypi/v/utk)
+
 ![UTK logo](images/logo.jpg)
 
 # The Urban Toolkit (UTK)
@@ -7,9 +9,9 @@ through a new high-level grammar specifically built with common urban use cases 
 
 For a quick getting starter document and tutorials, visit: [urbantk.org](http://urbantk.org)
 
-UTK was first presented in the [paper](https://arxiv.org/abs/2308.07769):
-**The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics**
-Gustavo Moreira, Maryam Hosseini, Md Nafiul Alam Nipu, Marcos Lage, Nivan Ferreira, Fabio Miranda
+UTK was first presented in the [paper](https://arxiv.org/abs/2308.07769):  
+**The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics**  
+Gustavo Moreira, Maryam Hosseini, Md Nafiul Alam Nipu, Marcos Lage, Nivan Ferreira, Fabio Miranda  
 IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 ---
