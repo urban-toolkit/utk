@@ -372,7 +372,7 @@ class OSM:
                 result_gdf_coordinates_3d.append(layer_geometry['gdf']['coordinates'])
                 ttype = 'HEATMAP_LAYER'
                 styleKey = 'surface'
-                renderStyle = ['FLAT_COLOR']
+                renderStyle = ['SMOOTH_COLOR_MAP']
             elif layer == 'buildings':
 
                 sizeCells = -1 # default cell size for buildings no subdivision
@@ -1496,83 +1496,83 @@ class OSM:
         # Temp code to create one object per cell
         # ===========================================================================================
 
-        mesh = []
-        maxId = max(ids)
+        # mesh = []
+        # maxId = max(ids)
 
-        for i in range(maxId+1):
-            mesh.append({
-                'geometry': {
-                    'coordinates': [],
-                    'indices': [],
-                    'ids': [],
-                    'normals': [],
-                    'discardFuncInterval': [0, 0.01]
-                }
-            })            
+        # for i in range(maxId+1):
+        #     mesh.append({
+        #         'geometry': {
+        #             'coordinates': [],
+        #             'indices': [],
+        #             'ids': [],
+        #             'normals': [],
+        #             'discardFuncInterval': [0, 0.01]
+        #         }
+        #     })            
 
-        coordinates_index_translation = {}
+        # coordinates_index_translation = {}
 
-        # each position of ids indicates the cell to which this triangle belong
-        for id_index, id_content in enumerate(ids):
+        # # each position of ids indicates the cell to which this triangle belong
+        # for id_index, id_content in enumerate(ids):
 
-            # adding the coordinates of this triangle
-            if indices[id_index][0] not in mesh[id_content]['geometry']['indices']:
+        #     # adding the coordinates of this triangle
+        #     if indices[id_index][0] not in mesh[id_content]['geometry']['indices']:
 
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][0]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][1]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][2]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][0]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][1]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][0]][2]))
 
-                if indices[id_index][0] not in coordinates_index_translation:
-                    coordinates_index_translation[indices[id_index][0]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
+        #         if indices[id_index][0] not in coordinates_index_translation:
+        #             coordinates_index_translation[indices[id_index][0]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
 
-            if indices[id_index][1] not in mesh[id_content]['geometry']['indices']:
+        #     if indices[id_index][1] not in mesh[id_content]['geometry']['indices']:
 
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][0]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][1]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][2]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][0]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][1]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][1]][2]))
 
-                if indices[id_index][1] not in coordinates_index_translation:
-                    coordinates_index_translation[indices[id_index][1]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
+        #         if indices[id_index][1] not in coordinates_index_translation:
+        #             coordinates_index_translation[indices[id_index][1]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
 
-            if indices[id_index][2] not in mesh[id_content]['geometry']['indices']:
+        #     if indices[id_index][2] not in mesh[id_content]['geometry']['indices']:
 
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][0]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][1]))
-                mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][2]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][0]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][1]))
+        #         mesh[id_content]['geometry']['coordinates'].append(float(coordinates[indices[id_index][2]][2]))
 
-                if indices[id_index][2] not in coordinates_index_translation:
-                    coordinates_index_translation[indices[id_index][2]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
+        #         if indices[id_index][2] not in coordinates_index_translation:
+        #             coordinates_index_translation[indices[id_index][2]] = len(mesh[id_content]['geometry']['coordinates'])/3 - 1
 
-            # adding the triangle
-            mesh[id_content]['geometry']['indices'].append(int(indices[id_index][0]))
-            mesh[id_content]['geometry']['indices'].append(int(indices[id_index][1]))
-            mesh[id_content]['geometry']['indices'].append(int(indices[id_index][2]))
+        #     # adding the triangle
+        #     mesh[id_content]['geometry']['indices'].append(int(indices[id_index][0]))
+        #     mesh[id_content]['geometry']['indices'].append(int(indices[id_index][1]))
+        #     mesh[id_content]['geometry']['indices'].append(int(indices[id_index][2]))
 
-            #adding the normals of the coordinates
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][0]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][1]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][2]))
+        #     #adding the normals of the coordinates
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][0]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][1]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][0]][2]))
 
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][0]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][1]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][2]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][0]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][1]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][1]][2]))
 
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][0]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][1]))
-            mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][2]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][0]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][1]))
+        #     mesh[id_content]['geometry']['normals'].append(float(normals[indices[id_index][2]][2]))
 
-            # adding the id of the triangle
-            mesh[id_content]['geometry']['ids'].append(int(ids[id_index]))
+        #     # adding the id of the triangle
+        #     mesh[id_content]['geometry']['ids'].append(int(ids[id_index]))
 
-        for element in mesh:
+        # for element in mesh:
 
-            element['geometry']['indices'] = [int(coordinates_index_translation[value]) for value in element['geometry']['indices']]
+        #     element['geometry']['indices'] = [int(coordinates_index_translation[value]) for value in element['geometry']['indices']]
 
-            # minIndex = min(element['geometry']['indices'])
-            # element['geometry']['indices'] = [value - minIndex for value in element['geometry']['indices']]
+        #     # minIndex = min(element['geometry']['indices'])
+        #     # element['geometry']['indices'] = [value - minIndex for value in element['geometry']['indices']]
 
-            minIds = min(element['geometry']['ids'])
-            element['geometry']['ids'] = [value - minIds for value in element['geometry']['ids']]
+        #     minIds = min(element['geometry']['ids'])
+        #     element['geometry']['ids'] = [value - minIds for value in element['geometry']['ids']]
 
         # ===========================================================================================
 
