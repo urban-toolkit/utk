@@ -494,7 +494,53 @@ class MapView {
     public setCamera(camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}): void{
         this._camera.setPosition(camera.position[0], camera.position[1]);
         this.render();
-    }   
+    }
+    
+    async renderForJupyter(): Promise<void> {
+        await this.init('0','')
+        // no camera defined
+        if (!this._camera) { return; }
+
+        // sky definition
+        const sky = MapStyle.getColor('sky').concat([1.0]);
+        this._glContext.clearColor(sky[0], sky[1], sky[2], sky[3]);
+
+        // tslint:disable-next-line:no-bitwise
+        this._glContext.clear(this._glContext.COLOR_BUFFER_BIT | this._glContext.DEPTH_BUFFER_BIT);
+
+        this._glContext.clearStencil(0);
+        this._glContext.clear(this._glContext.STENCIL_BUFFER_BIT);
+
+        // updates the camera
+        this._camera.update();
+
+        this._camera.loadPosition(JSON.stringify(this.camera));
+
+        // // render the layers
+        // for (const layer of this._layerManager.layers) {
+        //     // skips based on visibility
+        //     if (!layer.visible) { continue; }
+
+        //     if(this._grammarInterpreter.evaluateLayerVisibility(layer.id, this._viewId)){
+        //         // sends the camera
+        //         layer.camera = this.camera;
+        //         // render
+        //         // layer.render(this._glContext);
+        //     }
+        // }
+
+        for(const knot of this._knotManager.knots){
+            if(this._grammarInterpreter.evaluateKnotVisibility(knot, this._viewId)){
+                if(!knot.visible)
+                    this._knotManager.toggleKnot(knot.id, true);
+                knot.render(this._glContext, this.camera);
+            }else{
+                if(knot.visible)
+                    this._knotManager.toggleKnot(knot.id, false);
+            }
+        }
+
+    }
 
     /**
      * Renders the map
@@ -543,6 +589,7 @@ class MapView {
         }
 
     }
+    
 
     private monitorKnotVisibility(){
         let previousKnotVisibility: boolean[] = [];
