@@ -57,7 +57,7 @@ uc = utk.OSM.load('Manhattan, NY', layers=['surface', 'parks', 'water', 'roads']
 uc.save('./manhattan')
 ```
 
-This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.data.layer_from_shapefile``), csv files (``utk.data.layer_from_csv``), dataframes (``utk.data.layer_from_dataframe``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API is coming soon.
+This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API is coming soon.
 
 
 ### UTK frontend

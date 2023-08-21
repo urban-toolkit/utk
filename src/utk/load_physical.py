@@ -1,7 +1,3 @@
-'''
-    Given a csv file representing with a geometry column generates a mesh with coordinates and indices. The geometry column must be in the WKT format
-'''
-
 import os
 import pandas as pd
 import geopandas as gpd
@@ -9,98 +5,11 @@ import numpy as np
 import json
 import mapbox_earcut as earcut
 import struct
+from utils import *
 
 from shapely.geometry import Point, Polygon
-from pyproj import Transformer
 
-def mesh_from_csv(filepath, geometry_column='geometry', crs='4326'):
-    
-    df = pd.read_csv(filepath)
-
-    gdf = gpd.GeoDataFrame(df, geometry = geometry_column, crs = crs)
-
-    mesh = mesh_from_gdf(gdf, crs)
-
-    directory = os.path.dirname(filepath)
-    file_name = os.path.basename(filepath)
-    # file name without extension
-    file_name_wo_extension = os.path.splitext(file_name)[0]
-
-    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"])
-
-def mesh_from_geojson(filepath, bbox = None):
-
-    gdf = gpd.read_file(filepath)
-
-    if(bbox != None):
-        gdf = gdf.cx[bbox[0]:bbox[2], bbox[1]:bbox[3]]
-
-    mesh = mesh_from_gdf(gdf)
-
-    directory = os.path.dirname(filepath)
-    file_name = os.path.basename(filepath)
-    # file name without extension
-    file_name_wo_extension = os.path.splitext(file_name)[0]
-
-    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"])
-
-def mesh_from_gdf(gdf):
-
-    gdf_transformed = gdf.to_crs(3395)
-
-    mesh = []
-
-    for geometry in gdf_transformed.geometry:
-
-        x, y = geometry.exterior.coords.xy
-
-        nodes = list(zip(x,y))
-        rings = [len(nodes)]
-
-        indices = earcut.triangulate_float64(nodes, rings)
-
-        nodes = np.array(nodes)
-
-        nodes = nodes.flatten().tolist()
-        indices = indices.tolist()
-
-        nodes_3d = []
-
-        for i in range(int(len(nodes)/2)):
-            nodes_3d.append(nodes[i*2])
-            nodes_3d.append(nodes[i*2+1])
-            nodes_3d.append(0)
-
-        mesh.append({'geometry': {'coordinates': [round(item,4) for item in nodes_3d], 'indices': indices}})
-
-    return mesh
-
-def layer_from_mesh(filepath, type, renderStyle, styleKey):
-
-    file_name = os.path.basename(filepath)
-    # file name without extension
-    file_name_wo_extension = os.path.splitext(file_name)[0]
-
-    file = open(filepath, 'r')
-
-    data = json.load(file)
-
-    file.close()
-
-    layer = {
-        "id": file_name_wo_extension,
-        "type": type,
-        "renderStyle": renderStyle,
-        "styleKey": styleKey,
-        "data": data
-    }
-
-    json_object = json.dumps(layer)
-
-    with open(filepath, "w") as outfile:
-        outfile.write(json_object)
-
-def break_into_binary(filepath, filename, data, types, dataTypes):
+def break_into_binary(filepath, filename, data, types, dataTypes, type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
 
     for index, type in enumerate(types):
 
@@ -140,13 +49,83 @@ def break_into_binary(filepath, filename, data, types, dataTypes):
 
         json_object = json.dumps(data)
 
+        layer = {
+            "id": filename,
+            "type": type,
+            "renderStyle": renderStyle,
+            "styleKey": styleKey,
+            "data": json_object
+        }
+
         with open(os.path.join(filepath,filename+".json"), "w") as outfile:
-            outfile.write(json_object)
+            outfile.write(layer)
+
+def physical_from_csv(filepath, geometry_column='geometry', crs='4326', type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
+    
+    df = pd.read_csv(filepath)
+
+    gdf = gpd.GeoDataFrame(df, geometry = geometry_column, crs = crs)
+
+    mesh = mesh_from_gdf(gdf, crs)
+
+    directory = os.path.dirname(filepath)
+    file_name = os.path.basename(filepath)
+    # file name without extension
+    file_name_wo_extension = os.path.splitext(file_name)[0]
+
+    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"], type, renderStyle, styleKey)
+
+def physical_from_geojson(filepath, bbox = None, type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
+
+    gdf = gpd.read_file(filepath)
+
+    if(bbox != None):
+        gdf = gdf.cx[bbox[0]:bbox[2], bbox[1]:bbox[3]]
+
+    mesh = mesh_from_gdf(gdf)
+
+    directory = os.path.dirname(filepath)
+    file_name = os.path.basename(filepath)
+    # file name without extension
+    file_name_wo_extension = os.path.splitext(file_name)[0]
+
+    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"], type, renderStyle, styleKey)
+
+def mesh_from_gdf(gdf):
+
+    gdf_transformed = gdf.to_crs(3395)
+
+    mesh = []
+
+    for geometry in gdf_transformed.geometry:
+
+        x, y = geometry.exterior.coords.xy
+
+        nodes = list(zip(x,y))
+        rings = [len(nodes)]
+
+        indices = earcut.triangulate_float64(nodes, rings)
+
+        nodes = np.array(nodes)
+
+        nodes = nodes.flatten().tolist()
+        indices = indices.tolist()
+
+        nodes_3d = []
+
+        for i in range(int(len(nodes)/2)):
+            nodes_3d.append(nodes[i*2])
+            nodes_3d.append(nodes[i*2+1])
+            nodes_3d.append(0)
+
+        mesh.append({'geometry': {'coordinates': [round(item,4) for item in nodes_3d], 'indices': indices}})
+
+    return mesh
 
 '''
     Generate mesh json file based on shapefile
 '''
-def layer_from_shapefile(filepath, bpoly, layerName, styleKey, isBbox = False):
+def physical_from_shapefile(filepath, layerName, bpoly=None, isBbox = False, type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
     '''
         In the same folder as the .shp file there must be a .prj and .shx files   
 
@@ -157,23 +136,25 @@ def layer_from_shapefile(filepath, bpoly, layerName, styleKey, isBbox = False):
         Returns gdf in 3395
     '''
 
-    if(isBbox):
-        bbox_series_4326 = gpd.GeoSeries([Point(bpoly[1], bpoly[0]), Point(bpoly[3], bpoly[2])], crs=4326)
-        
-        loaded_shp = gpd.read_file(filepath, bbox=bbox_series_4326)
+    if(bpoly != None):
 
-        bbox_series_4326 = bbox_series_4326.to_crs(3395)
+        if(isBbox):
+            bbox_series_4326 = gpd.GeoSeries([Point(bpoly[1], bpoly[0]), Point(bpoly[3], bpoly[2])], crs=4326)
+            
+            loaded_shp = gpd.read_file(filepath, bbox=bbox_series_4326)
 
-        loaded_shp = loaded_shp.to_crs(3395)
-        loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
-    else:
-        bpoly_series_4326 = gpd.GeoSeries([Polygon(bpoly)], crs=4326)
-        bpoly_series_4326 = bpoly_series_4326.to_crs(3395)
+            bbox_series_4326 = bbox_series_4326.to_crs(3395)
 
-        loaded_shp = gpd.read_file(filepath)
+            loaded_shp = loaded_shp.to_crs(3395)
+            loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
+        else:
+            bpoly_series_4326 = gpd.GeoSeries([Polygon(bpoly)], crs=4326)
+            bpoly_series_4326 = bpoly_series_4326.to_crs(3395)
 
-        loaded_shp = loaded_shp.to_crs(3395)
-        loaded_shp = loaded_shp.clip(bpoly_series_4326)
+            loaded_shp = gpd.read_file(filepath)
+
+            loaded_shp = loaded_shp.to_crs(3395)
+            loaded_shp = loaded_shp.clip(bpoly_series_4326)
 
     zip_code_coordinates = []
 
@@ -230,40 +211,55 @@ def layer_from_shapefile(filepath, bpoly, layerName, styleKey, isBbox = False):
 
     with open(outputfile, "w", encoding="utf-8") as f:
         
-        result = {
-            "id": layerName,
-            "type": "TRIANGLES_3D_LAYER",
-            "renderStyle": ["FLAT_COLOR"],
-            "styleKey": styleKey,
-            "data": data
-        }
+        # result = {
+        #     "id": layerName,
+        #     "type": type,
+        #     "renderStyle": renderStyle,
+        #     "styleKey": styleKey,
+        #     "data": data
+        # }
 
         types = []
         dataTypes = []
 
-        if('coordinates' in result['data'][0]['geometry']):
+        if('coordinates' in data[0]['geometry']):
             types.append("coordinates")
             dataTypes.append("d")
 
-        if('normals' in result['data'][0]['geometry']):
+        if('normals' in data[0]['geometry']):
             types.append("normals")
             dataTypes.append("f")
 
-        if('indices' in result['data'][0]['geometry']):
+        if('indices' in data[0]['geometry']):
             types.append("indices")
             dataTypes.append("I")
 
-        if('ids' in result['data'][0]['geometry']):
+        if('ids' in data[0]['geometry']):
             types.append("ids")
             dataTypes.append("I")
 
-        break_into_binary(os.path.dirname(filepath), layerName, result, types, dataTypes)
+        break_into_binary(os.path.dirname(filepath), layerName, data, types, dataTypes, type, renderStyle, styleKey)
 
-        layer_json_str = str(json.dumps(result))
-        f.write(layer_json_str)
+        # layer_json_str = str(json.dumps(result))
+        # f.write(layer_json_str)
 
     loaded_shp['id'] = objectId
 
     coordinates_gdf = gpd.GeoDataFrame({'geometry': coordinates_geometries, "id": coordinates_ids}, crs=3395)
 
     return {'objects': loaded_shp, 'coordinates': coordinates_gdf, 'coordinates3d': None}
+
+'''
+    Because Numpy arrays are just a sequence of values the data will automatically be POINTS_LAYER
+
+    Considers that coordinates do not have a coordinates system but are in meters
+'''
+def physical_from_npy(filepath_coordinates, layer_id, center_around=[]):
+        
+    coordinates = np.load(filepath_coordinates)
+    coordinates = coordinates.flatten()
+    
+    if(len(center_around) > 0):
+        coordinates = center_coordinates_around(coordinates, center_around)
+
+    break_into_binary(os.path.dirname(filepath_coordinates), layer_id, [{'geometry': {'coordinates': [round(item,4) for item in coordinates]}}], ["coordinates"], ["d"], "POINTS_LAYER", ["FLAT_COLOR_POINTS"], "surface")
