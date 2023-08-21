@@ -129,9 +129,9 @@ A detailed description of UTK's grammar can be found [here](https://github.com/u
 ## Development
 
 If you would like to modify UTK's core code, you won't be able to use the ``utk`` command (since it points to the utk pip installation). Alternatively, you will have to:
-1 - Build the utk-ts bundle. Inside ``src/utk-ts``, you should run the following in the terminal: ``npm install && npm run build``. After that, a bundle will be created.
-2 - Build the utk-frontend bundle. Inside ``src/utk-frontend``, you should run the following in the terminal: ``npm install && npm run build:web``. After that, another bundle will be created.
-3 - Run the UTK server. Inside the ``src``, run the following in the terminal: ``python utk_server.py --bundle utk-frontend/build/utk-app/``, and with the other appropriate arguments (e.g., ``--data`` with the path to your data folder).
+1. Build the utk-ts bundle. Inside ``src/utk-ts``, you should run the following in the terminal: ``npm install && npm run build``. After that, a bundle will be created.
+2. Build the utk-frontend bundle. Inside ``src/utk-frontend``, you should run the following in the terminal: ``npm install && npm run build:web``. After that, another bundle will be created.
+3. Run the UTK server. Inside the ``src``, run the following in the terminal: ``python utk_server.py --bundle utk-frontend/build/utk-app/``, and with the other appropriate arguments (e.g., ``--data`` with the path to your data folder).
 
 ## Team
 - Gustavo Moreira (UIC)
