@@ -5,7 +5,8 @@ import numpy as np
 import json
 import mapbox_earcut as earcut
 import struct
-from utils import *
+from .utils import *
+from shapely import wkt
 
 from shapely.geometry import Point, Polygon
 
@@ -60,13 +61,19 @@ def break_into_binary(filepath, filename, data, types, dataTypes, type='TRIANGLE
         with open(os.path.join(filepath,filename+".json"), "w") as outfile:
             outfile.write(layer)
 
+'''
+    Geometry column must be a string in the WKT format
+'''
+
 def physical_from_csv(filepath, geometry_column='geometry', crs='4326', type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
     
     df = pd.read_csv(filepath)
 
+    df[geometry_column] = df[geometry_column].apply(wkt.loads)
+
     gdf = gpd.GeoDataFrame(df, geometry = geometry_column, crs = crs)
 
-    mesh = mesh_from_gdf(gdf, crs)
+    mesh = mesh_from_gdf(gdf)
 
     directory = os.path.dirname(filepath)
     file_name = os.path.basename(filepath)

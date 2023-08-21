@@ -246,11 +246,16 @@ class OSM:
 
     def load_from_polygon(bpolygon, layers=['parks','water','roads','buildings']):
         
-        cam = utils.get_camera(bpolygon)
+        flattened_polygon = [item for row in bpolygon for item in row]
 
-        loaded = OSM.get_osm(bpolygon, False, layers)
+        # cam = utils.get_camera(bpolygon)
+        cam = utils.get_camera(flattened_polygon)
 
-        component = UrbanComponent(layers = loaded, bpolygon = bpolygon, camera = cam)
+        # loaded = OSM.get_osm(bpolygon, False, layers)
+        loaded = OSM.get_osm(flattened_polygon, False, layers)
+
+        # component = UrbanComponent(layers = loaded, bpolygon = bpolygon, camera = cam)
+        component = UrbanComponent(layers = loaded, bpolygon = flattened_polygon, camera = cam)
 
         return component
 

@@ -4,7 +4,7 @@ import os
 import json
 from netCDF4 import Dataset
 import numpy as np
-from utils import *
+from .utils import *
 
 '''
     Converts a dataframe into an abstract layer
