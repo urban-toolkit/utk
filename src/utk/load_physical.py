@@ -12,7 +12,7 @@ from shapely.geometry import Point, Polygon
 
 def break_into_binary(filepath, filename, data, types, dataTypes, type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
 
-    for index, type in enumerate(types):
+    for index, element in enumerate(types):
 
         readCoords = 0
 
@@ -22,44 +22,42 @@ def break_into_binary(filepath, filename, data, types, dataTypes, type='TRIANGLE
             for i in range(len(data['data'])):
                 geometry = data['data'][i]['geometry']
 
-                newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
+                newValue = [readCoords, len(geometry[element])] # where this vector starts and its size
 
-                readCoords += len(geometry[type])
+                readCoords += len(geometry[element])
 
-                floatList += geometry[type].copy()
+                floatList += geometry[element].copy()
 
-                geometry[type] = newValue
+                geometry[element] = newValue
         else:
             for i in range(len(data)):
                 geometry = data[i]['geometry']
 
-                newValue = [readCoords, len(geometry[type])] # where this vector starts and its size
+                newValue = [readCoords, len(geometry[element])] # where this vector starts and its size
 
-                readCoords += len(geometry[type])
+                readCoords += len(geometry[element])
 
-                floatList += geometry[type].copy()
+                floatList += geometry[element].copy()
 
-                geometry[type] = newValue
+                geometry[element] = newValue
 
-        fout = open(os.path.join(filepath,filename+'_'+type+'.data'), 'wb')
+        fout = open(os.path.join(filepath,filename+'_'+element+'.data'), 'wb')
 
         buf = struct.pack(str(len(floatList))+dataTypes[index], *floatList)
 
         fout.write(buf)
         fout.close()
 
-        json_object = json.dumps(data)
-
         layer = {
             "id": filename,
             "type": type,
             "renderStyle": renderStyle,
             "styleKey": styleKey,
-            "data": json_object
+            "data": data
         }
 
         with open(os.path.join(filepath,filename+".json"), "w") as outfile:
-            outfile.write(layer)
+            outfile.write(json.dumps(layer))
 
 '''
     Geometry column must be a string representing a Polygon in the WKT format
@@ -98,6 +96,9 @@ def physical_from_geojson(filepath, bbox = None, renderStyle=['FLAT_COLOR'], sty
 
     break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"], 'TRIANGLES_3D_LAYER', renderStyle, styleKey)
 
+'''
+    Geometry has to be Polygon or Multipolygon
+'''
 def mesh_from_gdf(gdf):
 
     gdf_transformed = gdf.to_crs(3395)
@@ -106,26 +107,34 @@ def mesh_from_gdf(gdf):
 
     for geometry in gdf_transformed.geometry:
 
-        x, y = geometry.exterior.coords.xy
+        sub_geometries = []
+        if geometry.geom_type == 'MultiPolygon':
+            sub_geometries = list(geometry)
+        elif geometry.geom_type == 'Polygon':
+            sub_geometries = [geometry]
 
-        nodes = list(zip(x,y))
-        rings = [len(nodes)]
+        for element in sub_geometries:
 
-        indices = earcut.triangulate_float64(nodes, rings)
+            x, y = element.exterior.coords.xy
 
-        nodes = np.array(nodes)
+            nodes = list(zip(x,y))
+            rings = [len(nodes)]
 
-        nodes = nodes.flatten().tolist()
-        indices = indices.tolist()
+            indices = earcut.triangulate_float64(nodes, rings)
 
-        nodes_3d = []
+            nodes = np.array(nodes)
 
-        for i in range(int(len(nodes)/2)):
-            nodes_3d.append(nodes[i*2])
-            nodes_3d.append(nodes[i*2+1])
-            nodes_3d.append(0)
+            nodes = nodes.flatten().tolist()
+            indices = indices.tolist()
 
-        mesh.append({'geometry': {'coordinates': [round(item,4) for item in nodes_3d], 'indices': indices}})
+            nodes_3d = []
+
+            for i in range(int(len(nodes)/2)):
+                nodes_3d.append(nodes[i*2])
+                nodes_3d.append(nodes[i*2+1])
+                nodes_3d.append(0)
+
+            mesh.append({'geometry': {'coordinates': [round(item,4) for item in nodes_3d], 'indices': indices}})
 
     return mesh
 
@@ -143,24 +152,27 @@ def physical_from_shapefile(filepath, layerName, bpoly=None, isBbox = False, ren
         Returns gdf in 3395
     '''
 
-    if(bpoly != None):
+    loaded_shp = []
 
-        if(isBbox):
-            bbox_series_4326 = gpd.GeoSeries([Point(bpoly[1], bpoly[0]), Point(bpoly[3], bpoly[2])], crs=4326)
-            
-            loaded_shp = gpd.read_file(filepath, bbox=bbox_series_4326)
+    if(isBbox):
+        bbox_series_4326 = gpd.GeoSeries([Point(bpoly[1], bpoly[0]), Point(bpoly[3], bpoly[2])], crs=4326)
+        
+        loaded_shp = gpd.read_file(filepath, bbox=bbox_series_4326)
 
-            bbox_series_4326 = bbox_series_4326.to_crs(3395)
+        bbox_series_4326 = bbox_series_4326.to_crs(3395)
 
-            loaded_shp = loaded_shp.to_crs(3395)
-            loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
-        else:
+        loaded_shp = loaded_shp.to_crs(3395)
+        loaded_shp = loaded_shp.clip([bbox_series_4326[0].x, bbox_series_4326[0].y, bbox_series_4326[1].x, bbox_series_4326[1].y])
+    else:
+
+        loaded_shp = gpd.read_file(filepath)
+        loaded_shp = loaded_shp.to_crs(3395)
+
+        if(bpoly != None):
+
             bpoly_series_4326 = gpd.GeoSeries([Polygon(bpoly)], crs=4326)
             bpoly_series_4326 = bpoly_series_4326.to_crs(3395)
 
-            loaded_shp = gpd.read_file(filepath)
-
-            loaded_shp = loaded_shp.to_crs(3395)
             loaded_shp = loaded_shp.clip(bpoly_series_4326)
 
     zip_code_coordinates = []

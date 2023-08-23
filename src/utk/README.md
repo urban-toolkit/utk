@@ -38,7 +38,7 @@ import utk
 
 <a href="#physical_csv" name="physical_csv">#</a> utk.<b>physical_from_csv</b>(filepath, geometry_column='geometry', crs='4326', type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface') · [Source](https://github.com/urban-toolkit/utk/blob/master/src/utk/load_physical.py), [Examples](https://github.com/urban-toolkit/utk/blob/master/src/utk/test_utk_api.ipynb)  
 
-Creates a physical layer from a CSV file that contains one column in the Polygon WKT format.
+Creates a physical layer from a CSV file that contains one column in the Multipolygon or Polygon WKT format.
 
 - *filepath*: location of .csv file
 - *geometry_column*: string. Name of the column in the CSV file that contains the WKT geometries.
@@ -75,10 +75,10 @@ Creates a physical layer from a ShapeFile.
 
 ### Thematic layers
 
-<a href="#thematic_df" name="thematic_df">#</a> utk.<b>thematic_from_df</b>(df, layer_id, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None) · [Source](https://github.com/urban-toolkit/utk/blob/master/src/utk/load_thematic.py), [Examples](https://github.com/urban-toolkit/utk/blob/master/src/utk/test_utk_api.ipynb)
+<a href="#thematic_df" name="thematic_df">#</a> utk.<b>thematic_from_df</b>(df, output_filepath, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None) · [Source](https://github.com/urban-toolkit/utk/blob/master/src/utk/load_thematic.py), [Examples](https://github.com/urban-toolkit/utk/blob/master/src/utk/test_utk_api.ipynb)
 
 - *df*: dataframe used to build the layer.
-- *layer_id*: string. Id of the layer.
+- *output_filepath*: string. File path of the file that will be generated.
 - *latitude_column*: string. Name of the column in the DataFrame that contains the latitude values.
 - *longitude_column*: string. Name of the column in the DataFrame that contains the longitude values.
 - *coordinates_projection*: string. Current CRS projection of the DataFrame.
@@ -108,8 +108,8 @@ Creates a physical layer from a ShapeFile.
 
 <a href="#thematic_npy" name="thematic_npy">#</a> utk.<b>thematic_from_npy</b>(filepath_coordinates, filepath_values, layer_id, center_around=[]) · [Source](https://github.com/urban-toolkit/utk/blob/master/src/utk/load_thematic.py), [Examples](https://github.com/urban-toolkit/utk/blob/master/src/utk/test_utk_api.ipynb)
 
-- *filepath_coordinates*: location of .npy file containing the coordinates.
-- *filepath_values*: location of .npy file containing the thematic values.
+- *filepath_coordinates*: location of .npy file containing the coordinates. The coordinates in .npy must have shape (n,3).
+- *filepath_values*: location of .npy file containing the thematic values. Values in .npy can have shape (n,3) or be flat.
 - *layer_id*: string. Id of the layer.
 - *center_around*: list of 3 float values. Is used to center all coordinates on the .npy file.
 

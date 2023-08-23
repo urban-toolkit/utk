@@ -9,7 +9,7 @@ from .utils import *
 '''
     Converts a dataframe into an abstract layer
 '''
-def thematic_from_df(df, layer_id, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
+def thematic_from_df(df, output_filepath, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
     
     df = df.drop_duplicates(subset=[latitude_column, longitude_column])
 
@@ -42,18 +42,18 @@ def thematic_from_df(df, layer_id, latitude_column, longitude_column, coordinate
         coordinates.append(z_value)
 
     abstract_json = {
-        "id": os.path.basename(layer_id),
+        "id": os.path.basename(output_filepath),
         "coordinates": coordinates,
         "values": [elem for elem in values_list]
     }
 
     json_object = json.dumps(abstract_json)
 
-    directory = os.path.dirname(layer_id)
+    directory = os.path.dirname(output_filepath)
     if not os.path.exists(directory):
         os.makedirs(directory)
     
-    with open(layer_id, "w") as outfile:
+    with open(output_filepath, "w") as outfile:
         outfile.write(json_object)
 
 '''
@@ -62,7 +62,7 @@ def thematic_from_df(df, layer_id, latitude_column, longitude_column, coordinate
 def thematic_from_csv(filepath, layer_id, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
     
     df = pd.read_csv(filepath)
-    thematic_from_df(df, layer_id, latitude_column, longitude_column, coordinates_projection, z_column, value_column)
+    thematic_from_df(df, os.path.join(os.path.dirname(filepath),layer_id+".json"), latitude_column, longitude_column, coordinates_projection, z_column, value_column)
 
 '''
     Converts a NetCDF (e.g. wrf data) file into an abstract layer
@@ -153,7 +153,6 @@ def thematic_from_netcdf(filepath, layer_id, value_variable, latitude_variable, 
     Thematic data from numpy array file 
 
     coordinates shape: (n,3)
-    values shape: (n,3)
     Considers that coordinates do not have a coordinates system but are in meters
 '''
 def thematic_from_npy(filepath_coordinates, filepath_values, layer_id, center_around=[]):
@@ -166,10 +165,17 @@ def thematic_from_npy(filepath_coordinates, filepath_values, layer_id, center_ar
     if(len(center_around) > 0):
         coordinates = center_coordinates_around(coordinates, center_around)
 
+    flat_values = []
+
+    if(isinstance(values[0], np.ndarray)):
+        flat_values = [item for row in values for item in row] 
+    else:
+        flat_values = values.tolist()
+
     abstract_json = {
         "id": layer_id,
         "coordinates": coordinates.tolist(),
-        "values": values.tolist()
+        "values": flat_values
     }
 
     json_object = json.dumps(abstract_json)

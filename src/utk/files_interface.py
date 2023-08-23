@@ -389,13 +389,11 @@ class FilesInterface:
                 if(max_distance == -1):
                     dist,points = kdtree.query(left_coords,1) # 1 best neighbor for the sample candidates
                 else:
-                    print("distance_upper_bound", max_distance)
                     dist,points = kdtree.query(left_coords,1,distance_upper_bound=float(max_distance)) # 1 best neighbor for the sample candidates
 
                 for index, point in enumerate(points):
                     if(abstract):
                         if(len(right_layer_gdf.axes[0]) <= point):
-                            print("points outside maxDistance")
                             join_left_gdf.loc[index, 'value_right'] = default_value
                         else:
                             join_left_gdf.loc[index, 'value_right'] = right_layer_gdf.loc[point, 'value']
