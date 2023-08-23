@@ -62,10 +62,10 @@ def break_into_binary(filepath, filename, data, types, dataTypes, type='TRIANGLE
             outfile.write(layer)
 
 '''
-    Geometry column must be a string in the WKT format
+    Geometry column must be a string representing a Polygon in the WKT format
 '''
 
-def physical_from_csv(filepath, geometry_column='geometry', crs='4326', type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
+def physical_from_csv(filepath, geometry_column='geometry', crs='4326', renderStyle=['FLAT_COLOR'], styleKey='surface'):
     
     df = pd.read_csv(filepath)
 
@@ -80,9 +80,9 @@ def physical_from_csv(filepath, geometry_column='geometry', crs='4326', type='TR
     # file name without extension
     file_name_wo_extension = os.path.splitext(file_name)[0]
 
-    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"], type, renderStyle, styleKey)
+    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"], 'TRIANGLES_3D_LAYER', renderStyle, styleKey)
 
-def physical_from_geojson(filepath, bbox = None, type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
+def physical_from_geojson(filepath, bbox = None, renderStyle=['FLAT_COLOR'], styleKey='surface'):
 
     gdf = gpd.read_file(filepath)
 
@@ -96,7 +96,7 @@ def physical_from_geojson(filepath, bbox = None, type='TRIANGLES_3D_LAYER', rend
     # file name without extension
     file_name_wo_extension = os.path.splitext(file_name)[0]
 
-    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"], type, renderStyle, styleKey)
+    break_into_binary(directory, file_name_wo_extension, mesh, ["coordinates", "indices"], ["d", "I"], 'TRIANGLES_3D_LAYER', renderStyle, styleKey)
 
 def mesh_from_gdf(gdf):
 
@@ -132,7 +132,7 @@ def mesh_from_gdf(gdf):
 '''
     Generate mesh json file based on shapefile
 '''
-def physical_from_shapefile(filepath, layerName, bpoly=None, isBbox = False, type='TRIANGLES_3D_LAYER', renderStyle=['FLAT_COLOR'], styleKey='surface'):
+def physical_from_shapefile(filepath, layerName, bpoly=None, isBbox = False, renderStyle=['FLAT_COLOR'], styleKey='surface'):
     '''
         In the same folder as the .shp file there must be a .prj and .shx files   
 
@@ -245,7 +245,7 @@ def physical_from_shapefile(filepath, layerName, bpoly=None, isBbox = False, typ
             types.append("ids")
             dataTypes.append("I")
 
-        break_into_binary(os.path.dirname(filepath), layerName, data, types, dataTypes, type, renderStyle, styleKey)
+        break_into_binary(os.path.dirname(filepath), layerName, data, types, dataTypes, 'TRIANGLES_3D_LAYER', renderStyle, styleKey)
 
         # layer_json_str = str(json.dumps(result))
         # f.write(layer_json_str)
@@ -261,12 +261,12 @@ def physical_from_shapefile(filepath, layerName, bpoly=None, isBbox = False, typ
 
     Considers that coordinates do not have a coordinates system but are in meters
 '''
-def physical_from_npy(filepath_coordinates, layer_id, center_around=[]):
+def physical_from_npy(filepath, layer_id, center_around=[]):
         
-    coordinates = np.load(filepath_coordinates)
+    coordinates = np.load(filepath)
     coordinates = coordinates.flatten()
     
     if(len(center_around) > 0):
         coordinates = center_coordinates_around(coordinates, center_around)
 
-    break_into_binary(os.path.dirname(filepath_coordinates), layer_id, [{'geometry': {'coordinates': [round(item,4) for item in coordinates]}}], ["coordinates"], ["d"], "POINTS_LAYER", ["FLAT_COLOR_POINTS"], "surface")
+    break_into_binary(os.path.dirname(filepath), layer_id, [{'geometry': {'coordinates': [round(item,4) for item in coordinates]}}], ["coordinates"], ["d"], "POINTS_LAYER", ["FLAT_COLOR_POINTS"], "surface")

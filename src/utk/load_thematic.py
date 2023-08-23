@@ -9,7 +9,7 @@ from .utils import *
 '''
     Converts a dataframe into an abstract layer
 '''
-def thematic_from_df(df, outputfilename, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
+def thematic_from_df(df, layer_id, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
     
     df = df.drop_duplicates(subset=[latitude_column, longitude_column])
 
@@ -42,27 +42,27 @@ def thematic_from_df(df, outputfilename, latitude_column, longitude_column, coor
         coordinates.append(z_value)
 
     abstract_json = {
-        "id": os.path.basename(outputfilename),
+        "id": os.path.basename(layer_id),
         "coordinates": coordinates,
         "values": [elem for elem in values_list]
     }
 
     json_object = json.dumps(abstract_json)
 
-    directory = os.path.dirname(outputfilename)
+    directory = os.path.dirname(layer_id)
     if not os.path.exists(directory):
         os.makedirs(directory)
     
-    with open(outputfilename, "w") as outfile:
+    with open(layer_id, "w") as outfile:
         outfile.write(json_object)
 
 '''
     Converts a csv file into an abstract layer
 '''
-def thematic_from_csv(filepath, outputpath, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
+def thematic_from_csv(filepath, layer_id, latitude_column, longitude_column, coordinates_projection, z_column = None, value_column=None):
     
     df = pd.read_csv(filepath)
-    thematic_from_df(df, outputpath, latitude_column, longitude_column, coordinates_projection, z_column, value_column)
+    thematic_from_df(df, layer_id, latitude_column, longitude_column, coordinates_projection, z_column, value_column)
 
 '''
     Converts a NetCDF (e.g. wrf data) file into an abstract layer
