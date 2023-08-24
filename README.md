@@ -20,7 +20,7 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 ## Table of Contents
 1. [Features](#features)
-2. [Installation & quick start](#installation-&-quick-start)
+2. [Installation and quick start](#installation-and-quick-start)
     1. [UTK backend](#utk-backend)
     2. [UTK frontend](#utk-frontend)
 3. [Tutorials](#tutorials)
@@ -39,7 +39,7 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 UTK has been tested on Linux (Ubuntu 23.04), Windows 10 & 11, and MacOS 13.
 
 
-## Installation & quick start
+## Installation and quick start
 
 UTK leverages several spatial packages, such as Geopandas, OSMnx, Shapely. To facilite the installation of UTK, we have made it available through pip, only requiring the following commands in a terminal / command prompt:
 
