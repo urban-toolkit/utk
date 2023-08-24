@@ -63,7 +63,7 @@ uc = utk.OSM.load('Manhattan, NY', layers=['surface', 'parks', 'water', 'roads']
 uc.save('./manhattan')
 ```
 
-This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API can be found [here](https://github.com/urban-toolkit/utk/blob/master/api.md).
+This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API can be found [here](https://github.com/urban-toolkit/utk/blob/master/API.md).
 
 
 ### UTK frontend
@@ -143,7 +143,7 @@ If you would like to modify UTK's core code, you won't be able to use the ``utk`
 ## Other resources
 - [Quick start](http://urbantk.org/get-started/)
 - [Tutorials](http://urbantk.org/home-tutorials/)
-- [Python API](https://github.com/urban-toolkit/utk/blob/master/api.md)
+- [Python API](https://github.com/urban-toolkit/utk/blob/master/API.md)
 - [Grammar](https://github.com/urban-toolkit/utk/blob/master/grammar.md)
 
 ## Team
