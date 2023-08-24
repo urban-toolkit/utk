@@ -18,6 +18,16 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 ![UTK cases](https://github.com/urban-toolkit/utk/blob/master/images/image-1.png?raw=true)
 
+## Table of Contents
+1. [Features](#features)
+2. [Installation & quick start](#installation-&-quick-start)
+    1. [UTK backend](#utk-backend)
+    2. [UTK frontend](#utk-frontend)
+3. [Tutorials](#tutorials)
+4. [Development](#development)
+5. [Other resources](#other-resources)
+6. [Team](#team)
+
 ## Features
 - Easy integration of physical and thematic layers.
 - Rapid iteration over the visualization design space.
@@ -28,10 +38,6 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 UTK has been tested on Linux (Ubuntu 23.04), Windows 10 & 11, and MacOS 13.
 
-### Road map
-- Aug 21: Python API description.
-- Sep 15: Support for WRF data.
-- Sep 30: Support for point cloud data.
 
 ## Installation & quick start
 
