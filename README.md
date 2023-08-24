@@ -57,7 +57,7 @@ uc = utk.OSM.load('Manhattan, NY', layers=['surface', 'parks', 'water', 'roads']
 uc.save('./manhattan')
 ```
 
-This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API is coming soon.
+This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API can be found [here](https://github.com/urban-toolkit/utk/blob/master/api.md).
 
 
 ### UTK frontend
@@ -133,6 +133,12 @@ If you would like to modify UTK's core code, you won't be able to use the ``utk`
 2. Build the utk-ts bundle. Inside ``src/utk-ts``, you should run the following in the terminal: ``npm install && npm run build``. After that, a bundle will be created.
 3. Build the utk-frontend bundle. Inside ``src/utk-frontend``, you should run the following in the terminal: ``npm install && npm run build:web``. After that, another bundle will be created.
 4. Run the UTK server. Inside the ``src``, run the following in the terminal: ``python utk_server.py --bundle utk-frontend/build/utk-app/``, and with the other appropriate arguments (e.g., ``--data`` with the path to your data folder).
+
+## Other resources
+- [Quick start](http://urbantk.org/get-started/)
+- [Tutorials](http://urbantk.org/home-tutorials/)
+- [Python API](https://github.com/urban-toolkit/utk/blob/master/api.md)
+- [Grammar](https://github.com/urban-toolkit/utk/blob/master/grammar.md)
 
 ## Team
 - Gustavo Moreira (UIC)
