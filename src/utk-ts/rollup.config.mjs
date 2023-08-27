@@ -50,6 +50,12 @@ const config = [
       css(),
       dts()
     ]
+  },
+  {
+    input: 'dist/index.js',
+    output: [{ file: 'dist/index.cjs', format: 'cjs' }],
+    external: ['react', 'react-bootstrap', 'vega-lite', 'vega-embed', 'vega-util', 'react/jsx-runtime', 'react-dom', 'invariant', 'prop-types', 'classnames', 'warning', "vega"]
+ 
   }
 ]
 

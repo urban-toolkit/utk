@@ -1,0 +1,1 @@
+{"id": "surface", "type": "HEATMAP_LAYER", "renderStyle": ["SMOOTH_COLOR_MAP"], "styleKey": "surface", "visible": true, "selectable": false, "skip": false, "data": [{"geometry": {"coordinates": [0, 1379052], "indices": [0, 689526], "ids": [0, 229842], "normals": [0, 1379052], "discardFuncInterval": [0, 0.01]}}]}

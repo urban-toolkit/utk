@@ -2,12 +2,15 @@ import os
 
 from IPython.display import HTML
 
+
 def get_html(map_id, width, height):
     filepath = os.path.dirname(os.path.realpath(__file__))
     # urbanmaptk = open(filepath+'/ts/dist/urbantkmap.iife.js',mode='r').read()
     print(filepath)
-    urbanmaptk = open('../../../dist/build/bundle.min.js',mode='r').read() # load urbantk-react bundle
-
+    # load urbantk-react bundle
+    urbanmaptk = open('../utk-ts/dist/index.js',
+                      encoding='utf8', mode='r').read()
+    # D:\Desenvolvimento\repositorios\urbantk_new\src\utk-ts\dist\index.js
     width = str(width)
     height = str(height)
     if ('px' not in width) and ('%' not in width):
