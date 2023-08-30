@@ -123,6 +123,10 @@ After starting UTK's server and opening ``localhost:5001`` on a browser, you wil
 
 ![UTK example](https://github.com/urban-toolkit/utk/blob/master/images/example.gif?raw=true)
 
+### Simulations 
+
+Simulations currently supported by UTK: 
+- Shadow casting: check plotoptix requirements [here](https://plotoptix.rnd.team/)
 
 ## Tutorials
 
