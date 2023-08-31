@@ -1,4 +1,4 @@
-[![PyPI](https://img.shields.io/pypi/v/utk)](https://pypi.org/project/utk/) [![Slack](https://img.shields.io/badge/slack-4A154B)](https://join.slack.com/t/utk-re75378/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A)
+[![PyPI](https://img.shields.io/pypi/v/utk)](https://pypi.org/project/utk/) [![Slack](https://img.shields.io/badge/slack-4A154B)](https://join.slack.com/t/urbantk/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A)
 
 ![UTK logo](https://github.com/urban-toolkit/utk/blob/master/images/logo.jpg?raw=true)
 
@@ -147,7 +147,7 @@ If you would like to modify UTK's core code, you won't be able to use the ``utk`
 
 ### Slack channel
 
-For question, including development ones, join [UTK's Slack](https://join.slack.com/t/utk-re75378/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A). Feel free to post questions on the ``#installation``, ``#quick-start``, and``#development`` channels.
+For question, including development ones, join [UTK's Slack](https://join.slack.com/t/urbantk/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A). Feel free to post questions on the ``#installation``, ``#quick-start``, and``#development`` channels.
 
 ## Other resources
 - [Quick start](http://urbantk.org/get-started/)
