@@ -1,4 +1,4 @@
-![PyPI](https://img.shields.io/pypi/v/utk)
+[![PyPI](https://img.shields.io/pypi/v/utk)](https://pypi.org/project/utk/) [![Slack](https://img.shields.io/badge/slack-4A154B)](https://join.slack.com/t/utk-re75378/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A)
 
 ![UTK logo](https://github.com/urban-toolkit/utk/blob/master/images/logo.jpg?raw=true)
 
@@ -25,8 +25,9 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
     2. [UTK frontend](#utk-frontend)
 3. [Tutorials](#tutorials)
 4. [Development](#development)
-5. [Other resources](#other-resources)
-6. [Team](#team)
+    1. [Slack channel](#slack-channel)
+6. [Other resources](#other-resources)
+7. [Team](#team)
 
 ## Features
 - Easy integration of physical and thematic layers.
@@ -143,6 +144,10 @@ If you would like to modify UTK's core code, you won't be able to use the ``utk`
 2. Build the utk-ts bundle. Inside ``src/utk-ts``, you should run the following in the terminal: ``npm install && npm run build``. After that, a bundle will be created.
 3. Build the utk-frontend bundle. Inside ``src/utk-frontend``, you should run the following in the terminal: ``npm install && npm run build:web``. After that, another bundle will be created.
 4. Run the UTK server. Inside the ``src``, run the following in the terminal: ``python utk_server.py --bundle utk-frontend/build/utk-app/``, and with the other appropriate arguments (e.g., ``--data`` with the path to your data folder).
+
+### Slack channel
+
+For question, including development ones, join [UTK's Slack](https://join.slack.com/t/utk-re75378/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A). Feel free to post questions on the ``#installation``, ``#quick-start``, and``#development`` channels.
 
 ## Other resources
 - [Quick start](http://urbantk.org/get-started/)
