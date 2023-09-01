@@ -18,7 +18,7 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 ![UTK cases](https://github.com/urban-toolkit/utk/blob/master/images/image-1.png?raw=true)
 
-## Table of Contents
+## Table of contents
 1. [Features](#features)
 2. [Installation and quick start](#installation-and-quick-start)
     1. [UTK backend](#utk-backend)
