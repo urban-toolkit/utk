@@ -3,12 +3,16 @@ warnings.simplefilter("ignore", UserWarning)
 
 import os
 import sys
+import time
 import argparse
 import json
 import psutil
+import threading
 import requests, zipfile, io
 from flask import Flask, request, send_from_directory, abort, jsonify
 from geopy.geocoders import Nominatim
+from watchdog.observers import Observer
+from watchdog.events import LoggingEventHandler
 
 from utk.utils import *
 from utk.files_interface import *
@@ -18,6 +22,8 @@ geolocator = Nominatim(user_agent="urbantk")
 workdir = './data/'
 grammarpath = './data/grammar.json'
 bundlepath = './utk-app/'
+tspath = './utk-ts/'
+frontpath = './utk-frontend/'
 address = 'localhost'
 port = 5001
 
@@ -314,6 +320,8 @@ def main():
     global workdir
     global bundlepath
     global grammarpath
+    global tspath
+    global frontpath
     global address
     global port
 
@@ -324,6 +332,8 @@ def main():
     parser.add_argument('-g', '--grammar', nargs='?', type=str, required=False, default=None, help='Path to grammar JSON file, if different from [DATA]/grammar.json (default: [DATA]/grammar.json).')
     parser.add_argument('-a', '--address', nargs='?', type=str, required=False, default='localhost', help='Server address (default: %(default)s).')
     parser.add_argument('-p', '--port', nargs=1, type=int, required=False, default='5001', help='Server port (default: %(default)s).')
+    parser.add_argument('-w', '--watch', action='store_true', help='Watch folders, and re-build if there are changes.')
+
 
     args = parser.parse_args()
 
@@ -358,7 +368,8 @@ def main():
 
         # check if bundle exist
         if bundlepath is None:
-            bundlepath = os.path.join(os.path.dirname(__file__), 'utk-frontend/build/utk-app')
+            # bundlepath = os.path.join(os.path.dirname(__file__), 'utk-frontend/build/utk-app')
+            bundlepath = os.path.join(os.path.dirname(__file__), 'utk-dashboard/build/utk-app')
         if os.path.exists(bundlepath) is False:
             print("Error: %s does not exist, check bundle path."%bundlepath)
             exit(1)
@@ -367,8 +378,38 @@ def main():
         workdir = os.path.abspath(workdir)
         bundlepath = os.path.abspath(bundlepath)
         grammarpath = os.path.abspath(grammarpath)
+        tspath = os.path.abspath(tspath)
+        frontpath = os.path.abspath(frontpath)
 
-        app.run(debug=True, host=address, port=port)
+        if args.watch:
+            # utk-ts observer
+            ts_observer = Observer()
+            def run_ts():
+                class Event(LoggingEventHandler):
+                    def dispatch(self, event):
+                        os.system('cd %s && npm run build'%(tspath))
+                        os.system('cd %s && npm run build'%(frontpath))
+                        print("Build done!")
+                event_handler = Event()
+                ts_observer.schedule(event_handler, tspath+'/src/', recursive=True)
+                ts_observer.start()
+            ts_thread = threading.Thread(target=run_ts)
+            ts_thread.start()
+
+            # utk-frontend observer
+            frontend_observer = Observer()
+            def run_frontend():
+                class Event(LoggingEventHandler):
+                    def dispatch(self, event):
+                        os.system('cd %s && npm run build'%(frontpath))
+                        print("Build done!")
+                event_handler = Event()
+                frontend_observer.schedule(event_handler, frontpath+'/src/', recursive=True)
+                frontend_observer.start()
+            frontend_thread = threading.Thread(target=run_frontend)
+            frontend_thread.start()
+
+        app.run(host=address, port=port)
 
 if __name__ == '__main__':
     main()
