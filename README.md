@@ -146,7 +146,7 @@ If you would like to modify UTK's core code, you won't be able to use the ``utk`
 3. Build the utk-frontend bundle. Inside ``src/utk-frontend``, you should run the following in the terminal: ``npm install && npm run build:web``. After that, another bundle will be created.
 4. Run the UTK server. Inside the ``src``, run the following in the terminal: ``python utk_server.py --bundle utk-frontend/build/utk-app/``, and with the other appropriate arguments (e.g., ``--data`` with the path to your data folder).
 
-To automatically build the bundles (steps 2 and 3) when you make changes to the source code, you can run the ``utk_server.py`` with the ``--watch`` argument.
+To automatically build the bundles (steps 2 and 3) when you make changes to the source code, you can run ``utk_server.py`` with the ``--watch`` argument.
 
 ### Slack channel
 
