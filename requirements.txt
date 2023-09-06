@@ -22,3 +22,4 @@ vedo==2023.*
 netCDF4==1.6.*
 requests==2.*
 psutil==5.9.*
+watchdog==3.0.*

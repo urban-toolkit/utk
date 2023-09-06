@@ -128,7 +128,7 @@ After starting UTK's server and opening ``localhost:5001`` on a browser, you wil
 ### Simulations 
 
 Currently supported simulations: 
-- Shadow casting: check plotoptix requirements [here](https://plotoptix.rnd.team/)
+- Shadow casting. To run this simulation, your system will need to support Plotoptix (see [here](https://plotoptix.rnd.team/)). To use the other functionalities from UTK, your system doesn't need to support Plotoptix. 
 
 ## Tutorials
 

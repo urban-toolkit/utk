@@ -1,9 +1,17 @@
 # from shadowAccumulator import *
 from .load_utk import *
 from .utils import *
-from .shadow_accumulator import *
 from .load_physical import *
 from .load_thematic import *
+
+try:
+    # Avoid importing it in systems without optix
+    from .shadow_accumulator import *
+except:
+    import warnings
+    warnings.warn("Skipping shadow_accumulator import.")
+
+
 
 # exposes simulations like .shadow
 # loads any kind of data the type is determined by the extension
