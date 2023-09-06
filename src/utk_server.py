@@ -368,8 +368,7 @@ def main():
 
         # check if bundle exist
         if bundlepath is None:
-            # bundlepath = os.path.join(os.path.dirname(__file__), 'utk-frontend/build/utk-app')
-            bundlepath = os.path.join(os.path.dirname(__file__), 'utk-dashboard/build/utk-app')
+            bundlepath = os.path.join(os.path.dirname(__file__), frontpath+'/build/utk-app')
         if os.path.exists(bundlepath) is False:
             print("Error: %s does not exist, check bundle path."%bundlepath)
             exit(1)
