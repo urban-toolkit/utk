@@ -42,11 +42,13 @@ UTK has been tested on Linux (Ubuntu 23.04), Windows 10 & 11, and MacOS 13.
 
 ## Installation and quick start
 
-UTK leverages several spatial packages, such as Geopandas, OSMnx, Shapely. To facilite the installation of UTK, we have made it available through pip, only requiring the following commands in a terminal / command prompt:
+UTK leverages several spatial packages, such as Geopandas, OSMnx, Osmium, Shapely. To facilite the installation of UTK, we have made it available through pip, only requiring the following commands in a terminal / command prompt:
 
 ```console
 pip install utk
 ```
+
+UTK requires Python 3.9. Note: If you are having problems installing UTK in Mac OSX because of Osmium, make sure you have CMake installed as well (e.g., through [Homebrew](https://brew.sh/)).
 
 A detailed description of UTK's capabilities can be found in our [paper](https://arxiv.org/abs/2308.07769), but generally speaking UTK is divided into two components: a backend component, accessible through UTK's Python library, and a frontend component, accessible through a web interface.
 
