@@ -48,7 +48,7 @@ UTK leverages several spatial packages, such as Geopandas, OSMnx, Osmium, Shapel
 pip install utk
 ```
 
-UTK requires Python 3.9 or a newer version. If you are having problems installing UTK in Mac OSX because of Osmium, make sure you have CMake installed as well (e.g., through [Homebrew](https://brew.sh/)).
+UTK requires Python 3.9 or a newer version. If you are having problems installing UTK in Mac OSX because of Osmium, make sure you have CMake installed as well (e.g., through [conda](https://anaconda.org/anaconda/cmake) or [Homebrew](https://formulae.brew.sh/formula/cmake)).
 
 A detailed description of UTK's capabilities can be found in our [paper](https://arxiv.org/abs/2308.07769), but generally speaking UTK is divided into two components: a backend component, accessible through UTK's Python library, and a frontend component, accessible through a web interface.
 
