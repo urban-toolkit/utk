@@ -1,4 +1,4 @@
-![PyPI](https://img.shields.io/pypi/v/utk)
+[![PyPI](https://img.shields.io/pypi/v/utk)](https://pypi.org/project/utk/) [![Slack](https://img.shields.io/badge/slack-4A154B)](https://join.slack.com/t/urbantk/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A)
 
 ![UTK logo](https://github.com/urban-toolkit/utk/blob/master/images/logo.jpg?raw=true)
 
@@ -18,6 +18,17 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 ![UTK cases](https://github.com/urban-toolkit/utk/blob/master/images/image-1.png?raw=true)
 
+## Table of contents
+1. [Features](#features)
+2. [Installation and quick start](#installation-and-quick-start)
+    1. [UTK backend](#utk-backend)
+    2. [UTK frontend](#utk-frontend)
+3. [Tutorials](#tutorials)
+4. [Development](#development)
+    1. [Slack channel](#slack-channel)
+6. [Other resources](#other-resources)
+7. [Team](#team)
+
 ## Features
 - Easy integration of physical and thematic layers.
 - Rapid iteration over the visualization design space.
@@ -28,18 +39,16 @@ IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
 
 UTK has been tested on Linux (Ubuntu 23.04), Windows 10 & 11, and MacOS 13.
 
-### Road map
-- Aug 21: Python API description.
-- Sep 15: Support for WRF data.
-- Sep 30: Support for point cloud data.
 
-## Installation & quick start
+## Installation and quick start
 
-UTK leverages several spatial packages, such as Geopandas, OSMnx, Shapely. To facilite the installation of UTK, we have made it available through pip, only requiring the following commands in a terminal / command prompt:
+UTK leverages several spatial packages, such as Geopandas, OSMnx, Osmium, Shapely. To facilite the installation of UTK, we have made it available through pip, only requiring the following commands in a terminal / command prompt:
 
 ```console
 pip install utk
 ```
+
+UTK requires Python 3.9 or a newer version. If you are having problems installing UTK in Mac OSX because of Osmium, make sure you have CMake installed as well (e.g., through [conda](https://anaconda.org/anaconda/cmake) or [Homebrew](https://formulae.brew.sh/formula/cmake)).
 
 A detailed description of UTK's capabilities can be found in our [paper](https://arxiv.org/abs/2308.07769), but generally speaking UTK is divided into two components: a backend component, accessible through UTK's Python library, and a frontend component, accessible through a web interface.
 
@@ -57,7 +66,7 @@ uc = utk.OSM.load('Manhattan, NY', layers=['surface', 'parks', 'water', 'roads']
 uc.save('./manhattan')
 ```
 
-This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API is coming soon.
+This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API can be found [here](https://github.com/urban-toolkit/utk/blob/master/API.md).
 
 
 ### UTK frontend
@@ -105,6 +114,7 @@ optional arguments:
   -a [ADDRESS], --address [ADDRESS]
                         Server address (default: localhost).
   -p PORT, --port PORT  Server port (default: 5001).
+  -w, --watch           Watch folders, and re-build if there are changes.
 ```
 
 Even though we offer support for a variety of arguments, most users will simply need to run the following to use data stored in a folder called ``./data/``:
@@ -117,6 +127,10 @@ After starting UTK's server and opening ``localhost:5001`` on a browser, you wil
 
 ![UTK example](https://github.com/urban-toolkit/utk/blob/master/images/example.gif?raw=true)
 
+### Simulations 
+
+Currently supported simulations: 
+- Shadow casting. To run this simulation, your system will need to support Plotoptix (see [here](https://plotoptix.rnd.team/)). To use the other functionalities from UTK, your system doesn't need to support Plotoptix. 
 
 ## Tutorials
 
@@ -129,10 +143,23 @@ A detailed description of UTK's grammar can be found [here](https://github.com/u
 ## Development
 
 If you would like to modify UTK's core code, you won't be able to use the ``utk`` command (since it points to the utk pip installation). Alternatively, you will have to:
-1. Install Node.js, either using [conda](https://anaconda.org/conda-forge/nodejs), [package managerss](https://nodejs.org/en/download/package-manager), or [pre-built installers](https://nodejs.org/en/download).
+1. Clone the repository with ``git clone git@github.com:urban-toolkit/utk.git``.
+1. Install Node.js, either using [conda](https://anaconda.org/conda-forge/nodejs), [package managers](https://nodejs.org/en/download/package-manager), or [pre-built installers](https://nodejs.org/en/download).
 2. Build the utk-ts bundle. Inside ``src/utk-ts``, you should run the following in the terminal: ``npm install && npm run build``. After that, a bundle will be created.
 3. Build the utk-frontend bundle. Inside ``src/utk-frontend``, you should run the following in the terminal: ``npm install && npm run build:web``. After that, another bundle will be created.
-4. Run the UTK server. Inside the ``src``, run the following in the terminal: ``python utk_server.py --bundle utk-frontend/build/utk-app/``, and with the other appropriate arguments (e.g., ``--data`` with the path to your data folder).
+4. Run the UTK server. Inside the ``src``, run the following in the terminal: ``python utk_server.py start --bundle utk-frontend/build/utk-app/``, and with the other appropriate arguments (e.g., ``--data`` with the path to your data folder).
+
+To automatically build the bundles (steps 2 and 3) when you make changes to the source code, you can run ``utk_server.py`` with the ``--watch`` argument.
+
+### Slack channel
+
+For question, including development ones, join [UTK's Slack](https://join.slack.com/t/urbantk/shared_invite/zt-22g7ui2s4-MNKvQ2iL7wc3SmpKnPiL0A). Feel free to post questions on the ``#installation``, ``#quick-start``, and``#development`` channels.
+
+## Other resources
+- [Quick start](http://urbantk.org/get-started/)
+- [Tutorials](http://urbantk.org/home-tutorials/)
+- [Python API](https://github.com/urban-toolkit/utk/blob/master/API.md)
+- [Grammar](https://github.com/urban-toolkit/utk/blob/master/grammar.md)
 
 ## Team
 - Gustavo Moreira (UIC)

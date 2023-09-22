@@ -10,7 +10,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="utk",
-    version="0.8.3",
+    version="0.8.5",
     author="Fabio Miranda",
     author_email="fabiom@uic.edu",
     description="The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics",
@@ -29,6 +29,6 @@ setup(
         ],
     },
     license_files = ('LICENSE'),
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     install_requires=install_requires
 )
