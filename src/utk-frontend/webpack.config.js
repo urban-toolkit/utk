@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const config = {
   entry: ["./src/index.tsx"],
   output: {
-    path: __dirname + "/build",
+    path: path.join(__dirname, "../utk/data"),
     filename: "utk.js",
     library: "utk",
   },

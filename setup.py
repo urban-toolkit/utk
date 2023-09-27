@@ -10,7 +10,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="utk",
-    version="0.8.5",
+    version="0.8.7",
     author="Fabio Miranda",
     author_email="fabiom@uic.edu",
     description="The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics",
@@ -18,17 +18,18 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/urban-toolkit/utk/',
     packages=['utk'],
-    package_dir = {
+    package_dir={
         'utk': './src/utk'
     },
-    package_data={'utk': ['../utk_server.py', '../utk-frontend/build/utk-app/*', '../../requirements.txt']},
+    package_data={'utk': [
+        '../utk_server.py', '../utk-frontend/build/utk-app/*', '../../requirements.txt','data/*.js']},
     include_package_data=True,
     entry_points={
         'console_scripts': [
             'utk = utk_server:main',
         ],
     },
-    license_files = ('LICENSE'),
+    license_files=('LICENSE'),
     python_requires='>=3.9',
     install_requires=install_requires
 )
