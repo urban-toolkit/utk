@@ -6,6 +6,7 @@ from urban_component import *
 from load_physical import *
 from load_thematic import *
 from load_utk import *
+from view import *
 
 import warnings
 from shapely.errors import ShapelyDeprecationWarning

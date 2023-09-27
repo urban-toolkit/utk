@@ -3,6 +3,7 @@ from .load_utk import *
 from .utils import *
 from .load_physical import *
 from .load_thematic import *
+from .view import *
 
 try:
     # Avoid importing it in systems without optix
