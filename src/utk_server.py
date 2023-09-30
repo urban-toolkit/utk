@@ -387,7 +387,7 @@ def main():
                 class Event(LoggingEventHandler):
                     def dispatch(self, event):
                         os.system('cd %s && npm run build'%(tspath))
-                        os.system('cd %s && npm run build'%(frontpath))
+                        os.system('cd %s && npm run build:web'%(frontpath))
                         print("Build done!")
                 event_handler = Event()
                 ts_observer.schedule(event_handler, tspath+'/src/', recursive=True)
@@ -400,7 +400,7 @@ def main():
             def run_frontend():
                 class Event(LoggingEventHandler):
                     def dispatch(self, event):
-                        os.system('cd %s && npm run build'%(frontpath))
+                        os.system('cd %s && npm run build:web'%(frontpath))
                         print("Build done!")
                 event_handler = Event()
                 frontend_observer.schedule(event_handler, frontpath+'/src/', recursive=True)
