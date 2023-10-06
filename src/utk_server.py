@@ -2,7 +2,6 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 import os
-import sys
 import time
 import argparse
 import json
@@ -13,6 +12,7 @@ from flask import Flask, request, send_from_directory, abort, jsonify
 from geopy.geocoders import Nominatim
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
+from sys import exit
 
 from utk.utils import *
 from utk.files_interface import *
@@ -324,7 +324,6 @@ def main():
     global frontpath
     global address
     global port
-
     parser = argparse.ArgumentParser(description='Urban Toolkit')
     parser.add_argument('mode', nargs=1, choices=['start', 'list', 'stop', 'example'], help='Start, list or stop utk servers, or start server with a simple example.')
     parser.add_argument('-d', '--data', nargs='?', type=str, required=False, default=None, help='Path to data folder.')
@@ -412,3 +411,70 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def shutdown():
+    shutdown_func = request.environ.get('werkzeug.server.shutdown')
+    if shutdown_func is None:
+        raise RuntimeError('Not running werkzeug')
+    shutdown_func()
+    return "Shutting down..."
+
+
+def web(work_dir,grammar_path,server_address,server_port):
+
+    global workdir
+    global bundlepath
+    global grammarpath
+    global tspath
+    global frontpath
+    global address
+    global port
+
+
+    bundlepath = None
+    tspath = './utk-ts/'
+    frontpath = './utk-frontend/'
+    workdir = work_dir
+    grammarpath = grammar_path
+    address = server_address
+    port = server_port
+    
+    print(f"workdir ={workdir}")
+    print(f"grammarpath={grammarpath}")
+    print(f"address={address}")
+    print(f"port={port}")
+
+    if workdir == None:
+        print("Error: --data not specified.")
+        exit(1)
+
+    if grammarpath == None:
+        grammarpath = os.path.join(workdir,"grammar.json")
+
+    # check if grammar exists
+    if os.path.isfile(grammarpath) is False:
+        print("Error: %s does not exist, check arguments."%grammarpath)
+        print(grammarpath)
+        exit(1)
+
+    
+    # check if bundle exist
+    if bundlepath is None:
+        bundlepath = os.path.join(os.path.dirname(__file__), frontpath+'/build/utk-app')
+    
+    print(f"bundlepath={bundlepath}")    
+    
+    if os.path.exists(bundlepath) is False:
+        print("Error: %s does not exist, check bundle path."%bundlepath)
+        print(bundlepath)
+        exit(1)
+
+    # absolute paths
+    workdir = os.path.abspath(workdir)
+    bundlepath = os.path.abspath(bundlepath)
+    grammarpath = os.path.abspath(grammarpath)
+    tspath = os.path.abspath(tspath)
+    frontpath = os.path.abspath(frontpath)
+
+    app.run(host=address, port=port)
