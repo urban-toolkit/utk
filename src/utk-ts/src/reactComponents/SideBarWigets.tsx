@@ -5,7 +5,7 @@ import { ToggleKnotsWidget } from './ToggleKnotsWidget';
 import { SearchWidget } from './SearchWidget';
 import {Row} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faLayerGroup, faMagnifyingGlass, faChartSimple } from '@fortawesome/free-solid-svg-icons'
+import { faLayerGroup, faMagnifyingGlass, faChartSimple, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import * as d3 from "d3";
 import { GenericScreenPlotContainer } from "./GenericScreenPlotContainer";
 
@@ -42,6 +42,15 @@ export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibi
       }
     }
 
+    const handleClickHideGrammar = (e: any) => {
+
+      if(d3.select(".my-editor").style("display") == "block"){
+          d3.select(".my-editor").style("display", "none");
+      }else{
+        d3.select(".my-editor").style("display", "block");
+      }
+    }
+
     const handleTogglePlots = (e: any) => {
       togglePlots();
     }
@@ -55,7 +64,9 @@ export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibi
                   if(component.type == WidgetType.TOGGLE_KNOT){
                     return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faLayerGroup} onClick={handleClickLayers} />
                   }else if(component.type == WidgetType.SEARCH){
-                    return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faMagnifyingGlass} onClick={handleClickSearch} />
+                    return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faEyeSlash} onClick={handleClickHideGrammar} />
+                  }else if(component.type == WidgetType.HIDE_GRAMMAR){
+                    return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faEyeSlash} onClick={handleClickHideGrammar} />
                   }
                 })
               }
