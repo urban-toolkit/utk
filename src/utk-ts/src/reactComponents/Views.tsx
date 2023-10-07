@@ -170,7 +170,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
   }
 
   // Executes after component rendered
-  useEffect(() => {
+  useEffect(() => {    
     for(let i = 0; i < viewObjs.length; i++){
       let viewObj = viewObjs[i].obj;
       let viewId = viewIds[i];
@@ -188,7 +188,7 @@ function Views({viewObjs, viewIds, grammar, mainDivSize}: ViewProps) {
 
     return newObject;
   }
-
+  
   return (
     <React.Fragment>
       <div style={{backgroundColor: "#EAEAEA", height: "100%", width: "100%"}}>
