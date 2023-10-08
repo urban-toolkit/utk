@@ -17,6 +17,7 @@ from sys import exit
 from utk.utils import *
 from utk.files_interface import *
 
+
 app = Flask(__name__)
 geolocator = Nominatim(user_agent="urbantk")
 workdir = './data/'
@@ -421,7 +422,12 @@ def shutdown():
     return "Shutting down..."
 
 
-def web(work_dir,grammar_path,server_address,server_port):
+def web(
+        event: threading.Event(),
+        work_dir,
+        grammar_path,
+        server_address,
+        server_port):
 
     global workdir
     global bundlepath
@@ -431,6 +437,9 @@ def web(work_dir,grammar_path,server_address,server_port):
     global address
     global port
 
+    if event.is_set():
+        print('The thread was stopped prematurely.')
+        return
 
     bundlepath = None
     tspath = './utk-ts/'
