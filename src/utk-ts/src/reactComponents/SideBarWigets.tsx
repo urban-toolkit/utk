@@ -5,9 +5,10 @@ import { ToggleKnotsWidget } from './ToggleKnotsWidget';
 import { SearchWidget } from './SearchWidget';
 import {Row} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faLayerGroup, faMagnifyingGlass, faChartSimple } from '@fortawesome/free-solid-svg-icons'
+import { faLayerGroup, faMagnifyingGlass, faChartSimple, faEyeSlash, faSearch, faEye } from '@fortawesome/free-solid-svg-icons'
 import * as d3 from "d3";
 import { GenericScreenPlotContainer } from "./GenericScreenPlotContainer";
+import { InteractionChannel } from "../interaction-channel";
 
 type SideBarWidgetsProps = {
     x: number,
@@ -22,6 +23,7 @@ type SideBarWidgetsProps = {
     viewObjs: {type: ComponentIdentifier | WidgetType, obj: any, position: IComponentPosition, title: string | undefined, subtitle: string | undefined, grammarDefinition: IView | IGenericWidget | undefined}[] // each viewObj has a an object representing its logic
 }
 
+export var GrammarPanelVisibility = true;
 export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibility, inputBarId, genericPlots, togglePlots, viewObjs}:SideBarWidgetsProps) =>{
 
     const handleClickLayers = (e: any) => {
@@ -42,6 +44,11 @@ export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibi
       }
     }
 
+    const handleClickHideGrammar = (e: any) => {
+      GrammarPanelVisibility = !(GrammarPanelVisibility);
+      InteractionChannel.getModifyGrammarVisibility()();
+    }
+
     const handleTogglePlots = (e: any) => {
       togglePlots();
     }
@@ -55,7 +62,14 @@ export const SideBarWidgets = ({x, y, mapWidth, mapHeight, layersIds, knotVisibi
                   if(component.type == WidgetType.TOGGLE_KNOT){
                     return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faLayerGroup} onClick={handleClickLayers} />
                   }else if(component.type == WidgetType.SEARCH){
-                    return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faMagnifyingGlass} onClick={handleClickSearch} />
+                    return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faSearch} onClick={handleClickSearch} />
+                  }else if(component.type == WidgetType.HIDE_GRAMMAR){
+                    if(GrammarPanelVisibility){
+                      return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faEye} onClick={handleClickHideGrammar} />
+                    }
+                    else{
+                      return <FontAwesomeIcon key={"widget_"+index} size="2x" style={{color: "#696969", padding: 0, marginTop: "5px", marginBottom: "5px"}} icon={faEyeSlash} onClick={handleClickHideGrammar} />
+                    }
                   }
                 })
               }
