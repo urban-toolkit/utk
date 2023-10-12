@@ -13,6 +13,8 @@ import { IGrammar } from "../interfaces";
 
 import schema from '../json-schema.json';
 import schema_categories from '../json-schema-categories.json';
+import { GrammarPanelVisibility } from "./SideBarWigets";
+import { InteractionChannel } from "../interaction-channel";
 
 // declaring the types of the props
 type GrammarPanelProps = {
@@ -67,10 +69,17 @@ export const GrammarPanelContainer = ({
 
     const url = process.env.REACT_APP_BACKEND_SERVICE_URL;
 
-    const applyGrammar = async () => {
+    const modifyGrammarAndApply = () => {
+        // GrammarPanelVisibility = !(GrammarPanelVisibility);
+        applyGrammar(true);
+    }
+    InteractionChannel.setModifyGrammarVisibility(modifyGrammarAndApply);
+
+
+    const applyGrammar = async (visibilityToggle = false) => {
 
         if(tempGrammarStateRef.current != ''){
-            try{
+            try{                
                 JSON.parse(tempGrammarStateRef.current); // testing if temp grammar contains a valid grammar
             }catch(err){
                 console.error('Grammar is not valid');
@@ -93,11 +102,15 @@ export const GrammarPanelContainer = ({
                 sendGrammar = tempGrammarStateRef.current;
             }
         }
+
+        if(visibilityToggle){
+            sendGrammar = checkGrammarVisibility(sendGrammar);
+        }
+
         setCode(sendGrammar);
         setTempGrammar('');
 
         const data = { "grammar": sendGrammar };
-    
         fetch(url+"/updateGrammar", {
             method: 'POST',
             headers: {
@@ -140,6 +153,20 @@ export const GrammarPanelContainer = ({
             }
         }
 
+        return JSON.stringify(parsedGrammar, null, 4);
+    }
+
+    const checkGrammarVisibility = (grammar: string) => {
+        var parsedGrammar = JSON.parse(grammar);
+        
+        if(GrammarPanelVisibility){
+            parsedGrammar.components[0].position.width = [5, 12];
+            parsedGrammar.grammar_position.width = [1, 4];
+        }
+        else{
+            parsedGrammar.components[0].position.width = [1, 12];
+            parsedGrammar.grammar_position.width = [0, 0];
+        }
         return JSON.stringify(parsedGrammar, null, 4);
     }
 
@@ -196,7 +223,7 @@ export const GrammarPanelContainer = ({
         });
 
     }, []);
-
+      
     const checkIfAddCameraAndFilter = (grammar: string, camera: {position: number[], direction: {right: number[], lookAt: number[], up: number[]}}, tempGrammar: string, filterKnots: number[]) => {
 
         let inputLink = d3.select('#'+linkMapAndGrammarId)
