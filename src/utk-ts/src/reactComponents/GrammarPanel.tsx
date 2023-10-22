@@ -106,7 +106,7 @@ export const GrammarPanelContainer = ({
 
     const data = { grammar: sendGrammar };
 
-    fetch(url + "/updateGrammar", {
+    fetch("/updateGrammar", {
       method: "POST",
       headers: {
         Accept: "application/json",

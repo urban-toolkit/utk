@@ -1,6 +1,9 @@
 import warnings
 warnings.simplefilter("ignore", UserWarning)
 
+
+import datetime
+import sqlite3
 import os
 import sys
 import time
@@ -9,10 +12,11 @@ import json
 import psutil
 import threading
 import requests, zipfile, io
-from flask import Flask, request, send_from_directory, abort, jsonify
+from flask import Flask, request, send_from_directory, abort, jsonify, g
 from geopy.geocoders import Nominatim
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
+
 
 from utk.utils import *
 from utk.files_interface import *
@@ -26,6 +30,20 @@ tspath = './utk-ts/'
 frontpath = './utk-frontend/'
 address = 'localhost'
 port = 5001
+database = "./database/utk.db"
+
+
+#@app.before_request
+#def before_request():
+#    print("Connecting to the database!")
+#    conn = sqlite3.connect(database)
+#    g.conn = conn
+
+#@app.teardown_request
+#def after_request():
+#    if g.conn is not None:
+#        g.conn.close()
+#        print("Disconnecting from the Database!")
 
 @app.after_request
 def add_cors_headers(response):
@@ -142,6 +160,9 @@ def serve_getGrammar():
         status=200,
         mimetype='application/json'
     )
+    #insertedRowId = sqlite_insert_query_executor(
+    #    os.path.join(workDir, "utk.db"), "INSERT INTO Grammar (grammar_json) VALUES (?);", (grammar,))
+    
     return response
 
 @app.route('/getLayer', methods=['GET'])
@@ -281,12 +302,23 @@ def writeImpactViewData():
 @app.route('/updateGrammar', methods=['POST'])
 def serve_updateGrammar():
 
+    # get the current datetime and store it in a variable
+    currentDateTime = datetime.datetime.now()
+
     grammar = request.json['grammar']
     
     with open(grammarpath, "w", encoding="utf-8") as f:
         f.write(grammar)
+       
+    #query = '''
+    #    INSERT INTO Grammar (grammar_json) VALUE (?)''' 
+    #cur = g.conn.cursor()
+    #cur.execute(query, grammar)
+    #g.conn.commmit()
+     
+    
+    return cur.lastrowid
 
-    return ''
 
 def list_used_ports():
     print("Ports used by utk:")
@@ -333,9 +365,9 @@ def main():
     parser.add_argument('-a', '--address', nargs='?', type=str, required=False, default='localhost', help='Server address (default: %(default)s).')
     parser.add_argument('-p', '--port', nargs=1, type=int, required=False, default='5001', help='Server port (default: %(default)s).')
     parser.add_argument('-w', '--watch', action='store_true', help='Watch folders, and re-build if there are changes.')
+    parser.add_argument('-f')
 
-
-    args = parser.parse_args()
+    args =parser.parse_args()
 
     workdir = args.data
     bundlepath = args.bundle
@@ -376,7 +408,7 @@ def main():
         # absolute paths
         workdir = os.path.abspath(workdir)
         bundlepath = os.path.abspath(bundlepath)
-        grammarpath = os.path.abspath(grammarpath)
+        
         tspath = os.path.abspath(tspath)
         frontpath = os.path.abspath(frontpath)
 
