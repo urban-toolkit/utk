@@ -12,11 +12,11 @@ import json
 import psutil
 import threading
 import requests, zipfile, io
-from flask import Flask, request, send_from_directory, abort, jsonify, g
+from sqlite3 import Error
+from flask import Flask, request, send_from_directory, abort, jsonify, render_template
 from geopy.geocoders import Nominatim
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
-
 
 from utk.utils import *
 from utk.files_interface import *
@@ -33,12 +33,26 @@ port = 5001
 database = "./database/utk.db"
 
 
+#####################################################################################
+
+# Função para criar a tabela no banco de dados
+#def create_table():
+#    print("criando tabelas")
+#    conn = sqlite3.connect('exemplo.db')
+#    cursor = conn.cursor()
+#    cursor.execute('CREATE TABLE IF NOT EXISTS dados (id INTEGER PRIMARY KEY, nome TEXT, idade INTEGER)')
+#    conn.commit()
+#    conn.close()
+
+#####################################################################################
+#Conectando com o banco
 #@app.before_request
-#def before_request():
+#def before_request(database):
 #    print("Connecting to the database!")
 #    conn = sqlite3.connect(database)
 #    g.conn = conn
 
+#Desconectando do banco
 #@app.teardown_request
 #def after_request():
 #    if g.conn is not None:
@@ -54,6 +68,14 @@ def add_cors_headers(response):
 
 @app.route('/')
 def root():
+
+    print("criando tabelas")
+    conn = sqlite3.connect('exemplo.db')
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE IF NOT EXISTS dados (id INTEGER PRIMARY KEY, nome TEXT, idade INTEGER)')
+    cursor.execute('INSERT INTO dados (nome, idade) VALUES ("Amanda", 26)')
+    conn.commit()
+    conn.close()
     return send_from_directory(bundlepath, 'index.html')
 
 @app.route('/<path:name>')
@@ -160,9 +182,6 @@ def serve_getGrammar():
         status=200,
         mimetype='application/json'
     )
-    #insertedRowId = sqlite_insert_query_executor(
-    #    os.path.join(workDir, "utk.db"), "INSERT INTO Grammar (grammar_json) VALUES (?);", (grammar,))
-    
     return response
 
 @app.route('/getLayer', methods=['GET'])
@@ -201,93 +220,6 @@ def serve_solveNominatim():
         }
     })
 
-# @app.route('/addRenderStyles', methods=['GET'])
-# def serve_addRenderStyles():
-
-#     grammar = {}
-
-#     with open(os.path.join(workDir,"grammar.json"), "r", encoding="utf-8") as f:
-#         grammar = json.load(f)
-
-#     layersInfo = {}
-
-#     for knot in grammar["components"][0]["knots"]:
-#         if('knotOp' not in knot or knot['knotOp'] != True):
-            
-#             for index, link in enumerate(knot['integration_scheme']):
-
-#                 layer = link['out']
-#                 buildings = False
-#                 triangles = False
-#                 interactions = False
-#                 embeddedPlots = False
-#                 abstract = 'in' in link
-#                 data = {}
-
-#                 if(layer not in layersInfo):
-#                     with open(os.path.join(workDir,layer+".json"), "r", encoding="utf-8") as f:
-#                         data = json.load(f)
-#                 else:
-#                     data = layersInfo[layer]['data']
-
-#                 if(data["type"] == "TRIANGLES_3D_LAYER" or data["type"] == "TRIANGLES_3D_LAYER"):
-#                     triangles = True
-
-#                 if(data["type"] == "BUILDINGS_LAYER"):
-#                     buildings = True
-
-#                 for i in range(len(grammar["components"][0]['map']["knots"])):
-#                     if(grammar["components"][0]['map']["knots"][i] == knot["id"] and grammar["components"][0]["map"]["interactions"][i] != "NONE"):
-#                         if(index == len(knot['integration_scheme'])-1): # only the layers that will be rendered can be interacted with
-#                             interactions = True
-#                         break
-
-#                 for i in range(len(grammar["components"][0]["plots"])):
-#                     if(knot["id"] in grammar["components"][0]["plots"][i]["knots"] and grammar["components"][0]["plots"][i]["arrangement"] == "SUR_EMBEDDED" or grammar["components"][0]["plots"][i]["arrangement"] == "FOOT_EMBEDDED"):
-#                         embeddedPlots = True
-#                         break
-
-#                 if(layer not in layersInfo):
-#                     layersInfo[layer] = {
-#                         "layer": layer,
-#                         "triangles": triangles,
-#                         "buildings": buildings,
-#                         "interactions": interactions,
-#                         "embeddedPlots": embeddedPlots,
-#                         "abstract": abstract,
-#                         "data": data
-#                     }
-#                 else:
-#                     layersInfo[layer]['triangles'] =  layersInfo[layer]['triangles'] or triangles
-#                     layersInfo[layer]['buildings'] =  layersInfo[layer]['buildings'] or buildings
-#                     layersInfo[layer]['interactions'] =  layersInfo[layer]['interactions'] or interactions
-#                     layersInfo[layer]['embeddedPlots'] =  layersInfo[layer]['embeddedPlots'] or embeddedPlots
-#                     layersInfo[layer]['abstract'] =  layersInfo[layer]['abstract'] or abstract
-
-#     for layer in layersInfo:
-#         renderStyles = []
-
-#         # coloring shader
-#         if(not layersInfo[layer]['abstract']):
-#             renderStyles.append("SMOOTH_COLOR")
-#         elif(not layersInfo[layer]['buildings']):
-#             renderStyles.append("SMOOTH_COLOR_MAP")
-#         else:
-#             renderStyles.append("SMOOTH_COLOR_MAP_TEX")
-
-#         if(layersInfo[layer]['interactions']):
-#             renderStyles.append("PICKING")
-
-#         if(layersInfo[layer]['buildings'] and layersInfo[layer]['embeddedPlots']):
-#             renderStyles.append("ABSTRACT_SURFACES")
-
-#         layersInfo[layer]['data']['renderStyle'] = renderStyles
-
-#         with open(os.path.join(workDir,layer+".json"), "w", encoding="utf-8") as f:
-#             f.write(json.dumps(layersInfo[layer]['data']))
-
-#     return ''
-
 @app.route('/writeImpactViewData', methods=['POST'])
 def writeImpactViewData():
     
@@ -298,7 +230,6 @@ def writeImpactViewData():
 
     return ''
 
-
 @app.route('/updateGrammar', methods=['POST'])
 def serve_updateGrammar():
 
@@ -308,15 +239,7 @@ def serve_updateGrammar():
     grammar = request.json['grammar']
     
     with open(grammarpath, "w", encoding="utf-8") as f:
-        f.write(grammar)
-       
-    #query = '''
-    #    INSERT INTO Grammar (grammar_json) VALUE (?)''' 
-    #cur = g.conn.cursor()
-    #cur.execute(query, grammar)
-    #g.conn.commmit()
-     
-    
+        f.write(grammar)    
     return cur.lastrowid
 
 
@@ -443,4 +366,5 @@ def main():
         app.run(host=address, port=port)
 
 if __name__ == '__main__':
+    create_table()
     main()
