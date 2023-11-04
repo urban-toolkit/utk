@@ -68,7 +68,7 @@ export const GrammarPanelContainer = ({
   const [showEditor, setShowEditor] = useState(true);
   const [readOnly, setReadOnly] = useState(false);
 
-  const url = `http://localhost:5001`;
+  const url = process.env.REACT_APP_BACKEND_SERVICE_URL;
 
   const modifyGrammarAndApply = () => {
     // GrammarPanelVisibility = !(GrammarPanelVisibility);
