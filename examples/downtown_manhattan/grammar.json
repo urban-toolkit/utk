@@ -109,6 +109,9 @@
                 },
                 {
                     "type": "SEARCH"
+                },
+                {
+                    "type": "HIDE_GRAMMAR"
                 }
             ]
         }

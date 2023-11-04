@@ -202,10 +202,7 @@
                                                 "type": "number"
                                             }
                                         },
-                                        "required": ["out"],
-                                        "dependentRequired": {
-                                            "in": ["spatial_relation"]
-                                        }
+                                        "required": ["out"]
                                     }
                                 }
                             },
