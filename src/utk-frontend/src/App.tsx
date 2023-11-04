@@ -52,8 +52,10 @@ export const createAndRunMap = () => {
   // }
 
   // Serves data files to the map
-  // Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string});
-  Environment.setEnvironment({ backend: `http://localhost:5001` as string });
+  Environment.setEnvironment({
+    backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string,
+  });
+  //Environment.setEnvironment({ backend: `http://localhost:5001` as string });
   const url = `${Environment.backend}/getGrammar`;
   DataLoader.getJsonData(url).then((data) => {
     initializer.run(data);

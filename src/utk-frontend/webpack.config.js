@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { DefinePlugin } = require("webpack");
 
 const config = {
   entry: ["./src/index.tsx"],
@@ -51,6 +52,11 @@ const config = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "public", "index.html"),
+    }),
+    new DefinePlugin({
+      "process.env.REACT_APP_BACKEND_SERVICE_URL": JSON.stringify(
+        "http://localhost:5001"
+      ),
     }),
   ],
 

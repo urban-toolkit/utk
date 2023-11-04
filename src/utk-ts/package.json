@@ -20,7 +20,7 @@
     }
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --environment REACT_APP_BACKEND_SERVICE_URL:'http://localhost:5001'",
     "dev": "rollup -c -w",
     "lint": "eslint . --ext .ts",
     "watch": "watch \"npm run build\" ./src"
