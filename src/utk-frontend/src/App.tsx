@@ -1,12 +1,12 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from "react";
 
 // css file
-import './App.css';
+import "./App.css";
 
-import {Environment, DataLoader, GrammarInterpreterFactory} from 'utk';
-import 'utk/style.css'
+import { Environment, DataLoader, GrammarInterpreterFactory } from "utk";
+import "utk/style.css";
 
-import $ from 'jquery';
+import $ from "jquery";
 
 // const pythonServerParams = require('./pythonServerConfig.json');
 
@@ -21,31 +21,28 @@ class Initializer {
   _mainDiv: any;
 
   constructor(mainDiv: any) {
-
     this._mainDiv = document.querySelector(mainDiv);
 
     this._grammarInterpreter = GrammarInterpreterFactory.getInstance();
   }
 
-  run(data:any) {
-
+  run(data: any) {
     this._grammarInterpreter.resetGrammarInterpreter(data, this._mainDiv);
-    
+
     // cave connection
     // initializeConnection(this._map); // TODO: enable CAVE connection
   }
 
-  get map(){
+  get map() {
     return this._map;
   }
-
 }
 
 export const createAndRunMap = () => {
-  $('#mainDiv').empty();
+  $("#mainDiv").empty();
 
-  initializer = new Initializer('#mainDiv');
-      
+  initializer = new Initializer("#mainDiv");
+
   const port = 3000; // TODO: enable vr mode
 
   // if(MapConfig.frontEndMode == 'vr'){
@@ -55,22 +52,23 @@ export const createAndRunMap = () => {
   // }
 
   // Serves data files to the map
-  // Environment.setEnvironment({backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string});
-  Environment.setEnvironment({backend: `http://localhost:5001` as string});
+  Environment.setEnvironment({
+    backend: process.env.REACT_APP_BACKEND_SERVICE_URL as string,
+  });
+  //Environment.setEnvironment({ backend: `http://localhost:5001` as string });
   const url = `${Environment.backend}/getGrammar`;
-  DataLoader.getJsonData(url).then(data => {
+  DataLoader.getJsonData(url).then((data) => {
     initializer.run(data);
   });
-}
+};
 
 export const emptyMainDiv = () => {
-  $('#mainDiv').empty();
-}
- 
+  $("#mainDiv").empty();
+};
+
 // ======================================================================================
 
 function App() {
-
   // Run only once
   useEffect(() => {
     createAndRunMap();
@@ -78,11 +76,9 @@ function App() {
 
   return (
     <React.Fragment>
-      <div id='mainDiv' style={{height: "100vh", width: "100%"}}>
-      </div>
+      <div id="mainDiv" style={{ height: "100vh", width: "100%" }}></div>
     </React.Fragment>
   );
 }
 
 export default App;
-
