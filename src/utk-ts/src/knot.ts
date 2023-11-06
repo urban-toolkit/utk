@@ -445,7 +445,7 @@ export class Knot {
             }
         }
 
-        if(eventName == "Enter" && highlightCellInteraction && embedSurfaceInteraction){
+        if(eventName == "enter" && highlightCellInteraction && embedSurfaceInteraction){
             if(this._physicalLayer instanceof BuildingsLayer){ // TODO: generalize this
                 await this._physicalLayer.applyTexSelectedCells(this._map.glContext, this._map.grammarManager, 'vega', this._shaders);
             }
