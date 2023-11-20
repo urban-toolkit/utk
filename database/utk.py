@@ -5,97 +5,127 @@ con = sqlite3.connect('utk.db')
 cursor = con.cursor()
 
 cursor.execute("""
-    CREATE TABLE IF NOT EXISTS Grammar(
+    CREATE TABLE IF NOT EXISTS Grid (
         id integer PRIMARY KEY AUTOINCREMENT,
-        grammar_json varchar,
-        map integer,
-        widgets integer);
+        width integer,
+        height integer
+    );
 """)
 
-#cursor.execute("""
-#    CREATE TABLE IF NOT EXISTS Operation_Execution (
-#        id integer PRIMARY KEY AUTOINCREMENT,
-#        start_time timestamp,
-#        end_time timestamp,
-#        output_message varchar,
-#        error_message varchar,
-#        id_grammar integer
-#    );                     
-#""")
-#cursor.execute("""
-#    CREATE TABLE IF NOT EXISTS Knots (
-#        id integer PRIMARY KEY AUTOINCREMENT,
-#        integration_scheme integer
-#    );
-#""")
-#cursor.execute("""
-#    CREATE TABLE IF NOT EXISTS Parameter.integration_scheme (
-#        id integer PRIMARY KEY AUTOINCREMENT,
-#        integration_scheme varchar,
-#        spatial_relationship integer,
-#        in/out integer,
-#        in/out.Layers integer,
-#        in/out.Layers.name integer,
-#        in/out.Layers.level integer,
-#        Abstract integer,
-#        operation integer,
-#        op integer,
-#        maxDistances integer,
-#        defaultValue integer
-#    );
-#""")
-#cursor.execute("""
-#    CREATE TABLE IF NOT EXISTS Plots (
-#        id integer PRIMARY KEY AUTOINCREMENT,
-#        name integer,
-#        args integer,
-#        arrangement integer,
-#        plot integer,
-#        knot integer
-#    );
-#""")
-#cursor.execute("""
-#    CREATE TABLE IF NOT EXISTS Visual (
-#        id integer PRIMARY KEY AUTOINCREMENT,
-#        visual integer,
-#        camera integer,
-#        camera.direction integer,
-#        camera.direction.right integer,
-#        camera.direction.lookAt integer,
-#        camera.direction.up integer,
-#        camera.position integer,
-#        knots integer,
-#        interactions integer,
-#        position integer,
-#        position.width integer,
-#        position.height integer
-#    );
-#""")
-#cursor.execute("""
-#    CREATE TABLE IF NOT EXISTS Maps (
-#        id integer PRIMARY KEY AUTOINCREMENT,
-#        maps integer,
-#        knots integer,
-#        plots integer,
-#        visual integer
-#    );
-#""")
-#cursor.execute("""
-#    CREATE TABLE IF NOT EXISTS Widgets (
-#        id integer PRIMARY KEY AUTOINCREMENT,
-#        type integer,
-#        title integer,
-#        subtitle integer,
-#        categories integer,
-#        categories.category_name integer,
-#        categories.elements integer,
-#        categories.elements.categories integer,
-#        position integer,
-#        position.height integer,
-#        position.width integer
-#    );      
-#""")
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Grammar_Position (
+        id integer PRIMARY KEY AUTOINCREMENT,
+        width text,
+        height text
+    );
+""")
 
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Position (
+        id integer pk increments,
+        width text,
+        height text
+    );
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Plots (
+        id integer pk increments
+        description text,
+        arg text,
+        arrangement text
+    );
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Knots (
+        id integer pk increments
+    );
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Parameter_Integration_Scheme (
+        id integer pk increments,
+        name text,
+        integration_scheme text,
+        knots integer,
+        foreign key (knots) references Knots (id)
+    );
+""")
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Camera (
+        id integer pk increments,
+        position text,
+        direction_right text,
+        direction_lookAt text,
+        direction_up text
+    );
+""")
+##############################################################
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Maps (
+        id integer pk increments,
+        camera integer,
+        last integer,
+        foreign key (camera) references Camera (id)
+    );
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Knots_Maps (
+        id integer pk increments,
+        knots integer,
+        maps integer,
+        foreign key (knots) references Parameter_Integration_Scheme (id),
+        foreign key (maps) references Maps (id)
+    );
+""")
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Interactions (
+        id integer pk increments,
+        interaction text,
+        maps integer,
+        foreign key (maps) references Maps (id)
+    );
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Components (
+        id integer PRIMARY KEY AUTOINCREMENT,
+        maps integer,
+        knots integer,
+        plots integer,
+        position integer,
+        foreign key (knots) references Knots (id),
+        foreign key (plots) references Plots (id),
+        foreign key (maps) references Maps (id),
+        foreign key (position) references Position (id)
+    );
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Widgets (
+        id integer pk increments,
+        type text,
+        componets interger,
+        foreign key (componets) references Componets (id)
+    );
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Operation (
+        id integer PRIMARY KEY AUTOINCREMENT, 
+        time datetime,
+        type text,
+        grid integer,
+        grammar_position integer,
+        components integer,
+        grammar_json text,
+        foreign key (grid) references Grid (id),
+        foreign key (components) references Componets (id),
+        foreign key (grammar_position) references Grammar_Position (id)
+    );
+""")
 print("Tabela criada com sucesso!")
 
 #desconectando do bando de dados

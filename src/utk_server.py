@@ -30,34 +30,7 @@ tspath = './utk-ts/'
 frontpath = './utk-frontend/'
 address = 'localhost'
 port = 5001
-database = "./database/utk.db"
 
-
-#####################################################################################
-
-# Função para criar a tabela no banco de dados
-#def create_table():
-#    print("criando tabelas")
-#    conn = sqlite3.connect('exemplo.db')
-#    cursor = conn.cursor()
-#    cursor.execute('CREATE TABLE IF NOT EXISTS dados (id INTEGER PRIMARY KEY, nome TEXT, idade INTEGER)')
-#    conn.commit()
-#    conn.close()
-
-#####################################################################################
-#Conectando com o banco
-#@app.before_request
-#def before_request(database):
-#    print("Connecting to the database!")
-#    conn = sqlite3.connect(database)
-#    g.conn = conn
-
-#Desconectando do banco
-#@app.teardown_request
-#def after_request():
-#    if g.conn is not None:
-#        g.conn.close()
-#        print("Disconnecting from the Database!")
 
 @app.after_request
 def add_cors_headers(response):
@@ -69,11 +42,24 @@ def add_cors_headers(response):
 @app.route('/')
 def root():
 
-    print("criando tabelas")
-    conn = sqlite3.connect('exemplo.db')
+    # get the current datetime and store it in a variable
+    currentDateTime = datetime.datetime.now()
+
+    # Nome do arquivo JSON
+    json_file = 'examples\downtown_manhattan\grammar.json' 
+
+    # Abre o arquivo JSON
+    with open(json_file, 'r') as file:
+        data = json.load(file)
+
+    # Converta o JSON em uma string JSON
+    dados_json_str = json.dumps(data)
+
+    print(type(dados_json_str))
+    
+    conn = sqlite3.connect('utk.db')
     cursor = conn.cursor()
-    cursor.execute('CREATE TABLE IF NOT EXISTS dados (id INTEGER PRIMARY KEY, nome TEXT, idade INTEGER)')
-    cursor.execute('INSERT INTO dados (nome, idade) VALUES ("Amanda", 26)')
+    cursor.execute('INSERT INTO Operation (time, type, grammar_json) VALUES (?,"creat",?)', (currentDateTime, dados_json_str, ))
     conn.commit()
     conn.close()
     return send_from_directory(bundlepath, 'index.html')
@@ -239,7 +225,15 @@ def serve_updateGrammar():
     grammar = request.json['grammar']
     
     with open(grammarpath, "w", encoding="utf-8") as f:
-        f.write(grammar)    
+        f.write(grammar)  
+
+    
+    conn = sqlite3.connect('utk.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO Operation (time, type, grammar_json) VALUES (?,"update",?)', (currentDateTime, grammar, ))
+    conn.commit()
+    conn.close()
+
     return cur.lastrowid
 
 
