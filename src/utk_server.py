@@ -16,6 +16,8 @@ from sys import exit
 
 from utk.utils import *
 from utk.files_interface import *
+import datetime
+import re
 
 
 app = Flask(__name__)
@@ -283,8 +285,27 @@ def writeImpactViewData():
 def serve_updateGrammar():
 
     grammar = request.json['grammar']
+   
+    timestamp = datetime.datetime.now().timestamp()
+    
+    print("-------")
+    
+    print(workdir)
+    print(grammarpath)
+    history_dir = workdir + "\jsons"
+    print(history_dir)
+    history_file_path = os.path.join(history_dir,str(timestamp) + ".json")
     
     with open(grammarpath, "w", encoding="utf-8") as f:
+        f.write(grammar)
+    
+    isExist = os.path.exists(history_dir)
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(history_dir)
+        print("The new directory is created!")
+    
+    with open(history_file_path, "w", encoding="utf-8") as f:
         f.write(grammar)
 
     return ''

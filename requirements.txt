@@ -24,3 +24,4 @@ requests==2.*
 psutil==5.9.*
 watchdog==3.0.*
 kernel_killer==0.1.*
+notebookjs==0.1.4
