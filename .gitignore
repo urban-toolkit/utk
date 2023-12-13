@@ -18,3 +18,5 @@ wheels/
 *.egg-info/
 
 .ipynb_checkpoints
+
+simple_example
