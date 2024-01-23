@@ -6,6 +6,7 @@ import struct
 import webbrowser
 
 from shapely.geometry import Polygon, Point
+from utk_backend.utk_file_handler import UTKFileHandler
 
 class UrbanComponent:
     """
@@ -144,8 +145,19 @@ class UrbanComponent:
 
         json_object = json.dumps(transformed_data)
 
+
         with open(os.path.join(filepath,filename+".json"), "w") as outfile:
             outfile.write(json_object)
+
+        # print(f'trax data -> {transformed_data}')
+
+        with open(os.path.join(filepath,filename+".json"), "r") as readfile:
+            json_data = json.load(readfile)
+
+        utk_handler = UTKFileHandler()
+        attribute_dict = utk_handler.create_attribute_dict(json_data)
+        # print(f'attricute_dict -> {attribute_dict}')
+        utk_handler.create_utk_binary(attribute_dict=attribute_dict, df=json_data, utk_filename=filename, filepath=filepath)
 
     def save(self, dir=None, includeGrammar=True):
 
@@ -222,7 +234,7 @@ class UrbanComponent:
                 ]
             }
         }
-
+        
         for layer in self.layers['json']:
 
             grammar_json['components'][0]['knots'].append({"id": "pure"+layer['id'], "integration_scheme": [{"out": {"name": layer['id'], "level": "OBJECTS"}}], "operation": "NONE"})
