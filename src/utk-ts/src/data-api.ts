@@ -47,63 +47,82 @@ export abstract class DataApi {
     const url_indices = `${Environment.backend}/files/${layerId}_indices.data`;
     const url_normals = `${Environment.backend}/files/${layerId}_normals.data`;
     const url_ids = `${Environment.backend}/files/${layerId}_ids.data`;
+    const url_utk_file = `${Environment.backend}/files/${layerId}.utk`;
 
-    const base_feature = <ILayerData> await DataLoader.getJsonData(url_base);
+    // const base_feature = <ILayerData> await DataLoader.getJsonData(url_base);
+    const base_features_utk = <ILayerData> await DataLoader.getUtkData(url_utk_file);
+
+    // console.log("Base Feature = ", base_feature);
+    console.log("\n\nBase feature utk = ", base_features_utk);
+    console.log("utk url = ", url_utk_file);
+    
+    
+    
 
     let coordinates;
     let indices;
     let normals;
     let ids;
 
-    if(base_feature.data != undefined){
+    if(base_features_utk.data != undefined){
 
-      if(base_feature.data[0].geometry.coordinates != undefined){
+      if(base_features_utk.data[0].geometry.coordinates != undefined){
         console.log(url_coordinates);
         coordinates = <Float64Array> await DataLoader.getBinaryData(url_coordinates, 'd');
       }
 
-      if(base_feature.data[0].geometry.indices != undefined){
+      if(base_features_utk.data[0].geometry.indices != undefined){
         console.log(url_indices);
         indices = <Uint32Array> await DataLoader.getBinaryData(url_indices, 'I');
       }
 
-      if(base_feature.data[0].geometry.normals != undefined){
+      if(base_features_utk.data[0].geometry.normals != undefined){
         console.log(url_normals);
         normals = <Float32Array> await DataLoader.getBinaryData(url_normals, 'f');
       }
 
-      if(base_feature.data[0].geometry.ids != undefined){
+      if(base_features_utk.data[0].geometry.ids != undefined){
         console.log(url_ids);
         ids = <Uint32Array> await DataLoader.getBinaryData(url_ids, 'I');
       }
 
-      for(let i = 0; i < base_feature.data.length; i++){
+      for(let i = 0; i < base_features_utk.data.length; i++){        
 
         if(coordinates != undefined){
-          let startAndSize = base_feature.data[i].geometry.coordinates;
-          base_feature.data[i].geometry.coordinates = Array.from(coordinates.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          let startAndSize = base_features_utk.data[i].geometry.coordinates;
+          // console.log("coordinate(original) - > ", startAndSize, '\nThis was present in -> ', base_feature.data);
+          // base_feature.data[i].geometry.coordinates = Array.from(coordinates.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          base_features_utk.data[i].geometry.coordinates = Array.from(coordinates.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
         }
 
         if(indices != undefined){
-          let startAndSize = <number[]>base_feature.data[i].geometry.indices;
-          base_feature.data[i].geometry.indices = Array.from(indices.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          let startAndSize = <number[]>base_features_utk.data[i].geometry.indices;
+          // base_feature.data[i].geometry.indices = Array.from(indices.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          base_features_utk.data[i].geometry.indices = Array.from(indices.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
         }
 
         if(normals != undefined){
-          let startAndSize = <number[]>base_feature.data[i].geometry.normals;
-          base_feature.data[i].geometry.normals = Array.from(normals.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          let startAndSize = <number[]>base_features_utk.data[i].geometry.normals;
+          // base_feature.data[i].geometry.normals = Array.from(normals.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          base_features_utk.data[i].geometry.normals = Array.from(normals.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
         }
 
         if(ids != undefined){
-          let startAndSize = <number[]>base_feature.data[i].geometry.ids;
-          base_feature.data[i].geometry.ids = Array.from(ids.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          let startAndSize = <number[]>base_features_utk.data[i].geometry.ids;
+          // base_feature.data[i].geometry.ids = Array.from(ids.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
+          base_features_utk.data[i].geometry.ids = Array.from(ids.slice(startAndSize[0], startAndSize[0]+startAndSize[1]));
         }
 
       }
     
     }
 
-    return base_feature;
+    // console.log("base features after processing = \n", base_feature);
+    
+    console.log("base features utk after processing = \n\n", base_features_utk);
+    
+
+    return base_features_utk;
   }
 
 
