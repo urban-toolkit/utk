@@ -20,3 +20,10 @@ wheels/
 .ipynb_checkpoints
 
 simple_example
+
+utk_new*
+utk_work*
+*manhattan*
+test_data
+urbantk_cache
+multiple_downtown_nyc

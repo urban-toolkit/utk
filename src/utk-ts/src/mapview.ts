@@ -413,7 +413,14 @@ class MapView {
 
             // adds the new layer
             await this.addLayer(layer, centroid, joinedList[i]);
+
+            console.log("received layer -> ", layer);
+            
         }
+
+        // const shadow_buildings = await DataApi.getLayer("shadow0_buildings")
+        console.log("JOINED LIST = ", joinedList);
+        
 
     }
 
