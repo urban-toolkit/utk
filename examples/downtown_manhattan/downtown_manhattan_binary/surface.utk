@@ -1,0 +1,17 @@
+12
+file_metadata,4
+id,surface
+type,HEATMAP_LAYER
+renderStyle,['SMOOTH_COLOR_MAP']
+styleKey,surface
+binary_metadata,5
+coordinates,2,i
+indices,2,i
+normals,2,i
+ids,2,i
+discardFuncInterval,16,d
+Raw Binary Data Sizes
+coordinates,d
+indices,I
+normals,f
+ids,I

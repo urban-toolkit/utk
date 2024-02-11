@@ -1,0 +1,12 @@
+9
+file_metadata,4
+id,roads
+type,TRIANGLES_3D_LAYER
+renderStyle,['FLAT_COLOR']
+styleKey,roads
+binary_metadata,2
+coordinates,2020,i
+indices,2020,i
+Raw Binary Data Sizes
+coordinates,d
+indices,I
