@@ -31,8 +31,24 @@ class UTK_Binary_Loader:
 
         original_json = self.construct_json(file_metadata, pointers)
         # print(decoded)
-        temp = dict(original_json)
-        parsed_json = self.parse_pointers(temp, raw_values)
+        # temp = dict(original_json)
+        parsed_json = self.parse_pointers(original_json, raw_values)
+
+        ccount = 0
+        ncount = 0
+        icount = 0
+        idxcount = 0
+        for i in range(len(parsed_json['data'])):
+            ccount += len(parsed_json['data'][i]['geometry']['coordinates'])
+            ncount += len(parsed_json['data'][i]['geometry']['normals'])
+            idxcount += len(parsed_json['data'][i]['geometry']['indices'])
+            icount += len(parsed_json['data'][i]['geometry']['ids'])
+
+        print(f'coords parsed_json -> {ccount}')
+        print(f'norms parsed_json -> {ncount}')
+        print(f'indices parsed_json -> {idxcount}')
+        print(f'ids parsed_json -> {icount}')
+
         return parsed_json
 
 
@@ -106,7 +122,7 @@ class UTK_Binary_Loader:
             layerType = info[1].lower()
             curr_blob = sections_ptr.pop(0)
             bufferSize = len(curr_blob)//self.byteMap[layerType]
-            # print(f'buffer size for {layerName}(size{layerSize}) is {bufferSize}')
+            print(f'buffer size for {layerName}(size{layerSize}) is {bufferSize}')
             attribute_dict_ptr[layerName] = struct.unpack(f'{bufferSize}{layerType}', curr_blob)
 
             # print(f'Decoded {layerName}!')
@@ -116,8 +132,8 @@ class UTK_Binary_Loader:
             bufferSize = len(curr_blob)//self.byteMap[layerType.lower()]
             attribute_dict_binary[layerName] = struct.unpack(f'{bufferSize}{layerType}', curr_blob)
             
-            # print(f'CURR BLOB OF {layerName} is {len(curr_blob)} in length!!!!!')
-            # print(f'{layerName} is {len(attribute_dict_binary[layerName])} in length')
+            print(f'CURR BLOB OF {layerName} is {len(curr_blob)} in length!!!!!')
+            print(f'{layerName} is {len(attribute_dict_binary[layerName])} in length')
         
         return attribute_dict_ptr, attribute_dict_binary
 
@@ -166,25 +182,30 @@ class UTK_Binary_Loader:
 
         if 'coordinates' in raw_values:
             coordinates = raw_values['coordinates']
-        if 'indices' in raw_values:
-            indices = raw_values['indices']
         if 'normals' in raw_values:
             normals = raw_values['normals']
+        if 'indices' in raw_values:
+            indices = raw_values['indices']
         if 'ids' in raw_values:
             ids = raw_values['ids']
+
+        print(f'length of coordinates is {len(coordinates)}')
+        print(f'length of normals is {len(normals)}')
+        print(f'length of indices is {len(indices)}')
+        print(f'length of ids is {len(ids)}')
 
         for i in range(len(parsed_json['data'])):
             if len(coordinates) > 0:
                 start, end = parsed_json['data'][i]['geometry']['coordinates']
                 parsed_json['data'][i]['geometry']['coordinates'] = coordinates[start:(start+end)]
             
-            if len(indices) > 0:
-                start, end = parsed_json['data'][i]['geometry']['indices']
-                parsed_json['data'][i]['geometry']['indices'] = indices[start:(start+end)]
-            
             if len(normals) > 0:
                 start, end = parsed_json['data'][i]['geometry']['normals']
                 parsed_json['data'][i]['geometry']['normals'] = normals[start:(start+end)]
+            
+            if len(indices) > 0:
+                start, end = parsed_json['data'][i]['geometry']['indices']
+                parsed_json['data'][i]['geometry']['indices'] = indices[start:(start+end)]
             
             if len(ids) > 0:
                 start, end = parsed_json['data'][i]['geometry']['ids']

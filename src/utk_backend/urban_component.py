@@ -147,7 +147,7 @@ class UrbanComponent:
             print(f'-------------writing {filename} as {dataTypes[index]}-------------')
             buf = struct.pack(str(len(floatList)) + dataTypes[index], *floatList)
 
-            print(f'type of {type} is {dataTypes[index]}')
+            print(f'type of {type} is {dataTypes[index]} with length {len(floatList)}')
             buf_size = struct.pack(dataTypes[index], len(floatList))
             # lol2
             fout.write(f'<<>>'.encode('utf-8'))
