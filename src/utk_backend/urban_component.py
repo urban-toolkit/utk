@@ -144,6 +144,7 @@ class UrbanComponent:
 
             fout = open(os.path.join(filepath, filename+'_blob.data'), 'ab')
 
+            print(f'-------------writing {filename} as {dataTypes[index]}-------------')
             buf = struct.pack(str(len(floatList)) + dataTypes[index], *floatList)
 
             print(f'type of {type} is {dataTypes[index]}')
@@ -213,16 +214,7 @@ class UrbanComponent:
                     binary_blob_file.write(buf)
                     # binary_blob_file.write(f'|||||'.encode('utf-8'))
 
-                    ##########
-
-
-
-##############      TRY THIS OUT, label pointer data vals(coords, .....section footprint) 
-
-
-
-
-                    ############
+                    
                     counter += layer_size+1
                 if len(values) > 0: total_layer_count += 1
             

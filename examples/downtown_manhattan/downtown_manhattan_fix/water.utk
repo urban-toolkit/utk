@@ -1,0 +1,12 @@
+9
+file_metadata,4
+id,water
+type,TRIANGLES_3D_LAYER
+renderStyle,['FLAT_COLOR']
+styleKey,water
+binary_metadata,2
+coordinates,72,i
+indices,72,i
+Raw Binary Data Sizes
+coordinates,d
+indices,I

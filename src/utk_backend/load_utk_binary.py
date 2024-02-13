@@ -79,6 +79,14 @@ class UTK_Binary_Loader:
         sections_ptr = temp[0].split(b'<<>>')
         sections_blob = temp[1].split(b'<<>>')
 
+        lens_ptr = [len(x) for x in sections_ptr]
+        lens_blob = [len(x) for x in sections_blob]
+        print(f'temp is {len(temp)} in size')
+        print(f'ptr is {len(sections_ptr)} in size, lengths {lens_ptr}')
+        print(f'blob is {len(sections_blob)} in size, lens {lens_blob}')
+        # print(sections_ptr)
+        # print(sections_blob)
+
         # Assuming the first section contains metadata
         # metadata = sections[0].split(b'\n')
         attribute_dict_ptr = {}
@@ -98,15 +106,18 @@ class UTK_Binary_Loader:
             layerType = info[1].lower()
             curr_blob = sections_ptr.pop(0)
             bufferSize = len(curr_blob)//self.byteMap[layerType]
-            print(f'buffer size for {layerName}(size{layerSize}) is {bufferSize}')
+            # print(f'buffer size for {layerName}(size{layerSize}) is {bufferSize}')
             attribute_dict_ptr[layerName] = struct.unpack(f'{bufferSize}{layerType}', curr_blob)
 
-            print(f'Decoded {layerName}!')
+            # print(f'Decoded {layerName}!')
         
         for layerName, layerType in raw_metadata.items():
             curr_blob = sections_blob.pop(0)
             bufferSize = len(curr_blob)//self.byteMap[layerType.lower()]
             attribute_dict_binary[layerName] = struct.unpack(f'{bufferSize}{layerType}', curr_blob)
+            
+            # print(f'CURR BLOB OF {layerName} is {len(curr_blob)} in length!!!!!')
+            # print(f'{layerName} is {len(attribute_dict_binary[layerName])} in length')
         
         return attribute_dict_ptr, attribute_dict_binary
 

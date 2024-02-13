@@ -16,7 +16,7 @@ class UTKFileHandler:
 
         # print("JDGBNDGJngdnD")
         # print(f'data-> {data}')
-        attr_dict = {"coordinates":[], "indices":[], "normals":[], "ids":[], "orientedEnvelope":[], "sectionFootprint":[], "discardFuncInterval": [], "values": []}
+        attr_dict = {"coordinates":[], "normals":[], "indices":[], "ids":[], "orientedEnvelope":[], "sectionFootprint":[], "discardFuncInterval": [], "values": []}
         if 'data' in data.keys():
             for point in data['data']:
                 for k, v in point['geometry'].items():

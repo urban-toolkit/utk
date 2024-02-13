@@ -14,9 +14,9 @@ import json
 import os
 import sys
 
-# if sys.platform != "darwin":
-from plotoptix import NpOptiX
-from plotoptix.geometry import PinnedBuffer
+if sys.platform != "darwin":
+    from plotoptix import NpOptiX
+    from plotoptix.geometry import PinnedBuffer
 
 class ShadowAccumulator:
     '''
