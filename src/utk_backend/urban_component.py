@@ -117,6 +117,7 @@ class UrbanComponent:
 
         transformed_data = data
 
+        utk_handler = UTKFileHandler()
 
         #create binary file
         fout = open(os.path.join(filepath, filename+'_blob.data'), 'wb')
@@ -142,23 +143,7 @@ class UrbanComponent:
 
                 transformed_data['data'][i]['geometry'][type] = newValue
 
-            fout = open(os.path.join(filepath, filename+'_blob.data'), 'ab')
-
-            print(f'-------------writing {filename} as {dataTypes[index]}-------------')
-            buf = struct.pack(str(len(floatList)) + dataTypes[index], *floatList)
-
-            print(f'type of {type} is {dataTypes[index]} with length {len(floatList)}')
-            buf_size = struct.pack(dataTypes[index], len(floatList))
-            # lol2
-            fout.write(f'<<>>'.encode('utf-8'))
-            # fout.write(buf_size)       ---no longer needed
-            fout.write(buf)
-            fout.close()
-
-            utk_out = open(os.path.join(filepath, filename+'.utk'), 'w')
-            utk_out.write(f'{type},{len(floatList)}')
-            utk_out.close()
-            # blob_size += floatList
+            utk_handler.add_layer_to_blob(filepath, filename, floatList, dataTypes[index], type)
 
         json_object = json.dumps(transformed_data)
 
@@ -168,77 +153,52 @@ class UrbanComponent:
 
         # print(f'trax data -> {transformed_data}')
 
-        with open(os.path.join(filepath,filename+".json"), "r") as readfile:
-            json_data = json.load(readfile)
+        utk_handler.write_pointer_data(filepath, filename)
 
-        utk_handler = UTKFileHandler()
-        attribute_dict = utk_handler.create_attribute_dict(json_data)
-        # print(f'attricute_dict -> {attribute_dict}')
-        utk_handler.create_utk_binary(attribute_dict=attribute_dict, df=json_data, utk_filename=filename, filepath=filepath)
+        # with open(os.path.join(filepath,filename+".json"), "r") as readfile:
+        #     json_data = json.load(readfile)
 
-        # Read existing content of the file
-        with open(os.path.join(filepath, filename+'_blob.data'), 'rb') as existing_file:
-            existing_data = existing_file.read()
-
-        utk_file = open(os.path.join(filepath, filename+'.utk'), 'a')
-        utk_file.write("Raw Binary Data Sizes\n")
-
-        with open(os.path.join(filepath, filename+'_blob.data'), 'wb') as binary_blob_file:
-            # binary_blob_file.seek(0)
-            counter = 0
-            ptr_layer_count = 0
-            total_layer_count = 0
-            for layer, values in attribute_dict.items():
-                layer_size = len(values)
-                if layer_size > 0:
-                    if layer in ['orientedEnvelope', 'sectionFootprint', 'discardFuncInterval', 'values']:
-                        buf = struct.pack(str(layer_size)+'d', *values)
-                        dtype = "d"
-                    else:
-                        buf = struct.pack(str(layer_size)+'I', *values)
-                        if layer in ['indices', 'ids']:
-                            layerType = 'I'
-                        elif layer == 'coordinates':
-                            layerType = 'd'
-                        elif layer == 'normals':
-                            layerType = 'f'
-                        ptr_layer_count += 1
-                        utk_file.write(layer + ',' + layerType + '\n')
-
-
-                    # binary_blob_file.write(f'|||||{layer}'.encode('utf-8'))
-                    # binary_blob_file.write(f'|||||{layer_size}'.encode('utf-8'))
-                    # binary_blob_file.write(f'|||||{dtype}'.encode('utf-8'))
-                    # binary_blob_file.write(f'|||||'.encode('utf-8'))
-                    binary_blob_file.write(f'<<>>'.encode('utf-8'))
-                    binary_blob_file.write(buf)
-                    # binary_blob_file.write(f'|||||'.encode('utf-8'))
-
-                    
-                    counter += layer_size+1
-                if len(values) > 0: total_layer_count += 1
-            
-            binary_blob_file.write('RAW BINARY BLOB SEPARATOR'.encode('utf-8'))
-            # binary_blob_file.write(f'{len(types)}'.encode('utf-8'))
-
-            binary_blob_file.write(existing_data)
-            binary_blob_file.close()
+        # attribute_dict = utk_handler.create_attribute_dict(json_data)
+        # # print(f'attricute_dict -> {attribute_dict}')
+        # utk_handler.create_utk_binary(attribute_dict=attribute_dict, df=json_data, utk_filename=filename, filepath=filepath)
 
         # # Read existing content of the file
         # with open(os.path.join(filepath, filename+'_blob.data'), 'rb') as existing_file:
         #     existing_data = existing_file.read()
 
+        # utk_file = open(os.path.join(filepath, filename+'.utk'), 'a')
+        # utk_file.write("Raw Binary Data Sizes\n")
 
-        # with open(os.path.join(filepath, filename+'_blob.data'), 'r+') as binary_blob_file:
+        # with open(os.path.join(filepath, filename+'_blob.data'), 'wb') as binary_blob_file:
         #     # binary_blob_file.seek(0)
-        #     binary_blob_file.write(f'{counter},')
-        #     binary_blob_file.write(f'{total_layer_count},')
-        #     binary_blob_file.write(f'{ptr_layer_count}')
-        #     binary_blob_file.write(f'POINTER DATA')
+        #     counter = 0
+        #     ptr_layer_count = 0
+        #     total_layer_count = 0
+        #     for layer, values in attribute_dict.items():
+        #         layer_size = len(values)
+        #         if layer_size > 0:
+        #             if layer in ['orientedEnvelope', 'sectionFootprint', 'discardFuncInterval', 'values']:
+        #                 buf = struct.pack(str(layer_size)+'d', *values)
+        #                 dtype = "d"
+        #             else:
+        #                 buf = struct.pack(str(layer_size)+'I', *values)
+        #                 if layer in ['indices', 'ids']:
+        #                     layerType = 'I'
+        #                 elif layer == 'coordinates':
+        #                     layerType = 'd'
+        #                 elif layer == 'normals':
+        #                     layerType = 'f'
+        #                 ptr_layer_count += 1
+        #                 utk_file.write(layer + ',' + layerType + '\n')
+
+        #             binary_blob_file.write(f'<<>>'.encode('utf-8'))
+        #             binary_blob_file.write(buf)
+        #             counter += layer_size+1
+        #         if len(values) > 0: total_layer_count += 1
+            
+        #     binary_blob_file.write('RAW BINARY BLOB SEPARATOR'.encode('utf-8'))
+        #     binary_blob_file.write(existing_data)
         #     binary_blob_file.close()
-        
-
-
 
     def save(self, dir=None, includeGrammar=True):
 

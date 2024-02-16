@@ -212,6 +212,74 @@ class UTKFileHandler:
 
             return metadata, data
 
+    def add_layer_to_blob(self, filepath: str, filename: str, layer_blob: list, data_type: str, Type: str):
+            fout = open(os.path.join(filepath, filename+'_blob.data'), 'ab')
+
+            print(f'-------------writing {filename} as {data_type}-------------')
+            buf = struct.pack(str(len(layer_blob)) + data_type, *layer_blob)
+
+            print(f'type of {Type} is {data_type} with length {len(layer_blob)}')
+            # buf_size = struct.pack(dataTypes[index], len(floatList))
+
+            fout.write(f'<<>>'.encode('utf-8'))
+            # fout.write(buf_size)       ---no longer needed
+            fout.write(buf)
+            fout.close()
+
+            utk_out = open(os.path.join(filepath, filename+'.utk'), 'a')
+            utk_out.write(f'{Type},{len(layer_blob)}')
+            utk_out.close()
+
+            print(f'Successfully added {filename} to blob.')
+
+    def write_pointer_data(self, filepath: str, filename: str):
+        with open(os.path.join(filepath,filename+".json"), "r") as readfile:
+            json_data = json.load(readfile)
+
+        attribute_dict = self.create_attribute_dict(json_data)
+        # print(f'attricute_dict -> {attribute_dict}')
+        self.create_utk_binary(attribute_dict=attribute_dict, df=json_data, utk_filename=filename, filepath=filepath)
+
+        # Read existing content of the file
+        with open(os.path.join(filepath, filename+'_blob.data'), 'rb') as existing_file:
+            existing_data = existing_file.read()
+
+        utk_file = open(os.path.join(filepath, filename+'.utk'), 'a')
+        utk_file.write("Raw Binary Data Sizes\n")
+
+        with open(os.path.join(filepath, filename+'_blob.data'), 'wb') as binary_blob_file:
+            # binary_blob_file.seek(0)
+            counter = 0
+            ptr_layer_count = 0
+            total_layer_count = 0
+            for layer, values in attribute_dict.items():
+                layer_size = len(values)
+                if layer_size > 0:
+                    if layer in ['orientedEnvelope', 'sectionFootprint', 'discardFuncInterval', 'values']:
+                        buf = struct.pack(str(layer_size)+'d', *values)
+                        dtype = "d"
+                    else:
+                        buf = struct.pack(str(layer_size)+'I', *values)
+                        if layer in ['indices', 'ids']:
+                            layerType = 'I'
+                        elif layer == 'coordinates':
+                            layerType = 'd'
+                        elif layer == 'normals':
+                            layerType = 'f'
+                        ptr_layer_count += 1
+                        utk_file.write(layer + ',' + layerType + '\n')
+
+                    binary_blob_file.write(f'<<>>'.encode('utf-8'))
+                    binary_blob_file.write(buf)
+                    counter += layer_size+1
+                if len(values) > 0: total_layer_count += 1
+            
+            binary_blob_file.write('RAW BINARY BLOB SEPARATOR'.encode('utf-8'))
+            binary_blob_file.write(existing_data)
+            binary_blob_file.close()
+
+        print(f'POINTER DATA for {filename} has been written!!!')
+
 
 # class UTKFileHandler:
 #     def __init__(self):
