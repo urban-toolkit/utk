@@ -1,0 +1,18 @@
+13
+file_metadata,4
+id,buildings
+type,BUILDINGS_LAYER
+renderStyle,['SMOOTH_COLOR_MAP_TEX']
+styleKey,building
+binary_metadata,6
+coordinates,504,i
+indices,504,i
+normals,504,i
+ids,504,i
+orientedEnvelope,12096,d
+sectionFootprint,82986,d
+Raw Binary Data Sizes
+coordinates,d
+normals,f
+indices,I
+ids,I
