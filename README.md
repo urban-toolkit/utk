@@ -9,10 +9,23 @@ through a new high-level grammar specifically built with common urban use cases 
 
 For a quick getting starter document and tutorials, visit: [urbantk.org](http://urbantk.org)
 
-UTK was first presented in the [paper](https://arxiv.org/abs/2308.07769):  
+UTK was first presented in the [paper](https://ieeexplore.ieee.org/document/10290965):  
 **The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics**  
 Gustavo Moreira, Maryam Hosseini, Md Nafiul Alam Nipu, Marcos Lage, Nivan Ferreira, Fabio Miranda  
-IEEE Transactions on Visualization and Computer Graphics (Accepted, to appear)
+IEEE Transactions on Visualization and Computer Graphics, 2024
+
+```
+@ARTICLE{utk_2024,
+  author={Moreira, Gustavo and Hosseini, Maryam and Alam Nipu, Md Nafiul and Lage, Marcos and Ferreira, Nivan and Miranda, Fabio},
+  journal={IEEE Transactions on Visualization and Computer Graphics}, 
+  title={{The Urban Toolkit}: A Grammar-Based Framework for Urban Visual Analytics}, 
+  year={2024},
+  volume={30},
+  number={1},
+  pages={1402-1412},
+  doi={10.1109/TVCG.2023.3326598}
+}
+```
 
 ---
 
@@ -48,7 +61,7 @@ UTK leverages several spatial packages, such as Geopandas, OSMnx, Osmium, Shapel
 pip install utk
 ```
 
-UTK requires Python 3.9 or a newer version. If you are having problems installing UTK in Mac OSX because of Osmium, make sure you have CMake installed as well (e.g., through [conda](https://anaconda.org/anaconda/cmake) or [Homebrew](https://formulae.brew.sh/formula/cmake)).
+UTK requires Python 3.9, 3.10 and 3.11 (there is an [issue](https://stackoverflow.com/questions/77364550/attributeerror-module-pkgutil-has-no-attribute-impimporter-did-you-mean) with 3.12 that is on our TODO list to solve). If you are having problems installing UTK in Mac OSX because of Osmium, make sure you have CMake installed as well (e.g., through [conda](https://anaconda.org/anaconda/cmake) or [Homebrew](https://formulae.brew.sh/formula/cmake)).
 
 A detailed description of UTK's capabilities can be found in our [paper](https://arxiv.org/abs/2308.07769), but generally speaking UTK is divided into two components: a backend component, accessible through UTK's Python library, and a frontend component, accessible through a web interface.
 
