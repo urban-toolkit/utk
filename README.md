@@ -33,14 +33,14 @@ IEEE Transactions on Visualization and Computer Graphics, 2024
 
 ## Table of contents
 1. [Features](#features)
-2. [Installation and quick start](#installation-and-quick-start)
-    1. [UTK backend](#utk-backend)
-    2. [UTK frontend](#utk-frontend)
+2. [Setting up to run utk locally](#setting-up-to-run-utk-locally)
+   - [Using built In Python command](#using-built-in-python-command)
+   - [Using `conda` environment manager](#using-conda-environment-manager)
 3. [Tutorials](#tutorials)
 4. [Development](#development)
-    1. [Slack channel](#slack-channel)
-6. [Other resources](#other-resources)
-7. [Team](#team)
+   1. [Slack channel](#slack-channel)
+5. [Other resources](#other-resources)
+6. [Team](#team)
 
 ## Features
 - Easy integration of physical and thematic layers.
@@ -53,55 +53,98 @@ IEEE Transactions on Visualization and Computer Graphics, 2024
 UTK has been tested on Linux (Ubuntu 23.04), Windows 10 & 11, and MacOS 13.
 
 
-## Installation and quick start
+## Setting up to run utk locally
 
-UTK leverages several spatial packages, such as Geopandas, OSMnx, Osmium, Shapely. To facilite the installation of UTK, we have made it available through pip, only requiring the following commands in a terminal / command prompt:
+To run UTK locally, you must configure a Python environment on your machine. Without this step, you will not be able to launch the UTK server and the editor itself. Configuring python environment can be done using Conda environment manager or Built-In `venv` command. Here we will go over these two methods for setting up UTK.
 
-```console
-pip install utk
+<details>
+  <summary><b>Using built In Python command</b></summary>
+  
+  ## Using built In Python command
+  ### **Install Python**
+  First you need to ensure correct Python version is installed. Currently supported python versions are 3.9. 3.10, 3.11. If you don't have python installed follow instructions on [Download Python | Python.org](https://www.python.org/downloads/) and install python version 3.10 on your machine. You can check if python is installed by running the following commands 
+  ```SHELL
+  python3 --version
+  ```
+  ### **Create a Virtual Environment** 
+  Next step is to set up a new virtual environment for UTK to run in. We will use `venv` command for that. `venv` as well as `pip` comes packaged with all Python versions after 3.0, so there is no need to install them. 
+  - Choose the location where you will work with UTK: 
+  	- Mac/Linux: `/Users/*username*/Desktop/Repos/UTK_ENV`
+  	- Windows: `C:\Users\YourUsername\Desktop\UTK_ENV`
+  - Run the following commands to create a virtual environment named `UTK_ENV`
+  Mac/Linux:
+  ```SHELL
+  python3 -m venv /Users/*username*/Desktop/UTK_ENV
+  
+  ```
+  Windows:
+  ```SHELL
+  python3 -m venv C:\Users\YourUsername\Desktop\UTK_ENV
+  
+  ```
+  ### **Activate the Virtual Environment**
+  After the environment is set up activate the environment using the following command:
+  Mac/Linux:
+  ```SHELL
+  source /Users/*username*/Desktop/UTK_ENV/bin/activate
+  ```
+  Windows:
+  ```SHELL
+  cd C:\Users\YourUsername\Desktop\UTK_ENV
+  C:\Users\YourUsername\Desktop\UTK_ENV\Scripts\activate
+  ```
+  ### **Install Required Packages**
+  Once you are in the newly created environment, you need to install `utk` package as well as python kernel and jupyterLab. We can do that by running the following commands:
+  ```SHELL
+  pip3 install utk
+  pip3 install jupyterlab
+  pip install ipykernel
+  python -m ipykernel install --user --name=UTK_ENV
+  ```
+  ### **Verify Installation**
+   Type the following code into the jupyter notebook and run it. If the code runs successfully, that means the setup is complete and you are ready to use utk.
+  ```SHELL
+  utk example
+  ```
+  Go to your browser and type the following to acces the utk server. If successful you will see a view of manhattan with an editor in front of you.
+  ```
+  http://localhost:5001
+  ```
+</details>
+
+<details>
+  <summary><b>Using `conda` environment manager</b></summary>
+  
+  ## Using `conda` environment manager
+
+### **Install Conda**
+First make sure conda is installed by installing it from the official website: [Download Anaconda Distribution | Anaconda](https://www.anaconda.com/download)
+### **Create and activate a Conda Environment**
+After having conda installed we can create a new environment to work in by running the following command:
+```SHELL
+conda create -n UTK_CONDA python=3.10
+conda activate UTK_CONDA
 ```
-
-UTK requires Python 3.9, 3.10 and 3.11 (there is an [issue](https://stackoverflow.com/questions/77364550/attributeerror-module-pkgutil-has-no-attribute-impimporter-did-you-mean) with 3.12 that is on our TODO list to solve). If you are having problems installing UTK in Mac OSX because of Osmium, make sure you have CMake installed as well (e.g., through [conda](https://anaconda.org/anaconda/cmake) or [Homebrew](https://formulae.brew.sh/formula/cmake)).
-
-A detailed description of UTK's capabilities can be found in our [paper](https://arxiv.org/abs/2308.07769), but generally speaking UTK is divided into two components: a backend component, accessible through UTK's Python library, and a frontend component, accessible through a web interface.
-
-### UTK backend
-
-UTK's backend is available through our Python library. For example, using a Jupyter Notebook, it can be imported with:
-
-```python
-import utk
+### **Install Required Packages**
+Once you are in the newly created environment, you need to install `utk` package as well as python kernel and jupyterLab. We can do that by running the following commands:
+```SHELL
+pip3 install utk
+pip3 install jupyterlab
+pip install ipykernel
+python -m ipykernel install --user --name=UTK_CONDA
 ```
-
-To download data for Manhattan, NY, you only need to then:
-```
-uc = utk.OSM.load('Manhattan, NY', layers=['surface', 'parks', 'water', 'roads'])
-uc.save('./manhattan')
-```
-
-This will create a new folder (``manhattan``) with the downloaded and parsed OSM data. On top of that, UTK also offers functionalities to load data from shapefiles (``utk.physical_from_shapefile``), csv files (``utk.thematic_from_csv``), dataframes (``utk.thematic_from_df``), and also accumulate sunlight access values (``utk.data.shadow``). A detailed description of UTK's Python API can be found [here](https://github.com/urban-toolkit/utk/blob/master/API.md).
-
-
-### UTK frontend
-
-UTK's frontend is available through the ``utk`` command. After the pip installation is complete, you can check a toy example with the following commands:
-
-```console
+### **Verify Installation**
+Type the following code into the jupyter notebook and run it. If the code runs successfully, that means the setup is complete and you are ready to use utk.
+```SHELL
 utk example
 ```
-
-UTK's toy example will then be accessible through ``localhost:5001``. After accessing it using a browser, you should see a grammar-defined visualization showing sunlight access per building:
-
-![UTK example](https://github.com/urban-toolkit/utk/blob/master/images/example_full.png?raw=true)
-
-
-Beyong the simple example, you can also use the ``utk`` command to start and stop UTK's server:
-
-```console
-utk start
-utk stop
+Go to your browser and type the following to acces the utk server. If successful you will see a view of manhattan with an editor in front of you.
 ```
+http://localhost:5001
+```
+</details>
 
+## `utk` Command 
 The ``utk`` command takes the following arguments:
 ```
 usage: utk [-h] [-d [DATA]] [-b [BUNDLE]] [-g [GRAMMAR]] [-a [ADDRESS]]
@@ -131,10 +174,54 @@ optional arguments:
 ```
 
 Even though we offer support for a variety of arguments, most users will simply need to run the following to use data stored in a folder called ``./data/``:
-
-```console
-utk start --data ./data
+## Loading custom data
+<details>
+    <summary><b>Loading your own data</b></summary>
+  
+### Loading your own data
+If there is a specific map section that you need to work with you can use the following steps:
+1. Launch jupyterLab with:
+```SHELL
+jupyter-lab
 ```
+ You will be prompted to select Python kernel. Select the kernel we created in previous tutorial.
+
+
+2. Download the data from OSM into the specified folder.
+```Python
+uc = utk.OSM.load('Manhattan, NY', layers=['surface', 'parks', 'water', 'roads'])
+uc.save('./manhattan')
+```
+
+This download will get all the data that you need to run utk. Folder with data should contain grammar.json, which is the file which will contain your visualisation 
+
+3. In the terminal launch utk server
+```SHELL
+utk start --data ./*downloaded_data*
+```
+
+4. Go to your browser and type. I successful you will see a view of manhattan with an editor in front of you.
+```
+http://localhost:5001
+```
+</details>
+
+
+<details>
+    <summary><b>Using pre-downloaded data</b></summary>
+  
+  ## Using pre-downloaded data
+Some of our tutorials will provide a download link with a data file. In this case all you need to do is go to the folder in which the downloaded folder is located and do the following steps(Assuming you are in the correct environment):
+1. In the terminal launch utk server
+```SHELL
+utk start --data ./*downloaded_data*
+```
+
+2. Go to your browser and type. I successful you will see a view of manhattan with an editor in front of you.
+```
+http://localhost:5001
+```
+</details>
 
 After starting UTK's server and opening ``localhost:5001`` on a browser, you will see UTK's main interface, composed of a grammar editor (left) and map viewer (right). Adding new elements to the grammar specification on the right (e.g., new plots, new data) will automatically update the map viewer:
 
