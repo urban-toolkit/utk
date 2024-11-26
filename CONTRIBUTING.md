@@ -34,7 +34,7 @@
 4. Select **Open pull request**.
 5. Add a descriptive title and details about the changes you made.
 6. Submit the pull request.
-### Step 5: Follow Up
+### Step 5: Wait for response
 
 - Once your pull request is submitted, maintainers will review your changes. Be prepared to discuss or update your pull request based on feedback.
 - If requested, make additional changes and update the pull request by committing and pushing to the same branch in your fork.
