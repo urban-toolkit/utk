@@ -46,7 +46,7 @@ In this example, the screen is divided into 12 horizontal sections and 4 vertica
 
 Using the grid system, we can specify where the grammar editor will be rendered.
 
-```json
+```js
 grammar_position:{
     width: [1,5],
     height: [1,4]
@@ -71,7 +71,7 @@ A map component consists of four key elements:
 
 The position of the map is specified in the `position` field. In the example below, the map occupies columns 6–12 horizontally and rows 1–4 vertically.
 
-```json
+```js
 {
     map: {...},
     plots: [...],
@@ -94,7 +94,7 @@ Knots are specified within the knots field inside the map component. Each knot i
 - `id`: A unique identifier referenced throughout the grammar.
 - `integration_scheme`: A pipeline that links thematic data to a physical layer. I.e., `integration_scheme` specifies a pipeline that starts with thematic data and ends with a physical layer.
 
-```json
+```js
 {
     id: "knot1",
     integration_scheme: [...]
@@ -129,7 +129,7 @@ Each step in the scheme is composed of `spatial_relation`, `in`, `out`, `operati
 
 Example of an integration schema:
 
-```json
+```js
     {
         id: "shadowBuildingsAvgSouth",
         integration_scheme: [
@@ -178,7 +178,7 @@ Defining a layer is the first step to load data inside the grammar. Layers are u
 
 
 
-```json
+```js
 {
     name: "layer1",
     level: "COORDINATES"
@@ -205,7 +205,7 @@ To configure the map component, three key elements must be defined:
 
 Example:
 
-```json
+```js
     map: {
         camera: {
             position: [
@@ -258,7 +258,7 @@ Operations can be performed between knots by setting the `knotOp` field to true.
 
 Example:
 
-```json
+```js
     {
         id: "shadowToSurface",
         integration_scheme: [
@@ -346,7 +346,7 @@ The `arrangement` defines how the plot should be displayed. Possible values are:
 
 Example:
 
-```json
+```js
 plots: [
     {
         plot: {
@@ -399,7 +399,7 @@ The `categories` field applies only to the `TOGGLE_KNOT` widget, allowing the de
 
 Example:
 
-```json
+```js
     {
         map: {...},
         plots: [...],
@@ -454,7 +454,7 @@ When grouped knots are used with the `TOGGLE_KNOTS` widget, an animation bar bec
 
 Example:
 
-```json
+```js
 knots: [
     {
         id: "wrfToSurface_d02_2016-07-01_t0",
@@ -513,7 +513,7 @@ Each entry specifies a knot and a visibility condition, determining when the kno
 
 Example:
 
-```json
+```js
 map: {
     camera: {...},
     knots: [
@@ -540,7 +540,7 @@ Variables available in the `test` field:
 
 The `timeElapsed` variable can be used to compose animations:
 
-```json
+```js
 knots: [
     {
         condition: [
