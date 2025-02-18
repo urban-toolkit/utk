@@ -18,5 +18,6 @@ wheels/
 *.egg-info/
 
 .ipynb_checkpoints
+Thumbs.db
 
 simple_example
