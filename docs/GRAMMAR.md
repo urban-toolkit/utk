@@ -1,38 +1,61 @@
-# grammar
+# UTK grammar
 
-The Urban Toolkit is built around the idea of a grammar for urban visual analytics. The grammar allows for a flexible and reproducible approach. This document presents the description of each functionality supported by the grammar.   
+## Table of contents
+- [Overview](#overview)
+- [Grid](#grid)
+  - [Grammar editor](#grammar-editor)
+- [Components](#components)
+  - [Map](#map)
+  - [Knots](#knots)
+    - [Integration scheme](#integration-scheme)
+    - [Layers](#layers)
+    - [Map configuration](#map-configuration)
+    - [Operations between knots](#operations-between-knots)
+  - [Plots](#plots)
+  - [Widgets](#widgets)
+  - [Other resources](#other-resources)
+    - [Groupping knots](#groupping-knots)
+    - [Multiple resolutions](#multiple-resolutions)
+    
 
-The grammar is defined through a `.json` file that has two fundamental fields `components` and `grid`. The `components` define the elements that will compose the dashboard. The `grid` defines how the dashboard will be divided so the `components` can be positioned.
 
-### Grid System
+## Overview
+
+The Urban Toolkit (UTk) is built around a grammar designed for urban visual analytics, providing a flexible and reproducible approach. This document outlines each functionality supported by the grammar.
+
+The grammar is defined through a JSON file with two fundamental fields:
+- `grid`: Specifies how the dashboard layout is structured to position components.
+- `components`: Defines the elements composing the dashboard.
+
+## Grid
 
 `grid := (width, height)`  
 
-The grid system specify how the screen should be divided so the `components` can be positioned. 
+The grid system defines how the screen is divided to position components.
 
-```js
+```json
 grid:{
     width: 12,
     height: 4
 }
 ```
 
-In this example the screen is divided in 12 sections horizontally and 4 sections vertically.
+In this example, the screen is divided into 12 horizontal sections and 4 vertical sections.
 
 ### Grammar editor
 
-By using the grid system it is possible to define where the grammar editor will be rendered.
+Using the grid system, we can specify where the grammar editor will be rendered.
 
-```js
+```json
 grammar_position:{
     width: [1,5],
     height: [1,4]
 }
 ```
 
-In the previous example the editor is occupying columns 1 through 5 and line 4.
+Here, the editor occupies columns 1 through 5 and row 4.
 
-### Components
+## Components
 
 There are two types of components: map and widgets. 
 
@@ -40,45 +63,45 @@ There are two types of components: map and widgets.
 
 `map_view := (map, plots+, knot+, widget+, position)`  
 
-The map components needs four basic elements `map`, `plots`, `knots` and `widgets`. The `map` contains basic configurations of the map itself, the `plots` contains Vega-Lite specifications of the plots to be used, `knots` defines how data will be loaded and linked and `widgets` define what widgets will appear as a side bar inside the map. A more detailed description of each of the fields can be found in the following sections.  
+A map component consists of four key elements:
+- `map`: Contains basic map configurations.
+- `plots`: Defines Vega-Lite visualizations.
+- `knots`: Specifies how data is loaded and linked.
+- `widgets`: Defines sidebar elements for user interaction.
 
-The map is positioned following what is specified in the `position` field. In the example below, the map will occupy columns 6 to 12 horizontally and rows 1 to 4 vertically.
+The position of the map is specified in the `position` field. In the example below, the map occupies columns 6–12 horizontally and rows 1–4 vertically.
 
-```js
+```json
 {
     map: {...},
     plots: [...],
     knots: [...],
     widgets: [...],
     position: {
-        width: [
-            6,
-            12
-        ],
-        height: [
-            1,
-            4
-        ]
+        width: [6, 12],
+        height: [1, 4]
     }
 }
 ```
 
-### Knots (Map)
+### Knots
 
 `knot := (id, group?, knotOp?, colorMap?, integration_scheme+)`
 
-All data inside the grammar is in the knots format. It defines how the data will be linked and creates a uniform format for the data.  
+All data in the grammar follows the knot format, defining how data is linked and ensuring uniformity.
 
-Knots must be defined in the `knots` field inside the map component. Each knot is composed of `id` and `integration_scheme` fields. The `id` field identifies the the knot and is used throughout the grammar to reference it. On the other hand, the `integration_scheme` specifies a pipeline of links that starts with thematic data and ends in a physical layer. More information about `integration_scheme` can be found in the following sections.  
+Knots are specified within the knots field inside the map component. Each knot includes:
+- `id`: A unique identifier referenced throughout the grammar.
+- `integration_scheme`: A pipeline that links thematic data to a physical layer. I.e., `integration_scheme` specifies a pipeline that starts with thematic data and ends with a physical layer.
 
-```js
+```json
 {
     id: "knot1",
     integration_scheme: [...]
 }
 ```
 
-### Integration Scheme
+#### Integration scheme
 
 `integration_scheme := (spatial_relation?, out, in?, operation, abstract?, op?, maxDistance?, defaultValue?)`  
 
@@ -88,25 +111,25 @@ Knots must be defined in the `knots` field inside the map component. Each knot i
 
 `aggregation := MAX | MIN | AVG | SUM | COUNT | NONE | DISCARD`  
 
-Integration scheme is a pipeline that describes how data is linked to form a knot. It is formed by a series of steps (or links) that must start with a thematic layer and end in a physical layer. The only exception to this rules are the pure knots.   
+The integration scheme describes how data is linked to form a knot. It consists of a series of steps (or links) that must begin with a thematic layer and end in a physical layer, except for pure knots.
 
-Each step in the scheme is composed by `spatial_relation`, `in`, `out`, `operation`, `abstract`.   
+Each step in the scheme is composed of `spatial_relation`, `in`, `out`, `operation`, `abstract`:
 
-- First step  
+1. First step
+    - Thematic layer (`in`) is fed into the pipeline.
+    - `spatial_relation` links it to a physical layer (`out`) via a spatial join.
+    - Since multiple data points may map to the same physical element, `operation` defines how data is aggregated.
+    - If `in` contains a thematic layer, it must be marked as `abstract: true`.
+2. Subsequent steps:
+    - The `out` of the previous step must match the `in` of the next step.
+    - Both `in` and `out` must be physical layers, but the join attribute is always thematic data.
+    - Even though `in` and `out` are physical layers, the attribute of every join is the thematic data. The position of the data is determined by the physical layers.
+    - These steps effectively shape the thematic data, with the final `out` representing the final shape.
+3. A pure knot has no thematic data and consists of a single step that only includes an `out` field.
 
-A thematic layer is fed into the pipeline (`in`) and by using `spatial_relation` that data is attached to a physical layer (`out`) through a spatial join. Since more than one data point can be attached to the same physical element `operation` specifies the aggregation. If `in` contains a thematic layer that should be indicated (`abstract`).  
+Example of an integration schema:
 
-- Next steps  
- 
-The `out` of the previous step has to be equal to the `in` of the current one and both need to be physical layers. A `spatial_relation` indicates how data should be joined and `operation` how it should aggregated. However, it is important to notice that even though `in` and `out` are physical layers, the attribute of every join is the thematic data, but the position of the data is determined by the physical layers. It is possible to understand each link as shaping the thematic data and the last `out` is the final shape.  
-
-- Pure knot  
-
-A knot that does not have thematic data is called a pure knot. All pure knots have only one link (or step) that only has an `out` field.   
-
-Details about `in` and `out` will be defined in the following sections.  
-
-```js
+```json
     {
         id: "shadowBuildingsAvgSouth",
         integration_scheme: [
@@ -140,26 +163,29 @@ Details about `in` and `out` will be defined in the following sections.
     }
 ```
 
-### Layers
+#### Layers
 
 `layer := (name, level)`
 
 `level := (COORDINATES | COORDINATES3D | OBJECTS)`
 
-Defining a layer is the first step to load data inside the grammar. Layers are used to feed the knots (`in` and `out`). A layer is composed by a `name` and a `level`.   
+Layers define how data is loaded into the grammar. They are used as inputs (`in`) and outputs (`out`) in knots.
 
-The level indicates the geometry level to use when applying a spatial join the involves the layer. For physical layers geometry levels can be `COORDINATES`, `COORDINATES3D` or `OBJECTS` and for thematic layers `COORDINATES` and `COORDINATES3D`. The coordinates levels will consider the individual points of a physical layer and the objects level the whole shape.  
+Defining a layer is the first step to load data inside the grammar. Layers are used to feed the knots (`in` and `out`). A layer is composed by a `name` and a `level`:
 
-The `name` points to the name of the `.json` that defines the layer.
+- `name`: Points to the name of the `.json` that defines the layer.
+- `level`: Indicates the geometry level to use when applying a spatial join the involves the layer. For physical layers, geometry levels can be `COORDINATES`, `COORDINATES3D` or `OBJECTS` and for thematic layers `COORDINATES` and `COORDINATES3D`. The coordinates levels will consider the individual points of a physical layer and the objects level the whole shape.  
 
-```js
+
+
+```json
 {
     name: "layer1",
     level: "COORDINATES"
 }
 ```
 
-### Map configuration
+#### Map configuration
 
 `map := (camera, knots, interactions)`
 
@@ -169,13 +195,17 @@ The `name` points to the name of the `.json` that defines the layer.
 
 `interactions := (BRUSHING, PICKING, NONE)`
 
-In order to configure the map component it is necessary to define `camera`, `knots` and `interactions`.  
+To configure the map component, three key elements must be defined:
+- `camera`: composed of `position` (origin of the camera), `right`, `lookAt` and `up` that define the camera `direction`.  
+- `knots`: References the ids of knots defined earlier. 
+- `interactions`: For each knot, an `interactions` should be defined added. Specifies user interactions with the map. Supported types include:
+  - `BRUSHING`: Enables selection by brushing over elements.
+  - `PICKING`: Allows selecting elements by clicking.
+  - `NONE`: No interactions.
 
-The `camera` is composed by `position` (origin of the camera), `right`, `lookAt` and `up` that define the camera `direction`.  
+Example:
 
-The `knots` reference the ids of knots earlier defined and for each knot an `interactions` is added.
-
-```js
+```json
     map: {
         camera: {
             position: [
@@ -216,271 +246,19 @@ The `knots` reference the ids of knots earlier defined and for each knot an `int
     }
 ```
 
-### Plots (Map)
-<!--- Plots will probably be detached from the map -->
 
-`plots := (name?, plot, knot+, arrangement, interaction?, args?)`
+#### Operations between knots
 
-`args := (bins?)`
+Operations can be performed between knots by setting the `knotOp` field to true. In this case:
+- The name fields in in and out will reference knot IDs instead of layers.
+- An `op` field must be specified to define the arithmetic operation applied between the knots.
+- Within each link of the `integration_scheme`, the `op` field can:
+  - Reference the ID of another knot in the link.
+  - Use the keyword `prevResult` to retrieve the result of the previous operation in the sequence.
 
-`arrangement := (INTERSECTS | CONTAINS | WITHIN | TOUCHES | CROSSES | OVERLAPS | NEAREST | DIRECT | INNERAGG)`
+Example:
 
-`interaction := (CLICK | HOVER | BRUSH)`
-
-Plots are specified through the usage of another grammar-based visualization tool called Vega-Lite. To the vega-lite specification is injected the data defined through the knots.   
-
-The `plot` field contains the vega-lite specification, with the only difference being that the user should not specify a `data` field and should make reference to knot information by using the keywords `_abstract`, `_index` and `_highlight` after the id of the knot. `_abstract` is a reference to the thematic data of the knot, `_index` is a reference to the index of the data element and `_highlight` is a boolean that indicates if the element was interacted with.    
-
-The `knots` field should contain a list of knots ids that feed the plot.  
-
-The `arrangement` defines how the plot should be displayed. Possible values are:
-- `FOOT_EMBEDDED`: the plot is embedded inside building following the footprint. Should be used together with the `PICKING` interaction on the map.  
-- `SUR_EMBEDDED`: the plot is embedded on the surface of the building.  
-- `LINKED`: the plot appears on the surface of the screen.  
-
-The `args` are special arguments used with some types of plots. Currently only binning is supported for `FOOT_EMBEDDED` arrangement through the `bins` argument.  
-
-```js
-plots: [
-    {
-        plot: {
-            $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-            mark: "arc",
-            background: "white",
-            encoding: {
-                theta: {
-                    field: "bin",
-                    type: "nominal",
-                    legend: null
-                },
-                color: {
-                    field: "shadowToBuildings_abstract",
-                    type: "quantitative",
-                    aggregate: "mean",
-                    legend: null,
-                    scale: {
-                        scheme: "reds"
-                    }
-                }
-            }
-        },
-        knots: [
-            "shadowToBuildings"
-        ],
-        arrangement: "FOOT_EMBEDDED",
-        args: {
-            bins: 32
-        }
-    }
-]
-```
-
-### Widgets
-
-`widget := (type, args?)`  
-
-`args := (categories+)`
-
-`categories := (category_name, elements+)`  
-
-`elements := (string | categories)`
-
-Widgets are extra funcionalities that are linked to the map to facilitate data manipulation, map navigation and data exploration.   
-
-The `type` can be:
-- `TOGGLE_KNOT`: widget to toggle layers and animate them.
-- `SEARCH`: search bar to navigate map.
-
-`categories` can only be used with `TOGGLE_KNOT` and allows the specification of a hierarchy between layers.
-
-```js
-    {
-        map: {...},
-        plots: [...],
-        knots: [...],
-        widgets: [
-            {
-                type: "TOGGLE_KNOT",
-                args: {
-                    categories: [
-                        {
-                            category_name: "cat1",
-                            elements: [
-                                "element1",
-                                {
-                                    category_name: "cat1.1",
-                                    elements: [
-                                        "element2",
-                                        "element3"
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            },
-            {
-                type: "SEARCH"
-            }
-        ],
-        position: {
-            width: [
-                6,
-                12
-            ],
-            height: [
-                1,
-                4
-            ]
-        }
-    }
-```
-
-### Groupping knots
-
-`group := (group_name, position)`
-
-Knots can be grouped by assigning a group name and a position of the knot inside the group. This type of grouping is intended to be used for data with different timesteps.  
-
-When grouped knots are used together with the `TOGGLE_KNOTS` widget a animation bar can be used to switch between frames.  
-
-```js
-knots: [
-    {
-        id: "wrfToSurface_d02_2016-07-01_t0",
-        group: {
-            group_name: "wrf",
-            position: 0 
-        },
-        integration_scheme: [
-            {
-                spatial_relation: "NEAREST",
-                out: {
-                    name: "surface_wrf_d02_2016-07-01_t0",
-                    level: "COORDINATES"
-                },
-                in: {
-                    name: "wrf_d02_2016-07-01_t0",
-                    level: "COORDINATES"
-                },
-                operation: "NONE",
-                abstract: true
-            }
-        ]
-    },
-    {
-        id: "wrfToSurface_d02_2016-07-01_t1",
-        group: {
-            group_name: "wrf",
-            position: 0 
-        },
-        integration_scheme: [
-            {
-                spatial_relation: "NEAREST",
-                out: {
-                    name: "surface_wrf_d02_2016-07-01_t1",
-                    level: "COORDINATES"
-                },
-                in: {
-                    name: "wrf_d02_2016-07-01_t1",
-                    level: "COORDINATES"
-                },
-                operation: "NONE",
-                abstract: true
-            }
-        ]
-    }
-]
-```
-
-### Multiple resolutions
-
-`knotVisibility := (knot, test)`
-
-It is possible to define a zoom level where a knot should be visible, which makes it possible to transition between resolutions. That is done through the `knotVisibility` field inside the map component. A `knot` can be specified and a test to determine if the knot is visible. 
-
-```js
-map: {
-    camera: {...},
-    knots: [
-        "knot1",
-        "knot2"
-    ],
-    interactions: [...],
-    knotVisibility: [
-        {
-            knot: "knot1",
-            test: "zoom <= 500"
-        },
-        {
-            knot: "knot2",  
-            test: "zoom > 500"
-        }
-    ]
-}
-```
-
-Variables available in the *test* field:
-- *zoom*: stores the current zoom level of the visualization
-- *timeElapsed*: stores the time, in milliseconds, elapsed since the last time the grammar was validated
-
-The *timeElapsed* variable can be used to compose animations:
-```js
-knots: [
-    {
-        condition: [
-            {test: "(timeElapsed/1000)%5 <= 1", value: "frame1"},
-            {test: "(timeElapsed/1000)%5 <= 2", value: "frame2"},
-            {test: "(timeElapsed/1000)%5 <= 3", value: "frame3"},
-            {test: "(timeElapsed/1000)%5 <= 4", value: "frame4"},
-            {test: "(timeElapsed/1000)%5 <= 5", value: "frame5"}
-            {value: "defaultFrame"}
-        ]
-    }, 
-    "buildings"
-]
-
-map: [
-    camera: {...},
-    knots: [
-        "frame1",
-        "frame2",
-        "frame3",
-        "frame4",
-        "frame5"
-    ],
-    interactions: [...],
-    knotVisibility: [
-        {
-            knot: "frame1",
-            test: "(timeElapsed/1000)%5 <= 1"
-        },
-        {
-            knot: "frame2",  
-            test: "(timeElapsed/1000)%5 > 1 && (timeElapsed/1000)%5 <= 2"
-        },
-        {
-            knot: "frame3",  
-            test: "(timeElapsed/1000)%5 > 2 && (timeElapsed/1000)%5 <= 3"
-        },
-        {
-            knot: "frame4",  
-            test: "(timeElapsed/1000)%5 > 3 && (timeElapsed/1000)%5 <= 4"
-        },
-        {
-            knot: "frame5",  
-            test: "(timeElapsed/1000)%5 > 4 && (timeElapsed/1000)%5 <= 5"
-        }
-    ]
-]
-```
-The example above is an animation that loop through all frames every 5 seconds.
-
-### Operations between knots
-
-It is possible to do operations between knots. To do so the `knotOp` field in the knot must be true. In that case `name` in `in` and `out` will not point to layers but to the id of other knots. In addition, a `op` field must be specified where an arithmetic operation is defined. In each link of the `integration_scheme` it is possible to use `op` to make a reference to the id of the knots of that link or use the keyword `prevResult` to get the result of `op` of the previous link.  
-
-```js
+```json
     {
         id: "shadowToSurface",
         integration_scheme: [
@@ -537,6 +315,282 @@ It is possible to do operations between knots. To do so the `knotOp` field in th
         ]
     },
 ```
+
+### Plots (map)
+<!--- Plots will probably be detached from the map -->
+
+`plots := (name?, plot, knot+, arrangement, interaction?, args?)`
+
+`args := (bins?)`
+
+`arrangement := (INTERSECTS | CONTAINS | WITHIN | TOUCHES | CROSSES | OVERLAPS | NEAREST | DIRECT | INNERAGG)`
+
+`interaction := (CLICK | HOVER | BRUSH)`
+
+Plots are specified using Vega-Lite, a grammar-based visualization toolkit. The data for these plots is sourced from the knots defined in the grammar.
+
+The `plot` field contains the Vega-Lite specification, with the key difference that users should not specify a data field. Instead, they should reference knot information using the following keywords:
+
+- `_abstract`: Represents the thematic data of the knot.
+- `_index`: Refers to the index of a data element within the knot.
+- `highlight`: A boolean indicating whether the element has been interacted with.
+
+The `knots` field should contain a list of knots ids that feed the plot.  
+
+The `arrangement` defines how the plot should be displayed. Possible values are:
+- `FOOT_EMBEDDED`: The plot is embedded inside a building, following its footprint. Should be used with the `PICKING` interaction on the map.
+- `SUR_EMBEDDED`: The plot is embedded on the surface of the building.
+- `LINKED`: The plot appears on the screen surface rather than on a physical element.
+
+`args` contains additional parameters used for specific plot types. Currently, binning is supported only for `FOOT_EMBEDDED` plots via the bins argument.
+
+Example:
+
+```json
+plots: [
+    {
+        plot: {
+            $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+            mark: "arc",
+            background: "white",
+            encoding: {
+                theta: {
+                    field: "bin",
+                    type: "nominal",
+                    legend: null
+                },
+                color: {
+                    field: "shadowToBuildings_abstract",
+                    type: "quantitative",
+                    aggregate: "mean",
+                    legend: null,
+                    scale: {
+                        scheme: "reds"
+                    }
+                }
+            }
+        },
+        knots: [
+            "shadowToBuildings"
+        ],
+        arrangement: "FOOT_EMBEDDED",
+        args: {
+            bins: 32
+        }
+    }
+]
+```
+
+### Widgets
+
+`widget := (type, args?)`  
+
+`args := (categories+)`
+
+`categories := (category_name, elements+)`  
+
+`elements := (string | categories)`
+
+Widgets provide additional functionalities linked to the map, enhancing data manipulation, navigation, and exploration. The `type` can be:
+- `TOGGLE_KNOT`: Enables toggling layers and animating them.
+- `SEARCH`: Provides a search bar for navigating the map.
+
+The `categories` field applies only to the `TOGGLE_KNOT` widget, allowing the definition of a hierarchical structure for organizing layers.
+
+Example:
+
+```json
+    {
+        map: {...},
+        plots: [...],
+        knots: [...],
+        widgets: [
+            {
+                type: "TOGGLE_KNOT",
+                args: {
+                    categories: [
+                        {
+                            category_name: "cat1",
+                            elements: [
+                                "element1",
+                                {
+                                    category_name: "cat1.1",
+                                    elements: [
+                                        "element2",
+                                        "element3"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                type: "SEARCH"
+            }
+        ],
+        position: {
+            width: [
+                6,
+                12
+            ],
+            height: [
+                1,
+                4
+            ]
+        }
+    }
+```
+
+### Other resources
+
+#### Groupping knots
+
+`group := (group_name, position)`
+
+Knots can be grouped by assigning a group name and specifying their position within the group. This grouping is primarily intended for data with different timesteps.
+
+When grouped knots are used with the `TOGGLE_KNOTS` widget, an animation bar becomes available, allowing users to seamlessly switch between frames.
+
+Example:
+
+```json
+knots: [
+    {
+        id: "wrfToSurface_d02_2016-07-01_t0",
+        group: {
+            group_name: "wrf",
+            position: 0 
+        },
+        integration_scheme: [
+            {
+                spatial_relation: "NEAREST",
+                out: {
+                    name: "surface_wrf_d02_2016-07-01_t0",
+                    level: "COORDINATES"
+                },
+                in: {
+                    name: "wrf_d02_2016-07-01_t0",
+                    level: "COORDINATES"
+                },
+                operation: "NONE",
+                abstract: true
+            }
+        ]
+    },
+    {
+        id: "wrfToSurface_d02_2016-07-01_t1",
+        group: {
+            group_name: "wrf",
+            position: 0 
+        },
+        integration_scheme: [
+            {
+                spatial_relation: "NEAREST",
+                out: {
+                    name: "surface_wrf_d02_2016-07-01_t1",
+                    level: "COORDINATES"
+                },
+                in: {
+                    name: "wrf_d02_2016-07-01_t1",
+                    level: "COORDINATES"
+                },
+                operation: "NONE",
+                abstract: true
+            }
+        ]
+    }
+]
+```
+
+#### Multiple resolutions
+
+`knotVisibility := (knot, test)`
+
+A zoom level can be defined to control a knot's visibility, enabling smooth transitions between resolutions. This is managed through the `knotVisibility` field within the map component.
+
+Each entry specifies a knot and a visibility condition, determining when the knot should be displayed based on the zoom level.
+
+Example:
+
+```json
+map: {
+    camera: {...},
+    knots: [
+        "knot1",
+        "knot2"
+    ],
+    interactions: [...],
+    knotVisibility: [
+        {
+            knot: "knot1",
+            test: "zoom <= 500"
+        },
+        {
+            knot: "knot2",  
+            test: "zoom > 500"
+        }
+    ]
+}
+```
+
+Variables available in the `test` field:
+- `zoom`: Stores the current zoom level of the visualization
+- `timeElapsed`: Stores the time, in milliseconds, elapsed since the last time the grammar was validated
+
+The `timeElapsed` variable can be used to compose animations:
+
+```json
+knots: [
+    {
+        condition: [
+            {test: "(timeElapsed/1000)%5 <= 1", value: "frame1"},
+            {test: "(timeElapsed/1000)%5 <= 2", value: "frame2"},
+            {test: "(timeElapsed/1000)%5 <= 3", value: "frame3"},
+            {test: "(timeElapsed/1000)%5 <= 4", value: "frame4"},
+            {test: "(timeElapsed/1000)%5 <= 5", value: "frame5"}
+            {value: "defaultFrame"}
+        ]
+    }, 
+    "buildings"
+]
+
+map: [
+    camera: {...},
+    knots: [
+        "frame1",
+        "frame2",
+        "frame3",
+        "frame4",
+        "frame5"
+    ],
+    interactions: [...],
+    knotVisibility: [
+        {
+            knot: "frame1",
+            test: "(timeElapsed/1000)%5 <= 1"
+        },
+        {
+            knot: "frame2",  
+            test: "(timeElapsed/1000)%5 > 1 && (timeElapsed/1000)%5 <= 2"
+        },
+        {
+            knot: "frame3",  
+            test: "(timeElapsed/1000)%5 > 2 && (timeElapsed/1000)%5 <= 3"
+        },
+        {
+            knot: "frame4",  
+            test: "(timeElapsed/1000)%5 > 3 && (timeElapsed/1000)%5 <= 4"
+        },
+        {
+            knot: "frame5",  
+            test: "(timeElapsed/1000)%5 > 4 && (timeElapsed/1000)%5 <= 5"
+        }
+    ]
+]
+```
+The example above is an animation that loops through all frames every 5 seconds.
+
 
 <!--- Not sure if it is worth to support it.
 
