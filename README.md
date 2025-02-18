@@ -1,7 +1,7 @@
 # The Urban Toolkit (UTK) [![PyPI](https://img.shields.io/pypi/v/utk)](https://pypi.org/project/utk/) [![Discord](https://img.shields.io/badge/Discord-738ADB)](https://discord.gg/vjpSMSJR8r)
 
 <div align="center">
-  <img src="logo-utk-wide.png?raw=true" alt="UTK Logo" height="200"/></br>
+  <img src="logo-utk-wide.png?raw=true" alt="UTK Logo" height="150"/></br>
   [<a href="https://arxiv.org/abs/2308.07769">Paper</a>] | [<a href="https://urbantk.org/utk">Website</a>]
 </div>
 
