@@ -33,7 +33,7 @@ The grammar is defined through a JSON file with two fundamental fields:
 
 The grid system defines how the screen is divided to position components.
 
-```json
+```js
 grid:{
     width: 12,
     height: 4
