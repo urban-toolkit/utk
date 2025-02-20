@@ -11,7 +11,7 @@ The Urban Toolkit is a flexible and extensible visualization framework that enab
 through a new high-level grammar specifically built with common urban use cases in mind.
 
 **The Urban Toolkit: A Grammar-based Framework for Urban Visual Analytics**  
-*Gustavo Moreira, Maryam Hosseini, Md Nafiul Alam Nipu, Marcos Lage, Nivan Ferreira, Fabio Miranda  *
+*Gustavo Moreira, Maryam Hosseini, Md Nafiul Alam Nipu, Marcos Lage, Nivan Ferreira, Fabio Miranda*  
 IEEE Transactions on Visualization and Computer Graphics (Volume: 30, Issue: 1, January 2024)   
 Paper: [[DOI](https://ieeexplore.ieee.org/document/10290965)], [[Arxiv](https://arxiv.org/abs/2308.07769)]
 
