@@ -1,3 +1,6 @@
+> [!NOTE]  
+> This project's development has evolved into Autark! Visit https://autarkjs.org/ to learn more.
+
 # The Urban Toolkit (UTK) [![PyPI](https://img.shields.io/pypi/v/utk)](https://pypi.org/project/utk/) [![Discord](https://img.shields.io/badge/Discord-738ADB)](https://discord.gg/ajT6wF8TmN)
 
 <div align="center">
